@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <filesystem>
+#include <fstream>
 
 std::filesystem::path get_exe_path()
 {
@@ -34,6 +35,18 @@ std::string FileSystem::getDataPath() const
 std::string FileSystem::toAbsolutePath(const char *path) const
 {
     return data_path_ + '/' + path;
+}
+
+std::string FileSystem::readFile(const char *path)
+{
+    std::string abs_path = toAbsolutePath(path);
+    std::ifstream file(abs_path, std::ios::binary);
+    std::string str;
+    file.seekg(0, std::ios::end);
+    str.reserve(file.tellg());
+    file.seekg(0, std::ios::beg);
+    str.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    return str;
 }
 
 FileSystem::FileSystem()

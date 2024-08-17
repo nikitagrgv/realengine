@@ -15,6 +15,8 @@ public:
     [[nodiscard]] std::string getDataPath() const;
     [[nodiscard]] std::string toAbsolutePath(const char *path) const;
 
+    std::string readFile(const char *path);
+
 private:
     std::string data_path_;
 };
