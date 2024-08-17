@@ -15,15 +15,35 @@ const unsigned int DEFAULT_HEIGHT = 600;
 class Game
 {
 public:
+    void check_shader_compiler_errors(unsigned int shader)
+    {
+        int success;
+        char infoLog[512];
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            glGetShaderInfoLog(shader, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+        }
+    }
+
+    void check_program_linking_errors(unsigned int program)
+    {
+        int success;
+        char infoLog[512];
+        glGetProgramiv(program, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(program, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
+        }
+    }
+
     void exec()
     {
         init();
 
-        float vertices[] = {
-            -0.5f, -0.5f, 0.0f,
-             0.5f, -0.5f, 0.0f,
-             0.0f,  0.5f, 0.0f
-        };
+        float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
 
         unsigned int VBO;
         glGenBuffers(1, &VBO);
@@ -33,7 +53,39 @@ public:
         std::string vertex;
         std::string fragment;
         read_shader("shader.shader", vertex, fragment);
+        const char *vertex_src = vertex.c_str();
+        const char *fragment_src = fragment.c_str();
 
+        unsigned int vertexShader;
+        vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &vertex_src, NULL);
+        glCompileShader(vertexShader);
+        check_shader_compiler_errors(vertexShader);
+
+        unsigned int fragmentShader;
+        fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &fragment_src, NULL);
+        glCompileShader(fragmentShader);
+        check_shader_compiler_errors(fragmentShader);
+
+        unsigned int shaderProgram;
+        shaderProgram = glCreateProgram();
+        glAttachShader(shaderProgram, vertexShader);
+        glAttachShader(shaderProgram, fragmentShader);
+        glLinkProgram(shaderProgram);
+        check_program_linking_errors(shaderProgram);
+
+        glUseProgram(shaderProgram);
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+
+        unsigned int VAO;
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(0);
 
         while (!exit_)
         {
@@ -41,6 +93,10 @@ public:
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
+
+            glUseProgram(shaderProgram);
+            glBindVertexArray(VAO);
+            glDrawArrays(GL_TRIANGLES, 0, 3);
 
             glfwSwapBuffers(window_);
             glfwPollEvents();
