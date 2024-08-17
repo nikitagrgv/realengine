@@ -19,6 +19,22 @@ public:
     {
         init();
 
+        float vertices[] = {
+            -0.5f, -0.5f, 0.0f,
+             0.5f, -0.5f, 0.0f,
+             0.0f,  0.5f, 0.0f
+        };
+
+        unsigned int VBO;
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        std::string vertex;
+        std::string fragment;
+        read_shader("shader.shader", vertex, fragment);
+
+
         while (!exit_)
         {
             process_input();
@@ -37,6 +53,24 @@ public:
     }
 
 private:
+    void read_shader(const char *path, std::string &vertex, std::string &fragment)
+    {
+        vertex.clear();
+        fragment.clear();
+
+        std::string shaders = engine_globals.fs->readFile(path);
+        const int vertex_idx = shaders.find("#vertex");
+        const int fragment_idx = shaders.find("#fragment");
+        const int vertex_idx_end = vertex_idx + strlen("#vertex");
+        const int fragment_idx_end = fragment_idx + strlen("#fragment");
+
+        assert(vertex_idx < fragment_idx);
+
+        std::string common = shaders.substr(0, vertex_idx);
+        vertex = common + shaders.substr(vertex_idx_end, fragment_idx - vertex_idx_end);
+        fragment = common + shaders.substr(fragment_idx_end);
+    }
+
     void init()
     {
         engine_globals.fs = new FileSystem();
