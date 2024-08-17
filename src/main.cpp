@@ -8,7 +8,6 @@
 const unsigned int DEFAULT_WIDTH = 800;
 const unsigned int DEFAULT_HEIGHT = 600;
 
-
 class Game
 {
 public:
@@ -69,9 +68,6 @@ private:
 private:
     GLFWwindow *window_{};
 };
-
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-void processInput(GLFWwindow *window);
 
 int main()
 {
