@@ -19,7 +19,7 @@ public:
     {
         init();
 
-        while (!exit_ && !glfwWindowShouldClose(window_))
+        while (!exit_)
         {
             process_input();
 
@@ -28,6 +28,11 @@ public:
 
             glfwSwapBuffers(window_);
             glfwPollEvents();
+
+            if (glfwWindowShouldClose(window_))
+            {
+                exit_ = true;
+            }
         }
     }
 
