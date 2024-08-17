@@ -3,6 +3,9 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "EngineGlobals.h"
+#include "fs/FileSystem.h"
+
 #include "glm/mat4x4.hpp"
 #include <iostream>
 
@@ -26,13 +29,13 @@ public:
             glfwSwapBuffers(window_);
             glfwPollEvents();
         }
-
-        glfwTerminate();
     }
 
 private:
     void init()
     {
+        engine_globals.fs = new FileSystem();
+
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -51,6 +54,18 @@ private:
         {
             std::cout << "Failed to initialize GLAD" << std::endl;
         }
+    }
+
+    void shutdown()
+    {
+        const auto delete_and_null = [](auto &ptr) {
+            assert(ptr);
+            delete ptr;
+            ptr = nullptr;
+        };
+        delete_and_null(engine_globals.fs);
+
+        glfwTerminate();
     }
 
     void process_input()

@@ -3,7 +3,11 @@ project(realengine)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(realengine main.cpp)
+add_executable(realengine)
+
+target_include_directories(realengine PRIVATE engine)
+
+add_subdirectory(engine)
 
 # GLFW
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -23,3 +27,17 @@ target_link_libraries(realengine opengl32)
 # GLM
 add_subdirectory(third_party/glm-1.0.1)
 target_link_libraries(realengine glm)
+
+
+set(REALENGINE_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../bin)
+set_target_properties(realengine
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE ${REALENGINE_BIN_DIR}
+        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL ${REALENGINE_BIN_DIR}
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG ${REALENGINE_BIN_DIR}
+        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${REALENGINE_BIN_DIR}
+        LIBRARY_OUTPUT_DIRECTORY_RELEASE ${REALENGINE_BIN_DIR}
+        LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL ${REALENGINE_BIN_DIR}
+        LIBRARY_OUTPUT_DIRECTORY_DEBUG ${REALENGINE_BIN_DIR}
+        LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO ${REALENGINE_BIN_DIR}
+)
