@@ -16,7 +16,7 @@ public:
     {
         init();
 
-        while (!glfwWindowShouldClose(window_))
+        while (!exit_)
         {
             process_input();
 
@@ -57,7 +57,7 @@ private:
     {
         if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
-            glfwSetWindowShouldClose(window_, true);
+            exit_ = true;
         }
     }
 
@@ -67,6 +67,7 @@ private:
     }
 
 private:
+    bool exit_{false};
     GLFWwindow *window_{};
 };
 
