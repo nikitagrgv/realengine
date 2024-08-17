@@ -19,7 +19,7 @@ public:
     {
         init();
 
-        while (!exit_)
+        while (!exit_ && !glfwWindowShouldClose(window_))
         {
             process_input();
 
