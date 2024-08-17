@@ -13,5 +13,9 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 add_subdirectory(third_party/glfw-3.4)
 target_link_libraries(realengine glfw)
 
+#GLAD
+add_subdirectory(third_party/glad)
+target_link_libraries(realengine glad)
+
 # OPENGL
 target_link_libraries(realengine opengl32)
