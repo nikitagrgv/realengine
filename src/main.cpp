@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "glm/mat4x4.hpp"
 #include <iostream>
 
 const unsigned int DEFAULT_WIDTH = 800;

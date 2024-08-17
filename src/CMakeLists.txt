@@ -19,3 +19,7 @@ target_link_libraries(realengine glad)
 
 # OPENGL
 target_link_libraries(realengine opengl32)
+
+# GLM
+add_subdirectory(third_party/glm-1.0.1)
+target_link_libraries(realengine glm)
