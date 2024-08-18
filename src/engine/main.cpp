@@ -15,7 +15,9 @@ const unsigned int DEFAULT_HEIGHT = 600;
 class Shader
 {
 public:
-    Shader(const char* path)
+    REMOVE_COPY_MOVE_CLASS(Shader);
+
+    Shader(const char *path)
     {
         std::string vertex_source;
         std::string fragment_source;
@@ -72,10 +74,7 @@ public:
         }
     }
 
-    void bind()
-    {
-        glUseProgram(program_id_);
-    }
+    void bind() { glUseProgram(program_id_); }
 
 private:
     void read_shader(const char *path, std::string &vertex, std::string &fragment)
@@ -139,8 +138,6 @@ public:
         unsigned int VBO;
         glGenBuffers(1, &VBO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
 
 
         unsigned int VAO;
