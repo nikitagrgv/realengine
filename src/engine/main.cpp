@@ -211,7 +211,7 @@ public:
             view_ = glm::inverse(camera_);
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             shader.bind();
 
@@ -222,11 +222,13 @@ public:
             shader.setUniformMat4("uProj", proj_);
             texture1.bind();
             mesh.bind();
+            glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             texture2.bind();
             mesh2.bind();
             shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{2, 2, 0}));
+            glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             glfwSwapBuffers(window_);
