@@ -5,6 +5,8 @@
 #include "EngineGlobals.h"
 #include "stb_image.h"
 #include "fs/FileSystem.h"
+
+#include <iostream>
 // clang-format on
 
 
@@ -13,9 +15,10 @@ Image::Image(const char *path, bool flip_y)
     stbi_set_flip_vertically_on_load(flip_y);
     std::string abs_path = engine_globals.fs->toAbsolutePath(path);
 
-    unsigned char *data = stbi_load(abs_path.c_str(), &width_, &height_, &num_ch_, 0);
+    data_ = stbi_load(abs_path.c_str(), &width_, &height_, &num_ch_, 0);
     if (!data_)
     {
+        std::cout << "Failed to load image: " << abs_path << std::endl;
         clear();
     }
 }

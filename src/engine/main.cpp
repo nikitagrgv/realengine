@@ -4,6 +4,7 @@
 // clang-format on
 
 #include "EngineGlobals.h"
+#include "Image.h"
 #include "Shader.h"
 #include "fs/FileSystem.h"
 #include "time/Time.h"
@@ -153,16 +154,18 @@ public:
         {
             float x, y, z;
             float r, g, b;
+            float u, v;
         };
 
         TemplateMesh<Vertex> mesh;
         mesh.addAttributeFloat(3);
         mesh.addAttributeFloat(3);
+        mesh.addAttributeFloat(2);
 
-        mesh.addVertex({0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f});
-        mesh.addVertex({0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f});
-        mesh.addVertex({-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f});
-        mesh.addVertex({-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f});
+        mesh.addVertex({0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f});
+        mesh.addVertex({0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f});
+        mesh.addVertex({-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f});
+        mesh.addVertex({-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f});
 
         mesh.addIndices({0, 1, 3, 1, 2, 3});
         mesh.flush();
@@ -181,6 +184,14 @@ public:
         mesh2.flush();
 
 
+        Image image1("image.png");
+        unsigned int texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image1.getWidth(), image1.getHeight(), 0, GL_RGB,
+            GL_UNSIGNED_BYTE, image1.getData());
+        glGenerateMipmap(GL_TEXTURE_2D);
+
         while (!exit_)
         {
             engine_globals.time->update();
@@ -190,9 +201,11 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
+            shader.bind();
             shader.setUniformFloat("uTime", engine_globals.time->getTime());
 
-            shader.bind();
+            glBindTexture(GL_TEXTURE_2D, texture);
+
             mesh.bind();
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 

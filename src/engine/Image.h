@@ -1,9 +1,15 @@
 #pragma once
+#include "Base.h"
 
 class Image
 {
+public:
+    REMOVE_COPY_MOVE_CLASS(Image);
+
     explicit Image(const char *path, bool flip_y = true);
     ~Image();
+
+    bool isLoaded() const { return data_ != nullptr; }
 
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }
