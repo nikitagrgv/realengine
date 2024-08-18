@@ -274,6 +274,43 @@ private:
         {
             exit_ = true;
         }
+
+        float speed = 1.0f;
+        if (glfwGetKey(window_, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        {
+            speed *= 2;
+        }
+
+        const float dt = engine_globals.time->getDelta();
+
+        glm::vec3 delta_pos{0.0f};
+        if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            delta_pos.z -= speed * dt;
+        }
+        if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            delta_pos.z += speed * dt;
+        }
+        if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS)
+        {
+            delta_pos.x -= speed * dt;
+        }
+        if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS)
+        {
+            delta_pos.x += speed * dt;
+        }
+        if (glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS)
+        {
+            delta_pos.y += speed * dt;
+        }
+        if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS)
+        {
+            delta_pos.y -= speed * dt;
+        }
+        camera_pos_ += delta_pos;
+
+        camera_ = glm::translate(glm::mat4{1.0f}, camera_pos_);
     }
 
     void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -291,6 +328,7 @@ private:
     }
 
 private:
+    glm::vec3 camera_pos_{0.0f, 0.0f, 3.0f};
     float pitch_{0.0f};
     float yaw_{0.0f};
 
