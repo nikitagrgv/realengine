@@ -147,13 +147,6 @@ private:
     unsigned int program_id_{0};
 };
 
-
-struct Vertex
-{
-    float x, y, z;
-    float r, g, b;
-};
-
 template<typename V>
 class Mesh
 {
@@ -273,6 +266,11 @@ public:
 
         Shader shader("shader.shader");
 
+        struct Vertex
+        {
+            float x, y, z;
+            float r, g, b;
+        };
         Mesh<Vertex> mesh;
         mesh.addAttributeFloat(3);
         mesh.addAttributeFloat(3);
