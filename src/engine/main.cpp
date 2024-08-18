@@ -141,9 +141,58 @@ struct Vertex
 template<typename V>
 class Mesh
 {
+public:
+    Mesh()
+    {
+        glGenVertexArrays(1, &vao_);
+        glGenBuffers(1, &vbo_);
+        glGenBuffers(1, &ebo_);
+        glBindVertexArray(vao_);
 
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+        // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+        // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0); // TODO# remove?
+        glBindVertexArray(0);
+    }
+
+    ~Mesh()
+    {
+        glDeleteVertexArrays(1, &vao_);
+        glDeleteBuffers(1, &vbo_);
+        glDeleteBuffers(1, &ebo_);
+    }
+
+    void addVertex(const V &v) { vertices_.push_back(v); }
+
+    void addIndex(unsigned int i) { indices_.push_back(i); }
+
+    void flush()
+    {
+        glBindVertexArray(vao_);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+        glBufferData(GL_ARRAY_BUFFER, vertices_.size() * VERTEX_SIZE, vertices_.data(),
+            GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * INDEX_SIZE, indices_.data(),
+            GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0); // TODO# remove?
+        glBindVertexArray(0);
+    }
+
+    void bind() { glBindVertexArray(vao_); }
 
 private:
+    static constexpr int VERTEX_SIZE = sizeof(V);
+    static constexpr int INDEX_SIZE = sizeof(unsigned int);
+
     std::vector<V> vertices_;
     std::vector<unsigned int> indices_;
 
@@ -160,37 +209,21 @@ public:
     {
         init();
 
-        float vertices[] = {
-            0.5f, 0.5f, 0.0f,   // top right
-            0.5f, -0.5f, 0.0f,  // bottom right
-            -0.5f, -0.5f, 0.0f, // bottom left
-            -0.5f, 0.5f, 0.0f   // top left
-        };
-        unsigned int indices[] = {
-            // note that we start from 0!
-            0, 1, 3, // first Triangle
-            1, 2, 3  // second Triangle
-        };
-        unsigned int vbo_, vao_, ebo_;
-        glGenVertexArrays(1, &vao_);
-        glGenBuffers(1, &vbo_);
-        glGenBuffers(1, &ebo_);
-        glBindVertexArray(vao_);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(0);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-
-
         Shader shader("shader.shader");
+
+        Mesh<Vertex> mesh;
+        mesh.addVertex({0.5f, 0.5f, 0.0f});
+        mesh.addVertex({0.5f, -0.5f, 0.0f});
+        mesh.addVertex({-0.5f, -0.5f, 0.0f});
+        mesh.addVertex({-0.5f, 0.5f, 0.0f});
+
+        mesh.addIndex(0);
+        mesh.addIndex(1);
+        mesh.addIndex(3);
+        mesh.addIndex(1);
+        mesh.addIndex(2);
+        mesh.addIndex(3);
+        mesh.flush();
 
         while (!exit_)
         {
@@ -200,7 +233,7 @@ public:
             glClear(GL_COLOR_BUFFER_BIT);
 
             shader.bind();
-            glBindVertexArray(vao_);
+            mesh.bind();
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
             glfwSwapBuffers(window_);
@@ -211,9 +244,6 @@ public:
                 exit_ = true;
             }
         }
-        glDeleteVertexArrays(1, &vao_);
-        glDeleteBuffers(1, &vbo_);
-        glDeleteBuffers(1, &ebo_);
     }
 
 private:
