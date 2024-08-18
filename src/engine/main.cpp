@@ -300,7 +300,7 @@ private:
 
         const float dt = engine_globals.time->getDelta();
 
-        glm::vec3 delta_pos{0.0f};
+        glm::vec4 delta_pos{0.0f};
         if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)
         {
             delta_pos.z -= speed * dt;
@@ -325,7 +325,6 @@ private:
         {
             delta_pos.y -= speed * dt;
         }
-        camera_pos_ += delta_pos;
 
         if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
         {
@@ -333,9 +332,10 @@ private:
             yaw_ -= mouse_delta_x_ * mouse_speed * dt;
         }
 
-        camera_ = glm::translate(glm::mat4{1.0f}, camera_pos_)
-            * glm::rotate(glm::mat4(1.0f), yaw_, glm::vec3(0.0f, 1.0f, 0.0f))
+        glm::mat4 rot = glm::rotate(glm::mat4(1.0f), yaw_, glm::vec3(0.0f, 1.0f, 0.0f))
             * glm::rotate(glm::mat4(1.0f), pitch_, glm::vec3(1.0f, 0.0f, 0.0f));
+        camera_pos_ += glm::vec3(rot * delta_pos);
+        camera_ = glm::translate(glm::mat4{1.0f}, camera_pos_) * rot;
     }
 
     void update_mouse()
