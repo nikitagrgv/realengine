@@ -2,6 +2,7 @@
 
 #include "Base.h"
 
+#include "glm/vec4.hpp"
 #include <string>
 
 class Shader
@@ -12,8 +13,9 @@ public:
     Shader(const char *path);
     ~Shader();
 
-    void clear();
+    void setUniformVec4(const char *name, const glm::vec4 &value);
 
+    void clear();
     void bind();
 
 private:

@@ -61,6 +61,17 @@ Shader::~Shader()
     clear();
 }
 
+void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
+{
+    int location = glGetUniformLocation(program_id_, name);
+    if (location == -1)
+    {
+        std::cout << "Could not find uniform: " << name << std::endl;
+        return;
+    }
+    glUniform4f(location, value.x, value.y, value.z, value.w);
+}
+
 void Shader::clear()
 {
     if (valid_)

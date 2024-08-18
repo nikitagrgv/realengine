@@ -187,6 +187,8 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
+            shader.setUniformVec4("uColor", {0.5, 0.4, 0.8, 1.0f});
+
             shader.bind();
             mesh.bind();
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);

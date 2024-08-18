@@ -1,7 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #version 330 core
 
-#inout vec3 ioColor;
+#inout vec4 ioColor;
 
 /////////////////////////////////////////////////////////////////////////////////
 #vertex
@@ -13,7 +13,7 @@ uniform vec4 uColor;
 void main()
 {
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    ioColor = aColor;
+    ioColor = uColor;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,5 +22,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(ioColor, 1.0f);
+    FragColor = ioColor;
 }
