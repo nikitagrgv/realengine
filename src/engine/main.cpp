@@ -193,10 +193,10 @@ public:
         }
         mesh2.flush();
 
-        Image image1("image.png");
+        Image image1("image2.png");
         Texture texture1(image1);
 
-        Image image2("image2.png");
+        Image image2("image.png");
         Texture texture2(image2);
 
         camera_ = glm::translate(camera_, glm::vec3(0.0f, 0.0f, 3.0f));
@@ -214,18 +214,19 @@ public:
             glClear(GL_COLOR_BUFFER_BIT);
 
             shader.bind();
+
             glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, 0*float(engine_globals.time->getTime()),
                 glm::vec3(0.8f, 0.8f, 1.0f));
             shader.setUniformMat4("uModel", matr);
             shader.setUniformMat4("uView", view_);
             shader.setUniformMat4("uProj", proj_);
-
             texture1.bind();
             mesh.bind();
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             texture2.bind();
             mesh2.bind();
+            shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{2, 2, 0}));
             glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             glfwSwapBuffers(window_);
