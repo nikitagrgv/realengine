@@ -8,53 +8,17 @@
 #include <cassert>
 #include <iostream>
 
+Shader::Shader(const char *vertex_src, const char *fragment_src)
+{
+    compile(vertex_src, fragment_src);
+}
+
 Shader::Shader(const char *path)
 {
     std::string vertex_source;
     std::string fragment_source;
     read_shader(path, vertex_source, fragment_source);
-    const char *vertex_ptr = vertex_source.c_str();
-    const char *fragment_ptr = fragment_source.c_str();
-
-    unsigned int vertex_id;
-    vertex_id = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_id, 1, &vertex_ptr, NULL);
-    glCompileShader(vertex_id);
-    valid_ = check_compiler_errors(vertex_id);
-    if (!valid_)
-    {
-        glDeleteShader(vertex_id);
-        return;
-    }
-
-    unsigned int fragment_id;
-    fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_id, 1, &fragment_ptr, NULL);
-    glCompileShader(fragment_id);
-    valid_ = check_compiler_errors(fragment_id);
-    if (!valid_)
-    {
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
-        return;
-    }
-
-    program_id_ = glCreateProgram();
-    glAttachShader(program_id_, vertex_id);
-    glAttachShader(program_id_, fragment_id);
-    glLinkProgram(program_id_);
-    valid_ = check_linking_errors(program_id_);
-    if (!valid_)
-    {
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
-        glDeleteProgram(program_id_);
-        return;
-    }
-
-    glUseProgram(program_id_);
-    glDeleteShader(vertex_id);
-    glDeleteShader(fragment_id);
+    compile(vertex_source.c_str(), fragment_source.c_str());
 }
 
 Shader::~Shader()
@@ -90,6 +54,49 @@ void Shader::clear()
 void Shader::bind()
 {
     glUseProgram(program_id_);
+}
+
+void Shader::compile(const char *vertex_src, const char *fragment_src)
+{
+    unsigned int vertex_id;
+    vertex_id = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_id, 1, &vertex_src, NULL);
+    glCompileShader(vertex_id);
+    valid_ = check_compiler_errors(vertex_id);
+    if (!valid_)
+    {
+        glDeleteShader(vertex_id);
+        return;
+    }
+
+    unsigned int fragment_id;
+    fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_id, 1, &fragment_src, NULL);
+    glCompileShader(fragment_id);
+    valid_ = check_compiler_errors(fragment_id);
+    if (!valid_)
+    {
+        glDeleteShader(vertex_id);
+        glDeleteShader(fragment_id);
+        return;
+    }
+
+    program_id_ = glCreateProgram();
+    glAttachShader(program_id_, vertex_id);
+    glAttachShader(program_id_, fragment_id);
+    glLinkProgram(program_id_);
+    valid_ = check_linking_errors(program_id_);
+    if (!valid_)
+    {
+        glDeleteShader(vertex_id);
+        glDeleteShader(fragment_id);
+        glDeleteProgram(program_id_);
+        return;
+    }
+
+    glUseProgram(program_id_);
+    glDeleteShader(vertex_id);
+    glDeleteShader(fragment_id);
 }
 
 void Shader::read_shader(const char *path, std::string &vertex, std::string &fragment)

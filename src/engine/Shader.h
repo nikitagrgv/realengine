@@ -12,6 +12,7 @@ class Shader
 public:
     REMOVE_COPY_MOVE_CLASS(Shader);
 
+    Shader(const char *vertex_src, const char *fragment_src);
     Shader(const char *path);
     ~Shader();
 
@@ -23,6 +24,8 @@ public:
     void bind();
 
 private:
+    void compile(const char *vertex_src, const char *fragment_src);
+
     void read_shader(const char *path, std::string &vertex, std::string &fragment);
     bool check_compiler_errors(unsigned int shader);
     bool check_linking_errors(unsigned int program);
