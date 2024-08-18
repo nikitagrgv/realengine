@@ -7,9 +7,15 @@ class Image;
 class Texture
 {
 public:
+    enum class Format
+    {
+        RGBA,
+        RGB
+    };
+
     REMOVE_COPY_MOVE_CLASS(Texture);
 
-    explicit Texture(const Image& image);
+    explicit Texture(const Image &image, Format format = Format::RGBA);
     ~Texture();
 
     void bind() const;

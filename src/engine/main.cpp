@@ -188,6 +188,9 @@ public:
         Image image1("image.png");
         Texture texture1(image1);
 
+        Image image2("image2.png");
+        Texture texture2(image2);
+
         while (!exit_)
         {
             engine_globals.time->update();
@@ -201,10 +204,10 @@ public:
             shader.setUniformFloat("uTime", engine_globals.time->getTime());
 
             texture1.bind();
-
             mesh.bind();
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
+            texture2.bind();
             mesh2.bind();
             glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
 
