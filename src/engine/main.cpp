@@ -271,8 +271,7 @@ protected:
     unsigned int ebo_{0};
 };
 
-
-class Game
+class Engine
 {
 public:
     void exec()
@@ -297,14 +296,21 @@ public:
         mesh.addVertex({-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f});
 
         mesh.addIndices({0, 1, 3, 1, 2, 3});
-
-        mesh.addIndex(0);
-        mesh.addIndex(1);
-        mesh.addIndex(3);
-        mesh.addIndex(1);
-        mesh.addIndex(2);
-        mesh.addIndex(3);
         mesh.flush();
+
+        ///////////////////////////////////////////////////////////////////////////////
+        TemplateMesh<Vertex> mesh2;
+        mesh2.addAttributeFloat(3);
+        mesh2.addAttributeFloat(3);
+
+        mesh2.addVertex({0.75f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f});
+        mesh2.addVertex({0.75f, 0.25f, 0.0f, 0.0f, 1.0f, 0.0f});
+        mesh2.addVertex({0.8f, 00.0f, 0.0f, 0.0f, 0.0f, 1.0f});
+
+        mesh2.addIndices({0, 1, 2});
+
+        mesh2.flush();
+
 
         while (!exit_)
         {
@@ -316,6 +322,9 @@ public:
             shader.bind();
             mesh.bind();
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+
+            mesh2.bind();
+            glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             glfwSwapBuffers(window_);
             glfwPollEvents();
@@ -330,6 +339,7 @@ public:
 private:
     void init()
     {
+        engine_globals.engine_ = this;
         engine_globals.fs = new FileSystem();
 
         glfwInit();
@@ -360,6 +370,7 @@ private:
             ptr = nullptr;
         };
         delete_and_null(engine_globals.fs);
+        engine_globals.engine_ = nullptr;
 
         glfwTerminate();
     }
@@ -384,7 +395,7 @@ private:
 
 int main()
 {
-    Game game;
+    Engine game;
     game.exec();
     return 0;
 }
