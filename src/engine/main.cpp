@@ -151,6 +151,7 @@ private:
 struct Vertex
 {
     float x, y, z;
+    float r, g, b;
 };
 
 template<typename V>
@@ -170,8 +171,11 @@ public:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
         // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0); // TODO# remove?
         glBindVertexArray(0);
@@ -249,10 +253,10 @@ public:
         Shader shader("shader.shader");
 
         Mesh<Vertex> mesh;
-        mesh.addVertex({0.5f, 0.5f, 0.0f});
-        mesh.addVertex({0.5f, -0.5f, 0.0f});
-        mesh.addVertex({-0.5f, -0.5f, 0.0f});
-        mesh.addVertex({-0.5f, 0.5f, 0.0f});
+        mesh.addVertex({0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f});
+        mesh.addVertex({0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f});
+        mesh.addVertex({-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f});
+        mesh.addVertex({-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f});
 
         mesh.addIndices({0, 1, 3, 1, 2, 3});
 
