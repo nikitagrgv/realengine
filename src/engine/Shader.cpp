@@ -4,6 +4,7 @@
 #include "fs/FileSystem.h"
 #include "glad/glad.h"
 
+#include "glm/mat4x4.hpp"
 #include <cassert>
 #include <iostream>
 
@@ -69,6 +70,11 @@ void Shader::setUniformFloat(const char *name, float value)
 void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
 {
     glUniform4f(get_uniform_location(name), value.x, value.y, value.z, value.w);
+}
+
+void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
+{
+    glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &value[0][0]);
 }
 
 void Shader::clear()

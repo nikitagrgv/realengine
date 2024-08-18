@@ -154,35 +154,27 @@ public:
         struct Vertex
         {
             float x, y, z;
-            float r, g, b;
             float u, v;
         };
 
         TemplateMesh<Vertex> mesh;
         mesh.addAttributeFloat(3);
-        mesh.addAttributeFloat(3);
         mesh.addAttributeFloat(2);
-
-        mesh.addVertex({0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f});
-        mesh.addVertex({0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f});
-        mesh.addVertex({-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f});
-        mesh.addVertex({-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f});
-
+        mesh.addVertex({0.5f, 0.5f, 0.0f, 1.0f, 1.0f});
+        mesh.addVertex({0.5f, -0.5f, 0.0f, 1.0f, 0.0f});
+        mesh.addVertex({-0.5f, -0.5f, 0.0f, 0.0f, 0.0f});
+        mesh.addVertex({-0.5f, 0.5f, 0.0f, 0.0f, 1.0f});
         mesh.addIndices({0, 1, 3, 1, 2, 3});
         mesh.flush();
 
         ///////////////////////////////////////////////////////////////////////////////
         TemplateMesh<Vertex> mesh2;
         mesh2.addAttributeFloat(3);
-        mesh2.addAttributeFloat(3);
         mesh2.addAttributeFloat(2);
-
-        mesh2.addVertex({0.55f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f});
-        mesh2.addVertex({0.55f, 0.55f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f});
-        mesh2.addVertex({0.95f, 00.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f});
-
+        mesh2.addVertex({0.55f, 0.0f, 0.0f, 0.0f, 0.0f});
+        mesh2.addVertex({0.55f, 0.55f, 0.0f, 1.0f, 0.0f});
+        mesh2.addVertex({0.95f, 0.0f, 0.0f, 0.0f, 1.0f});
         mesh2.addIndices({0, 1, 2});
-
         mesh2.flush();
 
         Image image1("image.png");
@@ -201,7 +193,7 @@ public:
             glClear(GL_COLOR_BUFFER_BIT);
 
             shader.bind();
-            shader.setUniformFloat("uTime", engine_globals.time->getTime());
+            shader.setUniformMat4("uTransform", glm::mat4x4(1.0f));
 
             texture1.bind();
             mesh.bind();

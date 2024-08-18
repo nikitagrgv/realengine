@@ -2,6 +2,7 @@
 
 #include "Base.h"
 
+#include "glm/fwd.hpp"
 #include "glm/vec4.hpp"
 #include <string>
 #include <unordered_map>
@@ -16,6 +17,7 @@ public:
 
     void setUniformFloat(const char *name, float value);
     void setUniformVec4(const char *name, const glm::vec4 &value);
+    void setUniformMat4(const char *name, const glm::mat4 &value);
 
     void clear();
     void bind();
