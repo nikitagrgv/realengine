@@ -11,4 +11,6 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Texture.h
 )

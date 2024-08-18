@@ -15,7 +15,7 @@ public:
     int getHeight() const { return height_; }
     int getNumChannels() const { return num_ch_; }
 
-    unsigned char *getData() { return data_; }
+    unsigned char *getData() const { return data_; }
 
     void clear();
 

@@ -6,6 +6,7 @@
 #include "EngineGlobals.h"
 #include "Image.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "fs/FileSystem.h"
 #include "time/Time.h"
 
@@ -174,23 +175,18 @@ public:
         TemplateMesh<Vertex> mesh2;
         mesh2.addAttributeFloat(3);
         mesh2.addAttributeFloat(3);
+        mesh2.addAttributeFloat(2);
 
-        mesh2.addVertex({0.75f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f});
-        mesh2.addVertex({0.75f, 0.25f, 0.0f, 0.0f, 1.0f, 0.0f});
-        mesh2.addVertex({0.8f, 00.0f, 0.0f, 0.0f, 0.0f, 1.0f});
+        mesh2.addVertex({0.55f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+        mesh2.addVertex({0.55f, 0.55f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f});
+        mesh2.addVertex({0.95f, 00.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f});
 
         mesh2.addIndices({0, 1, 2});
 
         mesh2.flush();
 
-
         Image image1("image.png");
-        unsigned int texture;
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image1.getWidth(), image1.getHeight(), 0, GL_RGB,
-            GL_UNSIGNED_BYTE, image1.getData());
-        glGenerateMipmap(GL_TEXTURE_2D);
+        Texture texture1(image1);
 
         while (!exit_)
         {
@@ -204,7 +200,7 @@ public:
             shader.bind();
             shader.setUniformFloat("uTime", engine_globals.time->getTime());
 
-            glBindTexture(GL_TEXTURE_2D, texture);
+            texture1.bind();
 
             mesh.bind();
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
