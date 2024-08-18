@@ -252,6 +252,10 @@ private:
         {
             std::cout << "Failed to initialize GLAD" << std::endl;
         }
+
+        update_mouse();
+        mouse_delta_x_ = 0;
+        mouse_delta_y_ = 0;
     }
 
     void shutdown()
@@ -270,9 +274,20 @@ private:
 
     void process_input()
     {
+        update_mouse();
+
         if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
             exit_ = true;
+        }
+
+        if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        else
+        {
+            glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
 
         float speed = 1.0f;
@@ -313,6 +328,16 @@ private:
         camera_ = glm::translate(glm::mat4{1.0f}, camera_pos_);
     }
 
+    void update_mouse()
+    {
+        double x, y;
+        glfwGetCursorPos(window_, &x, &y);
+        mouse_delta_x_ = x - mouse_pos_x_;
+        mouse_delta_y_ = y - mouse_pos_y_;
+        mouse_pos_x_ = x;
+        mouse_pos_y_ = y;
+    }
+
     void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     {
         glViewport(0, 0, width, height);
@@ -338,6 +363,11 @@ private:
 
     bool exit_{false};
     GLFWwindow *window_{};
+
+    double mouse_pos_x_{0};
+    double mouse_pos_y_{0};
+    double mouse_delta_x_{0};
+    double mouse_delta_y_{0};
 };
 
 int main()
