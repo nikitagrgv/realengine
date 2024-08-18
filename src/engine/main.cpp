@@ -5,6 +5,7 @@
 
 #include "EngineGlobals.h"
 #include "Image.h"
+#include "MeshLoader.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "fs/FileSystem.h"
@@ -171,13 +172,25 @@ public:
         mesh.flush();
 
         ///////////////////////////////////////////////////////////////////////////////
+        MeshLoader loader("object.obj");
+
         TemplateMesh<Vertex> mesh2;
-        mesh2.addAttributeFloat(3);
-        mesh2.addAttributeFloat(2);
-        mesh2.addVertex({0.55f, 0.0f, 0.0f, 0.0f, 0.0f});
-        mesh2.addVertex({0.55f, 0.55f, 0.0f, 1.0f, 0.0f});
-        mesh2.addVertex({0.95f, 0.0f, 0.0f, 0.0f, 1.0f});
-        mesh2.addIndices({0, 1, 2});
+        mesh2.addAttributeFloat(3); // pos
+        mesh2.addAttributeFloat(2); // uv
+        for (int i = 0; i < loader.getNumVertices(); i++)
+        {
+            Vertex v;
+            v.x = loader.getVertexPosition(i).x;
+            v.y = loader.getVertexPosition(i).y;
+            v.z = loader.getVertexPosition(i).z;
+            v.u = loader.getVertexTextureCoords(i).x;
+            v.v = loader.getVertexTextureCoords(i).y;
+            mesh2.addVertex(v);
+        }
+        for (int i = 0; i < loader.getNumIndices(); i++)
+        {
+            mesh2.addIndex(loader.getIndex(i));
+        }
         mesh2.flush();
 
         Image image1("image.png");
