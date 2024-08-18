@@ -296,7 +296,7 @@ private:
             speed *= 2;
         }
 
-        const float mouse_speed = 0.1f;
+        const float mouse_speed = 0.0015f;
 
         const float dt = engine_globals.time->getDelta();
 
@@ -328,8 +328,8 @@ private:
 
         if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
         {
-            pitch_ -= mouse_delta_y_ * mouse_speed * dt;
-            yaw_ -= mouse_delta_x_ * mouse_speed * dt;
+            pitch_ -= mouse_delta_y_ * mouse_speed;
+            yaw_ -= mouse_delta_x_ * mouse_speed;
         }
 
         glm::mat4 rot = glm::rotate(glm::mat4(1.0f), yaw_, glm::vec3(0.0f, 1.0f, 0.0f))
