@@ -97,8 +97,7 @@ private:
 
         std::string common = shaders.substr(0, vertex_idx);
 
-        const auto replace_with = [](std::string &string, const char* from, const char* to)
-        {
+        const auto replace_with = [](std::string &string, const char *from, const char *to) {
             std::string::size_type pos = 0;
             while ((pos = string.find(from, pos)) != std::string::npos)
             {
@@ -165,6 +164,21 @@ public:
         glDeleteBuffers(1, &ebo_);
     }
 
+    int addVertex(const V &v)
+    {
+        vertices_.push_back(v);
+        return vertices_.size() - 1;
+    }
+
+    int addIndex(unsigned int i)
+    {
+        indices_.push_back(i);
+        return indices_.size() - 1;
+    }
+
+    const V &getVertex(int index) const { return vertices_[index]; }
+    void setVertex(const V &v, int index) { vertices_[index] = v; }
+
     template<typename A>
     void addVertices(const A &a)
     {
@@ -187,9 +201,6 @@ public:
     {
         indices_.insert(indices_.end(), list);
     }
-
-    void addVertex(const V &v) { vertices_.push_back(v); }
-    void addIndex(unsigned int i) { indices_.push_back(i); }
 
     void addAttributeFloat(int count)
     {
@@ -231,7 +242,8 @@ private:
         for (int i = 0; i < attributes_.size(); ++i)
         {
             const Attribute &attribute = attributes_[i];
-            glVertexAttribPointer(i, attribute.count, attribute.type, GL_FALSE, stride, reinterpret_cast<void *>(offset));
+            glVertexAttribPointer(i, attribute.count, attribute.type, GL_FALSE, stride,
+                reinterpret_cast<void *>(offset));
             glEnableVertexAttribArray(i);
             offset += attribute.count * attribute.size_of_type;
         }
@@ -271,6 +283,7 @@ public:
             float x, y, z;
             float r, g, b;
         };
+
         TemplateMesh<Vertex> mesh;
         mesh.addAttributeFloat(3);
         mesh.addAttributeFloat(3);
