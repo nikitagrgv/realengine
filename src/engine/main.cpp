@@ -6,6 +6,7 @@
 #include "EngineGlobals.h"
 #include "Shader.h"
 #include "fs/FileSystem.h"
+#include "time/Time.h"
 
 #include "glm/mat4x4.hpp"
 #include <iostream>
@@ -182,6 +183,8 @@ public:
 
         while (!exit_)
         {
+            engine_globals.time->update();
+
             process_input();
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -210,6 +213,7 @@ private:
     void init()
     {
         engine_globals.engine_ = this;
+        engine_globals.time = new Time();
         engine_globals.fs = new FileSystem();
 
         glfwInit();
@@ -242,6 +246,7 @@ private:
             ptr = nullptr;
         };
         delete_and_null(engine_globals.fs);
+        delete_and_null(engine_globals.time);
         engine_globals.engine_ = nullptr;
 
         glfwTerminate();

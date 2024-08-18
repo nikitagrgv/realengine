@@ -1,4 +1,5 @@
 add_subdirectory(fs)
+add_subdirectory(time)
 
 target_sources(realengine
         PRIVATE
