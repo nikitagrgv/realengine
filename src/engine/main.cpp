@@ -66,11 +66,15 @@ public:
         glDeleteShader(fragment_id);
     }
 
-    ~Shader()
+    ~Shader() { clear(); }
+
+    void clear()
     {
         if (valid_)
         {
             glDeleteProgram(program_id_);
+            program_id_ = 0;
+            valid_ = false;
         }
     }
 
