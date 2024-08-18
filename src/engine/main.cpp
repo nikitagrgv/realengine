@@ -187,6 +187,11 @@ public:
         }
     }
 
+    void addIndices(std::initializer_list<unsigned int> list)
+    {
+        indices_.insert(indices_.end(), list);
+    }
+
     void addVertex(const V &v) { vertices_.push_back(v); }
     void addIndex(unsigned int i) { indices_.push_back(i); }
 
@@ -233,6 +238,8 @@ public:
         mesh.addVertex({0.5f, -0.5f, 0.0f});
         mesh.addVertex({-0.5f, -0.5f, 0.0f});
         mesh.addVertex({-0.5f, 0.5f, 0.0f});
+
+        mesh.addIndices({0, 1, 3, 1, 2, 3});
 
         mesh.addIndex(0);
         mesh.addIndex(1);
