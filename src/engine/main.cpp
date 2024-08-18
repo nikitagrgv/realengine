@@ -186,11 +186,16 @@ public:
         Image image2("image2.png");
         Texture texture2(image2);
 
+        camera_ = glm::translate(camera_, glm::vec3(0.0f, 0.0f, 3.0f));
+        update_proj(window_);
+
         while (!exit_)
         {
             engine_globals.time->update();
 
             process_input();
+
+            view_ = glm::inverse(camera_);
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
@@ -198,7 +203,9 @@ public:
             shader.bind();
             glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
                 glm::vec3(0.8f, 0.8f, 1.0f));
-            shader.setUniformMat4("uTransform", matr);
+            shader.setUniformMat4("uModel", matr);
+            shader.setUniformMat4("uView", view_);
+            shader.setUniformMat4("uProj", proj_);
 
             texture1.bind();
             mesh.bind();
@@ -272,11 +279,24 @@ private:
     void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     {
         glViewport(0, 0, width, height);
+        update_proj(window);
+    }
+
+    void update_proj(GLFWwindow *window)
+    {
+        int width = 0;
+        int height = 0;
+        glfwGetWindowSize(window, &width, &height);
+        proj_ = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
     }
 
 private:
     float pitch_{0.0f};
     float yaw_{0.0f};
+
+    glm::mat4 camera_{1.0f};
+    glm::mat4 view_{1.0f};
+    glm::mat4 proj_{1.0f};
 
     bool exit_{false};
     GLFWwindow *window_{};
