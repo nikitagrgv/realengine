@@ -96,8 +96,24 @@ private:
         assert(vertex_idx < fragment_idx);
 
         std::string common = shaders.substr(0, vertex_idx);
-        vertex = common + shaders.substr(vertex_idx_end, fragment_idx - vertex_idx_end);
-        fragment = common + shaders.substr(fragment_idx_end);
+
+        const auto replace_with = [](std::string &string, const char* from, const char* to)
+        {
+            std::string::size_type pos = 0;
+            while ((pos = string.find(from, pos)) != std::string::npos)
+            {
+                string.replace(pos, strlen(from), to);
+                pos += strlen(to);
+            }
+        };
+
+        vertex = common;
+        replace_with(vertex, "#inout", "out");
+        vertex += shaders.substr(vertex_idx_end, fragment_idx - vertex_idx_end);
+
+        fragment = std::move(common);
+        replace_with(fragment, "#inout", "in");
+        fragment += shaders.substr(fragment_idx_end);
     }
 
     bool check_compiler_errors(unsigned int shader)
@@ -136,7 +152,6 @@ struct Vertex
 {
     float x, y, z;
 };
-
 
 template<typename V>
 class Mesh
