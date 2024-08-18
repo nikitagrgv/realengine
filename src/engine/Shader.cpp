@@ -61,15 +61,14 @@ Shader::~Shader()
     clear();
 }
 
+void Shader::setUniformFloat(const char *name, float value)
+{
+    glUniform1f(get_uniform_location(name), value);
+}
+
 void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
 {
-    int location = glGetUniformLocation(program_id_, name);
-    if (location == -1)
-    {
-        std::cout << "Could not find uniform: " << name << std::endl;
-        return;
-    }
-    glUniform4f(location, value.x, value.y, value.z, value.w);
+    glUniform4f(get_uniform_location(name), value.x, value.y, value.z, value.w);
 }
 
 void Shader::clear()
@@ -144,4 +143,23 @@ bool Shader::check_linking_errors(unsigned int program)
         std::cout << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
     }
     return success;
+}
+
+int Shader::get_uniform_location(const char *name)
+{
+    auto it = uniform_locations_.find(name);
+    if (it != uniform_locations_.end())
+    {
+        return it->second;
+    }
+    const int location = glGetUniformLocation(program_id_, name);
+    if (location == -1)
+    {
+        std::cout << "Could not find uniform: " << name << std::endl;
+    }
+    else
+    {
+        uniform_locations_[name] = location;
+    }
+    return location;
 }

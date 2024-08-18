@@ -8,12 +8,13 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 
-uniform vec4 uColor;
+uniform float uTime;
 
 void main()
 {
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    ioColor = uColor;
+    float t = sin(uTime) / 2.0f + 0.5f;
+    ioColor = vec4(aColor * t, 1.0f);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -190,11 +190,7 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            auto v = glm::vec4{0.5, 0.4, 0.8, 1.0f} * (float)engine_globals.time->getTime();
-            v.x = sin(v.x) / 2 + 0.5f;
-            v.y = sin(v.y) / 2 + 0.5f;
-            v.z = sin(v.z) / 2 + 0.5f;
-            shader.setUniformVec4("uColor", v);
+            shader.setUniformFloat("uTime", engine_globals.time->getTime());
 
             shader.bind();
             mesh.bind();
@@ -270,6 +266,9 @@ private:
     }
 
 private:
+    float pitch_{0.0f};
+    float yaw_{0.0f};
+
     bool exit_{false};
     GLFWwindow *window_{};
 };
