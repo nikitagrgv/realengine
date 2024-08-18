@@ -163,22 +163,6 @@ public:
         glGenVertexArrays(1, &vao_);
         glGenBuffers(1, &vbo_);
         glGenBuffers(1, &ebo_);
-        glBindVertexArray(vao_);
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-        // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-        // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0); // TODO# remove?
-        glBindVertexArray(0);
     }
 
     ~Mesh()
@@ -214,6 +198,15 @@ public:
     void addVertex(const V &v) { vertices_.push_back(v); }
     void addIndex(unsigned int i) { indices_.push_back(i); }
 
+    void addAttributeFloat(int count)
+    {
+        Attribute attr;
+        attr.count = count;
+        attr.size_of_type = sizeof(float);
+        attr.type = GL_FLOAT;
+        attributes_.push_back(attr);
+    }
+
     void flush()
     {
         glBindVertexArray(vao_);
@@ -224,6 +217,8 @@ public:
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * INDEX_SIZE, indices_.data(),
             GL_STATIC_DRAW);
 
+        flush_attributes();
+
         glBindBuffer(GL_ARRAY_BUFFER, 0); // TODO# remove?
         glBindVertexArray(0);
     }
@@ -231,9 +226,35 @@ public:
     void bind() { glBindVertexArray(vao_); }
 
 private:
+    void flush_attributes()
+    {
+        int stride = 0;
+        for (const Attribute &attribute : attributes_)
+        {
+            stride += attribute.count * attribute.size_of_type;
+        }
+
+        size_t offset = 0;
+        for (int i = 0; i < attributes_.size(); ++i)
+        {
+            const Attribute &attribute = attributes_[i];
+            glVertexAttribPointer(i, attribute.count, attribute.type, GL_FALSE, stride, reinterpret_cast<void *>(offset));
+            glEnableVertexAttribArray(i);
+            offset += attribute.count * attribute.size_of_type;
+        }
+    }
+
+private:
     static constexpr int VERTEX_SIZE = sizeof(V);
     static constexpr int INDEX_SIZE = sizeof(unsigned int);
 
+    struct Attribute
+    {
+        int type{-1};
+        int size_of_type{-1};
+        int count{-1};
+    };
+    std::vector<Attribute> attributes_;
     std::vector<V> vertices_;
     std::vector<unsigned int> indices_;
 
@@ -253,6 +274,9 @@ public:
         Shader shader("shader.shader");
 
         Mesh<Vertex> mesh;
+        mesh.addAttributeFloat(3);
+        mesh.addAttributeFloat(3);
+
         mesh.addVertex({0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f});
         mesh.addVertex({0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f});
         mesh.addVertex({-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f});
