@@ -148,17 +148,17 @@ private:
 };
 
 template<typename V>
-class Mesh
+class TemplateMesh
 {
 public:
-    Mesh()
+    TemplateMesh()
     {
         glGenVertexArrays(1, &vao_);
         glGenBuffers(1, &vbo_);
         glGenBuffers(1, &ebo_);
     }
 
-    ~Mesh()
+    ~TemplateMesh()
     {
         glDeleteVertexArrays(1, &vao_);
         glDeleteBuffers(1, &vbo_);
@@ -237,7 +237,7 @@ private:
         }
     }
 
-private:
+protected:
     static constexpr int VERTEX_SIZE = sizeof(V);
     static constexpr int INDEX_SIZE = sizeof(unsigned int);
 
@@ -271,7 +271,7 @@ public:
             float x, y, z;
             float r, g, b;
         };
-        Mesh<Vertex> mesh;
+        TemplateMesh<Vertex> mesh;
         mesh.addAttributeFloat(3);
         mesh.addAttributeFloat(3);
 
