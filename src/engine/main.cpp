@@ -169,8 +169,25 @@ public:
         glDeleteBuffers(1, &ebo_);
     }
 
-    void addVertex(const V &v) { vertices_.push_back(v); }
+    template<typename A>
+    void addVertices(const A &a)
+    {
+        for (const auto &v : a)
+        {
+            addVertex(v);
+        }
+    }
 
+    template<typename A>
+    void addIndices(const A &a)
+    {
+        for (const auto &i : a)
+        {
+            addIndex(i);
+        }
+    }
+
+    void addVertex(const V &v) { vertices_.push_back(v); }
     void addIndex(unsigned int i) { indices_.push_back(i); }
 
     void flush()
