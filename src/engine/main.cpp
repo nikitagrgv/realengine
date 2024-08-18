@@ -89,6 +89,20 @@ public:
         attributes_.push_back(attr);
     }
 
+    void clearMesh()
+    {
+        vertices_.clear();
+        indices_.clear();
+    }
+
+    void clearAttributes() { attributes_.clear(); }
+
+    void clearAll()
+    {
+        clearMesh();
+        clearAttributes();
+    }
+
     void flush(bool dynamic = false)
     {
         const int load_flag = dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
@@ -150,10 +164,64 @@ protected:
 class Visualizer
 {
 public:
+    Visualizer()
+    {
+        lines_.addAttributeFloat(3); // pos
+        lines_.addAttributeFloat(4); // color
 
+        const char *vertex_shader = R"(
+            #version 330 core
+            layout (location = 0) in vec3 aPos;
+            layout (location = 1) in vec4 aColor;
+            out vec4 ioColor;
+            uniform mat4 uViewProj;
+            void main()
+            {
+                gl_Position = uViewProj * vec4(aPos, 1.0f);
+                ioColor = aColor;
+            })";
+        const char *fragment_shader = R"(
+            #version 330 core
+            out vec4 FragColor;
+            in vec4 ioColor;
+            void main()
+            {
+                FragColor = ioColor;
+            })";
+        shader.loadSources(vertex_shader, fragment_shader);
+    }
+
+    void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color)
+    {
+        LinePoint p;
+        p.color = color;
+        p.pos = s0;
+        int v = lines_.addVertex(p);
+        lines_.addIndex(v);
+        p.pos = s1;
+        v = lines_.addVertex(p);
+        lines_.addIndex(v);
+    }
+
+    void render(const glm::mat4 &viewproj)
+    {
+        lines_.flush(true);
+        shader.bind();
+        shader.setUniformMat4("uViewProj", viewproj);
+        lines_.bind();
+        glDrawElements(GL_LINES, lines_.getNumIndices(), GL_UNSIGNED_INT, 0);
+        lines_.clearMesh();
+    }
 
 private:
+    struct LinePoint
+    {
+        glm::vec3 pos;
+        glm::vec4 color;
+    };
+
     Shader shader;
+    TemplateMesh<LinePoint> lines_;
 };
 
 class Engine
@@ -218,6 +286,13 @@ public:
 
             process_input();
 
+            const auto add_axis = [](const glm::vec3 &axis) {
+                engine_globals.visualizer->addLine(glm::vec3{0, 0, 0}, axis, glm::vec4{axis, 1.0f});
+            };
+            add_axis(glm::vec3{1, 0, 0});
+            add_axis(glm::vec3{0, 1, 0});
+            add_axis(glm::vec3{0, 0, 1});
+
             view_ = glm::inverse(camera_);
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -242,6 +317,8 @@ public:
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.05f}));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
+
+            engine_globals.visualizer->render(proj_ * view_);
 
             glfwSwapBuffers(window_);
             glfwPollEvents();
@@ -284,6 +361,8 @@ private:
         update_mouse();
         mouse_delta_x_ = 0;
         mouse_delta_y_ = 0;
+
+        engine_globals.visualizer = new Visualizer();
     }
 
     void shutdown()
@@ -293,6 +372,7 @@ private:
             delete ptr;
             ptr = nullptr;
         };
+        delete_and_null(engine_globals.visualizer);
         delete_and_null(engine_globals.fs);
         delete_and_null(engine_globals.time);
         engine_globals.engine_ = nullptr;
