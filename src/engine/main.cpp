@@ -201,7 +201,7 @@ public:
             glClear(GL_COLOR_BUFFER_BIT);
 
             shader.bind();
-            glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
+            glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, 0*float(engine_globals.time->getTime()),
                 glm::vec3(0.8f, 0.8f, 1.0f));
             shader.setUniformMat4("uModel", matr);
             shader.setUniformMat4("uView", view_);
@@ -296,6 +296,8 @@ private:
             speed *= 2;
         }
 
+        const float mouse_speed = 0.1f;
+
         const float dt = engine_globals.time->getDelta();
 
         glm::vec3 delta_pos{0.0f};
@@ -325,7 +327,15 @@ private:
         }
         camera_pos_ += delta_pos;
 
-        camera_ = glm::translate(glm::mat4{1.0f}, camera_pos_);
+        if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        {
+            pitch_ -= mouse_delta_y_ * mouse_speed * dt;
+            yaw_ -= mouse_delta_x_ * mouse_speed * dt;
+        }
+
+        camera_ = glm::translate(glm::mat4{1.0f}, camera_pos_)
+            * glm::rotate(glm::mat4(1.0f), yaw_, glm::vec3(0.0f, 1.0f, 0.0f))
+            * glm::rotate(glm::mat4(1.0f), pitch_, glm::vec3(1.0f, 0.0f, 0.0f));
     }
 
     void update_mouse()
