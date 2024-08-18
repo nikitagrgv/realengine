@@ -222,7 +222,9 @@ private:
             glfwTerminate();
         }
         glfwMakeContextCurrent(window_);
-        glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
+        glfwSetFramebufferSizeCallback(window_, [](GLFWwindow *window, int width, int height) {
+            engine_globals.engine_->framebuffer_size_callback(window, width, height);
+        });
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
@@ -251,7 +253,7 @@ private:
         }
     }
 
-    static void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+    void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     {
         glViewport(0, 0, width, height);
     }
