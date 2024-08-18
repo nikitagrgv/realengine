@@ -10,6 +10,9 @@
 #include "fs/FileSystem.h"
 #include "time/Time.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 #include "glm/mat4x4.hpp"
 #include <iostream>
 #include <vector>
@@ -193,7 +196,9 @@ public:
             glClear(GL_COLOR_BUFFER_BIT);
 
             shader.bind();
-            shader.setUniformMat4("uTransform", glm::mat4x4(1.0f));
+            glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
+                glm::vec3(0.8f, 0.8f, 1.0f));
+            shader.setUniformMat4("uTransform", matr);
 
             texture1.bind();
             mesh.bind();
