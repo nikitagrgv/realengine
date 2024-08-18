@@ -12,20 +12,25 @@ class Shader
 public:
     REMOVE_COPY_MOVE_CLASS(Shader);
 
+    Shader();
     Shader(const char *vertex_src, const char *fragment_src);
-    Shader(const char *path);
+    explicit Shader(const char *path);
+
     ~Shader();
+
+    void loadSources(const char *vertex_src, const char *fragment_src);
+    void loadFile(const char *path);
 
     void setUniformFloat(const char *name, float value);
     void setUniformVec4(const char *name, const glm::vec4 &value);
     void setUniformMat4(const char *name, const glm::mat4 &value);
 
+    bool isLoaded() const;
     void clear();
+
     void bind();
 
 private:
-    void compile(const char *vertex_src, const char *fragment_src);
-
     void read_shader(const char *path, std::string &vertex, std::string &fragment);
     bool check_compiler_errors(unsigned int shader);
     bool check_linking_errors(unsigned int program);
@@ -34,6 +39,5 @@ private:
 
 private:
     std::unordered_map<std::string, int> uniform_locations_;
-    bool valid_{false};
     unsigned int program_id_{0};
 };

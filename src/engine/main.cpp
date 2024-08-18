@@ -89,15 +89,16 @@ public:
         attributes_.push_back(attr);
     }
 
-    void flush()
+    void flush(bool dynamic = false)
     {
+        const int load_flag = dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+
         glBindVertexArray(vao_);
         glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-        glBufferData(GL_ARRAY_BUFFER, vertices_.size() * VERTEX_SIZE, vertices_.data(),
-            GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices_.size() * VERTEX_SIZE, vertices_.data(), load_flag);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * INDEX_SIZE, indices_.data(),
-            GL_STATIC_DRAW);
+            load_flag);
 
         flush_attributes();
 
@@ -144,6 +145,15 @@ protected:
     unsigned int vbo_{0};
     unsigned int vao_{0};
     unsigned int ebo_{0};
+};
+
+class Visualizer
+{
+public:
+
+
+private:
+    Shader shader;
 };
 
 class Engine

@@ -8,22 +8,75 @@
 #include <cassert>
 #include <iostream>
 
+Shader::Shader() = default;
+
 Shader::Shader(const char *vertex_src, const char *fragment_src)
 {
-    compile(vertex_src, fragment_src);
+    loadSources(vertex_src, fragment_src);
 }
 
 Shader::Shader(const char *path)
 {
-    std::string vertex_source;
-    std::string fragment_source;
-    read_shader(path, vertex_source, fragment_source);
-    compile(vertex_source.c_str(), fragment_source.c_str());
+    loadFile(path);
 }
 
 Shader::~Shader()
 {
     clear();
+}
+
+void Shader::loadSources(const char *vertex_src, const char *fragment_src)
+{
+    clear();
+
+    unsigned int vertex_id;
+    vertex_id = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_id, 1, &vertex_src, NULL);
+    glCompileShader(vertex_id);
+    bool success = check_compiler_errors(vertex_id);
+    if (!success)
+    {
+        glDeleteShader(vertex_id);
+        return;
+    }
+
+    unsigned int fragment_id;
+    fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_id, 1, &fragment_src, NULL);
+    glCompileShader(fragment_id);
+    success = check_compiler_errors(fragment_id);
+    if (!success)
+    {
+        glDeleteShader(vertex_id);
+        glDeleteShader(fragment_id);
+        return;
+    }
+
+    program_id_ = glCreateProgram();
+    glAttachShader(program_id_, vertex_id);
+    glAttachShader(program_id_, fragment_id);
+    glLinkProgram(program_id_);
+    success = check_linking_errors(program_id_);
+    if (!success)
+    {
+        program_id_ = 0;
+        glDeleteShader(vertex_id);
+        glDeleteShader(fragment_id);
+        glDeleteProgram(program_id_);
+        return;
+    }
+
+    glUseProgram(program_id_);
+    glDeleteShader(vertex_id);
+    glDeleteShader(fragment_id);
+}
+
+void Shader::loadFile(const char *path)
+{
+    std::string vertex_source;
+    std::string fragment_source;
+    read_shader(path, vertex_source, fragment_source);
+    loadSources(vertex_source.c_str(), fragment_source.c_str());
 }
 
 void Shader::setUniformFloat(const char *name, float value)
@@ -41,62 +94,23 @@ void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
     glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &value[0][0]);
 }
 
+bool Shader::isLoaded() const
+{
+    return program_id_ != 0;
+}
+
 void Shader::clear()
 {
-    if (valid_)
+    if (program_id_ != 0)
     {
         glDeleteProgram(program_id_);
         program_id_ = 0;
-        valid_ = false;
     }
 }
 
 void Shader::bind()
 {
     glUseProgram(program_id_);
-}
-
-void Shader::compile(const char *vertex_src, const char *fragment_src)
-{
-    unsigned int vertex_id;
-    vertex_id = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_id, 1, &vertex_src, NULL);
-    glCompileShader(vertex_id);
-    valid_ = check_compiler_errors(vertex_id);
-    if (!valid_)
-    {
-        glDeleteShader(vertex_id);
-        return;
-    }
-
-    unsigned int fragment_id;
-    fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_id, 1, &fragment_src, NULL);
-    glCompileShader(fragment_id);
-    valid_ = check_compiler_errors(fragment_id);
-    if (!valid_)
-    {
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
-        return;
-    }
-
-    program_id_ = glCreateProgram();
-    glAttachShader(program_id_, vertex_id);
-    glAttachShader(program_id_, fragment_id);
-    glLinkProgram(program_id_);
-    valid_ = check_linking_errors(program_id_);
-    if (!valid_)
-    {
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
-        glDeleteProgram(program_id_);
-        return;
-    }
-
-    glUseProgram(program_id_);
-    glDeleteShader(vertex_id);
-    glDeleteShader(fragment_id);
 }
 
 void Shader::read_shader(const char *path, std::string &vertex, std::string &fragment)
@@ -160,6 +174,7 @@ bool Shader::check_linking_errors(unsigned int program)
 
 int Shader::get_uniform_location(const char *name)
 {
+    assert(isLoaded());
     auto it = uniform_locations_.find(name);
     if (it != uniform_locations_.end())
     {
