@@ -179,6 +179,9 @@ public:
     const V &getVertex(int index) const { return vertices_[index]; }
     void setVertex(const V &v, int index) { vertices_[index] = v; }
 
+    int getNumVertices() const { return vertices_.size(); }
+    int getNumIndices() const { return indices_.size(); }
+
     template<typename A>
     void addVertices(const A &a)
     {
@@ -312,7 +315,7 @@ public:
 
             shader.bind();
             mesh.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             glfwSwapBuffers(window_);
             glfwPollEvents();
