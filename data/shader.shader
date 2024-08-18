@@ -1,17 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 #version 330 core
 
-#inout vec3 ourColor;
+#inout vec3 ioColor;
 
 /////////////////////////////////////////////////////////////////////////////////
 #vertex
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 
+uniform vec4 uColor;
+
 void main()
 {
     gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    ourColor = aColor;
+    ioColor = aColor;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -20,5 +22,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(ourColor, 1.0f);
+    FragColor = vec4(ioColor, 1.0f);
 }
