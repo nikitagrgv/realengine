@@ -31,6 +31,9 @@ target_link_libraries(realengine glm)
 # STB
 target_include_directories(realengine PRIVATE third_party/stb)
 
+# OBJ LOADER
+target_include_directories(realengine PRIVATE third_party/obj_loader)
+
 set(REALENGINE_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../bin)
 set_target_properties(realengine
         PROPERTIES

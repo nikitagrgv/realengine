@@ -172,7 +172,7 @@ public:
         mesh.flush();
 
         ///////////////////////////////////////////////////////////////////////////////
-        MeshLoader loader("object.obj");
+        MeshLoader loader("stickman.obj");
 
         TemplateMesh<Vertex> mesh2;
         mesh2.addAttributeFloat(3); // pos
@@ -215,7 +215,7 @@ public:
 
             shader.bind();
 
-            glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, 0*float(engine_globals.time->getTime()),
+            glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, 0 * float(engine_globals.time->getTime()),
                 glm::vec3(0.8f, 0.8f, 1.0f));
             shader.setUniformMat4("uModel", matr);
             shader.setUniformMat4("uView", view_);
@@ -227,7 +227,9 @@ public:
 
             texture2.bind();
             mesh2.bind();
-            shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{2, 2, 0}));
+            shader.setUniformMat4("uModel",
+                glm::translate(glm::mat4{1.0f}, glm::vec3{2, 2, 0})
+                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.05f}));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
 
