@@ -271,10 +271,10 @@ public:
         }
         mesh2.flush();
 
-        Image image1("image2.png");
+        Image image1("image.png");
         Texture texture1(image1);
 
-        Image image2("image.png");
+        Image image2("image2.png");
         Texture texture2(image2);
 
         camera_ = glm::translate(camera_, glm::vec3(0.0f, 0.0f, 3.0f));
