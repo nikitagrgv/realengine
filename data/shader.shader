@@ -28,13 +28,17 @@ void main()
 out vec4 FragColor;
 
 uniform sampler2D uTexture;
-uniform vec4 uLightColor;
+uniform vec3 uLightColor;
 uniform vec3 uLightPos;
 
 void main()
 {
+    float ambient_power = 0.1;
+    vec3 ambient = ambient_power * uLightColor;
+
     vec3 dir_to_light = normalize(uLightPos - ioGlobalPos);
     vec3 norm = normalize(ioNormal);
-    float dot = max(dot(norm, dir_to_light), 0.0);
-    FragColor = dot * texture(uTexture, ioUV);
+    float diff = max(dot(norm, dir_to_light), 0.0);
+    vec3 diffuse = diff * uLightColor;
+    FragColor = vec4((ambient + diffuse), 1) * texture(uTexture, ioUV);
 }

@@ -424,7 +424,7 @@ public:
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
 
-        glm::vec4 light_color{1.0f};
+        glm::vec3 light_color{1.0f};
         glm::vec3 light_pos{1, 1, 1};
         while (!exit_)
         {
@@ -452,7 +452,7 @@ public:
             light_pos.z = sin(time * 1.3) * 2.0f + 0.5f;
 
             shader.bind();
-            shader.setUniformVec4("uLightColor", light_color);
+            shader.setUniformVec3("uLightColor", light_color);
             shader.setUniformVec3("uLightPos", light_pos);
             shader.setUniformMat4("uViewProj", camera_.getViewProj());
 
@@ -483,7 +483,7 @@ public:
 
             ////////////////////////////////////////////////
             light_cube_shader.bind();
-            light_cube_shader.setUniformVec4("uColor", light_color);
+            light_cube_shader.setUniformVec3("uColor", light_color);
             light_cube_shader.setUniformMat4("uMVP",
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, light_pos)
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
