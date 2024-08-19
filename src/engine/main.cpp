@@ -373,7 +373,7 @@ public:
             {
                 Vertex v;
                 v.pos = loader.getVertexPosition(i);
-                v.norm = loader.getVertexNormal(i);
+                v.norm = -loader.getVertexNormal(i);
                 v.uv = loader.getVertexTextureCoords(i);
                 stickman_mesh.addVertex(v);
             }
@@ -425,7 +425,7 @@ public:
         update_proj(window_);
 
         glm::vec4 light_color{1.0f};
-        glm::vec3 light_pos{-1, 1, 0};
+        glm::vec3 light_pos{1, 1, 1};
         while (!exit_)
         {
             engine_globals.time->update();
@@ -446,6 +446,10 @@ public:
             light_color.x = sin(time * 1.1) / 2.0f + 0.5f;
             light_color.y = cos(time * 1.2) / 2.0f + 0.5f;
             light_color.z = sin(time * 1.3) / 2.0f + 0.5f;
+
+            light_pos.x = sin(time * 1.1) / 2.0f + 0.5f;
+            light_pos.y = cos(time * 1.2) / 2.0f + 0.5f;
+            light_pos.z = sin(time * 1.3) / 2.0f + 1.0f;
 
             shader.bind();
             shader.setUniformVec4("uLightColor", light_color);
