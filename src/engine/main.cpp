@@ -301,27 +301,27 @@ public:
             glm::vec2 uv{0.0f};
         };
 
-        TemplateMesh<Vertex> mesh;
-        mesh.addAttributeFloat(3);
-        mesh.addAttributeFloat(2);
-        mesh.addVertex({
+        TemplateMesh<Vertex> cat_mesh;
+        cat_mesh.addAttributeFloat(3);
+        cat_mesh.addAttributeFloat(2);
+        cat_mesh.addVertex({
             {0.5f, 0.5f, 0.0f},
             {1.0f, 1.0f}
         });
-        mesh.addVertex({
+        cat_mesh.addVertex({
             {0.5f, -0.5f, 0.0f},
             {1.0f, 0.0f}
         });
-        mesh.addVertex({
+        cat_mesh.addVertex({
             {-0.5f, -0.5f, 0.0f},
             {0.0f, 0.0f}
         });
-        mesh.addVertex({
+        cat_mesh.addVertex({
             {-0.5f, 0.5f, 0.0f},
             {0.0f, 1.0f}
         });
-        mesh.addIndices({0, 1, 3, 1, 2, 3});
-        mesh.flush();
+        cat_mesh.addIndices({0, 1, 3, 1, 2, 3});
+        cat_mesh.flush();
 
         ///////////////////////////////////////////////////////////////////////////////
         MeshLoader loader("stickman.obj");
@@ -373,9 +373,9 @@ public:
                 camera_.getMVP(glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
                     glm::vec3(0.8f, 0.8f, 1.0f))));
             cat_texture.bind();
-            mesh.bind();
+            cat_mesh.bind();
             glEnable(GL_DEPTH_TEST);
-            glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             stickman_texture.bind();
             stickman_mesh.bind();
