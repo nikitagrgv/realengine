@@ -296,6 +296,7 @@ public:
         struct Vertex
         {
             glm::vec3 pos{0.0f};
+            glm::vec3 norm{0.0f};
             glm::vec2 uv{0.0f};
         };
 
@@ -333,21 +334,26 @@ public:
 
         TemplateMesh<Vertex> cat_mesh;
         cat_mesh.addAttributeFloat(3);
+        cat_mesh.addAttributeFloat(3);
         cat_mesh.addAttributeFloat(2);
         cat_mesh.addVertex({
             {0.5f, 0.5f, 0.0f},
+            {},
             {1.0f, 1.0f}
         });
         cat_mesh.addVertex({
             {0.5f, -0.5f, 0.0f},
+            {},
             {1.0f, 0.0f}
         });
         cat_mesh.addVertex({
             {-0.5f, -0.5f, 0.0f},
+            {},
             {0.0f, 0.0f}
         });
         cat_mesh.addVertex({
             {-0.5f, 0.5f, 0.0f},
+            {},
             {0.0f, 1.0f}
         });
         cat_mesh.addIndices({0, 1, 3, 1, 2, 3});
@@ -359,6 +365,7 @@ public:
 
         TemplateMesh<Vertex> stickman_mesh;
         stickman_mesh.addAttributeFloat(3); // pos
+        stickman_mesh.addAttributeFloat(3); // norm
         stickman_mesh.addAttributeFloat(2); // uv
         {
             MeshLoader loader("stickman.obj");
@@ -381,24 +388,29 @@ public:
 
         TemplateMesh<Vertex> floor_mesh;
         floor_mesh.addAttributeFloat(3);
+        floor_mesh.addAttributeFloat(3);
         floor_mesh.addAttributeFloat(2);
         const float floor_size = 10.0f;
         const float floor_y = 0.0f;
         const float max_text_coord = 10.0f;
         floor_mesh.addVertex(Vertex{
             {-floor_size, floor_y, -floor_size},
+            {},
             {0.0f, 0.0f}
         });
         floor_mesh.addVertex(Vertex{
             {-floor_size, floor_y, floor_size},
+            {},
             {0.0f, max_text_coord}
         });
         floor_mesh.addVertex(Vertex{
             {floor_size, floor_y, floor_size},
+            {},
             {max_text_coord, max_text_coord}
         });
         floor_mesh.addVertex(Vertex{
             {floor_size, floor_y, -floor_size},
+            {},
             {max_text_coord, 0.0f}
         });
         floor_mesh.addIndices({0, 1, 3, 1, 2, 3});
