@@ -432,6 +432,13 @@ public:
             {
                 exit_ = true;
             }
+
+            if (last_update_fps_time_ < engine_globals.time->getTime() - 1.0f)
+            {
+                last_update_fps_time_ = engine_globals.time->getTime();
+                glfwSetWindowTitle(window_,
+                    std::string("FPS: " + std::to_string(engine_globals.time->getFps())).c_str());
+            }
         }
     }
 
@@ -589,6 +596,8 @@ private:
     double mouse_pos_y_{0};
     double mouse_delta_x_{0};
     double mouse_delta_y_{0};
+
+    float last_update_fps_time_{0.0f};
 };
 
 int main()
