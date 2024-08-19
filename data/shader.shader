@@ -40,5 +40,9 @@ void main()
     vec3 norm = normalize(ioNormal);
     float diff = max(dot(norm, dir_to_light), 0.0);
     vec3 diffuse = diff * uLightColor;
+
+    float l = length(uLightPos - ioGlobalPos);
+    diffuse *= 1.0 / (l * l);
+
     FragColor = vec4((ambient + diffuse), 1) * texture(uTexture, ioUV);
 }
