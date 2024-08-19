@@ -450,11 +450,12 @@ public:
             shader.bind();
             shader.setUniformVec4("uLightColor", light_color);
             shader.setUniformVec3("uLightPos", light_pos);
+            shader.setUniformMat4("uViewProj", camera_.getViewProj());
 
             ////////////////////////////////////////////////
-            shader.setUniformMat4("uMVP",
-                camera_.getMVP(glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
-                    glm::vec3(0.8f, 0.8f, 1.0f))));
+            shader.setUniformMat4("uModel",
+                glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
+                    glm::vec3(0.8f, 0.8f, 1.0f)));
             cat_texture.bind();
             cat_mesh.bind();
             glEnable(GL_DEPTH_TEST);
@@ -463,17 +464,16 @@ public:
             ////////////////////////////////////////////////
             stickman_texture.bind();
             stickman_mesh.bind();
-            shader.setUniformMat4("uMVP",
-                camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
-                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.007f})));
+            shader.setUniformMat4("uModel",
+                glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
+                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.007f}));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
             floor_texture.bind();
             floor_mesh.bind();
-            shader.setUniformMat4("uMVP",
-                camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0})));
+            shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
