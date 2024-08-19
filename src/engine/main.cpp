@@ -326,27 +326,27 @@ public:
         ///////////////////////////////////////////////////////////////////////////////
         MeshLoader loader("stickman.obj");
 
-        TemplateMesh<Vertex> mesh2;
-        mesh2.addAttributeFloat(3); // pos
-        mesh2.addAttributeFloat(2); // uv
+        TemplateMesh<Vertex> stickman_mesh;
+        stickman_mesh.addAttributeFloat(3); // pos
+        stickman_mesh.addAttributeFloat(2); // uv
         for (int i = 0; i < loader.getNumVertices(); i++)
         {
             Vertex v;
             v.pos = loader.getVertexPosition(i);
             v.uv = loader.getVertexTextureCoords(i);
-            mesh2.addVertex(v);
+            stickman_mesh.addVertex(v);
         }
         for (int i = 0; i < loader.getNumIndices(); i++)
         {
-            mesh2.addIndex(loader.getIndex(i));
+            stickman_mesh.addIndex(loader.getIndex(i));
         }
-        mesh2.flush();
+        stickman_mesh.flush();
 
-        Image image1("image.png");
-        Texture texture1(image1);
+        Image cat_image("image.png");
+        Texture cat_texture(cat_image);
 
-        Image image2("image2.png");
-        Texture texture2(image2);
+        Image stickman_image("image2.png");
+        Texture stickman_texture(stickman_image);
 
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
@@ -372,18 +372,18 @@ public:
             shader.setUniformMat4("uMVP",
                 camera_.getMVP(glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
                     glm::vec3(0.8f, 0.8f, 1.0f))));
-            texture1.bind();
+            cat_texture.bind();
             mesh.bind();
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
-            texture2.bind();
-            mesh2.bind();
+            stickman_texture.bind();
+            stickman_mesh.bind();
             shader.setUniformMat4("uMVP",
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{2, 2, 0})
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.05f})));
             glEnable(GL_DEPTH_TEST);
-            glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             engine_globals.visualizer->render(camera_.getViewProj());
 
