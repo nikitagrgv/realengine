@@ -224,6 +224,55 @@ private:
     TemplateMesh<LinePoint> lines_;
 };
 
+class Camera
+{
+public:
+    Camera(const glm::mat4 &view, const glm::mat4 &proj)
+        : view_(view)
+        , proj_(proj)
+    {
+        update_viewproj();
+    }
+
+    explicit Camera(const glm::mat4 &proj)
+        : proj_(proj)
+    {
+        update_viewproj();
+    }
+
+    const glm::mat4 &getProj() const { return proj_; }
+    void setProj(const glm::mat4 &proj)
+    {
+        proj_ = proj;
+        update_viewproj();
+    }
+
+    const glm::mat4 &getView() const { return view_; }
+    void setView(const glm::mat4 &view)
+    {
+        view_ = view;
+        transform_ = glm::inverse(view_);
+        update_viewproj();
+    }
+
+    const glm::mat4 &getTransform() const { return transform_; }
+    void setTransform(const glm::mat4 &transform)
+    {
+        transform_ = transform;
+        view_ = glm::inverse(transform_);
+        update_viewproj();
+    }
+
+private:
+    void update_viewproj() { viewproj_ = proj_ * view_; }
+
+private:
+    glm::mat4 transform_{1.0f};
+    glm::mat4 view_{1.0f};
+    glm::mat4 proj_{1.0f};
+    glm::mat4 viewproj_{1.0f};
+};
+
 class Engine
 {
 public:
@@ -242,10 +291,22 @@ public:
         TemplateMesh<Vertex> mesh;
         mesh.addAttributeFloat(3);
         mesh.addAttributeFloat(2);
-        mesh.addVertex({{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}});
-        mesh.addVertex({{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}});
-        mesh.addVertex({{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}});
-        mesh.addVertex({{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}});
+        mesh.addVertex({
+            {0.5f, 0.5f, 0.0f},
+            {1.0f, 1.0f}
+        });
+        mesh.addVertex({
+            {0.5f, -0.5f, 0.0f},
+            {1.0f, 0.0f}
+        });
+        mesh.addVertex({
+            {-0.5f, -0.5f, 0.0f},
+            {0.0f, 0.0f}
+        });
+        mesh.addVertex({
+            {-0.5f, 0.5f, 0.0f},
+            {0.0f, 1.0f}
+        });
         mesh.addIndices({0, 1, 3, 1, 2, 3});
         mesh.flush();
 
