@@ -2,6 +2,7 @@
 #version 330 core
 
 #inout vec2 ioUV;
+#inout vec3 ioNormal;
 
 /////////////////////////////////////////////////////////////////////////////////
 #vertex
@@ -15,6 +16,7 @@ void main()
 {
     gl_Position = uMVP * vec4(aPos, 1.0f);
     ioUV = aUV;
+    ioNormal = aNormal;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +25,7 @@ out vec4 FragColor;
 
 uniform sampler2D uTexture;
 uniform vec4 uLightColor;
+uniform vec3 uLightPos;
 
 void main()
 {

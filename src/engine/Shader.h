@@ -22,6 +22,7 @@ public:
     void loadFile(const char *path);
 
     void setUniformFloat(const char *name, float value);
+    void setUniformVec3(const char *name, const glm::vec3 &value);
     void setUniformVec4(const char *name, const glm::vec4 &value);
     void setUniformMat4(const char *name, const glm::mat4 &value);
 
