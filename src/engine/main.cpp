@@ -235,17 +235,17 @@ public:
 
         struct Vertex
         {
-            float x, y, z;
-            float u, v;
+            glm::vec3 pos{0.0f};
+            glm::vec2 uv{0.0f};
         };
 
         TemplateMesh<Vertex> mesh;
         mesh.addAttributeFloat(3);
         mesh.addAttributeFloat(2);
-        mesh.addVertex({0.5f, 0.5f, 0.0f, 1.0f, 1.0f});
-        mesh.addVertex({0.5f, -0.5f, 0.0f, 1.0f, 0.0f});
-        mesh.addVertex({-0.5f, -0.5f, 0.0f, 0.0f, 0.0f});
-        mesh.addVertex({-0.5f, 0.5f, 0.0f, 0.0f, 1.0f});
+        mesh.addVertex({{0.5f, 0.5f, 0.0f}, {1.0f, 1.0f}});
+        mesh.addVertex({{0.5f, -0.5f, 0.0f}, {1.0f, 0.0f}});
+        mesh.addVertex({{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}});
+        mesh.addVertex({{-0.5f, 0.5f, 0.0f}, {0.0f, 1.0f}});
         mesh.addIndices({0, 1, 3, 1, 2, 3});
         mesh.flush();
 
@@ -258,11 +258,8 @@ public:
         for (int i = 0; i < loader.getNumVertices(); i++)
         {
             Vertex v;
-            v.x = loader.getVertexPosition(i).x;
-            v.y = loader.getVertexPosition(i).y;
-            v.z = loader.getVertexPosition(i).z;
-            v.u = loader.getVertexTextureCoords(i).x;
-            v.v = loader.getVertexTextureCoords(i).y;
+            v.pos = loader.getVertexPosition(i);
+            v.uv = loader.getVertexTextureCoords(i);
             mesh2.addVertex(v);
         }
         for (int i = 0; i < loader.getNumIndices(); i++)
