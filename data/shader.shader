@@ -34,6 +34,7 @@ uniform vec3 uLightPos;
 void main()
 {
     vec3 dir_to_light = normalize(uLightPos - ioGlobalPos);
-    float dot = max(dot(ioNormal, dir_to_light), 0.0);
+    vec3 norm = normalize(ioNormal);
+    float dot = max(dot(norm, dir_to_light), 0.0);
     FragColor = dot * uLightColor * texture(uTexture, ioUV);
 }
