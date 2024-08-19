@@ -227,6 +227,10 @@ private:
 class Camera
 {
 public:
+    Camera()
+        : proj_(glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f))
+    {}
+
     Camera(const glm::mat4 &view, const glm::mat4 &proj)
         : view_(view)
         , proj_(proj)
@@ -238,6 +242,11 @@ public:
         : proj_(proj)
     {
         update_viewproj();
+    }
+
+    void setPerspective(float fov_deg, float aspect, float z_near, float z_far)
+    {
+        setProj(glm::perspective(glm::radians(fov_deg), aspect, z_near, z_far));
     }
 
     const glm::mat4 &getProj() const { return proj_; }
@@ -262,6 +271,8 @@ public:
         view_ = glm::inverse(transform_);
         update_viewproj();
     }
+
+    const glm::mat4 &getViewProj() const { return viewproj_; }
 
 private:
     void update_viewproj() { viewproj_ = proj_ * view_; }
@@ -335,7 +346,7 @@ public:
         Image image2("image2.png");
         Texture texture2(image2);
 
-        camera_ = glm::translate(camera_, glm::vec3(0.0f, 0.0f, 3.0f));
+        camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
 
         while (!exit_)
@@ -351,8 +362,6 @@ public:
             add_axis(glm::vec3{0, 1, 0});
             add_axis(glm::vec3{0, 0, 1});
 
-            view_ = glm::inverse(camera_);
-
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -361,8 +370,8 @@ public:
             glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, 0 * float(engine_globals.time->getTime()),
                 glm::vec3(0.8f, 0.8f, 1.0f));
             shader.setUniformMat4("uModel", matr);
-            shader.setUniformMat4("uView", view_);
-            shader.setUniformMat4("uProj", proj_);
+            shader.setUniformMat4("uView", camera_.getView());
+            shader.setUniformMat4("uProj", camera_.getProj());
             texture1.bind();
             mesh.bind();
             glEnable(GL_DEPTH_TEST);
@@ -376,7 +385,7 @@ public:
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
 
-            engine_globals.visualizer->render(proj_ * view_);
+            engine_globals.visualizer->render(camera_.getViewProj());
 
             glfwSwapBuffers(window_);
             glfwPollEvents();
@@ -501,7 +510,7 @@ private:
         glm::mat4 rot = glm::rotate(glm::mat4(1.0f), yaw_, glm::vec3(0.0f, 1.0f, 0.0f))
             * glm::rotate(glm::mat4(1.0f), pitch_, glm::vec3(1.0f, 0.0f, 0.0f));
         camera_pos_ += glm::vec3(rot * delta_pos);
-        camera_ = glm::translate(glm::mat4{1.0f}, camera_pos_) * rot;
+        camera_.setTransform(glm::translate(glm::mat4{1.0f}, camera_pos_) * rot);
     }
 
     void update_mouse()
@@ -525,7 +534,7 @@ private:
         int width = 0;
         int height = 0;
         glfwGetWindowSize(window, &width, &height);
-        proj_ = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+        camera_.setPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
     }
 
 private:
@@ -533,9 +542,7 @@ private:
     float pitch_{0.0f};
     float yaw_{0.0f};
 
-    glm::mat4 camera_{1.0f};
-    glm::mat4 view_{1.0f};
-    glm::mat4 proj_{1.0f};
+    Camera camera_;
 
     bool exit_{false};
     GLFWwindow *window_{};
