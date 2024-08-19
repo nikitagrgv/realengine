@@ -18,8 +18,8 @@
 #include <iostream>
 #include <vector>
 
-const unsigned int DEFAULT_WIDTH = 800;
-const unsigned int DEFAULT_HEIGHT = 600;
+const unsigned int DEFAULT_WIDTH = 1600;
+const unsigned int DEFAULT_HEIGHT = 900;
 
 template<typename V>
 class TemplateMesh
