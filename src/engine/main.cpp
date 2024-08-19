@@ -301,6 +301,10 @@ public:
             glm::vec2 uv{0.0f};
         };
 
+        ///////////////////////////////////////////////////////////////////////////////
+        Image cat_image("image.png");
+        Texture cat_texture(cat_image);
+
         TemplateMesh<Vertex> cat_mesh;
         cat_mesh.addAttributeFloat(3);
         cat_mesh.addAttributeFloat(2);
@@ -323,30 +327,54 @@ public:
         cat_mesh.addIndices({0, 1, 3, 1, 2, 3});
         cat_mesh.flush();
 
-        ///////////////////////////////////////////////////////////////////////////////
-        MeshLoader loader("stickman.obj");
+        ////////////////////////////////////////////////
+        Image stickman_image("image2.png");
+        Texture stickman_texture(stickman_image);
 
         TemplateMesh<Vertex> stickman_mesh;
         stickman_mesh.addAttributeFloat(3); // pos
         stickman_mesh.addAttributeFloat(2); // uv
-        for (int i = 0; i < loader.getNumVertices(); i++)
         {
-            Vertex v;
-            v.pos = loader.getVertexPosition(i);
-            v.uv = loader.getVertexTextureCoords(i);
-            stickman_mesh.addVertex(v);
-        }
-        for (int i = 0; i < loader.getNumIndices(); i++)
-        {
-            stickman_mesh.addIndex(loader.getIndex(i));
+            MeshLoader loader("stickman.obj");
+            for (int i = 0; i < loader.getNumVertices(); i++)
+            {
+                Vertex v;
+                v.pos = loader.getVertexPosition(i);
+                v.uv = loader.getVertexTextureCoords(i);
+                stickman_mesh.addVertex(v);
+            }
+            for (int i = 0; i < loader.getNumIndices(); i++)
+            {
+                stickman_mesh.addIndex(loader.getIndex(i));
+            }
         }
         stickman_mesh.flush();
-
-        Image cat_image("image.png");
-        Texture cat_texture(cat_image);
-
-        Image stickman_image("image2.png");
-        Texture stickman_texture(stickman_image);
+        ////////////////////////////////////////////////
+        TemplateMesh<Vertex> floor_mesh;
+        floor_mesh.addAttributeFloat(3);
+        floor_mesh.addAttributeFloat(2);
+        const float floor_size = 10.0f;
+        const float floor_y = 0.0f;
+        const float max_text_coord = 10.0f;
+        floor_mesh.addVertex(Vertex{
+            {-floor_size, floor_y, -floor_size},
+            {0.0f, 0.0f}
+        });
+        floor_mesh.addVertex(Vertex{
+            {-floor_size, floor_y, floor_size},
+            {0.0f, max_text_coord}
+        });
+        floor_mesh.addVertex(Vertex{
+            {floor_size, floor_y, floor_size},
+            {max_text_coord, max_text_coord}
+        });
+        floor_mesh.addVertex(Vertex{
+            {floor_size, floor_y, -floor_size},
+            {max_text_coord, 0.0f}
+        });
+        floor_mesh.addIndices({0, 1, 3, 1, 2, 3});
+        floor_mesh.flush();
+        ////////////////////////////////////////////////
 
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
@@ -384,6 +412,13 @@ public:
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.007f})));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+
+            cat_texture.bind();
+            floor_mesh.bind();
+            shader.setUniformMat4("uMVP",
+                camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0})));
+            glEnable(GL_DEPTH_TEST);
+            glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             engine_globals.visualizer->render(camera_.getViewProj());
 
