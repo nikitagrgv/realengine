@@ -448,7 +448,7 @@ public:
             light_color.z = sin(time * 1.3) / 2.0f + 0.5f;
 
             light_pos.x = sin(time * 1.1) * 2.0f + 0.5f;
-            light_pos.y = cos(time * 1.2) * 2.0f + 3.0f;
+            light_pos.y = cos(time * 1.2) * 2.0f + 1.3f;
             light_pos.z = sin(time * 1.3) * 2.0f + 0.5f;
 
             shader.bind();
