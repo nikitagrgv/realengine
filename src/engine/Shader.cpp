@@ -101,6 +101,7 @@ bool Shader::isLoaded() const
 
 void Shader::clear()
 {
+    uniform_locations_.clear();
     if (program_id_ != 0)
     {
         glDeleteProgram(program_id_);

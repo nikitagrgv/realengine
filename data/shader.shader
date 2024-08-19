@@ -21,8 +21,9 @@ void main()
 out vec4 FragColor;
 
 uniform sampler2D uTexture;
+uniform vec4 uLightColor;
 
 void main()
 {
-    FragColor = texture(uTexture, ioUV);
+    FragColor = uLightColor * texture(uTexture, ioUV);
 }

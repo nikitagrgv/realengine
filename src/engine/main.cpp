@@ -431,6 +431,7 @@ public:
             color.z = sin(time * 1.3) / 2.0f + 0.5f;
 
             shader.bind();
+            shader.setUniformVec4("uLightColor", color);
 
             ////////////////////////////////////////////////
             shader.setUniformMat4("uMVP",
