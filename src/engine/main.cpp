@@ -408,6 +408,7 @@ public:
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
 
+        glm::vec4 color{1.0f};
         while (!exit_)
         {
             engine_globals.time->update();
@@ -423,6 +424,11 @@ public:
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            const float time = engine_globals.time->getTime();
+            color.x = sin(time * 1.1) / 2.0f + 0.5f;
+            color.y = cos(time * 1.2) / 2.0f + 0.5f;
+            color.z = sin(time * 1.3) / 2.0f + 0.5f;
 
             shader.bind();
 
@@ -454,7 +460,7 @@ public:
 
             ////////////////////////////////////////////////
             light_cube_shader.bind();
-            light_cube_shader.setUniformVec4("uColor", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+            light_cube_shader.setUniformVec4("uColor", color);
             light_cube_shader.setUniformMat4("uMVP",
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{-1, 1, 0})
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
