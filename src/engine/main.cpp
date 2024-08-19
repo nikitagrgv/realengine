@@ -373,6 +373,7 @@ public:
             {
                 Vertex v;
                 v.pos = loader.getVertexPosition(i);
+                v.norm = loader.getVertexNormal(i);
                 v.uv = loader.getVertexTextureCoords(i);
                 stickman_mesh.addVertex(v);
             }
