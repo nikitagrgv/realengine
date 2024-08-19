@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #version 330 core
 
+#inout vec3 ioGlobalPos;
 #inout vec2 ioUV;
 #inout vec3 ioNormal;
 
@@ -15,7 +16,9 @@ uniform mat4 uViewProj;
 
 void main()
 {
-    gl_Position = uViewProj * uModel * vec4(aPos, 1.0f);
+    vec4 glob_pos = uModel * vec4(aPos, 1.0f);
+    gl_Position = uViewProj * glob_pos;
+    ioGlobalPos = glob_pos.xyz;
     ioUV = aUV;
     ioNormal = aNormal;
 }
