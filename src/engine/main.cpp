@@ -244,6 +244,8 @@ public:
         update_viewproj();
     }
 
+    glm::mat4 getMVP(const glm::mat4 &model) const { return viewproj_ * model; }
+
     void setPerspective(float fov_deg, float aspect, float z_near, float z_far)
     {
         setProj(glm::perspective(glm::radians(fov_deg), aspect, z_near, z_far));
@@ -367,11 +369,9 @@ public:
 
             shader.bind();
 
-            glm::mat4 matr = glm::rotate(glm::mat4{1.0f}, 0 * float(engine_globals.time->getTime()),
-                glm::vec3(0.8f, 0.8f, 1.0f));
-            shader.setUniformMat4("uModel", matr);
-            shader.setUniformMat4("uView", camera_.getView());
-            shader.setUniformMat4("uProj", camera_.getProj());
+            shader.setUniformMat4("uMVP",
+                camera_.getMVP(glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
+                    glm::vec3(0.8f, 0.8f, 1.0f))));
             texture1.bind();
             mesh.bind();
             glEnable(GL_DEPTH_TEST);
@@ -379,9 +379,9 @@ public:
 
             texture2.bind();
             mesh2.bind();
-            shader.setUniformMat4("uModel",
-                glm::translate(glm::mat4{1.0f}, glm::vec3{2, 2, 0})
-                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.05f}));
+            shader.setUniformMat4("uMVP",
+                camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{2, 2, 0})
+                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.05f})));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, mesh2.getNumIndices(), GL_UNSIGNED_INT, 0);
 
