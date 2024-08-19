@@ -400,6 +400,7 @@ public:
 
             shader.bind();
 
+            ////////////////////////////////////////////////
             shader.setUniformMat4("uMVP",
                 camera_.getMVP(glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
                     glm::vec3(0.8f, 0.8f, 1.0f))));
@@ -408,6 +409,7 @@ public:
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
+            ////////////////////////////////////////////////
             stickman_texture.bind();
             stickman_mesh.bind();
             shader.setUniformMat4("uMVP",
@@ -416,6 +418,7 @@ public:
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
+            ////////////////////////////////////////////////
             floor_texture.bind();
             floor_mesh.bind();
             shader.setUniformMat4("uMVP",
@@ -423,6 +426,7 @@ public:
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
+            ////////////////////////////////////////////////
             engine_globals.visualizer->render(camera_.getViewProj());
 
             glfwSwapBuffers(window_);
