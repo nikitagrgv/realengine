@@ -350,6 +350,9 @@ public:
         }
         stickman_mesh.flush();
         ////////////////////////////////////////////////
+        Image floor_image("floor.png");
+        Texture floor_texture(floor_image);
+
         TemplateMesh<Vertex> floor_mesh;
         floor_mesh.addAttributeFloat(3);
         floor_mesh.addAttributeFloat(2);
@@ -413,7 +416,7 @@ public:
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
-            cat_texture.bind();
+            floor_texture.bind();
             floor_mesh.bind();
             shader.setUniformMat4("uMVP",
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0})));
