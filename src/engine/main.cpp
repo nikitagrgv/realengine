@@ -293,13 +293,39 @@ public:
     {
         init();
 
-        Shader shader("shader.shader");
-
         struct Vertex
         {
             glm::vec3 pos{0.0f};
             glm::vec2 uv{0.0f};
         };
+
+        ///////////////////////////////////////////////////////////////////////////////
+        struct LightCubeVertex
+        {
+            glm::vec3 pos{0.0f};
+        };
+        Shader light_cube_shader("light_cube.shader");
+
+        TemplateMesh<LightCubeVertex> light_cube_mesh;
+        light_cube_mesh.addAttributeFloat(3); // pos
+        // make a thehaeder
+        light_cube_mesh.addVertex({
+            {0.0f, 1.0f, 0.0f}
+        });
+        light_cube_mesh.addVertex({
+            {1.0f, 0.0f, 0.0f}
+        });
+        light_cube_mesh.addVertex({
+            {-1.0f, 0.0f, 0.0f}
+        });
+        light_cube_mesh.addVertex({
+            {0.0f, 0.0f, 1.0f}
+        });
+        light_cube_mesh.addIndices({0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 3, 2});
+        light_cube_mesh.flush();
+
+        ///////////////////////////////////////////////////////////////////////////////
+        Shader shader("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
         Image cat_image("image.png");
@@ -425,6 +451,16 @@ public:
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0})));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+
+            ////////////////////////////////////////////////
+            light_cube_shader.bind();
+            light_cube_shader.setUniformVec4("uColor", glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+            light_cube_shader.setUniformMat4("uMVP",
+                camera_.getMVP(glm::translate(glm::mat4{1.0f}, glm::vec3{-1, 1, 0})
+                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
+            light_cube_mesh.bind();
+            glEnable(GL_DEPTH_TEST);
+            glDrawElements(GL_TRIANGLES, light_cube_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
             engine_globals.visualizer->render(camera_.getViewProj());
