@@ -443,7 +443,7 @@ public:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             const float time = engine_globals.time->getTime();
-            const float anim_time = time * 0.4f;
+            const float anim_time = time * 0.2f;
             light_color.x = sin(anim_time * 1.1) * 0.4 + 0.6f;
             light_color.y = cos(anim_time * 1.2) * 0.4 + 0.6f;
             light_color.z = sin(anim_time * 1.3) * 0.4 + 0.6f;
