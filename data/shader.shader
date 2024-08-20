@@ -42,5 +42,10 @@ void main()
     float diff = max(dot(norm, dir_to_light), 0.0);
     vec3 diffuse = diff * uLightColor;
 
-    FragColor = vec4(ambient + diffuse, 1) * texture(uTexture, ioUV);
+    vec3 dir_to_view = normalize(uCameraPos - ioGlobalPos);
+    vec3 reflect_dir = reflect(-dir_to_light, norm);
+    float spec = pow(max(dot(dir_to_view, reflect_dir), 0.0), 32);
+    vec3 specular = spec * uLightColor * 5.0f;
+
+    FragColor = vec4(ambient + diffuse + specular, 1) * texture(uTexture, ioUV);
 }

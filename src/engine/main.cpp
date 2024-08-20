@@ -342,12 +342,12 @@ public:
         cat_mesh.addAttributeFloat(3);
         cat_mesh.addAttributeFloat(2);
         {
-            MeshLoader loader("object.obj");
+            MeshLoader loader("chair.obj");
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
                 Vertex v;
                 v.pos = loader.getVertexPosition(i);
-                v.norm = loader.getVertexNormal(i);
+                v.norm = -loader.getVertexNormal(i);
                 v.uv = loader.getVertexTextureCoords(i);
                 cat_mesh.addVertex(v);
             }
@@ -367,7 +367,7 @@ public:
         stickman_mesh.addAttributeFloat(3); // norm
         stickman_mesh.addAttributeFloat(2); // uv
         {
-            MeshLoader loader("stickman.obj");
+            MeshLoader loader("chair.obj");
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
                 Vertex v;
@@ -463,13 +463,15 @@ public:
             shader.setUniformVec3("uCameraPos", camera_.getPosition());
             shader.setUniformMat4("uViewProj", camera_.getViewProj());
 
+            glCullFace(GL_BACK);
             ////////////////////////////////////////////////
             shader.setUniformMat4("uModel",
                 glm::rotate(glm::mat4{1.0f}, float(0.25*engine_globals.time->getTime()),
-                    glm::vec3(0.8f, 0.8f, 0.8f)) * glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f}));
+                    glm::vec3(0.8f, 0.8f, 0.8f)) * glm::scale(glm::mat4{1.0f}, glm::vec3{0.006f}));
             cat_texture.bind();
             cat_mesh.bind();
             glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
@@ -479,6 +481,7 @@ public:
                 glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f}));
             glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
@@ -486,6 +489,7 @@ public:
             floor_mesh.bind();
             shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
             glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
@@ -496,6 +500,7 @@ public:
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
             light_cube_mesh.bind();
             glEnable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, light_cube_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
