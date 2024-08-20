@@ -20,7 +20,7 @@ void main()
     gl_Position = uViewProj * glob_pos;
     ioGlobalPos = glob_pos.xyz;
     ioUV = aUV;
-    ioNormal = aNormal;
+    ioNormal = mat3(transpose(inverse(uModel))) * aNormal;
 }
 
 /////////////////////////////////////////////////////////////////////////////////

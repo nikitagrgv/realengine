@@ -358,7 +358,7 @@ public:
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
                 Vertex v;
-                v.pos = loader.getVertexPosition(i) * 10.0f;
+                v.pos = loader.getVertexPosition(i);
                 v.norm = loader.getVertexNormal(i);
                 v.uv = loader.getVertexTextureCoords(i);
                 cat_mesh.addVertex(v);
@@ -380,12 +380,12 @@ public:
         stickman_mesh.addAttributeFloat(3); // norm
         stickman_mesh.addAttributeFloat(2); // uv
         {
-            MeshLoader loader("object.obj");
+            MeshLoader loader("stickman.obj");
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
                 Vertex v;
-                v.pos = loader.getVertexPosition(i)* 10.0f;
-                v.norm = loader.getVertexNormal(i);
+                v.pos = loader.getVertexPosition(i);
+                v.norm = -loader.getVertexNormal(i);
                 v.uv = loader.getVertexTextureCoords(i);
                 stickman_mesh.addVertex(v);
             }
@@ -445,7 +445,7 @@ public:
             {
                 const Vertex &v = mesh.getVertex(i);
                 engine_globals.visualizer->addLine(to_local(v.pos), to_local(v.pos + v.norm),
-                    {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f});
+                    {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 0.2f});
             }
         };
 
@@ -473,16 +473,19 @@ public:
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            const float time = engine_globals.time->getTime();
-            const float anim_time = time * 0.00001f;
-            const float color_anim_time = time * 0.0001f;
-            light_color.x = sin(anim_time * 1.1) * 0.4 + 0.6f;
-            light_color.y = cos(anim_time * 1.2) * 0.4 + 0.6f;
-            light_color.z = sin(anim_time * 1.3) * 0.4 + 0.6f;
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            light_pos.x = sin(color_anim_time * 1.1) * 1.5f + 0.5f;
-            light_pos.y = cos(color_anim_time * 1.2) * 1.5f + 1.3f;
-            light_pos.z = sin(color_anim_time * 1.3) * 1.5f + 0.5f;
+            const float time = engine_globals.time->getTime();
+            const float anim_time = time * 1.0f;
+            const float color_anim_time = time * 0.2f;
+            light_color.x = sin(1+anim_time * 1.123) * 0.4 + 0.6f;
+            light_color.y = cos(52+anim_time * 1.3423) * 0.4 + 0.6f;
+            light_color.z = sin(11+anim_time * 1.023) * 0.4 + 0.6f;
+
+            light_pos.x = sin(6+color_anim_time * 1.0351) * 1.5f + 0.5f;
+            light_pos.y = cos(1+color_anim_time * 1.2561) * 1.5f + 1.3f;
+            light_pos.z = sin(7+color_anim_time * 1.125) * 1.5f + 0.5f;
 
             shader.bind();
             shader.setUniformVec3("uLightColor", light_color);
@@ -495,7 +498,7 @@ public:
             cat_transform = glm::rotate(glm::mat4{1.0f},
                                 float(0.25 * engine_globals.time->getTime()),
                                 glm::vec3(1.0f, 0.0f, 0.0f))
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.06f});
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f});
             shader.setUniformMat4("uModel", cat_transform);
             cat_texture.bind();
             cat_mesh.bind();
@@ -567,7 +570,7 @@ private:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); // TODO DEBUG
+        // glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); // TODO DEBUG
 
         window_ = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "LearnOpenGL", NULL, NULL);
         if (window_ == NULL)
