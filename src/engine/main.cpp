@@ -336,27 +336,21 @@ public:
         cat_mesh.addAttributeFloat(3);
         cat_mesh.addAttributeFloat(3);
         cat_mesh.addAttributeFloat(2);
-        cat_mesh.addVertex({
-            {0.5f, 0.5f, 0.0f},
-            {0, 0, 1},
-            {1.0f, 1.0f}
-        });
-        cat_mesh.addVertex({
-            {0.5f, -0.5f, 0.0f},
-            {0, 0, 1},
-            {1.0f, 0.0f}
-        });
-        cat_mesh.addVertex({
-            {-0.5f, -0.5f, 0.0f},
-            {0, 0, 1},
-            {0.0f, 0.0f}
-        });
-        cat_mesh.addVertex({
-            {-0.5f, 0.5f, 0.0f},
-            {0, 0, 1},
-            {0.0f, 1.0f}
-        });
-        cat_mesh.addIndices({0, 1, 3, 1, 2, 3});
+        {
+            MeshLoader loader("object.obj");
+            for (int i = 0; i < loader.getNumVertices(); i++)
+            {
+                Vertex v;
+                v.pos = loader.getVertexPosition(i);
+                v.norm = loader.getVertexNormal(i);
+                v.uv = loader.getVertexTextureCoords(i);
+                cat_mesh.addVertex(v);
+            }
+            for (int i = 0; i < loader.getNumIndices(); i++)
+            {
+                cat_mesh.addIndex(loader.getIndex(i));
+            }
+        }
         cat_mesh.flush();
 
         ////////////////////////////////////////////////
@@ -465,8 +459,8 @@ public:
 
             ////////////////////////////////////////////////
             shader.setUniformMat4("uModel",
-                glm::rotate(glm::mat4{1.0f}, float(engine_globals.time->getTime()),
-                    glm::vec3(0.8f, 0.8f, 1.0f)));
+                glm::rotate(glm::mat4{1.0f}, float(0.25*engine_globals.time->getTime()),
+                    glm::vec3(0.8f, 0.8f, 0.8f)) * glm::scale(glm::mat4{1.0f}, glm::vec3{0.6f}));
             cat_texture.bind();
             cat_mesh.bind();
             glEnable(GL_DEPTH_TEST);
@@ -586,7 +580,7 @@ private:
             glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
 
-        float speed = 1.0f;
+        float speed = 2.0f;
         if (glfwGetKey(window_, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         {
             speed *= 2;
