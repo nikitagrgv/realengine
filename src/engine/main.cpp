@@ -477,7 +477,7 @@ public:
             stickman_mesh.bind();
             shader.setUniformMat4("uModel",
                 glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
-                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.007f}));
+                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f}));
             glEnable(GL_DEPTH_TEST);
             glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
