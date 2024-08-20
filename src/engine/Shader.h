@@ -26,19 +26,22 @@ public:
     void setUniformVec4(const char *name, const glm::vec4 &value);
     void setUniformMat4(const char *name, const glm::mat4 &value);
 
+    void recompile();
+
     bool isLoaded() const;
     void clear();
 
     void bind();
 
 private:
-    void read_shader(const char *path, std::string &vertex, std::string &fragment);
-    bool check_compiler_errors(unsigned int shader);
-    bool check_linking_errors(unsigned int program);
+    static void read_shader(const char *path, std::string &vertex, std::string &fragment);
+    static bool check_compiler_errors(unsigned int shader);
+    static bool check_linking_errors(unsigned int program);
 
     int get_uniform_location(const char *name);
 
 private:
+    std::string filepath_;
     std::unordered_map<std::string, int> uniform_locations_;
     unsigned int program_id_{0};
 };

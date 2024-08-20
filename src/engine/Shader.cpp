@@ -77,26 +77,54 @@ void Shader::loadFile(const char *path)
     std::string fragment_source;
     read_shader(path, vertex_source, fragment_source);
     loadSources(vertex_source.c_str(), fragment_source.c_str());
+    filepath_ = path;
 }
 
 void Shader::setUniformFloat(const char *name, float value)
 {
-    glUniform1f(get_uniform_location(name), value);
+    const int location = get_uniform_location(name);
+    if (location != -1)
+    {
+        glUniform1f(location, value);
+    }
 }
 
 void Shader::setUniformVec3(const char *name, const glm::vec3 &value)
 {
-    glUniform3f(get_uniform_location(name), value.x, value.y, value.z);
+    const int location = get_uniform_location(name);
+    if (location != -1)
+    {
+        glUniform3f(location, value.x, value.y, value.z);
+    }
 }
 
 void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
 {
-    glUniform4f(get_uniform_location(name), value.x, value.y, value.z, value.w);
+    const int location = get_uniform_location(name);
+    if (location != -1)
+    {
+        glUniform4f(location, value.x, value.y, value.z, value.w);
+    }
 }
 
 void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
 {
-    glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &value[0][0]);
+    const int location = get_uniform_location(name);
+    if (location != -1)
+    {
+        glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+    }
+}
+
+void Shader::recompile()
+{
+    if (filepath_.empty())
+    {
+        return;
+    }
+    // TODO: shit
+    std::string filepath = std::move(filepath_);
+    loadFile(filepath.c_str());
 }
 
 bool Shader::isLoaded() const
@@ -106,6 +134,7 @@ bool Shader::isLoaded() const
 
 void Shader::clear()
 {
+    filepath_.clear();
     uniform_locations_.clear();
     if (program_id_ != 0)
     {
@@ -180,7 +209,10 @@ bool Shader::check_linking_errors(unsigned int program)
 
 int Shader::get_uniform_location(const char *name)
 {
-    assert(isLoaded());
+    if (!isLoaded())
+    {
+        return -1;
+    }
     auto it = uniform_locations_.find(name);
     if (it != uniform_locations_.end())
     {

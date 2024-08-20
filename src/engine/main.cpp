@@ -432,6 +432,12 @@ public:
 
             process_input();
 
+            if (glfwGetKey(window_, GLFW_KEY_F5) == GLFW_PRESS)
+            {
+                shader.recompile();
+                light_cube_shader.recompile();
+            }
+
             const auto add_axis = [](const glm::vec3 &axis) {
                 engine_globals.visualizer->addLine(glm::vec3{0, 0, 0}, axis, glm::vec4{axis, 1.0f});
             };
