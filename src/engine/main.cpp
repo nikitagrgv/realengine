@@ -443,13 +443,14 @@ public:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             const float time = engine_globals.time->getTime();
-            light_color.x = sin(time * 1.1) / 2.0f + 0.5f;
-            light_color.y = cos(time * 1.2) / 2.0f + 0.5f;
-            light_color.z = sin(time * 1.3) / 2.0f + 0.5f;
+            const float anim_time = time * 0.4f;
+            light_color.x = sin(anim_time * 1.1) / 1.5f + 0.5f;
+            light_color.y = cos(anim_time * 1.2) / 1.5f + 0.5f;
+            light_color.z = sin(anim_time * 1.3) / 1.5f + 0.5f;
 
-            light_pos.x = sin(time * 1.1) * 2.0f + 0.5f;
-            light_pos.y = cos(time * 1.2) * 2.0f + 1.3f;
-            light_pos.z = sin(time * 1.3) * 2.0f + 0.5f;
+            light_pos.x = sin(anim_time * 1.1) * 1.5f + 0.5f;
+            light_pos.y = cos(anim_time * 1.2) * 1.5f + 1.3f;
+            light_pos.z = sin(anim_time * 1.3) * 1.5f + 0.5f;
 
             shader.bind();
             shader.setUniformVec3("uLightColor", light_color);
