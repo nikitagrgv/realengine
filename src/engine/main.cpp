@@ -474,8 +474,8 @@ public:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             const float time = engine_globals.time->getTime();
-            const float anim_time = time * 0.1f;
-            const float color_anim_time = anim_time * 0.1215f;
+            const float anim_time = time * 0.00001f;
+            const float color_anim_time = time * 0.0001f;
             light_color.x = sin(anim_time * 1.1) * 0.4 + 0.6f;
             light_color.y = cos(anim_time * 1.2) * 0.4 + 0.6f;
             light_color.z = sin(anim_time * 1.3) * 0.4 + 0.6f;
@@ -495,7 +495,7 @@ public:
             cat_transform = glm::rotate(glm::mat4{1.0f},
                                 float(0.25 * engine_globals.time->getTime()),
                                 glm::vec3(1.0f, 0.0f, 0.0f))
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.006f});
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.06f});
             shader.setUniformMat4("uModel", cat_transform);
             cat_texture.bind();
             cat_mesh.bind();
