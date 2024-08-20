@@ -450,9 +450,9 @@ public:
 
             const float time = engine_globals.time->getTime();
             const float anim_time = time * 0.4f;
-            light_color.x = sin(anim_time * 1.1) / 1.5f + 0.5f;
-            light_color.y = cos(anim_time * 1.2) / 1.5f + 0.5f;
-            light_color.z = sin(anim_time * 1.3) / 1.5f + 0.5f;
+            light_color.x = sin(anim_time * 1.1) * 0.4 + 0.6f;
+            light_color.y = cos(anim_time * 1.2) * 0.4 + 0.6f;
+            light_color.z = sin(anim_time * 1.3) * 0.4 + 0.6f;
 
             light_pos.x = sin(anim_time * 1.1) * 1.5f + 0.5f;
             light_pos.y = cos(anim_time * 1.2) * 1.5f + 1.3f;
