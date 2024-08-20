@@ -203,6 +203,20 @@ public:
         lines_.addIndex(v);
     }
 
+    void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color0,
+        const glm::vec4 &color1)
+    {
+        LinePoint p;
+        p.color = color0;
+        p.pos = s0;
+        int v = lines_.addVertex(p);
+        lines_.addIndex(v);
+        p.color = color1;
+        p.pos = s1;
+        v = lines_.addVertex(p);
+        lines_.addIndex(v);
+    }
+
     void render(const glm::mat4 &viewproj)
     {
         lines_.flush(true);
@@ -274,10 +288,7 @@ public:
         update_viewproj();
     }
 
-    glm::vec3 getPosition() const
-    {
-        return transform_[3];
-    }
+    glm::vec3 getPosition() const { return transform_[3]; }
 
     const glm::mat4 &getViewProj() const { return viewproj_; }
 
@@ -337,17 +348,18 @@ public:
         Image cat_image("image.png");
         Texture cat_texture(cat_image);
 
+        glm::mat4 cat_transform = glm::mat4{1.0f};
         TemplateMesh<Vertex> cat_mesh;
         cat_mesh.addAttributeFloat(3);
         cat_mesh.addAttributeFloat(3);
         cat_mesh.addAttributeFloat(2);
         {
-            MeshLoader loader("chair.obj");
+            MeshLoader loader("object.obj");
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
                 Vertex v;
-                v.pos = loader.getVertexPosition(i);
-                v.norm = -loader.getVertexNormal(i);
+                v.pos = loader.getVertexPosition(i) * 10.0f;
+                v.norm = loader.getVertexNormal(i);
                 v.uv = loader.getVertexTextureCoords(i);
                 cat_mesh.addVertex(v);
             }
@@ -362,17 +374,18 @@ public:
         Image stickman_image("image2.png");
         Texture stickman_texture(stickman_image);
 
+        glm::mat4 stickman_transform = glm::mat4{1.0f};
         TemplateMesh<Vertex> stickman_mesh;
         stickman_mesh.addAttributeFloat(3); // pos
         stickman_mesh.addAttributeFloat(3); // norm
         stickman_mesh.addAttributeFloat(2); // uv
         {
-            MeshLoader loader("chair.obj");
+            MeshLoader loader("object.obj");
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
                 Vertex v;
-                v.pos = loader.getVertexPosition(i);
-                v.norm = -loader.getVertexNormal(i);
+                v.pos = loader.getVertexPosition(i)* 10.0f;
+                v.norm = loader.getVertexNormal(i);
                 v.uv = loader.getVertexTextureCoords(i);
                 stickman_mesh.addVertex(v);
             }
@@ -423,6 +436,19 @@ public:
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
 
+        const auto visualize_normals = [](const TemplateMesh<Vertex> &mesh,
+                                           const glm::mat4 &transform) {
+            const auto to_local = [&](const glm::vec3 &v) {
+                return transform * glm::vec4(v, 1);
+            };
+            for (int i = 0; i < mesh.getNumVertices(); i++)
+            {
+                const Vertex &v = mesh.getVertex(i);
+                engine_globals.visualizer->addLine(to_local(v.pos), to_local(v.pos + v.norm),
+                    {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f});
+            }
+        };
+
         glm::vec3 light_color{1.0f};
         glm::vec3 light_pos{1, 1, 1};
         while (!exit_)
@@ -448,14 +474,15 @@ public:
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             const float time = engine_globals.time->getTime();
-            const float anim_time = time * 0.05f;
+            const float anim_time = time * 0.1f;
+            const float color_anim_time = anim_time * 0.1215f;
             light_color.x = sin(anim_time * 1.1) * 0.4 + 0.6f;
             light_color.y = cos(anim_time * 1.2) * 0.4 + 0.6f;
             light_color.z = sin(anim_time * 1.3) * 0.4 + 0.6f;
 
-            light_pos.x = sin(anim_time * 1.1) * 1.5f + 0.5f;
-            light_pos.y = cos(anim_time * 1.2) * 1.5f + 1.3f;
-            light_pos.z = sin(anim_time * 1.3) * 1.5f + 0.5f;
+            light_pos.x = sin(color_anim_time * 1.1) * 1.5f + 0.5f;
+            light_pos.y = cos(color_anim_time * 1.2) * 1.5f + 1.3f;
+            light_pos.z = sin(color_anim_time * 1.3) * 1.5f + 0.5f;
 
             shader.bind();
             shader.setUniformVec3("uLightColor", light_color);
@@ -465,9 +492,11 @@ public:
 
             glCullFace(GL_BACK);
             ////////////////////////////////////////////////
-            shader.setUniformMat4("uModel",
-                glm::rotate(glm::mat4{1.0f}, float(0.25*engine_globals.time->getTime()),
-                    glm::vec3(0.8f, 0.8f, 0.8f)) * glm::scale(glm::mat4{1.0f}, glm::vec3{0.006f}));
+            cat_transform = glm::rotate(glm::mat4{1.0f},
+                                float(0.25 * engine_globals.time->getTime()),
+                                glm::vec3(1.0f, 0.0f, 0.0f))
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.006f});
+            shader.setUniformMat4("uModel", cat_transform);
             cat_texture.bind();
             cat_mesh.bind();
             glEnable(GL_DEPTH_TEST);
@@ -477,9 +506,9 @@ public:
             ////////////////////////////////////////////////
             stickman_texture.bind();
             stickman_mesh.bind();
-            shader.setUniformMat4("uModel",
-                glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
-                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f}));
+            stickman_transform = glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f});
+            shader.setUniformMat4("uModel", stickman_transform);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
@@ -503,6 +532,10 @@ public:
             glDisable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, light_cube_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
+            ///////////////////////////////////////////////
+            visualize_normals(cat_mesh, cat_transform);
+            visualize_normals(stickman_mesh, stickman_transform);
+            visualize_normals(floor_mesh, glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
             ////////////////////////////////////////////////
             engine_globals.visualizer->render(camera_.getViewProj());
 
