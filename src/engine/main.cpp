@@ -460,7 +460,7 @@ public:
             ////////////////////////////////////////////////
             shader.setUniformMat4("uModel",
                 glm::rotate(glm::mat4{1.0f}, float(0.25*engine_globals.time->getTime()),
-                    glm::vec3(0.8f, 0.8f, 0.8f)) * glm::scale(glm::mat4{1.0f}, glm::vec3{0.6f}));
+                    glm::vec3(0.8f, 0.8f, 0.8f)) * glm::scale(glm::mat4{1.0f}, glm::vec3{0.2f}));
             cat_texture.bind();
             cat_mesh.bind();
             glEnable(GL_DEPTH_TEST);
