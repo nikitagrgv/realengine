@@ -274,6 +274,11 @@ public:
         update_viewproj();
     }
 
+    glm::vec3 getPosition() const
+    {
+        return transform_[3];
+    }
+
     const glm::mat4 &getViewProj() const { return viewproj_; }
 
 private:
@@ -455,6 +460,7 @@ public:
             shader.bind();
             shader.setUniformVec3("uLightColor", light_color);
             shader.setUniformVec3("uLightPos", light_pos);
+            shader.setUniformVec3("uCameraPos", camera_.getPosition());
             shader.setUniformMat4("uViewProj", camera_.getViewProj());
 
             ////////////////////////////////////////////////

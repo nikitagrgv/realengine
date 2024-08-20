@@ -30,6 +30,7 @@ out vec4 FragColor;
 uniform sampler2D uTexture;
 uniform vec3 uLightColor;
 uniform vec3 uLightPos;
+uniform vec3 uCameraPos;
 
 void main()
 {
