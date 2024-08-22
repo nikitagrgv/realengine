@@ -1,4 +1,7 @@
 // clang-format off
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 // clang-format on
@@ -453,6 +456,8 @@ public:
         glm::vec3 light_pos{1, 1, 1};
         while (!exit_)
         {
+            glfwPollEvents();
+
             engine_globals.time->update();
 
             process_input();
@@ -479,13 +484,13 @@ public:
             const float time = engine_globals.time->getTime();
             const float anim_time = time * 1.0f;
             const float color_anim_time = time * 0.2f;
-            light_color.x = sin(1+anim_time * 1.123) * 0.4 + 0.6f;
-            light_color.y = cos(52+anim_time * 1.3423) * 0.4 + 0.6f;
-            light_color.z = sin(11+anim_time * 1.023) * 0.4 + 0.6f;
+            light_color.x = sin(1 + anim_time * 1.123) * 0.4 + 0.6f;
+            light_color.y = cos(52 + anim_time * 1.3423) * 0.4 + 0.6f;
+            light_color.z = sin(11 + anim_time * 1.023) * 0.4 + 0.6f;
 
-            light_pos.x = sin(6+color_anim_time * 1.0351) * 1.5f + 0.5f;
-            light_pos.y = cos(1+color_anim_time * 1.2561) * 1.5f + 1.3f;
-            light_pos.z = sin(7+color_anim_time * 1.125) * 1.5f + 0.5f;
+            light_pos.x = sin(6 + color_anim_time * 1.0351) * 1.5f + 0.5f;
+            light_pos.y = cos(1 + color_anim_time * 1.2561) * 1.5f + 1.3f;
+            light_pos.z = sin(7 + color_anim_time * 1.125) * 1.5f + 0.5f;
 
             shader.bind();
             shader.setUniformVec3("uLightColor", light_color);
@@ -542,8 +547,8 @@ public:
             ////////////////////////////////////////////////
             engine_globals.visualizer->render(camera_.getViewProj());
 
+
             glfwSwapBuffers(window_);
-            glfwPollEvents();
 
             if (glfwWindowShouldClose(window_))
             {
@@ -587,6 +592,19 @@ private:
         {
             std::cout << "Failed to initialize GLAD" << std::endl;
         }
+
+        //////////////////////////////////////
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+        (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+        ImGui::StyleColorsDark();
+        ImGui_ImplGlfw_InitForOpenGL(window_, true);
+        ImGui_ImplOpenGL3_Init("#version 330");
+        //////////////////////////////////////
+
 
         update_mouse();
         mouse_delta_x_ = 0;
