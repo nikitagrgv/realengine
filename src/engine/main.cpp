@@ -441,6 +441,7 @@ public:
 
         const auto visualize_normals = [](const TemplateMesh<Vertex> &mesh,
                                            const glm::mat4 &transform) {
+            return;
             const auto to_local = [&](const glm::vec3 &v) {
                 return transform * glm::vec4(v, 1);
             };
@@ -452,11 +453,36 @@ public:
             }
         };
 
+
+        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
         glm::vec3 light_color{1.0f};
         glm::vec3 light_pos{1, 1, 1};
         while (!exit_)
         {
             glfwPollEvents();
+
+            //////////////////////////////////////////////// IMGUI
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+            {
+                static float f = 0.0f;
+                static int counter = 0;
+
+                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+                ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                    counter++;
+                ImGui::SameLine();
+                ImGui::Text("counter = %d", counter);
+
+                ImGui::End();
+            }
+            ImGui::Render();
+            //////////////////////////////////////////////// IMGUI
 
             engine_globals.time->update();
 
@@ -547,6 +573,10 @@ public:
             ////////////////////////////////////////////////
             engine_globals.visualizer->render(camera_.getViewProj());
 
+
+            ////////////////// IMGUI
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            ////////////////// IMGUI
 
             glfwSwapBuffers(window_);
 

@@ -6,7 +6,7 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/imconfig.h
         ${CMAKE_CURRENT_SOURCE_DIR}/imgui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/imgui.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_demo.cpp
+#        ${CMAKE_CURRENT_SOURCE_DIR}/imgui_demo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/imgui_draw.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/imgui_internal.h
         ${CMAKE_CURRENT_SOURCE_DIR}/imgui_tables.cpp
