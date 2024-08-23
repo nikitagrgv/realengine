@@ -242,7 +242,7 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
     };
 
     // doesn't move pointer if does not match or moves the pointer after the expression
-    const auto check_str = [&](char *name, std::string &define_name, bool &matched,
+    const auto check_str_with_arg = [&](char *name, std::string &define_name, bool &matched,
                                  const char *token, int token_len) -> char * {
         if (strncmp(name, token, token_len) == 0)
         {
@@ -260,24 +260,29 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
         return name;
     };
 
-    const auto check_ifdef_str = [&](char *name, std::string &define_name,
-                                     bool &matched) -> char * {
-        return check_str(name, define_name, matched, "#ifdef ", 7);
-    };
-
-    const auto check_ifndef_str = [&](char *name, std::string &define_name,
-                                      bool &matched) -> char * {
-        return check_str(name, define_name, matched, "#ifndef ", 8);
-    };
-
-    const auto check_endif_str = [&](char *name, bool &matched) -> char * {
-        if (strncmp(name, "#endif", 6) == 0)
+    const auto check_str = [&](char *name, bool &matched, const char *token,
+                               int token_len) -> char * {
+        if (strncmp(name, token, token_len) == 0)
         {
             matched = true;
             return name + 6;
         }
         matched = false;
         return name;
+    };
+
+    const auto check_ifdef_str = [&](char *name, std::string &define_name,
+                                     bool &matched) -> char * {
+        return check_str_with_arg(name, define_name, matched, "#ifdef ", 7);
+    };
+
+    const auto check_ifndef_str = [&](char *name, std::string &define_name,
+                                      bool &matched) -> char * {
+        return check_str_with_arg(name, define_name, matched, "#ifndef ", 8);
+    };
+
+    const auto check_endif_str = [&](char *name, bool &matched) -> char * {
+        return check_str(name, matched, "#endif", 6);
     };
 
     std::vector<bool> state_stack;
