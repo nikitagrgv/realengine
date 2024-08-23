@@ -290,9 +290,9 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
                 std::cout << "#ifdef name is empty" << std::endl;
                 return;
             }
+            state_stack.push_back(is_compiled);
             const bool defined = defines.find(cur_define_name) != defines.end();
             is_compiled &= defined;
-            state_stack.push_back(is_compiled);
             continue;
         }
 
@@ -304,8 +304,8 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
                 std::cout << "Too many #endif" << std::endl;
                 return;
             }
+            is_compiled = state_stack.back();
             state_stack.pop_back();
-            is_compiled = state_stack.empty() || state_stack.back();
             continue;
         }
 
