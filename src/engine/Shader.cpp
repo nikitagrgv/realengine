@@ -97,7 +97,7 @@ void Shader::recompile()
         assert(vertex_src_.empty() && fragment_src_.empty());
         std::string vertex_source;
         std::string fragment_source;
-        read_shader(filepath_.c_str(), vertex_source, fragment_source);
+        read_shader(filepath_.c_str(), defines_, vertex_source, fragment_source);
         program_id_ = compile_shader(vertex_source.c_str(), fragment_source.c_str());
     }
     else
@@ -199,12 +199,15 @@ unsigned int Shader::compile_shader(const char *vertex_src, const char *fragment
     return program_id;
 }
 
-void Shader::read_shader(const char *path, std::string &vertex, std::string &fragment)
+void Shader::read_shader(const char *path, const std::unordered_set<std::string> &defines,
+    std::string &vertex, std::string &fragment)
 {
     vertex.clear();
     fragment.clear();
 
     std::string shaders = engine_globals.fs->readFile(path);
+    apply_defines(shaders, defines);
+
     const int vertex_idx = shaders.find("#vertex");
     const int fragment_idx = shaders.find("#fragment");
     const int vertex_idx_end = vertex_idx + strlen("#vertex");
@@ -230,6 +233,11 @@ void Shader::read_shader(const char *path, std::string &vertex, std::string &fra
     fragment = std::move(common);
     replace_with(fragment, "#inout", "in");
     fragment += shaders.substr(fragment_idx_end);
+}
+
+void Shader::apply_defines(std::string &shader, const std::unordered_set<std::string> &defines)
+{
+
 }
 
 bool Shader::check_compiler_errors(unsigned int shader, const char *type)
