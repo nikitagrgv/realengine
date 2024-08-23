@@ -237,7 +237,89 @@ void Shader::read_shader(const char *path, const std::unordered_set<std::string>
 
 void Shader::apply_defines(std::string &shader, const std::unordered_set<std::string> &defines)
 {
+    const auto is_part_of_name = [](const char ch) {
+        return isdigit(ch) || isalpha(ch) || ch == '_';
+    };
 
+    // doesn't move pointer if does not match or moves the pointer after the expression
+    const auto check_ifdef_str = [&](char *name, std::string &define_name,
+                                     bool &matched) -> char * {
+        if (strncmp(name, "#ifdef", 6) == 0)
+        {
+            auto name_begin = name + 6;
+            auto name_end = name_begin;
+            while (is_part_of_name(*name_end))
+            {
+                name_end++;
+            }
+            define_name = std::string(name_begin, name_end);
+            matched = true;
+            return name_end;
+        }
+        matched = false;
+        return name;
+    };
+
+    const auto check_endif_str = [&](char *name, bool &matched) -> char * {
+        if (strncmp(name, "#endif", 6) == 0)
+        {
+            matched = true;
+            return name + 6;
+        }
+        matched = false;
+        return name;
+    };
+
+    std::vector<bool> state_stack;
+    bool is_compiled = true;
+
+    std::string cur_define_name; // tmp
+    bool matched = false;        // tmp
+
+    std::string out;
+
+    char *it = shader.data();
+    char *end = it + shader.size();
+    while (it < end)
+    {
+        it = check_ifdef_str(it, cur_define_name, matched);
+        if (matched)
+        {
+            if (cur_define_name.empty())
+            {
+                std::cout << "#ifdef name is empty" << std::endl;
+                return;
+            }
+            const bool defined = defines.find(cur_define_name) != defines.end();
+            is_compiled &= defined;
+            state_stack.push_back(is_compiled);
+            continue;
+        }
+
+        it = check_endif_str(it, matched);
+        if (matched)
+        {
+            if (state_stack.empty())
+            {
+                std::cout << "Too many #endif" << std::endl;
+                return;
+            }
+            state_stack.pop_back();
+            is_compiled = state_stack.empty() || state_stack.back();
+            continue;
+        }
+
+        if (is_compiled)
+        {
+            out += *it;
+        }
+        it++;
+    }
+    if (!state_stack.empty())
+    {
+        std::cout << "Too many #ifdef" << std::endl;
+    }
+    shader = std::move(out);
 }
 
 bool Shader::check_compiler_errors(unsigned int shader, const char *type)
