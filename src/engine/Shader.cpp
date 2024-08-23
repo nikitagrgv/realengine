@@ -242,11 +242,11 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
     };
 
     // doesn't move pointer if does not match or moves the pointer after the expression
-    const auto check_ifdef_str = [&](char *name, std::string &define_name,
-                                     bool &matched) -> char * {
-        if (strncmp(name, "#ifdef ", 7) == 0)
+    const auto check_str = [&](char *name, std::string &define_name, bool &matched,
+                                 const char *token, int token_len) -> char * {
+        if (strncmp(name, token, token_len) == 0)
         {
-            auto name_begin = name + 7;
+            auto name_begin = name + token_len;
             auto name_end = name_begin;
             while (is_part_of_name(*name_end))
             {
@@ -260,22 +260,14 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
         return name;
     };
 
+    const auto check_ifdef_str = [&](char *name, std::string &define_name,
+                                     bool &matched) -> char * {
+        return check_str(name, define_name, matched, "#ifdef ", 7);
+    };
+
     const auto check_ifndef_str = [&](char *name, std::string &define_name,
-                                 bool &matched) -> char * {
-        if (strncmp(name, "#ifndef ", 8) == 0)
-        {
-            auto name_begin = name + 8;
-            auto name_end = name_begin;
-            while (is_part_of_name(*name_end))
-            {
-                name_end++;
-            }
-            define_name = std::string(name_begin, name_end);
-            matched = true;
-            return name_end;
-        }
-        matched = false;
-        return name;
+                                      bool &matched) -> char * {
+        return check_str(name, define_name, matched, "#ifndef ", 8);
     };
 
     const auto check_endif_str = [&](char *name, bool &matched) -> char * {
