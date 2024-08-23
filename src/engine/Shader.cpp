@@ -23,62 +23,23 @@ Shader::Shader(const char *path)
 
 Shader::~Shader()
 {
-    clear();
+    clearAll();
 }
 
 void Shader::loadSources(const char *vertex_src, const char *fragment_src)
 {
-    clear();
-
-    unsigned int vertex_id;
-    vertex_id = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_id, 1, &vertex_src, NULL);
-    glCompileShader(vertex_id);
-    bool success = check_compiler_errors(vertex_id);
-    if (!success)
-    {
-        glDeleteShader(vertex_id);
-        return;
-    }
-
-    unsigned int fragment_id;
-    fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_id, 1, &fragment_src, NULL);
-    glCompileShader(fragment_id);
-    success = check_compiler_errors(fragment_id);
-    if (!success)
-    {
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
-        return;
-    }
-
-    program_id_ = glCreateProgram();
-    glAttachShader(program_id_, vertex_id);
-    glAttachShader(program_id_, fragment_id);
-    glLinkProgram(program_id_);
-    success = check_linking_errors(program_id_);
-    if (!success)
-    {
-        program_id_ = 0;
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
-        glDeleteProgram(program_id_);
-        return;
-    }
-
-    glUseProgram(program_id_);
-    glDeleteShader(vertex_id);
-    glDeleteShader(fragment_id);
+    filepath_.clear();
+    vertex_src_ = vertex_src;
+    fragment_src_ = fragment_src;
+    recompile();
 }
 
 void Shader::loadFile(const char *path)
 {
-    std::string vertex_source;
-    std::string fragment_source;
-    read_shader(path, vertex_source, fragment_source);
-    loadSources(vertex_source.c_str(), fragment_source.c_str());
     filepath_ = path;
+    vertex_src_.clear();
+    fragment_src_.clear();
+    recompile();
 }
 
 void Shader::setUniformFloat(const char *name, float value)
@@ -117,15 +78,42 @@ void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
     }
 }
 
+void Shader::setDefine(const char *name)
+{
+    defines_.insert(name);
+}
+
+void Shader::clearDefine(const char *name)
+{
+    defines_.erase(name);
+}
+
 void Shader::recompile()
 {
-    if (filepath_.empty())
+    clearProgram();
+    assert(program_id_ == 0);
+    if (!filepath_.empty())
     {
-        return;
+        assert(vertex_src_.empty() && fragment_src_.empty());
+        std::string vertex_source;
+        std::string fragment_source;
+        read_shader(filepath_.c_str(), vertex_source, fragment_source);
+        program_id_ = compile_shader(vertex_source.c_str(), fragment_source.c_str());
     }
-    // TODO: shit
-    std::string filepath = std::move(filepath_);
-    loadFile(filepath.c_str());
+    else
+    {
+        assert(!vertex_src_.empty() && !fragment_src_.empty());
+        program_id_ = compile_shader(vertex_src_.c_str(), fragment_src_.c_str());
+    }
+
+    if (program_id_ != 0)
+    {
+        compiled_defines_ = defines_;
+    }
+    else
+    {
+        compiled_defines_.clear();
+    }
 }
 
 bool Shader::isLoaded() const
@@ -133,20 +121,82 @@ bool Shader::isLoaded() const
     return program_id_ != 0;
 }
 
-void Shader::clear()
+void Shader::clearProgram()
 {
-    filepath_.clear();
-    uniform_locations_.clear();
     if (program_id_ != 0)
     {
         glDeleteProgram(program_id_);
         program_id_ = 0;
     }
+    uniform_locations_.clear();
+}
+
+void Shader::clearAll()
+{
+    filepath_.clear();
+    vertex_src_.clear();
+    fragment_src_.clear();
+    defines_.clear();
+    compiled_defines_.clear();
+    clearProgram();
 }
 
 void Shader::bind()
 {
+    if (program_id_ == 0)
+    {
+        std::cout << "Shader is not loaded\n" << std::endl;
+    }
     glUseProgram(program_id_);
+}
+
+bool Shader::isDirty() const
+{
+    return !isLoaded() || defines_ != compiled_defines_;
+}
+
+unsigned int Shader::compile_shader(const char *vertex_src, const char *fragment_src)
+{
+    unsigned int vertex_id;
+    vertex_id = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_id, 1, &vertex_src, NULL);
+    glCompileShader(vertex_id);
+    bool success = check_compiler_errors(vertex_id, "VERTEX");
+    if (!success)
+    {
+        glDeleteShader(vertex_id);
+        return 0;
+    }
+
+    unsigned int fragment_id;
+    fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_id, 1, &fragment_src, NULL);
+    glCompileShader(fragment_id);
+    success = check_compiler_errors(fragment_id, "FRAGMENT");
+    if (!success)
+    {
+        glDeleteShader(vertex_id);
+        glDeleteShader(fragment_id);
+        return 0;
+    }
+
+    unsigned int program_id = glCreateProgram();
+    glAttachShader(program_id, vertex_id);
+    glAttachShader(program_id, fragment_id);
+    glLinkProgram(program_id);
+    success = check_linking_errors(program_id);
+    if (!success)
+    {
+        glDeleteShader(vertex_id);
+        glDeleteShader(fragment_id);
+        glDeleteProgram(program_id);
+        return 0;
+    }
+
+    glUseProgram(program_id);
+    glDeleteShader(vertex_id);
+    glDeleteShader(fragment_id);
+    return program_id;
 }
 
 void Shader::read_shader(const char *path, std::string &vertex, std::string &fragment)
@@ -182,7 +232,7 @@ void Shader::read_shader(const char *path, std::string &vertex, std::string &fra
     fragment += shaders.substr(fragment_idx_end);
 }
 
-bool Shader::check_compiler_errors(unsigned int shader)
+bool Shader::check_compiler_errors(unsigned int shader, const char *type)
 {
     int success;
     char infoLog[512];
@@ -190,7 +240,8 @@ bool Shader::check_compiler_errors(unsigned int shader)
     if (!success)
     {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::COMPILATION_FAILED (" << type << "):\n"
+                  << infoLog << std::endl;
     }
     return success;
 }
@@ -203,7 +254,7 @@ bool Shader::check_linking_errors(unsigned int program)
     if (!success)
     {
         glGetProgramInfoLog(program, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::LINKING_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::LINKING_FAILED:\n" << infoLog << std::endl;
     }
     return success;
 }
@@ -217,6 +268,7 @@ int Shader::get_uniform_location(const char *name)
     auto it = uniform_locations_.find(name);
     if (it != uniform_locations_.end())
     {
+        assert(it->second == glGetUniformLocation(program_id_, name));
         return it->second;
     }
     const int location = glGetUniformLocation(program_id_, name);

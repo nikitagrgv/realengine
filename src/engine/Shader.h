@@ -6,6 +6,7 @@
 #include "glm/vec4.hpp"
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 class Shader
 {
@@ -26,22 +27,34 @@ public:
     void setUniformVec4(const char *name, const glm::vec4 &value);
     void setUniformMat4(const char *name, const glm::mat4 &value);
 
+    void setDefine(const char *name);
+    void clearDefine(const char *name);
+
     void recompile();
 
     bool isLoaded() const;
-    void clear();
+    void clearProgram();
+    void clearAll();
 
     void bind();
 
+    bool isDirty() const;
+
 private:
+    static unsigned int compile_shader(const char *vertex_src, const char *fragment_src);
     static void read_shader(const char *path, std::string &vertex, std::string &fragment);
-    static bool check_compiler_errors(unsigned int shader);
+    static bool check_compiler_errors(unsigned int shader, const char *type);
     static bool check_linking_errors(unsigned int program);
 
     int get_uniform_location(const char *name);
 
 private:
     std::string filepath_;
+    std::string vertex_src_;
+    std::string fragment_src_;
+
     std::unordered_map<std::string, int> uniform_locations_;
     unsigned int program_id_{0};
+    std::unordered_set<std::string> defines_;
+    std::unordered_set<std::string> compiled_defines_;
 };
