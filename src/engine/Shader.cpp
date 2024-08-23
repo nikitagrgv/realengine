@@ -78,12 +78,24 @@ void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
     }
 }
 
-void Shader::setDefine(const char *name)
+void Shader::setDefine(const char *name, bool value)
+{
+    if (value)
+    {
+        addDefine(name);
+    }
+    else
+    {
+        removeDefine(name);
+    }
+}
+
+void Shader::addDefine(const char *name)
 {
     defines_.insert(name);
 }
 
-void Shader::clearDefine(const char *name)
+void Shader::removeDefine(const char *name)
 {
     defines_.erase(name);
 }

@@ -27,8 +27,9 @@ public:
     void setUniformVec4(const char *name, const glm::vec4 &value);
     void setUniformMat4(const char *name, const glm::mat4 &value);
 
-    void setDefine(const char *name);
-    void clearDefine(const char *name);
+    void setDefine(const char *name, bool value);
+    void addDefine(const char *name);
+    void removeDefine(const char *name);
 
     void recompile();
 

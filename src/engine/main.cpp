@@ -464,8 +464,16 @@ public:
         float specular_power = 1.0f;
         float shininess = 32.0f;
 
+        bool use_ambient = true;
+        bool use_diffuse = true;
+        bool use_specular = true;
+
         while (!exit_)
         {
+            shader.setDefine("USE_AMBIENT", use_ambient);
+            shader.setDefine("USE_DIFFUSE", use_diffuse);
+            shader.setDefine("USE_SPECULAR", use_specular);
+
             if (shader.isDirty())
             {
                 shader.recompile();
@@ -485,6 +493,9 @@ public:
                 ImGui::SliderFloat("Diffuse power", &diffuse_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Specular power", &specular_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Shininess", &shininess, 0.0f, 64.0f);
+                ImGui::Checkbox("Use ambient", &use_ambient);
+                ImGui::Checkbox("Use diffuse", &use_diffuse);
+                ImGui::Checkbox("Use specular", &use_specular);
                 if (ImGui::Button("Button"))
                 {}
                 ImGui::SameLine();
@@ -528,10 +539,19 @@ public:
             shader.setUniformVec3("uLightPos", light_pos);
             shader.setUniformVec3("uCameraPos", camera_.getPosition());
             shader.setUniformMat4("uViewProj", camera_.getViewProj());
-            shader.setUniformFloat("uAmbientPower", ambient_power);
-            shader.setUniformFloat("uDiffusePower", diffuse_power);
-            shader.setUniformFloat("uSpecularPower", specular_power);
-            shader.setUniformFloat("uShininess", shininess);
+            if (use_ambient)
+            {
+                shader.setUniformFloat("uAmbientPower", ambient_power);
+            }
+            if (use_diffuse)
+            {
+                shader.setUniformFloat("uDiffusePower", diffuse_power);
+            }
+            if (use_specular)
+            {
+                shader.setUniformFloat("uSpecularPower", specular_power);
+                shader.setUniformFloat("uShininess", shininess);
+            }
 
             glCullFace(GL_BACK);
             ////////////////////////////////////////////////

@@ -38,17 +38,29 @@ uniform float uShininess;
 
 void main()
 {
-    vec3 ambient = uAmbientPower * uLightColor;
+    vec3 ambient = vec3(0.0);
+    vec3 diffuse = vec3(0.0);
+    vec3 specular = vec3(0.0);
+    vec3 dir_to_light = vec3(0.0);
+    vec3 norm = vec3(0.0);
 
-    vec3 dir_to_light = normalize(uLightPos - ioFragPosGlobal);
-    vec3 norm = normalize(ioNormalGlobal);
+    #ifdef USE_AMBIENT
+    ambient = uAmbientPower * uLightColor;
+    #endif
+
+    #ifdef USE_DIFFUSE
+    dir_to_light = normalize(uLightPos - ioFragPosGlobal);
+    norm = normalize(ioNormalGlobal);
     float diff = max(dot(norm, dir_to_light), 0.0);
-    vec3 diffuse = uDiffusePower * diff * uLightColor;
+    diffuse = uDiffusePower * diff * uLightColor;
+    #endif
 
+    #ifdef USE_SPECULAR
     vec3 dir_to_view = normalize(uCameraPos - ioFragPosGlobal);
     vec3 reflect_dir = reflect(-dir_to_light, norm);
     float spec = pow(max(dot(dir_to_view, reflect_dir), 0.0), uShininess);
-    vec3 specular = uSpecularPower * spec * uLightColor;
+    specular = uSpecularPower * spec * uLightColor;
+    #endif
 
     FragColor = vec4(ambient + diffuse + specular, 1) * texture(uTexture, ioUV);
 }
