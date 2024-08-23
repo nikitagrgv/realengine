@@ -466,6 +466,11 @@ public:
 
         while (!exit_)
         {
+            if (shader.isDirty())
+            {
+                shader.recompile();
+            }
+
             glfwPollEvents();
 
             //////////////////////////////////////////////// IMGUI
