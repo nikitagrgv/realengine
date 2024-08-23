@@ -458,7 +458,7 @@ public:
         glm::vec3 light_pos{1, 1, 1};
 
         float anim_time_multiplier = 1.0f;
-        glm::vec3 light_color{1.0f};
+        glm::vec3 light_color{0.2, 0.65, 0.65};
         float ambient_power = 0.1f;
         float diffuse_power = 1.0f;
         float specular_power = 1.0f;
@@ -481,9 +481,7 @@ public:
                 ImGui::SliderFloat("Specular power", &specular_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Shininess", &shininess, 0.0f, 64.0f);
                 if (ImGui::Button("Button"))
-                {
-
-                }
+                {}
                 ImGui::SameLine();
                 ImGui::Text("counter");
 
