@@ -45,7 +45,7 @@ private:
     static unsigned int compile_shader(const char *vertex_src, const char *fragment_src);
     static void read_shader(const char *path, const std::unordered_set<std::string> &defines,
         std::string &vertex, std::string &fragment);
-    static void apply_defines(std::string &shader, const std::unordered_set<std::string> &defines);
+    static void apply_defines(std::string &shader, const std::unordered_set<std::string> &orig_defines);
     static bool check_compiler_errors(unsigned int shader, const char *type);
     static bool check_linking_errors(unsigned int program);
 

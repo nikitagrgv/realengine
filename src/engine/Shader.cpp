@@ -247,8 +247,10 @@ void Shader::read_shader(const char *path, const std::unordered_set<std::string>
     fragment += shaders.substr(fragment_idx_end);
 }
 
-void Shader::apply_defines(std::string &shader, const std::unordered_set<std::string> &defines)
+void Shader::apply_defines(std::string &shader, const std::unordered_set<std::string> &orig_defines)
 {
+    std::unordered_set<std::string> defines = orig_defines;
+
     const auto is_part_of_name = [](const char ch) {
         return isdigit(ch) || isalpha(ch) || ch == '_';
     };
@@ -283,6 +285,16 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
         return name;
     };
 
+    const auto check_define_str = [&](char *name, std::string &define_name,
+                                      bool &matched) -> char * {
+        return check_str_with_arg(name, define_name, matched, "#define ", 8);
+    };
+
+    const auto check_undef_str = [&](char *name, std::string &define_name,
+                                     bool &matched) -> char * {
+        return check_str_with_arg(name, define_name, matched, "#undef ", 7);
+    };
+
     const auto check_ifdef_str = [&](char *name, std::string &define_name,
                                      bool &matched) -> char * {
         return check_str_with_arg(name, define_name, matched, "#ifdef ", 7);
@@ -309,6 +321,30 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
     char *end = it + shader.size();
     while (it < end)
     {
+        it = check_define_str(it, cur_define_name, matched);
+        if (matched)
+        {
+            if (cur_define_name.empty())
+            {
+                std::cout << "#define name is empty" << std::endl;
+                return;
+            }
+            defines.insert(cur_define_name);
+            continue;
+        }
+
+        it = check_undef_str(it, cur_define_name, matched);
+        if (matched)
+        {
+            if (cur_define_name.empty())
+            {
+                std::cout << "#undef name is empty" << std::endl;
+                return;
+            }
+            defines.erase(cur_define_name);
+            continue;
+        }
+
         it = check_ifdef_str(it, cur_define_name, matched);
         if (matched)
         {
