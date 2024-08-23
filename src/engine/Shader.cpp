@@ -244,9 +244,27 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
     // doesn't move pointer if does not match or moves the pointer after the expression
     const auto check_ifdef_str = [&](char *name, std::string &define_name,
                                      bool &matched) -> char * {
-        if (strncmp(name, "#ifdef", 6) == 0)
+        if (strncmp(name, "#ifdef ", 7) == 0)
         {
-            auto name_begin = name + 6;
+            auto name_begin = name + 7;
+            auto name_end = name_begin;
+            while (is_part_of_name(*name_end))
+            {
+                name_end++;
+            }
+            define_name = std::string(name_begin, name_end);
+            matched = true;
+            return name_end;
+        }
+        matched = false;
+        return name;
+    };
+
+    const auto check_ifndef_str = [&](char *name, std::string &define_name,
+                                 bool &matched) -> char * {
+        if (strncmp(name, "#ifndef ", 8) == 0)
+        {
+            auto name_begin = name + 8;
             auto name_end = name_begin;
             while (is_part_of_name(*name_end))
             {
@@ -292,6 +310,20 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
             }
             state_stack.push_back(is_compiled);
             const bool defined = defines.find(cur_define_name) != defines.end();
+            is_compiled &= defined;
+            continue;
+        }
+
+        it = check_ifndef_str(it, cur_define_name, matched);
+        if (matched)
+        {
+            if (cur_define_name.empty())
+            {
+                std::cout << "#ifndef name is empty" << std::endl;
+                return;
+            }
+            state_stack.push_back(is_compiled);
+            const bool defined = defines.find(cur_define_name) == defines.end();
             is_compiled &= defined;
             continue;
         }
