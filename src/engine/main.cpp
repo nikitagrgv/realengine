@@ -311,6 +311,7 @@ public:
     void exec()
     {
         init();
+        glfwMaximizeWindow(window_);
 
         struct Vertex
         {
@@ -453,11 +454,16 @@ public:
             }
         };
 
-
-        ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-        glm::vec3 light_color{1.0f};
+        float anim_time = 0.0f;
         glm::vec3 light_pos{1, 1, 1};
+
+        float anim_time_multiplier = 1.0f;
+        glm::vec3 light_color{1.0f};
+        float ambient_power = 0.1f;
+        float diffuse_power = 1.0f;
+        float specular_power = 1.0f;
+        float shininess = 32.0f;
+
         while (!exit_)
         {
             glfwPollEvents();
@@ -467,17 +473,19 @@ public:
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
             {
-                static float f = 0.0f;
-                static int counter = 0;
+                ImGui::Begin("Parameters");
+                ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
+                ImGui::ColorEdit3("Light color", glm::value_ptr(light_color));
+                ImGui::SliderFloat("Ambient power", &ambient_power, 0.0f, 1.0f);
+                ImGui::SliderFloat("Diffuse power", &diffuse_power, 0.0f, 1.0f);
+                ImGui::SliderFloat("Specular power", &specular_power, 0.0f, 1.0f);
+                ImGui::SliderFloat("Shininess", &shininess, 0.0f, 64.0f);
+                if (ImGui::Button("Button"))
+                {
 
-                ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-                ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-                ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-                ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-                if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                    counter++;
+                }
                 ImGui::SameLine();
-                ImGui::Text("counter = %d", counter);
+                ImGui::Text("counter");
 
                 ImGui::End();
             }
@@ -507,22 +515,20 @@ public:
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            const float time = engine_globals.time->getTime();
-            const float anim_time = time * 1.0f;
-            const float color_anim_time = time * 0.2f;
-            light_color.x = sin(1 + anim_time * 1.123) * 0.4 + 0.6f;
-            light_color.y = cos(52 + anim_time * 1.3423) * 0.4 + 0.6f;
-            light_color.z = sin(11 + anim_time * 1.023) * 0.4 + 0.6f;
-
-            light_pos.x = sin(6 + color_anim_time * 1.0351) * 1.5f + 0.5f;
-            light_pos.y = cos(1 + color_anim_time * 1.2561) * 1.5f + 1.3f;
-            light_pos.z = sin(7 + color_anim_time * 1.125) * 1.5f + 0.5f;
+            anim_time += engine_globals.time->getDelta() * anim_time_multiplier;
+            light_pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
+            light_pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
+            light_pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
             shader.bind();
             shader.setUniformVec3("uLightColor", light_color);
             shader.setUniformVec3("uLightPos", light_pos);
             shader.setUniformVec3("uCameraPos", camera_.getPosition());
             shader.setUniformMat4("uViewProj", camera_.getViewProj());
+            shader.setUniformFloat("uAmbientPower", ambient_power);
+            shader.setUniformFloat("uDiffusePower", diffuse_power);
+            shader.setUniformFloat("uSpecularPower", specular_power);
+            shader.setUniformFloat("uShininess", shininess);
 
             glCullFace(GL_BACK);
             ////////////////////////////////////////////////

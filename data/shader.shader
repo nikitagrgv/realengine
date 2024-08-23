@@ -31,21 +31,24 @@ uniform sampler2D uTexture;
 uniform vec3 uLightColor;
 uniform vec3 uLightPos;
 uniform vec3 uCameraPos;
+uniform float uAmbientPower;
+uniform float uDiffusePower;
+uniform float uSpecularPower;
+uniform float uShininess;
 
 void main()
 {
-    float ambient_power = 0.1;
-    vec3 ambient = ambient_power * uLightColor;
+    vec3 ambient = uAmbientPower * uLightColor;
 
     vec3 dir_to_light = normalize(uLightPos - ioFragPosGlobal);
     vec3 norm = normalize(ioNormalGlobal);
     float diff = max(dot(norm, dir_to_light), 0.0);
-    vec3 diffuse = diff * uLightColor;
+    vec3 diffuse = uDiffusePower * diff * uLightColor;
 
     vec3 dir_to_view = normalize(uCameraPos - ioFragPosGlobal);
     vec3 reflect_dir = reflect(-dir_to_light, norm);
-    float spec = pow(max(dot(dir_to_view, reflect_dir), 0.0), 32);
-    vec3 specular = spec * uLightColor * 5.0f;
+    float spec = pow(max(dot(dir_to_view, reflect_dir), 0.0), uShininess);
+    vec3 specular = uSpecularPower * spec * uLightColor;
 
     FragColor = vec4(ambient + diffuse + specular, 1) * texture(uTexture, ioUV);
 }

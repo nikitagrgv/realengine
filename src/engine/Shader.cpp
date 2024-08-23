@@ -4,6 +4,7 @@
 #include "fs/FileSystem.h"
 #include "glad/glad.h"
 
+#include "glm/gtc/type_ptr.inl"
 #include "glm/mat4x4.hpp"
 #include <cassert>
 #include <iostream>
@@ -112,7 +113,7 @@ void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
     const int location = get_uniform_location(name);
     if (location != -1)
     {
-        glUniformMatrix4fv(location, 1, GL_FALSE, &value[0][0]);
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 }
 
