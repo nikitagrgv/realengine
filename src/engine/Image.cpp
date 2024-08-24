@@ -22,6 +22,31 @@ Image::~Image()
     clear();
 }
 
+
+Image::Image(Image &&other) noexcept
+{
+    *this = std::move(other);
+}
+
+Image &Image::operator=(Image &&other) noexcept
+{
+    if (this != &other)
+    {
+        clear();
+        data_ = other.data_;
+        width_ = other.width_;
+        height_ = other.height_;
+        num_ch_ = other.num_ch_;
+        format_ = other.format_;
+        other.data_ = nullptr;
+        other.width_ = -1;
+        other.height_ = -1;
+        other.num_ch_ = -1;
+        other.format_ = Format::INVALID;
+    }
+    return *this;
+}
+
 void Image::load(const char *path, bool flip_y)
 {
     clear();

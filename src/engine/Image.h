@@ -13,11 +13,14 @@ public:
         R,
     };
 
-    REMOVE_COPY_MOVE_CLASS(Image);
+    REMOVE_COPY_CLASS(Image);
 
     Image();
     explicit Image(const char *path, bool flip_y = true);
     ~Image();
+
+    Image(Image &&other) noexcept;
+    Image &operator=(Image &&other) noexcept;
 
     void load(const char *path, bool flip_y = true);
 
