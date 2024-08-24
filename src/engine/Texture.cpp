@@ -69,6 +69,12 @@ Texture::Texture(const char *filename, Format target_format, Wrap wrap, Filter m
     load(filename, target_format, wrap, min_filter, mag_filter);
 }
 
+Texture::Texture(void *data, int width, int height, Format src_format, Format target_format,
+    Wrap wrap, Filter min_filter, Filter mag_filter)
+{
+    load(data, width, height, src_format, target_format, wrap, min_filter, mag_filter);
+}
+
 Texture::~Texture()
 {
     clear();

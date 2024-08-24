@@ -37,6 +37,9 @@ public:
     explicit Texture(const char *filename, Format target_format = Format::RGBA,
         Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
         Filter mag_filter = Filter::Linear);
+    Texture(void *data, int width, int height, Format src_format,
+        Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
+        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
     ~Texture();
 
     void load(const char *filename, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
