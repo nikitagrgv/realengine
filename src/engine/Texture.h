@@ -28,7 +28,7 @@ public:
         LinearMipmapLinear,
     };
 
-    REMOVE_COPY_MOVE_CLASS(Texture);
+    REMOVE_COPY_CLASS(Texture);
 
     Texture();
     explicit Texture(const Image &image, Format target_format = Format::RGBA,
@@ -41,6 +41,9 @@ public:
         Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
     ~Texture();
+
+    Texture(Texture &&other) noexcept;
+    Texture &operator=(Texture &&other) noexcept;
 
     void load(const char *filename, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);

@@ -80,6 +80,22 @@ Texture::~Texture()
     clear();
 }
 
+Texture::Texture(Texture &&other) noexcept
+{
+    *this = std::move(other);
+}
+
+Texture &Texture::operator=(Texture &&other) noexcept
+{
+    if (this != &other)
+    {
+        clear();
+        id_ = other.id_;
+        other.id_ = 0;
+    }
+    return *this;
+}
+
 void Texture::load(const char *filename, Format target_format, Wrap wrap, Filter min_filter,
     Filter mag_filter)
 {
