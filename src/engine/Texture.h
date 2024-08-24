@@ -53,7 +53,7 @@ public:
         Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
 
-    void bind() const;
+    void bind(int slot = 0) const;
 
     void clear();
 

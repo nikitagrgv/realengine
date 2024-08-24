@@ -20,6 +20,10 @@ public:
     };
 
 public:
+    void setShader(Shader *shader) { shader_ = shader; }
+    Shader *getShader() const { return shader_; }
+    void clearShader() { shader_ = nullptr; }
+
     void setParameterFloat(const char *name, float value);
     float getParameterFloat(int i);
 
@@ -37,21 +41,16 @@ public:
     int getNumParameters();
     void clearParameters();
 
-    void setTexture(const char *name, Texture *texture)
+    void setTexture(int i, Texture *texture)
     {
-        for (int i = 0; i < textures_.size(); i++)
+        if (i >= textures_.size())
         {
-            if (textures_[i].name == name)
-            {
-                textures_[i].texture = texture;
-                return;
-            }
+            textures_.resize(i + 1, nullptr);
         }
-        textures_.push_back({name, texture});
+        textures_[i] = texture;
     }
 
-    Texture *getTexture(int i) { return textures_[i].texture; }
-    std::string &getTextureName(int i) { return textures_[i].name; }
+    Texture *getTexture(int i) const { return textures_[i]; }
     int getNumTextures();
     void clearTextures();
 
@@ -69,17 +68,11 @@ private:
         };
     };
 
-    struct TextureInfo
-    {
-        std::string name;
-        Texture *texture;
-    };
-
 private:
     int find_parameter(const char *name) const;
 
 private:
-    std::vector<TextureInfo> textures_;
+    std::vector<Texture *> textures_;
     std::vector<Parameter> parameters_;
     Shader *shader_{};
 };

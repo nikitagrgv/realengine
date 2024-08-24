@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "EngineGlobals.h"
 #include "Image.h"
+#include "Material.h"
 #include "Mesh.h"
 #include "MeshLoader.h"
 #include "Shader.h"
@@ -38,8 +39,6 @@ public:
         glfwMaximizeWindow(window_);
 
 
-
-
         ///////////////////////////////////////////////////////////////////////////////
         Shader light_cube_shader("light_cube.shader");
 
@@ -59,10 +58,13 @@ public:
 
         ///////////////////////////////////////////////////////////////////////////////
         Texture cat_texture("image.png");
-
         glm::mat4 cat_transform = glm::mat4{1.0f};
         Mesh cat_mesh;
         MeshLoader::loadToMesh("object.obj", cat_mesh);
+
+        Material cat_material;
+        cat_material.setShader(&shader);
+        cat_material.setTexture(0, &cat_texture);
 
         ////////////////////////////////////////////////
         Texture stickman_texture("image2.png");
@@ -118,6 +120,11 @@ public:
         bool use_ambient = true;
         bool use_diffuse = true;
         bool use_specular = true;
+
+        const auto use_material = [](Material &material) {
+            Shader *shader = material.getShader();
+            shader->bind();
+        };
 
         while (!exit_)
         {

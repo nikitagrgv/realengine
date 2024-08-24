@@ -42,6 +42,9 @@ public:
 
     bool isDirty() const;
 
+    int getUniformLocation(const char *name);
+    int hasUniform(const char *name);
+
 private:
     static unsigned int compile_shader(const char *vertex_src, const char *fragment_src);
     static void read_shader(const char *path, const std::unordered_set<std::string> &defines,
@@ -50,7 +53,7 @@ private:
     static bool check_compiler_errors(unsigned int shader, const char *type);
     static bool check_linking_errors(unsigned int program);
 
-    int get_uniform_location(const char *name);
+    int get_uniform_location_with_warning(const char *name);
 
 private:
     std::string filepath_;

@@ -3,6 +3,7 @@
 #include "Image.h"
 #include "glad/glad.h"
 
+#include <cassert>
 #include <iostream>
 
 namespace
@@ -175,13 +176,15 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
 }
 
-void Texture::bind() const
+void Texture::bind(int slot) const
 {
     if (id_ == 0)
     {
         std::cout << "Failed to bind texture" << std::endl;
         return;
     }
+    assert(slot >= 0 && slot < 32);
+    glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, id_);
 }
 

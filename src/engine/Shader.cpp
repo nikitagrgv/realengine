@@ -44,7 +44,7 @@ void Shader::loadFile(const char *path)
 
 void Shader::setUniformFloat(const char *name, float value)
 {
-    const int location = get_uniform_location(name);
+    const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
         glUniform1f(location, value);
@@ -53,7 +53,7 @@ void Shader::setUniformFloat(const char *name, float value)
 
 void Shader::setUniformVec3(const char *name, const glm::vec3 &value)
 {
-    const int location = get_uniform_location(name);
+    const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
         glUniform3f(location, value.x, value.y, value.z);
@@ -62,7 +62,7 @@ void Shader::setUniformVec3(const char *name, const glm::vec3 &value)
 
 void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
 {
-    const int location = get_uniform_location(name);
+    const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
         glUniform4f(location, value.x, value.y, value.z, value.w);
@@ -71,7 +71,7 @@ void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
 
 void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
 {
-    const int location = get_uniform_location(name);
+    const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
@@ -170,6 +170,28 @@ void Shader::bind()
 bool Shader::isDirty() const
 {
     return !isLoaded() || defines_ != compiled_defines_;
+}
+
+int Shader::getUniformLocation(const char *name)
+{
+    if (!isLoaded())
+    {
+        return -1;
+    }
+    auto it = uniform_locations_.find(name);
+    if (it != uniform_locations_.end())
+    {
+        assert(it->second == glGetUniformLocation(program_id_, name));
+        return it->second;
+    }
+    const int location = glGetUniformLocation(program_id_, name);
+    uniform_locations_[name] = location;
+    return location;
+}
+
+int Shader::hasUniform(const char *name)
+{
+    return getUniformLocation(name) != -1;
 }
 
 unsigned int Shader::compile_shader(const char *vertex_src, const char *fragment_src)
@@ -431,26 +453,12 @@ bool Shader::check_linking_errors(unsigned int program)
     return success;
 }
 
-int Shader::get_uniform_location(const char *name)
+int Shader::get_uniform_location_with_warning(const char *name)
 {
-    if (!isLoaded())
-    {
-        return -1;
-    }
-    auto it = uniform_locations_.find(name);
-    if (it != uniform_locations_.end())
-    {
-        assert(it->second == glGetUniformLocation(program_id_, name));
-        return it->second;
-    }
-    const int location = glGetUniformLocation(program_id_, name);
+    const int location = getUniformLocation(name);
     if (location == -1)
     {
         std::cout << "Could not find uniform: " << name << std::endl;
-    }
-    else
-    {
-        uniform_locations_[name] = location;
     }
     return location;
 }
