@@ -60,19 +60,7 @@ public:
 
         glm::mat4 cat_transform = glm::mat4{1.0f};
         Mesh cat_mesh;
-        {
-            MeshLoader loader("object.obj");
-            for (int i = 0; i < loader.getNumVertices(); i++)
-            {
-                cat_mesh.addVertex(loader.getVertexPosition(i), loader.getVertexNormal(i),
-                    loader.getVertexTextureCoords(i));
-            }
-            for (int i = 0; i < loader.getNumIndices(); i++)
-            {
-                cat_mesh.addIndex(loader.getIndex(i));
-            }
-        }
-        cat_mesh.flush();
+        MeshLoader::loadToMesh("object.obj", cat_mesh);
 
         ////////////////////////////////////////////////
         Image stickman_image("image2.png");
@@ -80,19 +68,8 @@ public:
 
         glm::mat4 stickman_transform = glm::mat4{1.0f};
         Mesh stickman_mesh;
-        {
-            MeshLoader loader("stickman.obj");
-            for (int i = 0; i < loader.getNumVertices(); i++)
-            {
-                stickman_mesh.addVertex(loader.getVertexPosition(i), -loader.getVertexNormal(i),
-                    loader.getVertexTextureCoords(i));
-            }
-            for (int i = 0; i < loader.getNumIndices(); i++)
-            {
-                stickman_mesh.addIndex(loader.getIndex(i));
-            }
-        }
-        stickman_mesh.flush();
+        MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
+
         ////////////////////////////////////////////////
         Image floor_image("floor.png");
         Texture floor_texture(floor_image);

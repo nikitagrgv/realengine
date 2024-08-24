@@ -5,13 +5,19 @@
 #include <string>
 #include <vector>
 
+class Mesh;
+
 class MeshLoader
 {
 public:
+    static void loadToMesh(const char *path, Mesh &mesh, bool invert_normals = false);
+
     explicit MeshLoader(const char *path);
     ~MeshLoader() = default;
 
     bool isLoaded() const { return is_loaded_; }
+
+    void loadToMesh(Mesh &mesh, bool invert_normals = false);
 
     int getNumVertices() const;
     glm::vec3 getVertexPosition(int index) const;

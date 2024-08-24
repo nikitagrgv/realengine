@@ -17,6 +17,11 @@ int Mesh::addVertex()
     return vbo_.addVertex(Vertex{});
 }
 
+void Mesh::addVertices(int num_vertices)
+{
+    vbo_.addVertices(num_vertices);
+}
+
 int Mesh::getNumVertices() const
 {
     return vbo_.getNumVertices();
@@ -25,6 +30,11 @@ int Mesh::getNumVertices() const
 int Mesh::addIndex(unsigned int v1)
 {
     return ebo_.addIndex(v1);
+}
+
+void Mesh::addIndices(int num_indices)
+{
+    ebo_.addIndices(num_indices);
 }
 
 void Mesh::addIndices(unsigned int v1, unsigned int v2, unsigned int v3)

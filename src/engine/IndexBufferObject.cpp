@@ -42,6 +42,11 @@ IndexBufferObject &IndexBufferObject::operator=(IndexBufferObject &&other) noexc
     return *this;
 }
 
+void IndexBufferObject::addIndices(int num_indices)
+{
+    indices_.resize(indices_.size() + num_indices, 0);
+}
+
 int IndexBufferObject::addIndex(unsigned int i)
 {
     const int index = indices_.size();
@@ -52,6 +57,11 @@ int IndexBufferObject::addIndex(unsigned int i)
 unsigned int IndexBufferObject::getIndex(int i) const
 {
     return indices_[i];
+}
+
+void IndexBufferObject::setIndex(int i, unsigned int index)
+{
+    indices_[i] = index;
 }
 
 int IndexBufferObject::getNumIndices() const

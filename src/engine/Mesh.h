@@ -30,6 +30,8 @@ public:
         return vbo_.addVertex(Vertex{pos, glm::vec3{}, glm::vec2{}});
     }
 
+    void addVertices(int num_vertices);
+
     glm::vec3 getVertexPos(int index) const { return vbo_.getVertex(index).pos; }
     void setVertexPos(int index, const glm::vec3 &pos) { vbo_.getVertex(index).pos = pos; }
 
@@ -43,7 +45,10 @@ public:
 
     // Indices
     int addIndex(unsigned int v1);
+    void addIndices(int num_indices);
     void addIndices(unsigned int v1, unsigned int v2, unsigned int v3);
+
+    void setIndex(int i, unsigned int index) { ebo_.setIndex(i, index); }
 
     int getNumIndices() const;
 

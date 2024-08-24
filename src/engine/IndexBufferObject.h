@@ -19,8 +19,11 @@ public:
 
     IndexBufferObject &operator=(IndexBufferObject &&other) noexcept;
 
+    void addIndices(int num_indices);
+
     int addIndex(unsigned int i);
     unsigned int getIndex(int i) const;
+    void setIndex(int i, unsigned int index);
 
     int getNumIndices() const;
 

@@ -57,6 +57,8 @@ public:
         return index;
     }
 
+    void addVertices(int num_vertices) { vertices_.resize(vertices_.size() + num_vertices, V{}); }
+
     const V &getVertex(int index) const { return vertices_[index]; }
     V &getVertex(int index) { return vertices_[index]; }
     void setVertex(const V &v, int index) { vertices_[index] = v; }
