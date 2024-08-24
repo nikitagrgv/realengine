@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "Camera.h"
 #include "EngineGlobals.h"
 #include "Image.h"
 #include "Mesh.h"
@@ -14,6 +15,7 @@
 #include "Texture.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
+#include "Visualizer.h"
 #include "fs/FileSystem.h"
 #include "time/Time.h"
 
@@ -26,147 +28,6 @@
 
 const unsigned int DEFAULT_WIDTH = 1600;
 const unsigned int DEFAULT_HEIGHT = 900;
-
-class Visualizer
-{
-public:
-    Visualizer()
-    {
-        lines_vao_.bind();
-        lines_vao_.addAttributeFloat(3); // pos
-        lines_vao_.addAttributeFloat(4); // color
-        lines_vbo_.bind();
-        lines_vao_.flush();
-
-        const char *vertex_shader = R"(
-            #version 330 core
-            layout (location = 0) in vec3 aPos;
-            layout (location = 1) in vec4 aColor;
-            out vec4 ioColor;
-            uniform mat4 uViewProj;
-            void main()
-            {
-                gl_Position = uViewProj * vec4(aPos, 1.0f);
-                ioColor = aColor;
-            })";
-        const char *fragment_shader = R"(
-            #version 330 core
-            out vec4 FragColor;
-            in vec4 ioColor;
-            void main()
-            {
-                FragColor = ioColor;
-            })";
-        shader.loadSources(vertex_shader, fragment_shader);
-    }
-
-    void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color)
-    {
-        LinePoint p;
-        p.color = color;
-        p.pos = s0;
-        lines_vbo_.addVertex(p);
-        p.pos = s1;
-        lines_vbo_.addVertex(p);
-    }
-
-    void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color0,
-        const glm::vec4 &color1)
-    {
-        LinePoint p;
-        p.color = color0;
-        p.pos = s0;
-        lines_vbo_.addVertex(p);
-        p.color = color1;
-        p.pos = s1;
-        lines_vbo_.addVertex(p);
-    }
-
-    void render(const glm::mat4 &viewproj)
-    {
-        shader.bind();
-        shader.setUniformMat4("uViewProj", viewproj);
-
-        lines_vao_.bind();
-        lines_vbo_.flush(true);
-        glDrawArrays(GL_LINES, 0, lines_vbo_.getNumVertices());
-        lines_vbo_.clear();
-    }
-
-private:
-    struct LinePoint
-    {
-        glm::vec3 pos;
-        glm::vec4 color;
-    };
-    Shader shader;
-    VertexBufferObject<LinePoint> lines_vbo_;
-    VertexArrayObject lines_vao_;
-};
-
-class Camera
-{
-public:
-    Camera()
-        : proj_(glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f))
-    {}
-
-    Camera(const glm::mat4 &view, const glm::mat4 &proj)
-        : view_(view)
-        , proj_(proj)
-    {
-        update_viewproj();
-    }
-
-    explicit Camera(const glm::mat4 &proj)
-        : proj_(proj)
-    {
-        update_viewproj();
-    }
-
-    glm::mat4 getMVP(const glm::mat4 &model) const { return viewproj_ * model; }
-
-    void setPerspective(float fov_deg, float aspect, float z_near, float z_far)
-    {
-        setProj(glm::perspective(glm::radians(fov_deg), aspect, z_near, z_far));
-    }
-
-    const glm::mat4 &getProj() const { return proj_; }
-    void setProj(const glm::mat4 &proj)
-    {
-        proj_ = proj;
-        update_viewproj();
-    }
-
-    const glm::mat4 &getView() const { return view_; }
-    void setView(const glm::mat4 &view)
-    {
-        view_ = view;
-        transform_ = glm::inverse(view_);
-        update_viewproj();
-    }
-
-    const glm::mat4 &getTransform() const { return transform_; }
-    void setTransform(const glm::mat4 &transform)
-    {
-        transform_ = transform;
-        view_ = glm::inverse(transform_);
-        update_viewproj();
-    }
-
-    glm::vec3 getPosition() const { return transform_[3]; }
-
-    const glm::mat4 &getViewProj() const { return viewproj_; }
-
-private:
-    void update_viewproj() { viewproj_ = proj_ * view_; }
-
-private:
-    glm::mat4 transform_{1.0f};
-    glm::mat4 view_{1.0f};
-    glm::mat4 proj_{1.0f};
-    glm::mat4 viewproj_{1.0f};
-};
 
 class Engine
 {

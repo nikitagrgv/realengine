@@ -5,6 +5,8 @@ add_subdirectory(time)
 target_sources(realengine
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/Base.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Camera.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Camera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.cpp
@@ -24,4 +26,6 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexArrayObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Visualizer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Visualizer.h
 )
