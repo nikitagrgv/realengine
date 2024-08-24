@@ -535,22 +535,22 @@ public:
             light_pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
             shader.bind();
-            shader.setUniformVec3("uLightColor", light_color);
-            shader.setUniformVec3("uLightPos", light_pos);
-            shader.setUniformVec3("uCameraPos", camera_.getPosition());
+            shader.setUniformVec3("uLight.color", light_color);
+            shader.setUniformVec3("uLight.pos", light_pos);
             shader.setUniformMat4("uViewProj", camera_.getViewProj());
             if (use_ambient)
             {
-                shader.setUniformFloat("uAmbientPower", ambient_power);
+                shader.setUniformFloat("uLight.ambientPower", ambient_power);
             }
             if (use_diffuse)
             {
-                shader.setUniformFloat("uDiffusePower", diffuse_power);
+                shader.setUniformFloat("uLight.diffusePower", diffuse_power);
             }
             if (use_specular)
             {
-                shader.setUniformFloat("uSpecularPower", specular_power);
-                shader.setUniformFloat("uShininess", shininess);
+                shader.setUniformVec3("uCameraPos", camera_.getPosition());
+                shader.setUniformFloat("uLight.specularPower", specular_power);
+                shader.setUniformFloat("uMaterial.shininess", shininess);
             }
 
             glCullFace(GL_BACK);
@@ -635,6 +635,10 @@ private:
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         // glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); // TODO DEBUG
+
+        glfwSetErrorCallback([](int error, const char *description) {
+            std::cout << "GLFW Error: " << description << std::endl;
+        });
 
         window_ = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "LearnOpenGL", NULL, NULL);
         if (window_ == NULL)
@@ -774,6 +778,8 @@ private:
         int width = 0;
         int height = 0;
         glfwGetWindowSize(window, &width, &height);
+        width = std::max(1, width);
+        height = std::max(1, height);
         camera_.setPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);
     }
 
