@@ -100,6 +100,11 @@ void Shader::removeDefine(const char *name)
     defines_.erase(name);
 }
 
+void Shader::clearDefines()
+{
+    defines_.clear();
+}
+
 void Shader::recompile()
 {
     clearProgram();
@@ -257,7 +262,7 @@ void Shader::apply_defines(std::string &shader, const std::unordered_set<std::st
 
     // doesn't move pointer if does not match or moves the pointer after the expression
     const auto check_str_with_arg = [&](char *name, std::string &define_name, bool &matched,
-                                 const char *token, int token_len) -> char * {
+                                        const char *token, int token_len) -> char * {
         if (strncmp(name, token, token_len) == 0)
         {
             auto name_begin = name + token_len;

@@ -30,6 +30,7 @@ public:
     void setDefine(const char *name, bool value);
     void addDefine(const char *name);
     void removeDefine(const char *name);
+    void clearDefines();
 
     void recompile();
 

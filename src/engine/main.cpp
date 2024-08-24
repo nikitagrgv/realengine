@@ -37,6 +37,9 @@ public:
         init();
         glfwMaximizeWindow(window_);
 
+
+
+
         ///////////////////////////////////////////////////////////////////////////////
         Shader light_cube_shader("light_cube.shader");
 
