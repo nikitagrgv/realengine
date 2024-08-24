@@ -26,18 +26,22 @@ public:
 
     void addParameterFloat(const char *name);
     void setParameterFloat(const char *name, float value);
+    float getParameterFloat(const char *name);
     float getParameterFloat(int i);
 
     void addParameterVec3(const char *name);
     void setParameterVec3(const char *name, glm::vec3 value);
+    glm::vec3 getParameterVec3(const char *name);
     glm::vec3 getParameterVec3(int i);
 
     void addParameterVec4(const char *name);
     void setParameterVec4(const char *name, glm::vec4 value);
+    glm::vec4 getParameterVec4(const char *name);
     glm::vec4 getParameterVec4(int i);
 
     void addParameterMat4(const char *name);
     void setParameterMat4(const char *name, const glm::mat4 &value);
+    glm::mat4 getParameterMat4(const char *name);
     glm::mat4 getParameterMat4(int i);
 
     ParameterType getParameterType(int i);

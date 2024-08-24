@@ -1,37 +1,64 @@
 #include "Material.h"
 
-#include <cassert>
 #include <iostream>
 
-#define DEFINE_PARAMTERS_METHODS(TYPE_NAME, TYPE_VALUE_GET, TYPE_VALUE_SET, UNION_ELEMENT)         \
+#define DEFINE_PARAMTERS_METHODS(TYPE_NAME, TYPE_VALUE_GET, TYPE_VALUE_SET, UNION_ELEMENT,         \
+    DEFAULT_RETURN)                                                                                \
+    void Material::addParameter##TYPE_NAME(const char *name)                                       \
+    {                                                                                              \
+        const int index = find_parameter(name);                                                    \
+        if (index != -1)                                                                           \
+        {                                                                                          \
+            std::cout << "Parameter already exists: " << name << std::endl;                        \
+            return;                                                                                \
+        }                                                                                          \
+        Parameter parameter;                                                                       \
+        parameter.name = name;                                                                     \
+        parameter.type = ParameterType::##TYPE_NAME;                                               \
+        parameters_.push_back(parameter);                                                          \
+    }                                                                                              \
+                                                                                                   \
     void Material::setParameter##TYPE_NAME(const char *name, TYPE_VALUE_SET value)                 \
     {                                                                                              \
         const int index = find_parameter(name);                                                    \
         if (index == -1)                                                                           \
         {                                                                                          \
-            Parameter parameter;                                                                   \
-            parameter.name = name;                                                                 \
-            parameter.type = ParameterType::##TYPE_NAME;                                           \
-            parameter.##UNION_ELEMENT##_value = value;                                             \
-            parameters_.push_back(parameter);                                                      \
+            std::cout << "Parameter not found: " << name << std::endl;                             \
+            return;                                                                                \
         }                                                                                          \
-        else                                                                                       \
+        if (parameters_[index].type != ParameterType::##TYPE_NAME)                                 \
         {                                                                                          \
-            assert(parameters_[index].type == ParameterType::##TYPE_NAME);                         \
-            parameters_[index].##UNION_ELEMENT##_value = value;                                    \
+            std::cout << "Parameter type does not match: " << name << std::endl;                   \
+            return;                                                                                \
         }                                                                                          \
+        parameters_[index].##UNION_ELEMENT##_value = value;                                        \
+    }                                                                                              \
+                                                                                                   \
+    TYPE_VALUE_GET Material::getParameter##TYPE_NAME(const char *name)                             \
+    {                                                                                              \
+        const int index = find_parameter(name);                                                    \
+        if (index == -1)                                                                           \
+        {                                                                                          \
+            std::cout << "Parameter not found: " << name << std::endl;                             \
+            return DEFAULT_RETURN;                                                                 \
+        }                                                                                          \
+        return getParameter##TYPE_NAME(index);                                                     \
     }                                                                                              \
                                                                                                    \
     TYPE_VALUE_GET Material::getParameter##TYPE_NAME(int i)                                        \
     {                                                                                              \
-        assert(parameters_[i].type == ParameterType::##TYPE_NAME);                                 \
+        if (parameters_[i].type != ParameterType::##TYPE_NAME)                                     \
+        {                                                                                          \
+            std::cout << "Parameter type does not match " << i << std::endl;                       \
+            return DEFAULT_RETURN;                                                                 \
+        }                                                                                          \
         return parameters_[i].##UNION_ELEMENT##_value;                                             \
     }
 
-DEFINE_PARAMTERS_METHODS(Float, float, float, float);
-DEFINE_PARAMTERS_METHODS(Vec3, glm::vec3, glm::vec3, vec3);
-DEFINE_PARAMTERS_METHODS(Vec4, glm::vec4, glm::vec4, vec4);
-DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4);
+DEFINE_PARAMTERS_METHODS(Float, float, float, float, {});
+DEFINE_PARAMTERS_METHODS(Vec3, glm::vec3, glm::vec3, vec3, {});
+DEFINE_PARAMTERS_METHODS(Vec4, glm::vec4, glm::vec4, vec4, {});
+DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4, glm::mat4{1.0f});
 
 Material::ParameterType Material::getParameterType(int i)
 {
