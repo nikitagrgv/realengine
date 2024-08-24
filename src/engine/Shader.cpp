@@ -42,12 +42,57 @@ void Shader::loadFile(const char *path)
     recompile();
 }
 
+void Shader::setUniformFloat(int location, float value)
+{
+    assert(location != -1);
+    glUniform1f(location, value);
+}
+
+void Shader::setUniformVec2(int location, const glm::vec2 &value)
+{
+    assert(location != -1);
+    glUniform2f(location, value.x, value.y);
+}
+
+void Shader::setUniformVec3(int location, const glm::vec3 &value)
+{
+    assert(location != -1);
+    glUniform3f(location, value.x, value.y, value.z);
+}
+
+void Shader::setUniformVec4(int location, const glm::vec4 &value)
+{
+    assert(location != -1);
+    glUniform4f(location, value.x, value.y, value.z, value.w);
+}
+
+void Shader::setUniformMat4(int location, const glm::mat4 &value)
+{
+    assert(location != -1);
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void Shader::setUniformInt(int location, int value)
+{
+    assert(location != -1);
+    glUniform1i(location, value);
+}
+
 void Shader::setUniformFloat(const char *name, float value)
 {
     const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
-        glUniform1f(location, value);
+        setUniformFloat(location, value);
+    }
+}
+
+void Shader::setUniformVec2(const char *name, const glm::vec2 &value)
+{
+    const int location = get_uniform_location_with_warning(name);
+    if (location != -1)
+    {
+        setUniformVec2(location, value);
     }
 }
 
@@ -56,7 +101,7 @@ void Shader::setUniformVec3(const char *name, const glm::vec3 &value)
     const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
-        glUniform3f(location, value.x, value.y, value.z);
+        setUniformVec3(location, value);
     }
 }
 
@@ -65,7 +110,7 @@ void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
     const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
-        glUniform4f(location, value.x, value.y, value.z, value.w);
+        setUniformVec4(location, value);
     }
 }
 
@@ -74,7 +119,16 @@ void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
     const int location = get_uniform_location_with_warning(name);
     if (location != -1)
     {
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+        setUniformMat4(location, value);
+    }
+}
+
+void Shader::setUniformInt(const char *name, int value)
+{
+    const int location = get_uniform_location_with_warning(name);
+    if (location != -1)
+    {
+        setUniformInt(location, value);
     }
 }
 

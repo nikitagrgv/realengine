@@ -22,10 +22,19 @@ public:
     void loadSources(const char *vertex_src, const char *fragment_src);
     void loadFile(const char *path);
 
+    void setUniformFloat(int location, float value);
+    void setUniformVec2(int location, const glm::vec2 &value);
+    void setUniformVec3(int location, const glm::vec3 &value);
+    void setUniformVec4(int location, const glm::vec4 &value);
+    void setUniformMat4(int location, const glm::mat4 &value);
+    void setUniformInt(int location, int value);
+
     void setUniformFloat(const char *name, float value);
+    void setUniformVec2(const char *name, const glm::vec2 &value);
     void setUniformVec3(const char *name, const glm::vec3 &value);
     void setUniformVec4(const char *name, const glm::vec4 &value);
     void setUniformMat4(const char *name, const glm::mat4 &value);
+    void setUniformInt(const char *name, int value);
 
     void setDefine(const char *name, bool value);
     void addDefine(const char *name);

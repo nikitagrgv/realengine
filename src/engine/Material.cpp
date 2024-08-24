@@ -56,6 +56,7 @@
     }
 
 DEFINE_PARAMTERS_METHODS(Float, float, float, float, {});
+DEFINE_PARAMTERS_METHODS(Vec2, glm::vec2, glm::vec2, vec2, {});
 DEFINE_PARAMTERS_METHODS(Vec3, glm::vec3, glm::vec3, vec3, {});
 DEFINE_PARAMTERS_METHODS(Vec4, glm::vec4, glm::vec4, vec4, {});
 DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4, glm::mat4{1.0f});

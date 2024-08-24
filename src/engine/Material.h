@@ -14,6 +14,7 @@ public:
     enum class ParameterType
     {
         Float,
+        Vec2,
         Vec3,
         Vec4,
         Mat4
@@ -28,6 +29,11 @@ public:
     void setParameterFloat(const char *name, float value);
     float getParameterFloat(const char *name);
     float getParameterFloat(int i);
+
+    void addParameterVec2(const char *name);
+    void setParameterVec2(const char *name, glm::vec2 value);
+    glm::vec2 getParameterVec2(const char *name);
+    glm::vec2 getParameterVec2(int i);
 
     void addParameterVec3(const char *name);
     void setParameterVec3(const char *name, glm::vec3 value);
@@ -65,6 +71,7 @@ private:
         union
         {
             float float_value;
+            glm::vec2 vec2_value;
             glm::vec3 vec3_value;
             glm::vec4 vec4_value;
             glm::mat4 mat4_value;

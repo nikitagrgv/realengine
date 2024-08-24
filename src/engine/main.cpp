@@ -64,9 +64,9 @@ public:
 
         Material cat_material;
         cat_material.setShader(&shader);
-        cat_material.setTexture(0, &cat_texture);
+        cat_material.addTexture("uTexture");
+        cat_material.setTexture("uTexture", &cat_texture);
         cat_material.addParameterFloat("uMaterial.shininess");
-
 
         ////////////////////////////////////////////////
         Texture stickman_texture("image2.png");
@@ -126,6 +126,44 @@ public:
         const auto use_material = [](Material &material) {
             Shader *shader = material.getShader();
             shader->bind();
+            for (int i = 0, count = material.getNumTextures(); i < count; i++)
+            {
+                const int loc = shader->getUniformLocation(material.getTextureName(i).c_str());
+                if (loc == -1)
+                {
+                    continue;
+                }
+                material.getTexture(i)->bind(i);
+                shader->setUniformInt(loc, i);
+            }
+            for (int i = 0, count = material.getNumParameters(); i < count; i++)
+            {
+                const int loc = shader->getUniformLocation(material.getParameterName(i).c_str());
+                if (loc == -1)
+                {
+                    continue;
+                }
+                const auto type = material.getParameterType(i);
+                switch (type)
+                {
+                case Material::ParameterType::Float:
+                    shader->setUniformFloat(loc, material.getParameterFloat(i));
+                    break;
+                case Material::ParameterType::Vec2:
+                    shader->setUniformVec2(loc, material.getParameterVec2(i));
+                    break;
+                case Material::ParameterType::Vec3:
+                    shader->setUniformVec3(loc, material.getParameterVec3(i));
+                    break;
+                case Material::ParameterType::Vec4:
+                    shader->setUniformVec4(loc, material.getParameterVec4(i));
+                    break;
+                case Material::ParameterType::Mat4:
+                    shader->setUniformMat4(loc, material.getParameterMat4(i));
+                    break;
+                default: break;
+                }
+            }
         };
 
         while (!exit_)
@@ -215,7 +253,6 @@ public:
 
             glCullFace(GL_BACK);
 
-
             cat_transform = glm::rotate(glm::mat4{1.0f},
                                 float(0.25 * engine_globals.time->getTime()),
                                 glm::vec3(1.0f, 0.0f, 0.0f))
@@ -225,6 +262,7 @@ public:
             cat_mesh.bind();
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
+            use_material(cat_material);
             glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
 
