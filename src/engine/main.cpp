@@ -55,24 +55,21 @@ public:
         Shader shader("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
-        Image cat_image("image.png");
-        Texture cat_texture(cat_image);
+        Texture cat_texture("image.png");
 
         glm::mat4 cat_transform = glm::mat4{1.0f};
         Mesh cat_mesh;
         MeshLoader::loadToMesh("object.obj", cat_mesh);
 
         ////////////////////////////////////////////////
-        Image stickman_image("image2.png");
-        Texture stickman_texture(stickman_image);
+        Texture stickman_texture("image2.png");
 
         glm::mat4 stickman_transform = glm::mat4{1.0f};
         Mesh stickman_mesh;
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
 
         ////////////////////////////////////////////////
-        Image floor_image("floor.png");
-        Texture floor_texture(floor_image);
+        Texture floor_texture("floor.png");
 
         Mesh floor_mesh;
         const float floor_size = 10.0f;

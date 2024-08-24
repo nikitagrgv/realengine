@@ -9,14 +9,40 @@ class Texture
 public:
     enum class Format
     {
+        INVALID,
         RGBA,
         RGB
     };
 
+    enum class Wrap
+    {
+        Repeat,
+        ClampToEdge
+    };
+
+    enum class Filter
+    {
+        Nearest,
+        Linear,
+        LinearMipmapNearest,
+        LinearMipmapLinear,
+    };
+
     REMOVE_COPY_MOVE_CLASS(Texture);
 
-    explicit Texture(const Image &image, Format format = Format::RGBA);
+    Texture();
+    explicit Texture(const Image &image, Format target_format = Format::RGBA,
+        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
+        Filter mag_filter = Filter::Linear);
+    explicit Texture(const char *filename, Format target_format = Format::RGBA,
+        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
+        Filter mag_filter = Filter::Linear);
     ~Texture();
+
+    void load(const char *filename, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
+        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
+    void load(const Image &image, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
+        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
 
     void bind() const;
 
