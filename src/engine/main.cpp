@@ -67,6 +67,7 @@ public:
         cat_material.addTexture("uTexture");
         cat_material.setTexture("uTexture", &cat_texture);
         cat_material.addParameterFloat("uMaterial.shininess");
+        cat_material.setParameterFloat("uMaterial.shininess", 32.0f);
 
         ////////////////////////////////////////////////
         Texture stickman_texture("image2.png");
