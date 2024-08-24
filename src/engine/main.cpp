@@ -271,10 +271,14 @@ class Mesh
 public:
     Mesh()
     {
+        vao_.bind();
         vao_.addAttributeFloat(3); // pos
         vao_.addAttributeFloat(3); // norm
         vao_.addAttributeFloat(2); // uv
+        vbo_.bind();
+        ebo_.bind();
         vao_.flush();
+        VertexArrayObject::unbind();
     }
 
     // Vertices
@@ -352,9 +356,10 @@ class Visualizer
 public:
     Visualizer()
     {
-        lines_vbo_.bind();
+        lines_vao_.bind();
         lines_vao_.addAttributeFloat(3); // pos
         lines_vao_.addAttributeFloat(4); // color
+        lines_vbo_.bind();
         lines_vao_.flush();
 
         const char *vertex_shader = R"(
@@ -406,8 +411,8 @@ public:
         shader.bind();
         shader.setUniformMat4("uViewProj", viewproj);
 
+        lines_vao_.bind();
         lines_vbo_.flush(true);
-        lines_vbo_.bind();
         glDrawArrays(GL_LINES, 0, lines_vbo_.getNumVertices());
         lines_vbo_.clear();
     }
@@ -600,6 +605,7 @@ public:
         bool use_diffuse = true;
         bool use_specular = true;
 
+        cat_mesh.flush();
         while (!exit_)
         {
             shader.setDefine("USE_AMBIENT", use_ambient);
@@ -686,7 +692,8 @@ public:
             }
 
             glCullFace(GL_BACK);
-            ////////////////////////////////////////////////
+
+
             cat_transform = glm::rotate(glm::mat4{1.0f},
                                 float(0.25 * engine_globals.time->getTime()),
                                 glm::vec3(1.0f, 0.0f, 0.0f))
@@ -694,42 +701,55 @@ public:
             shader.setUniformMat4("uModel", cat_transform);
             cat_texture.bind();
             cat_mesh.bind();
-            cat_mesh.flush();
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
-            ////////////////////////////////////////////////
-            stickman_texture.bind();
-            stickman_mesh.bind();
-            stickman_mesh.flush();
-            stickman_transform = glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f});
-            shader.setUniformMat4("uModel", stickman_transform);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
-            ////////////////////////////////////////////////
-            floor_texture.bind();
-            floor_mesh.bind();
-            floor_mesh.flush();
-            shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
-
-            ////////////////////////////////////////////////
-            light_cube_shader.bind();
-            light_cube_shader.setUniformVec3("uColor", light_color);
-            light_cube_shader.setUniformMat4("uMVP",
-                camera_.getMVP(glm::translate(glm::mat4{1.0f}, light_pos)
-                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
-            light_cube_mesh.bind();
-            light_cube_mesh.flush();
-            glEnable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, light_cube_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            // ////////////////////////////////////////////////
+            // cat_transform = glm::rotate(glm::mat4{1.0f},
+            //                     float(0.25 * engine_globals.time->getTime()),
+            //                     glm::vec3(1.0f, 0.0f, 0.0f))
+            //     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f});
+            // shader.setUniformMat4("uModel", cat_transform);
+            // cat_texture.bind();
+            // cat_mesh.bind();
+            // cat_mesh.flush();
+            // glEnable(GL_DEPTH_TEST);
+            // glEnable(GL_CULL_FACE);
+            // glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            //
+            // ////////////////////////////////////////////////
+            // stickman_texture.bind();
+            // stickman_mesh.bind();
+            // stickman_mesh.flush();
+            // stickman_transform = glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
+            //     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f});
+            // shader.setUniformMat4("uModel", stickman_transform);
+            // glEnable(GL_DEPTH_TEST);
+            // glEnable(GL_CULL_FACE);
+            // glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            //
+            // ////////////////////////////////////////////////
+            // floor_texture.bind();
+            // floor_mesh.bind();
+            // floor_mesh.flush();
+            // shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
+            // glEnable(GL_DEPTH_TEST);
+            // glEnable(GL_CULL_FACE);
+            // glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            //
+            // ////////////////////////////////////////////////
+            // light_cube_shader.bind();
+            // light_cube_shader.setUniformVec3("uColor", light_color);
+            // light_cube_shader.setUniformMat4("uMVP",
+            //     camera_.getMVP(glm::translate(glm::mat4{1.0f}, light_pos)
+            //         * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
+            // light_cube_mesh.bind();
+            // light_cube_mesh.flush();
+            // glEnable(GL_DEPTH_TEST);
+            // glDisable(GL_CULL_FACE);
+            // glDrawElements(GL_TRIANGLES, light_cube_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ///////////////////////////////////////////////
             visualize_normals(cat_mesh, cat_transform);
