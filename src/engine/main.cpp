@@ -25,62 +25,116 @@ const unsigned int DEFAULT_WIDTH = 1600;
 const unsigned int DEFAULT_HEIGHT = 900;
 
 template<typename V>
-class TemplateMesh
+class VertexBufferObject
 {
 public:
-    TemplateMesh()
+    REMOVE_COPY_CLASS(VertexBufferObject);
+
+    static void unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
+
+    VertexBufferObject() { glGenBuffers(1, &vbo_); }
+
+    ~VertexBufferObject()
     {
-        glGenVertexArrays(1, &vao_);
-        glGenBuffers(1, &vbo_);
-        glGenBuffers(1, &ebo_);
+        if (vbo_ != 0)
+        {
+            glDeleteBuffers(1, &vbo_);
+        }
     }
 
-    ~TemplateMesh()
+    VertexBufferObject(VertexBufferObject &&other) noexcept { *this = std::move(other); }
+
+    VertexBufferObject &operator=(VertexBufferObject &&other) noexcept
     {
-        glDeleteVertexArrays(1, &vao_);
-        glDeleteBuffers(1, &vbo_);
-        glDeleteBuffers(1, &ebo_);
+        if (this != &other)
+        {
+            if (vbo_ != 0)
+            {
+                glDeleteBuffers(1, &vbo_);
+            }
+            vbo_ = other.vbo_;
+            other.vbo_ = 0;
+            vertices_ = std::move(other.vertices_);
+        }
+        return *this;
     }
 
     int addVertex(const V &v)
     {
+        const int index = vertices_.size();
         vertices_.push_back(v);
-        return vertices_.size() - 1;
-    }
-
-    int addIndex(unsigned int i)
-    {
-        indices_.push_back(i);
-        return indices_.size() - 1;
+        return index;
     }
 
     const V &getVertex(int index) const { return vertices_[index]; }
+    V &getVertex(int index) { return vertices_[index]; }
     void setVertex(const V &v, int index) { vertices_[index] = v; }
 
     int getNumVertices() const { return vertices_.size(); }
-    int getNumIndices() const { return indices_.size(); }
 
-    template<typename A>
-    void addVertices(const A &a)
+    void clear() { vertices_.clear(); }
+
+    void bind() const
     {
-        for (const auto &v : a)
+        if (vbo_ == 0)
         {
-            addVertex(v);
+            std::cout << "VertexBufferObject::bind() - vbo_ == 0" << std::endl;
+            return;
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+    }
+
+    void flush(bool dynamic = false)
+    {
+        if (vbo_ == 0)
+        {
+            std::cout << "VertexBufferObject::flush() - vbo_ == 0" << std::endl;
+            return;
+        }
+        const int load_flag = dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
+        glBufferData(GL_ARRAY_BUFFER, vertices_.size() * VERTEX_SIZE, vertices_.data(), load_flag);
+    }
+
+private:
+    static constexpr int VERTEX_SIZE = sizeof(V);
+
+    std::vector<V> vertices_;
+    unsigned int vbo_{};
+};
+
+class VertexArrayObject
+{
+public:
+    REMOVE_COPY_CLASS(VertexArrayObject);
+
+    static void unbind() { glBindVertexArray(0); }
+
+    VertexArrayObject() { glGenVertexArrays(1, &vao_); }
+
+    ~VertexArrayObject()
+    {
+        if (vao_ != 0)
+        {
+            glDeleteVertexArrays(1, &vao_);
         }
     }
 
-    template<typename A>
-    void addIndices(const A &a)
-    {
-        for (const auto &i : a)
-        {
-            addIndex(i);
-        }
-    }
+    VertexArrayObject(VertexArrayObject &&other) noexcept { *this = std::move(other); }
 
-    void addIndices(std::initializer_list<unsigned int> list)
+    VertexArrayObject &operator=(VertexArrayObject &&other) noexcept
     {
-        indices_.insert(indices_.end(), list);
+        if (this != &other)
+        {
+            if (vao_ != 0)
+            {
+                glDeleteVertexArrays(1, &vao_);
+            }
+            vao_ = other.vao_;
+            other.vao_ = 0;
+            attributes_ = std::move(other.attributes_);
+        }
+        return *this;
     }
 
     void addAttributeFloat(int count)
@@ -92,48 +146,33 @@ public:
         attributes_.push_back(attr);
     }
 
-    void clearMesh()
+    void clear() { attributes_.clear(); }
+
+    void bind() const
     {
-        vertices_.clear();
-        indices_.clear();
-    }
-
-    void clearAttributes() { attributes_.clear(); }
-
-    void clearAll()
-    {
-        clearMesh();
-        clearAttributes();
-    }
-
-    void flush(bool dynamic = false)
-    {
-        const int load_flag = dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
-
+        if (vao_ == 0)
+        {
+            std::cout << "VertexArrayObject::bind() - vao_ == 0" << std::endl;
+            return;
+        }
         glBindVertexArray(vao_);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-        glBufferData(GL_ARRAY_BUFFER, vertices_.size() * VERTEX_SIZE, vertices_.data(), load_flag);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * INDEX_SIZE, indices_.data(),
-            load_flag);
-
-        flush_attributes();
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0); // TODO# remove?
-        glBindVertexArray(0);
     }
 
-    void bind() { glBindVertexArray(vao_); }
-
-private:
-    void flush_attributes()
+    void flush() const
     {
+        if (vao_ == 0)
+        {
+            std::cout << "VertexArrayObject::flush() - vao_ == 0" << std::endl;
+            return;
+        }
+
         int stride = 0;
         for (const Attribute &attribute : attributes_)
         {
             stride += attribute.count * attribute.size_of_type;
         }
 
+        glBindVertexArray(vao_);
         size_t offset = 0;
         for (int i = 0; i < attributes_.size(); ++i)
         {
@@ -143,12 +182,10 @@ private:
             glEnableVertexAttribArray(i);
             offset += attribute.count * attribute.size_of_type;
         }
+        unbind();
     }
 
-protected:
-    static constexpr int VERTEX_SIZE = sizeof(V);
-    static constexpr int INDEX_SIZE = sizeof(unsigned int);
-
+private:
     struct Attribute
     {
         int type{-1};
@@ -156,12 +193,158 @@ protected:
         int count{-1};
     };
     std::vector<Attribute> attributes_;
-    std::vector<V> vertices_;
-    std::vector<unsigned int> indices_;
+    unsigned int vao_{};
+};
 
-    unsigned int vbo_{0};
-    unsigned int vao_{0};
+class IndexBufferObject
+{
+public:
+    REMOVE_COPY_CLASS(IndexBufferObject);
+
+    static void unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+
+    IndexBufferObject() { glGenBuffers(1, &ebo_); }
+
+    ~IndexBufferObject() { glDeleteBuffers(1, &ebo_); }
+
+    IndexBufferObject(IndexBufferObject &&other) noexcept { *this = std::move(other); }
+
+    IndexBufferObject &operator=(IndexBufferObject &&other) noexcept
+    {
+        if (this != &other)
+        {
+            if (ebo_ != 0)
+            {
+                glDeleteBuffers(1, &ebo_);
+            }
+            ebo_ = other.ebo_;
+            other.ebo_ = 0;
+            indices_ = std::move(other.indices_);
+        }
+        return *this;
+    }
+
+    int addIndex(unsigned int i)
+    {
+        const int index = indices_.size();
+        indices_.push_back(i);
+        return index;
+    }
+    unsigned int getIndex(int i) const { return indices_[i]; }
+
+    int getNumIndices() const { return indices_.size(); }
+
+    void clear() { indices_.clear(); }
+
+    void bind()
+    {
+        if (ebo_ == 0)
+        {
+            std::cout << "IndexBufferObject::bind() - ebo_ == 0" << std::endl;
+            return;
+        }
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+    }
+
+    void flush(bool dynamic = false)
+    {
+        if (ebo_ == 0)
+        {
+            std::cout << "IndexBufferObject::flush() - ebo_ == 0" << std::endl;
+            return;
+        }
+        const int load_flag = dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * INDEX_SIZE, indices_.data(),
+            load_flag);
+    }
+
+private:
+    static constexpr int INDEX_SIZE = sizeof(unsigned int);
+
+    std::vector<unsigned int> indices_;
     unsigned int ebo_{0};
+};
+
+class Mesh
+{
+public:
+    Mesh()
+    {
+        vao_.addAttributeFloat(3); // pos
+        vao_.addAttributeFloat(3); // norm
+        vao_.addAttributeFloat(2); // uv
+        vao_.flush();
+    }
+
+    // Vertices
+    int addVertex() { return vbo_.addVertex(Vertex{}); }
+
+    int addVertex(const glm::vec3 &pos, const glm::vec3 &norm, const glm::vec2 &uv)
+    {
+        return vbo_.addVertex(Vertex{pos, norm, uv});
+    }
+
+    int addVertex(const glm::vec3 &pos, const glm::vec3 &norm)
+    {
+        return vbo_.addVertex(Vertex{pos, norm, glm::vec2{}});
+    }
+
+    int addVertex(const glm::vec3 &pos)
+    {
+        return vbo_.addVertex(Vertex{pos, glm::vec3{}, glm::vec2{}});
+    }
+
+    glm::vec3 getVertexPos(int index) const { return vbo_.getVertex(index).pos; }
+    void setVertexPos(int index, const glm::vec3 &pos) { vbo_.getVertex(index).pos = pos; }
+
+    glm::vec3 getVertexNormal(int index) const { return vbo_.getVertex(index).norm; }
+    void setVertexNormal(int index, const glm::vec3 &norm) { vbo_.getVertex(index).norm = norm; }
+
+    glm::vec2 getVertexUV(int index) const { return vbo_.getVertex(index).uv; }
+    void setVertexUV(int index, const glm::vec2 &uv) { vbo_.getVertex(index).uv = uv; }
+
+    int getNumVertices() const { return vbo_.getNumVertices(); }
+
+    // Indices
+    int addIndex(unsigned int v1) { return ebo_.addIndex(v1); }
+
+    void addIndices(unsigned int v1, unsigned int v2, unsigned int v3)
+    {
+        ebo_.addIndex(v1);
+        ebo_.addIndex(v2);
+        ebo_.addIndex(v3);
+    }
+
+    int getNumIndices() const { return ebo_.getNumIndices(); }
+
+    void clearIndices() { ebo_.clear(); }
+
+    // Mesh
+    void clear()
+    {
+        vbo_.clear();
+        ebo_.clear();
+    }
+
+    void flush(bool dynamic = false)
+    {
+        vbo_.flush(dynamic);
+        ebo_.flush(dynamic);
+    }
+
+    void bind() { vao_.bind(); }
+
+protected:
+    struct Vertex
+    {
+        glm::vec3 pos{0.0f};
+        glm::vec3 norm{0.0f};
+        glm::vec2 uv{0.0f};
+    };
+    VertexBufferObject<Vertex> vbo_;
+    VertexArrayObject vao_;
+    IndexBufferObject ebo_;
 };
 
 class Visualizer
@@ -169,8 +352,10 @@ class Visualizer
 public:
     Visualizer()
     {
-        lines_.addAttributeFloat(3); // pos
-        lines_.addAttributeFloat(4); // color
+        lines_vbo_.bind();
+        lines_vao_.addAttributeFloat(3); // pos
+        lines_vao_.addAttributeFloat(4); // color
+        lines_vao_.flush();
 
         const char *vertex_shader = R"(
             #version 330 core
@@ -199,11 +384,9 @@ public:
         LinePoint p;
         p.color = color;
         p.pos = s0;
-        int v = lines_.addVertex(p);
-        lines_.addIndex(v);
+        lines_vbo_.addVertex(p);
         p.pos = s1;
-        v = lines_.addVertex(p);
-        lines_.addIndex(v);
+        lines_vbo_.addVertex(p);
     }
 
     void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color0,
@@ -212,22 +395,21 @@ public:
         LinePoint p;
         p.color = color0;
         p.pos = s0;
-        int v = lines_.addVertex(p);
-        lines_.addIndex(v);
+        lines_vbo_.addVertex(p);
         p.color = color1;
         p.pos = s1;
-        v = lines_.addVertex(p);
-        lines_.addIndex(v);
+        lines_vbo_.addVertex(p);
     }
 
     void render(const glm::mat4 &viewproj)
     {
-        lines_.flush(true);
         shader.bind();
         shader.setUniformMat4("uViewProj", viewproj);
-        lines_.bind();
-        glDrawElements(GL_LINES, lines_.getNumIndices(), GL_UNSIGNED_INT, 0);
-        lines_.clearMesh();
+
+        lines_vbo_.flush(true);
+        lines_vbo_.bind();
+        glDrawArrays(GL_LINES, 0, lines_vbo_.getNumVertices());
+        lines_vbo_.clear();
     }
 
 private:
@@ -236,9 +418,9 @@ private:
         glm::vec3 pos;
         glm::vec4 color;
     };
-
     Shader shader;
-    TemplateMesh<LinePoint> lines_;
+    VertexBufferObject<LinePoint> lines_vbo_;
+    VertexArrayObject lines_vao_;
 };
 
 class Camera
@@ -313,36 +495,18 @@ public:
         init();
         glfwMaximizeWindow(window_);
 
-        struct Vertex
-        {
-            glm::vec3 pos{0.0f};
-            glm::vec3 norm{0.0f};
-            glm::vec2 uv{0.0f};
-        };
-
         ///////////////////////////////////////////////////////////////////////////////
-        struct LightCubeVertex
-        {
-            glm::vec3 pos{0.0f};
-        };
         Shader light_cube_shader("light_cube.shader");
 
-        TemplateMesh<LightCubeVertex> light_cube_mesh;
-        light_cube_mesh.addAttributeFloat(3); // pos
-        // make a thehaeder
-        light_cube_mesh.addVertex({
-            {0.0f, 1.0f, 0.0f}
-        });
-        light_cube_mesh.addVertex({
-            {1.0f, 0.0f, 0.0f}
-        });
-        light_cube_mesh.addVertex({
-            {-1.0f, 0.0f, 0.0f}
-        });
-        light_cube_mesh.addVertex({
-            {0.0f, 0.0f, 1.0f}
-        });
-        light_cube_mesh.addIndices({0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 3, 2});
+        Mesh light_cube_mesh;
+        light_cube_mesh.addVertex({0.0f, 1.0f, 0.0f});
+        light_cube_mesh.addVertex({1.0f, 0.0f, 0.0f});
+        light_cube_mesh.addVertex({-1.0f, 0.0f, 0.0f});
+        light_cube_mesh.addVertex({0.0f, 0.0f, 1.0f});
+        light_cube_mesh.addIndices(0, 1, 2);
+        light_cube_mesh.addIndices(0, 1, 3);
+        light_cube_mesh.addIndices(0, 2, 3);
+        light_cube_mesh.addIndices(1, 3, 2);
         light_cube_mesh.flush();
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -353,19 +517,13 @@ public:
         Texture cat_texture(cat_image);
 
         glm::mat4 cat_transform = glm::mat4{1.0f};
-        TemplateMesh<Vertex> cat_mesh;
-        cat_mesh.addAttributeFloat(3);
-        cat_mesh.addAttributeFloat(3);
-        cat_mesh.addAttributeFloat(2);
+        Mesh cat_mesh;
         {
             MeshLoader loader("object.obj");
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
-                Vertex v;
-                v.pos = loader.getVertexPosition(i);
-                v.norm = loader.getVertexNormal(i);
-                v.uv = loader.getVertexTextureCoords(i);
-                cat_mesh.addVertex(v);
+                cat_mesh.addVertex(loader.getVertexPosition(i), loader.getVertexNormal(i),
+                    loader.getVertexTextureCoords(i));
             }
             for (int i = 0; i < loader.getNumIndices(); i++)
             {
@@ -379,19 +537,13 @@ public:
         Texture stickman_texture(stickman_image);
 
         glm::mat4 stickman_transform = glm::mat4{1.0f};
-        TemplateMesh<Vertex> stickman_mesh;
-        stickman_mesh.addAttributeFloat(3); // pos
-        stickman_mesh.addAttributeFloat(3); // norm
-        stickman_mesh.addAttributeFloat(2); // uv
+        Mesh stickman_mesh;
         {
             MeshLoader loader("stickman.obj");
             for (int i = 0; i < loader.getNumVertices(); i++)
             {
-                Vertex v;
-                v.pos = loader.getVertexPosition(i);
-                v.norm = -loader.getVertexNormal(i);
-                v.uv = loader.getVertexTextureCoords(i);
-                stickman_mesh.addVertex(v);
+                stickman_mesh.addVertex(loader.getVertexPosition(i), -loader.getVertexNormal(i),
+                    loader.getVertexTextureCoords(i));
             }
             for (int i = 0; i < loader.getNumIndices(); i++)
             {
@@ -403,53 +555,33 @@ public:
         Image floor_image("floor.png");
         Texture floor_texture(floor_image);
 
-        TemplateMesh<Vertex> floor_mesh;
-        floor_mesh.addAttributeFloat(3);
-        floor_mesh.addAttributeFloat(3);
-        floor_mesh.addAttributeFloat(2);
+        Mesh floor_mesh;
         const float floor_size = 10.0f;
         const float floor_y = 0.0f;
         const float max_text_coord = 10.0f;
-        floor_mesh.addVertex(Vertex{
-            {-floor_size, floor_y, -floor_size},
-            {0, 1, 0},
-            {0.0f, 0.0f}
-        });
-        floor_mesh.addVertex(Vertex{
-            {-floor_size, floor_y, floor_size},
-            {0, 1, 0},
-
-            {0.0f, max_text_coord}
-        });
-        floor_mesh.addVertex(Vertex{
-            {floor_size, floor_y, floor_size},
-            {0, 1, 0},
-
-            {max_text_coord, max_text_coord}
-        });
-        floor_mesh.addVertex(Vertex{
-            {floor_size, floor_y, -floor_size},
-            {0, 1, 0},
-
-            {max_text_coord, 0.0f}
-        });
-        floor_mesh.addIndices({0, 1, 3, 1, 2, 3});
+        floor_mesh.addVertex({-floor_size, floor_y, -floor_size}, {0, 1, 0}, {0.0f, 0.0f});
+        floor_mesh.addVertex({-floor_size, floor_y, floor_size}, {0, 1, 0}, {0.0f, max_text_coord});
+        floor_mesh.addVertex({floor_size, floor_y, floor_size}, {0, 1, 0},
+            {max_text_coord, max_text_coord});
+        floor_mesh.addVertex({floor_size, floor_y, -floor_size}, {0, 1, 0}, {max_text_coord, 0.0f});
+        floor_mesh.addIndices(0, 1, 3);
+        floor_mesh.addIndices(1, 2, 3);
         floor_mesh.flush();
         ////////////////////////////////////////////////
 
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
 
-        const auto visualize_normals = [](const TemplateMesh<Vertex> &mesh,
-                                           const glm::mat4 &transform) {
+        const auto visualize_normals = [](const Mesh &mesh, const glm::mat4 &transform) {
             return;
             const auto to_local = [&](const glm::vec3 &v) {
                 return transform * glm::vec4(v, 1);
             };
             for (int i = 0; i < mesh.getNumVertices(); i++)
             {
-                const Vertex &v = mesh.getVertex(i);
-                engine_globals.visualizer->addLine(to_local(v.pos), to_local(v.pos + v.norm),
+                const auto pos = mesh.getVertexPos(i);
+                const auto norm = mesh.getVertexNormal(i);
+                engine_globals.visualizer->addLine(to_local(pos), to_local(pos + norm),
                     {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 0.2f});
             }
         };
@@ -562,6 +694,7 @@ public:
             shader.setUniformMat4("uModel", cat_transform);
             cat_texture.bind();
             cat_mesh.bind();
+            cat_mesh.flush();
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
@@ -569,6 +702,7 @@ public:
             ////////////////////////////////////////////////
             stickman_texture.bind();
             stickman_mesh.bind();
+            stickman_mesh.flush();
             stickman_transform = glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f});
             shader.setUniformMat4("uModel", stickman_transform);
@@ -579,6 +713,7 @@ public:
             ////////////////////////////////////////////////
             floor_texture.bind();
             floor_mesh.bind();
+            floor_mesh.flush();
             shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
@@ -591,6 +726,7 @@ public:
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, light_pos)
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
             light_cube_mesh.bind();
+            light_cube_mesh.flush();
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, light_cube_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
