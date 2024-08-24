@@ -1,6 +1,7 @@
 #include "Material.h"
 
 #include <cassert>
+#include <iostream>
 
 #define DEFINE_PARAMTERS_METHODS(TYPE_NAME, TYPE_VALUE_GET, TYPE_VALUE_SET, UNION_ELEMENT)         \
     void Material::setParameter##TYPE_NAME(const char *name, TYPE_VALUE_SET value)                 \
@@ -47,6 +48,30 @@ void Material::clearParameters()
     parameters_.clear();
 }
 
+void Material::addTexture(const char *name)
+{
+    const int index = find_texture(name);
+    if (index != -1)
+    {
+        std::cout << "Texture " << name << " already exists" << std::endl;
+    }
+    TextureInfo texture_info;
+    texture_info.name = name;
+    texture_info.texture = nullptr;
+    textures_.push_back(texture_info);
+}
+
+void Material::setTexture(const char *name, Texture *texture)
+{
+    const int index = find_texture(name);
+    if (index == -1)
+    {
+        std::cout << "Texture " << name << " not found" << std::endl;
+        return;
+    }
+    textures_[index].texture = texture;
+}
+
 int Material::getNumTextures()
 {
     return textures_.size();
@@ -62,6 +87,18 @@ int Material::find_parameter(const char *name) const
     for (int i = 0; i < parameters_.size(); i++)
     {
         if (parameters_[i].name == name)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Material::find_texture(const char *name) const
+{
+    for (int i = 0; i < textures_.size(); i++)
+    {
+        if (textures_[i].name == name)
         {
             return i;
         }

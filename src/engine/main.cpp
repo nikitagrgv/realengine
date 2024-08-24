@@ -65,6 +65,8 @@ public:
         Material cat_material;
         cat_material.setShader(&shader);
         cat_material.setTexture(0, &cat_texture);
+        cat_material.addParameterFloat("uMaterial.shininess");
+
 
         ////////////////////////////////////////////////
         Texture stickman_texture("image2.png");
