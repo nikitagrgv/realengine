@@ -96,7 +96,17 @@ void Texture::load(const Image &image, Format target_format, Wrap wrap, Filter m
         return;
     }
 
+    const int width = image.getWidth();
+    const int height = image.getHeight();
+    void *data = image.getData();
     const Format src_format = image_format_to_texture_format(image.getFormat());
+    load(data, width, height, src_format, target_format, wrap, min_filter, mag_filter);
+}
+
+void Texture::load(void *data, int width, int height, Format src_format, Format target_format,
+    Wrap wrap, Filter min_filter, Filter mag_filter)
+{
+    clear();
 
     int gl_src_format = 0;
     if (!format_to_gl_format(src_format, gl_src_format))
@@ -130,8 +140,8 @@ void Texture::load(const Image &image, Format target_format, Wrap wrap, Filter m
 
     glGenTextures(1, &id_);
     glBindTexture(GL_TEXTURE_2D, id_);
-    glTexImage2D(GL_TEXTURE_2D, 0, gl_dst_format, image.getWidth(), image.getHeight(), 0,
-        gl_src_format, GL_UNSIGNED_BYTE, image.getData());
+    glTexImage2D(GL_TEXTURE_2D, 0, gl_dst_format, width, height, 0, gl_src_format, GL_UNSIGNED_BYTE,
+        data);
     if (gl_min_filter == GL_LINEAR_MIPMAP_LINEAR || gl_min_filter == GL_LINEAR_MIPMAP_NEAREST
         || gl_mag_filter == GL_LINEAR_MIPMAP_LINEAR || gl_mag_filter == GL_LINEAR_MIPMAP_NEAREST)
     {

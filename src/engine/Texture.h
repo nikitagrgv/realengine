@@ -43,6 +43,9 @@ public:
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
     void load(const Image &image, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
+    void load(void *data, int width, int height, Format src_format,
+        Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
+        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
 
     void bind() const;
 
