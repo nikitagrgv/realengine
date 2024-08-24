@@ -9,11 +9,19 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/IndexBufferObject.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/IndexBufferObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshLoader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshLoader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/VertexArrayObject.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/VertexArrayObject.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.h
 )
