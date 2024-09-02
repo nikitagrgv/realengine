@@ -10,6 +10,7 @@
 #include "EngineGlobals.h"
 #include "Image.h"
 #include "Material.h"
+#include "MaterialManager.h"
 #include "Mesh.h"
 #include "MeshLoader.h"
 #include "Shader.h"
@@ -29,69 +30,6 @@
 
 const unsigned int DEFAULT_WIDTH = 1;
 const unsigned int DEFAULT_HEIGHT = 1;
-
-class MaterialManager
-{
-public:
-    Material *createMaterial(const char *name)
-    {
-        Material material;
-        return addMaterial(std::move(material), name);
-    }
-
-    Material *addMaterial(Material material, const char *name)
-    {
-        auto it = materials_.find(name);
-        assert(it == materials_.end());
-        if (it != materials_.end())
-        {
-            return nullptr;
-        }
-        materials_[name] = std::make_unique<Material>(std::move(material));
-        material_names_[materials_[name].get()] = name;
-        return materials_[name].get();
-    }
-
-    Material *getMaterial(const char *name)
-    {
-        auto it = materials_.find(name);
-        if (it == materials_.end())
-        {
-            return nullptr;
-        }
-        return it->second.get();
-    }
-
-    void removeMaterial(const char *name)
-    {
-        auto it = materials_.find(name);
-        if (it == materials_.end())
-        {
-            return;
-        }
-        auto name_it = material_names_.find(it->second.get());
-        assert(name_it != material_names_.end());
-        material_names_.erase(name_it);
-        materials_.erase(it);
-    }
-
-    void removeMaterial(Material *material)
-    {
-        auto name_it = material_names_.find(material);
-        if (name_it == material_names_.end())
-        {
-            return;
-        }
-        auto it = materials_.find(name_it->second);
-        assert(it != materials_.end());
-        material_names_.erase(name_it);
-        materials_.erase(it);
-    }
-
-private:
-    std::unordered_map<std::string, std::unique_ptr<Material>> materials_;
-    std::unordered_map<Material *, std::string> material_names_;
-};
 
 class Engine
 {
@@ -396,6 +334,7 @@ private:
         engine_globals.engine_ = this;
         engine_globals.time = new Time();
         engine_globals.fs = new FileSystem();
+        engine_globals.material_manager = new MaterialManager();
 
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -451,6 +390,7 @@ private:
             ptr = nullptr;
         };
         delete_and_null(engine_globals.visualizer);
+        delete_and_null(engine_globals.material_manager);
         delete_and_null(engine_globals.fs);
         delete_and_null(engine_globals.time);
         engine_globals.engine_ = nullptr;
