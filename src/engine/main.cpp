@@ -35,16 +35,21 @@ class MaterialManager
 public:
     Material *createMaterial(const char *name)
     {
+        Material material;
+        return addMaterial(std::move(material), name);
+    }
+
+    Material *addMaterial(Material material, const char *name)
+    {
         auto it = materials_.find(name);
         assert(it == materials_.end());
         if (it != materials_.end())
         {
             return nullptr;
         }
-        auto *material = new Material();
-        materials_[name] = std::unique_ptr<Material>(material);
-        material_names_[material] = name;
-        return material;
+        materials_[name] = std::make_unique<Material>(std::move(material));
+        material_names_[materials_[name].get()] = name;
+        return materials_[name].get();
     }
 
     Material *getMaterial(const char *name)
