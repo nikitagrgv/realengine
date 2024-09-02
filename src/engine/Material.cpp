@@ -83,6 +83,15 @@ Material &Material::operator=(Material &&other) noexcept
     return *this;
 }
 
+Material Material::clone() const
+{
+    Material material;
+    material.shader_ = shader_;
+    material.parameters_ = parameters_;
+    material.textures_ = textures_;
+    return material;
+}
+
 bool Material::hasParameter(const char *name) const
 {
     return find_parameter(name) != -1;

@@ -31,6 +31,8 @@ public:
     Material(Material &&other) noexcept;
     Material &operator=(Material &&other) noexcept;
 
+    Material clone() const;
+
     void setShader(Shader *shader) { shader_ = shader; }
     Shader *getShader() const { return shader_; }
     void clearShader() { shader_ = nullptr; }
