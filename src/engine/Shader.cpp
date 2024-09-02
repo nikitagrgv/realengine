@@ -9,6 +9,14 @@
 #include <cassert>
 #include <iostream>
 
+
+namespace
+{
+
+const char SHADER_VERSION_LINE[] = "#version 330 core\n";
+
+}
+
 Shader::Shader() = default;
 
 Shader::Shader(const char *vertex_src, const char *fragment_src)
@@ -163,19 +171,25 @@ void Shader::recompile()
 {
     clearProgram();
     assert(program_id_ == 0);
+
+    std::string vertex_source;
+    std::string fragment_source;
+
     if (!filepath_.empty())
     {
         assert(vertex_src_.empty() && fragment_src_.empty());
-        std::string vertex_source;
-        std::string fragment_source;
-        read_shader(filepath_.c_str(), defines_, vertex_source, fragment_source);
-        program_id_ = compile_shader(vertex_source.c_str(), fragment_source.c_str());
+        read_from_file(filepath_.c_str(), vertex_source, fragment_source);
     }
     else
     {
         assert(!vertex_src_.empty() && !fragment_src_.empty());
-        program_id_ = compile_shader(vertex_src_.c_str(), fragment_src_.c_str());
+        vertex_source = vertex_src_;
+        fragment_source = fragment_src_;
     }
+
+    prepare_shader(vertex_source, defines_);
+    prepare_shader(fragment_source, defines_);
+    program_id_ = compile_shader(vertex_source.c_str(), fragment_source.c_str());
 
     if (program_id_ != 0)
     {
@@ -292,23 +306,22 @@ unsigned int Shader::compile_shader(const char *vertex_src, const char *fragment
     return program_id;
 }
 
-void Shader::read_shader(const char *path, const std::unordered_set<std::string> &defines,
-    std::string &vertex, std::string &fragment)
+void Shader::read_from_file(const char *path, std::string &vertex, std::string &fragment)
 {
     vertex.clear();
     fragment.clear();
 
-    std::string shaders = engine_globals.fs->readFile(path);
-    apply_defines(shaders, defines);
+    std::string shaders_source = engine_globals.fs->readFile(path);
 
-    const int vertex_idx = shaders.find("#vertex");
-    const int fragment_idx = shaders.find("#fragment");
+    const int vertex_idx = shaders_source.find("#vertex");
     const int vertex_idx_end = vertex_idx + strlen("#vertex");
+
+    const int fragment_idx = shaders_source.find("#fragment");
     const int fragment_idx_end = fragment_idx + strlen("#fragment");
 
     assert(vertex_idx < fragment_idx);
 
-    std::string common = shaders.substr(0, vertex_idx);
+    std::string common = shaders_source.substr(0, vertex_idx);
 
     const auto replace_with = [](std::string &string, const char *from, const char *to) {
         std::string::size_type pos = 0;
@@ -321,163 +334,24 @@ void Shader::read_shader(const char *path, const std::unordered_set<std::string>
 
     vertex = common;
     replace_with(vertex, "#inout", "out");
-    vertex += shaders.substr(vertex_idx_end, fragment_idx - vertex_idx_end);
+    vertex += shaders_source.substr(vertex_idx_end, fragment_idx - vertex_idx_end);
 
     fragment = std::move(common);
     replace_with(fragment, "#inout", "in");
-    fragment += shaders.substr(fragment_idx_end);
+    fragment += shaders_source.substr(fragment_idx_end);
 }
 
-void Shader::apply_defines(std::string &shader, const std::unordered_set<std::string> &orig_defines)
+void Shader::prepare_shader(std::string &shader, const std::unordered_set<std::string> &defines)
 {
-    std::unordered_set<std::string> defines = orig_defines;
+    std::string header;
+    header += SHADER_VERSION_LINE;
 
-    const auto is_part_of_name = [](const char ch) {
-        return isdigit(ch) || isalpha(ch) || ch == '_';
-    };
-
-    // doesn't move pointer if does not match or moves the pointer after the expression
-    const auto check_str_with_arg = [&](char *name, std::string &define_name, bool &matched,
-                                        const char *token, int token_len) -> char * {
-        if (strncmp(name, token, token_len) == 0)
-        {
-            auto name_begin = name + token_len;
-            auto name_end = name_begin;
-            while (is_part_of_name(*name_end))
-            {
-                name_end++;
-            }
-            define_name = std::string(name_begin, name_end);
-            matched = true;
-            return name_end;
-        }
-        matched = false;
-        return name;
-    };
-
-    const auto check_str = [&](char *name, bool &matched, const char *token,
-                               int token_len) -> char * {
-        if (strncmp(name, token, token_len) == 0)
-        {
-            matched = true;
-            return name + 6;
-        }
-        matched = false;
-        return name;
-    };
-
-    const auto check_define_str = [&](char *name, std::string &define_name,
-                                      bool &matched) -> char * {
-        return check_str_with_arg(name, define_name, matched, "#define ", 8);
-    };
-
-    const auto check_undef_str = [&](char *name, std::string &define_name,
-                                     bool &matched) -> char * {
-        return check_str_with_arg(name, define_name, matched, "#undef ", 7);
-    };
-
-    const auto check_ifdef_str = [&](char *name, std::string &define_name,
-                                     bool &matched) -> char * {
-        return check_str_with_arg(name, define_name, matched, "#ifdef ", 7);
-    };
-
-    const auto check_ifndef_str = [&](char *name, std::string &define_name,
-                                      bool &matched) -> char * {
-        return check_str_with_arg(name, define_name, matched, "#ifndef ", 8);
-    };
-
-    const auto check_endif_str = [&](char *name, bool &matched) -> char * {
-        return check_str(name, matched, "#endif", 6);
-    };
-
-    std::vector<bool> state_stack;
-    bool is_compiled = true;
-
-    std::string cur_define_name; // tmp
-    bool matched = false;        // tmp
-
-    std::string out;
-
-    char *it = shader.data();
-    char *end = it + shader.size();
-    while (it < end)
+    for (const std::string &define : defines)
     {
-        it = check_define_str(it, cur_define_name, matched);
-        if (matched)
-        {
-            if (cur_define_name.empty())
-            {
-                std::cout << "#define name is empty" << std::endl;
-                return;
-            }
-            defines.insert(cur_define_name);
-            continue;
-        }
-
-        it = check_undef_str(it, cur_define_name, matched);
-        if (matched)
-        {
-            if (cur_define_name.empty())
-            {
-                std::cout << "#undef name is empty" << std::endl;
-                return;
-            }
-            defines.erase(cur_define_name);
-            continue;
-        }
-
-        it = check_ifdef_str(it, cur_define_name, matched);
-        if (matched)
-        {
-            if (cur_define_name.empty())
-            {
-                std::cout << "#ifdef name is empty" << std::endl;
-                return;
-            }
-            state_stack.push_back(is_compiled);
-            const bool defined = defines.find(cur_define_name) != defines.end();
-            is_compiled &= defined;
-            continue;
-        }
-
-        it = check_ifndef_str(it, cur_define_name, matched);
-        if (matched)
-        {
-            if (cur_define_name.empty())
-            {
-                std::cout << "#ifndef name is empty" << std::endl;
-                return;
-            }
-            state_stack.push_back(is_compiled);
-            const bool defined = defines.find(cur_define_name) == defines.end();
-            is_compiled &= defined;
-            continue;
-        }
-
-        it = check_endif_str(it, matched);
-        if (matched)
-        {
-            if (state_stack.empty())
-            {
-                std::cout << "Too many #endif" << std::endl;
-                return;
-            }
-            is_compiled = state_stack.back();
-            state_stack.pop_back();
-            continue;
-        }
-
-        if (is_compiled)
-        {
-            out += *it;
-        }
-        it++;
+        header += "#define " + define + "\n";
     }
-    if (!state_stack.empty())
-    {
-        std::cout << "Too many #ifdef" << std::endl;
-    }
-    shader = std::move(out);
+
+    shader = header + shader;
 }
 
 bool Shader::check_compiler_errors(unsigned int shader, const char *type)
