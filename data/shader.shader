@@ -50,16 +50,15 @@ void main()
     vec3 ambient = vec3(0.0);
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
-    vec3 dir_to_light = vec3(0.0);
-    vec3 norm = vec3(0.0);
+
+    dir_to_light = normalize(uLight.pos - ioFragPosGlobal);
+    norm = normalize(ioNormalGlobal);
 
     #ifdef USE_AMBIENT
     ambient = uLight.ambientPower * uLight.color;
     #endif
 
     #ifdef USE_DIFFUSE
-    dir_to_light = normalize(uLight.pos - ioFragPosGlobal);
-    norm = normalize(ioNormalGlobal);
     float diff = max(dot(norm, dir_to_light), 0.0);
     diffuse = uLight.diffusePower * diff * uLight.color;
     #endif
