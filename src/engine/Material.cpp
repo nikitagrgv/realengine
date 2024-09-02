@@ -59,7 +59,34 @@ DEFINE_PARAMTERS_METHODS(Float, float, float, float, {});
 DEFINE_PARAMTERS_METHODS(Vec2, glm::vec2, glm::vec2, vec2, {});
 DEFINE_PARAMTERS_METHODS(Vec3, glm::vec3, glm::vec3, vec3, {});
 DEFINE_PARAMTERS_METHODS(Vec4, glm::vec4, glm::vec4, vec4, {});
-DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4, glm::mat4{1.0f});
+DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4, glm::mat4{1.0f})
+
+Material::Material() = default;
+
+Material::~Material() = default;
+
+Material::Material(Material &&other) noexcept
+{
+    *this = std::move(other);
+}
+
+Material &Material::operator=(Material &&other) noexcept
+{
+    if (this != &other)
+    {
+        shader_ = other.shader_;
+        parameters_ = std::move(other.parameters_);
+        textures_ = std::move(other.textures_);
+
+        other.shader_ = nullptr;
+    }
+    return *this;
+}
+
+bool Material::hasParameter(const char *name) const
+{
+    return find_parameter(name) != -1;
+}
 
 Material::ParameterType Material::getParameterType(int i)
 {

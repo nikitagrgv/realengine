@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base.h"
+
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
 #include <string>
@@ -21,6 +23,14 @@ public:
     };
 
 public:
+    REMOVE_COPY_CLASS(Material);
+
+    Material();
+    ~Material();
+
+    Material(Material &&other) noexcept;
+    Material &operator=(Material &&other) noexcept;
+
     void setShader(Shader *shader) { shader_ = shader; }
     Shader *getShader() const { return shader_; }
     void clearShader() { shader_ = nullptr; }
@@ -50,6 +60,7 @@ public:
     glm::mat4 getParameterMat4(const char *name);
     glm::mat4 getParameterMat4(int i);
 
+    bool hasParameter(const char *name) const;
     ParameterType getParameterType(int i);
     std::string getParameterName(int i) { return parameters_[i].name; }
     int getNumParameters();

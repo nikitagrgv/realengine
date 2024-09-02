@@ -30,6 +30,31 @@
 const unsigned int DEFAULT_WIDTH = 1;
 const unsigned int DEFAULT_HEIGHT = 1;
 
+class MaterialManager
+{
+public:
+    Material *createMaterial(const char *name)
+    {
+        auto it = materials_.find(name);
+        assert(it == materials_.end());
+
+        if (it == materials_.end())
+        {
+            Material *material = new Material();
+            materials_[name] = std::unique_ptr<Material>(material);
+            return material;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+private:
+    std::unordered_map<std::string, std::unique_ptr<Material>> materials_;
+
+};
+
 class Engine
 {
 public:
