@@ -1,3 +1,3 @@
 #include "EngineGlobals.h"
 
-EngineGlobals EG;
+EngineGlobals eg;

@@ -12,15 +12,38 @@ Shader *ShaderManager::createShader(const char *name)
 
 Shader *ShaderManager::addShader(Shader shader, const char *name)
 {
-    auto it = shaders_.find(name);
-    assert(it == shaders_.end());
-    if (it != shaders_.end())
+    std::string name_string = name ? name : "";
+
+    // TODO: shitty
+    if (name_string.empty())
     {
-        return nullptr;
+        int i = 0;
+        while (true)
+        {
+            name_string = "shader_";
+            name_string += std::to_string(i);
+            if (shaders_.find(name_string) == shaders_.end())
+            {
+                break;
+            }
+            i++;
+        }
     }
-    shaders_[name] = std::make_unique<Shader>(std::move(shader));
-    shaders_names_[shaders_[name].get()] = name;
-    return shaders_[name].get();
+    else
+    {
+        auto it = shaders_.find(name_string);
+        assert(it == shaders_.end());
+        if (it != shaders_.end())
+        {
+            return nullptr;
+        }
+    }
+
+    auto unique_ptr = std::make_unique<Shader>(std::move(shader));
+    auto ptr = unique_ptr.get();
+    shaders_[name_string] = std::move(unique_ptr);
+    shaders_names_[ptr] = std::move(name_string);
+    return ptr;
 }
 
 Shader *ShaderManager::getShader(const char *name)

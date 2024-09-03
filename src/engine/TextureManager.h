@@ -9,9 +9,9 @@ class Texture;
 class TextureManager
 {
 public:
-    Texture *createTexture(const char *name);
+    Texture *createTexture(const char *name = nullptr);
 
-    Texture *addTexture(Texture texture, const char *name);
+    Texture *addTexture(Texture texture, const char *name = nullptr);
 
     Texture *getTexture(const char *name);
 

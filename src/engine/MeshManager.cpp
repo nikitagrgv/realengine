@@ -12,15 +12,38 @@ Mesh *MeshManager::createMesh(const char *name)
 
 Mesh *MeshManager::addMesh(Mesh mesh, const char *name)
 {
-    auto it = meshes_.find(name);
-    assert(it == meshes_.end());
-    if (it != meshes_.end())
+    std::string name_string = name ? name : "";
+
+    // TODO: shitty
+    if (name_string.empty())
     {
-        return nullptr;
+        int i = 0;
+        while (true)
+        {
+            name_string = "mesh_";
+            name_string += std::to_string(i);
+            if (meshes_.find(name_string) == meshes_.end())
+            {
+                break;
+            }
+            i++;
+        }
     }
-    meshes_[name] = std::make_unique<Mesh>(std::move(mesh));
-    meshes_names_[meshes_[name].get()] = name;
-    return meshes_[name].get();
+    else
+    {
+        auto it = meshes_.find(name_string);
+        assert(it == meshes_.end());
+        if (it != meshes_.end())
+        {
+            return nullptr;
+        }
+    }
+
+    auto unique_ptr = std::make_unique<Mesh>(std::move(mesh));
+    auto ptr = unique_ptr.get();
+    meshes_[name_string] = std::move(unique_ptr);
+    meshes_names_[ptr] = std::move(name_string);
+    return ptr;
 }
 
 Mesh *MeshManager::getMesh(const char *name)

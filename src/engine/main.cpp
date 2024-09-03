@@ -44,19 +44,19 @@ public:
 
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader *light_cube_shader = EG.shader_manager->createShader("light_cube");
+        Shader *light_cube_shader = eg.shader_manager->createShader("light_cube");
         light_cube_shader->loadFile("light_cube.shader");
 
-        Mesh light_cube_mesh;
-        light_cube_mesh.addVertex({0.0f, 1.0f, 0.0f});
-        light_cube_mesh.addVertex({1.0f, 0.0f, 0.0f});
-        light_cube_mesh.addVertex({-1.0f, 0.0f, 0.0f});
-        light_cube_mesh.addVertex({0.0f, 0.0f, 1.0f});
-        light_cube_mesh.addIndices(0, 1, 2);
-        light_cube_mesh.addIndices(0, 1, 3);
-        light_cube_mesh.addIndices(0, 2, 3);
-        light_cube_mesh.addIndices(1, 3, 2);
-        light_cube_mesh.flush();
+        Mesh *light_cube_mesh = eg.mesh_manager->createMesh();
+        light_cube_mesh->addVertex({0.0f, 1.0f, 0.0f});
+        light_cube_mesh->addVertex({1.0f, 0.0f, 0.0f});
+        light_cube_mesh->addVertex({-1.0f, 0.0f, 0.0f});
+        light_cube_mesh->addVertex({0.0f, 0.0f, 1.0f});
+        light_cube_mesh->addIndices(0, 1, 2);
+        light_cube_mesh->addIndices(0, 1, 3);
+        light_cube_mesh->addIndices(0, 2, 3);
+        light_cube_mesh->addIndices(1, 3, 2);
+        light_cube_mesh->flush();
 
         ///////////////////////////////////////////////////////////////////////////////
         Shader shader("shader.shader");
@@ -110,7 +110,7 @@ public:
             {
                 const auto pos = mesh.getVertexPos(i);
                 const auto norm = mesh.getVertexNormal(i);
-                EG.visualizer->addLine(to_local(pos), to_local(pos + norm),
+                eg.visualizer->addLine(to_local(pos), to_local(pos + norm),
                     {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 0.2f});
             }
         };
@@ -210,7 +210,7 @@ public:
             ImGui::Render();
             //////////////////////////////////////////////// IMGUI
 
-            EG.time->update();
+            eg.time->update();
 
             process_input();
 
@@ -221,7 +221,7 @@ public:
             }
 
             const auto add_axis = [](const glm::vec3 &axis) {
-                EG.visualizer->addLine(glm::vec3{0, 0, 0}, axis, glm::vec4{axis, 1.0f});
+                eg.visualizer->addLine(glm::vec3{0, 0, 0}, axis, glm::vec4{axis, 1.0f});
             };
             add_axis(glm::vec3{1, 0, 0});
             add_axis(glm::vec3{0, 1, 0});
@@ -233,7 +233,7 @@ public:
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            anim_time += EG.time->getDelta() * anim_time_multiplier;
+            anim_time += eg.time->getDelta() * anim_time_multiplier;
             light_pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
             light_pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
             light_pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
@@ -260,7 +260,7 @@ public:
             glCullFace(GL_BACK);
 
             cat_transform = glm::rotate(glm::mat4{1.0f},
-                                float(0.25 * EG.time->getTime()),
+                                float(0.25 * eg.time->getTime()),
                                 glm::vec3(1.0f, 0.0f, 0.0f))
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f});
             shader.setUniformMat4("uModel", cat_transform);
@@ -298,18 +298,18 @@ public:
             light_cube_shader->setUniformMat4("uMVP",
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, light_pos)
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
-            light_cube_mesh.bind();
-            light_cube_mesh.flush();
+            light_cube_mesh->bind();
+            light_cube_mesh->flush();
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, light_cube_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, light_cube_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ///////////////////////////////////////////////
             visualize_normals(cat_mesh, cat_transform);
             visualize_normals(stickman_mesh, stickman_transform);
             visualize_normals(floor_mesh, glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
             ////////////////////////////////////////////////
-            EG.visualizer->render(camera_.getViewProj());
+            eg.visualizer->render(camera_.getViewProj());
 
 
             ////////////////// IMGUI
@@ -323,11 +323,11 @@ public:
                 exit_ = true;
             }
 
-            if (last_update_fps_time_ < EG.time->getTime() - 1.0f)
+            if (last_update_fps_time_ < eg.time->getTime() - 1.0f)
             {
-                last_update_fps_time_ = EG.time->getTime();
+                last_update_fps_time_ = eg.time->getTime();
                 glfwSetWindowTitle(window_,
-                    std::string("FPS: " + std::to_string(EG.time->getFps())).c_str());
+                    std::string("FPS: " + std::to_string(eg.time->getFps())).c_str());
             }
         }
     }
@@ -335,13 +335,13 @@ public:
 private:
     void init()
     {
-        EG.engine_ = this;
-        EG.time = new Time();
-        EG.fs = new FileSystem();
-        EG.texture_manager = new TextureManager();
-        EG.shader_manager = new ShaderManager();
-        EG.mesh_manager = new MeshManager();
-        EG.material_manager = new MaterialManager();
+        eg.engine_ = this;
+        eg.time = new Time();
+        eg.fs = new FileSystem();
+        eg.texture_manager = new TextureManager();
+        eg.shader_manager = new ShaderManager();
+        eg.mesh_manager = new MeshManager();
+        eg.material_manager = new MaterialManager();
 
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -361,7 +361,7 @@ private:
         }
         glfwMakeContextCurrent(window_);
         glfwSetFramebufferSizeCallback(window_, [](GLFWwindow *window, int width, int height) {
-            EG.engine_->framebuffer_size_callback(window, width, height);
+            eg.engine_->framebuffer_size_callback(window, width, height);
         });
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -386,7 +386,7 @@ private:
         mouse_delta_x_ = 0;
         mouse_delta_y_ = 0;
 
-        EG.visualizer = new Visualizer();
+        eg.visualizer = new Visualizer();
     }
 
     void shutdown()
@@ -396,14 +396,14 @@ private:
             delete ptr;
             ptr = nullptr;
         };
-        delete_and_null(EG.visualizer);
-        delete_and_null(EG.material_manager);
-        delete_and_null(EG.mesh_manager);
-        delete_and_null(EG.shader_manager);
-        delete_and_null(EG.texture_manager);
-        delete_and_null(EG.fs);
-        delete_and_null(EG.time);
-        EG.engine_ = nullptr;
+        delete_and_null(eg.visualizer);
+        delete_and_null(eg.material_manager);
+        delete_and_null(eg.mesh_manager);
+        delete_and_null(eg.shader_manager);
+        delete_and_null(eg.texture_manager);
+        delete_and_null(eg.fs);
+        delete_and_null(eg.time);
+        eg.engine_ = nullptr;
 
         glfwTerminate();
     }
@@ -434,7 +434,7 @@ private:
 
         const float mouse_speed = 0.0015f;
 
-        const float dt = EG.time->getDelta();
+        const float dt = eg.time->getDelta();
 
         glm::vec4 delta_pos{0.0f};
         if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)

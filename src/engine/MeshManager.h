@@ -9,9 +9,9 @@ class Mesh;
 class MeshManager
 {
 public:
-    Mesh *createMesh(const char *name);
+    Mesh *createMesh(const char *name = nullptr);
 
-    Mesh *addMesh(Mesh mesh, const char *name);
+    Mesh *addMesh(Mesh mesh, const char *name = nullptr);
 
     Mesh *getMesh(const char *name);
 

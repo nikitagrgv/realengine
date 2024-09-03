@@ -14,7 +14,7 @@ void MeshLoader::loadToMesh(const char *path, Mesh &mesh, bool invert_normals)
 MeshLoader::MeshLoader(const char *path)
 {
     objl::Loader loader;
-    if (!loader.LoadFile(EG.fs->toAbsolutePath(path)))
+    if (!loader.LoadFile(eg.fs->toAbsolutePath(path)))
     {
         std::cout << "Failed to load mesh: " << path << std::endl;
         return;

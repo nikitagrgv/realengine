@@ -9,9 +9,9 @@ class Shader;
 class ShaderManager
 {
 public:
-    Shader *createShader(const char *name);
+    Shader *createShader(const char *name = nullptr);
 
-    Shader *addShader(Shader shader, const char *name);
+    Shader *addShader(Shader shader, const char *name = nullptr);
 
     Shader *getShader(const char *name);
 
