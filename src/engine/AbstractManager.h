@@ -1,10 +1,16 @@
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-template<class T>
+class T
+{
+    std::unique_ptr<int> g;
+};
+
+// template<class T>
 class AbstractManager
 {
 public:
@@ -18,27 +24,38 @@ public:
 
     void remove(const char *name);
     void remove(T *obj);
+    void remove(int index);
 
 protected:
     std::string empty_name_base_;
-    std::unordered_map<std::string, std::unique_ptr<T>> objects_;
-    std::unordered_map<T *, std::string> names_;
+
+    struct Object
+    {
+        std::string name;
+        std::unique_ptr<T> obj;
+    };
+    std::vector<Object> objects_;
+
+    std::unordered_map<std::string, int> by_name_;
+    std::unordered_map<T *, int> by_ptr;
 };
 
-template<typename T>
-AbstractManager<T>::AbstractManager(std::string empty_name_base)
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// template<typename T>
+inline AbstractManager::AbstractManager(std::string empty_name_base)
     : empty_name_base_(std::move(empty_name_base))
 {}
 
-template<typename T>
-T *AbstractManager<T>::create(const char *name)
+// template<typename T>
+inline T *AbstractManager::create(const char *name)
 {
     T obj;
     return add(std::move(obj), name);
 }
 
-template<typename T>
-T *AbstractManager<T>::add(T obj, const char *name)
+// template<typename T>
+inline T *AbstractManager::add(T obj, const char *name)
 {
     std::string name_string = name ? name : "";
 
@@ -50,7 +67,7 @@ T *AbstractManager<T>::add(T obj, const char *name)
         {
             name_string = empty_name_base_;
             name_string += std::to_string(i);
-            if (objects_.find(name_string) == objects_.end())
+            if (by_name_.find(name_string) == by_name_.end())
             {
                 break;
             }
@@ -59,9 +76,9 @@ T *AbstractManager<T>::add(T obj, const char *name)
     }
     else
     {
-        auto it = objects_.find(name_string);
-        assert(it == objects_.end());
-        if (it != objects_.end())
+        auto it = by_name_.find(name_string);
+        assert(it == by_name_.end());
+        if (it != by_name_.end())
         {
             return nullptr;
         }
@@ -69,13 +86,21 @@ T *AbstractManager<T>::add(T obj, const char *name)
 
     auto unique_ptr = std::make_unique<T>(std::move(obj));
     auto ptr = unique_ptr.get();
-    objects_[name_string] = std::move(unique_ptr);
-    names_[ptr] = std::move(name_string);
+
+    const int index = int(objects_.size());
+
+    Object o;
+    o.name = name_string;
+    o.obj = std::move(unique_ptr);
+    objects_.push_back(std::move(o));
+
+    by_name_[name_string] = std::move(unique_ptr);
+    by_ptr[ptr] = std::move(name_string);
     return ptr;
 }
 
-template<typename T>
-T *AbstractManager<T>::get(const char *name)
+// template<typename T>
+inline T *AbstractManager::get(const char *name)
 {
     auto it = objects_.find(name);
     if (it == objects_.end())
@@ -85,30 +110,33 @@ T *AbstractManager<T>::get(const char *name)
     return it->second.get();
 }
 
-template<typename T>
-void AbstractManager<T>::remove(const char *name)
+// template<typename T>
+inline void AbstractManager::remove(const char *name)
 {
     auto it = objects_.find(name);
     if (it == objects_.end())
     {
         return;
     }
-    auto name_it = names_.find(it->second.get());
-    assert(name_it != names_.end());
-    names_.erase(name_it);
+    auto name_it = by_ptr.find(it->second.get());
+    assert(name_it != by_ptr.end());
+    by_ptr.erase(name_it);
     objects_.erase(it);
 }
 
-template<typename T>
-void AbstractManager<T>::remove(T *obj)
+// template<typename T>
+inline void AbstractManager::remove(T *obj)
 {
-    auto name_it = names_.find(obj);
-    if (name_it == names_.end())
+    auto name_it = by_ptr.find(obj);
+    if (name_it == by_ptr.end())
     {
         return;
     }
     auto it = objects_.find(name_it->second);
     assert(it != objects_.end());
-    names_.erase(name_it);
+    by_ptr.erase(name_it);
     objects_.erase(it);
 }
+
+// template<typename T>
+inline void AbstractManager::remove(int index) {}
