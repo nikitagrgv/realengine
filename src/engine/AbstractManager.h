@@ -19,7 +19,7 @@ public:
     void remove(const char *name);
     void remove(T *obj);
 
-private:
+protected:
     std::string empty_name_base_;
     std::unordered_map<std::string, std::unique_ptr<T>> objects_;
     std::unordered_map<T *, std::string> names_;
