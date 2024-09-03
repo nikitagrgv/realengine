@@ -1,24 +1,13 @@
 #pragma once
 
-#include <memory>
-#include <string>
-#include <unordered_map>
+#include "AbstractManager.h"
+
+#include <Texture.h>
 
 class Texture;
 
-class TextureManager
+class TextureManager : public AbstractManager<Texture>
 {
 public:
-    Texture *createTexture(const char *name = nullptr);
-
-    Texture *addTexture(Texture texture, const char *name = nullptr);
-
-    Texture *getTexture(const char *name);
-
-    void removeTexture(const char *name);
-    void removeTexture(Texture *texture);
-
-private:
-    std::unordered_map<std::string, std::unique_ptr<Texture>> textures_;
-    std::unordered_map<Texture *, std::string> textures_names_;
+    TextureManager();
 };

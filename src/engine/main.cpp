@@ -63,7 +63,7 @@ public:
         shader->loadFile("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
-        Texture *cat_texture = eg.texture_manager->createTexture();
+        Texture *cat_texture = eg.texture_manager->create();
         cat_texture->load("image.png");
         glm::mat4 cat_transform = glm::mat4{1.0f};
         Mesh *cat_mesh = eg.mesh_manager->createMesh("cat");
@@ -77,7 +77,7 @@ public:
         cat_material->setParameterFloat("uMaterial.shininess", 32.0f);
 
         ////////////////////////////////////////////////
-        Texture *stickman_texture = eg.texture_manager->createTexture();
+        Texture *stickman_texture = eg.texture_manager->create();
         stickman_texture->load("image2.png");
 
         glm::mat4 stickman_transform = glm::mat4{1.0f};
@@ -85,7 +85,7 @@ public:
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
 
         ////////////////////////////////////////////////
-        Texture *floor_texture = eg.texture_manager->createTexture();
+        Texture *floor_texture = eg.texture_manager->create();
         floor_texture->load("floor.png");
 
         Mesh *floor_mesh = eg.mesh_manager->createMesh();
