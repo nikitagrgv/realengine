@@ -7,6 +7,8 @@ class FileSystem;
 class Visualizer;
 class MaterialManager;
 class ShaderManager;
+class TextureManager;
+class MeshManager;
 
 struct EngineGlobals
 {
@@ -16,6 +18,8 @@ struct EngineGlobals
     Visualizer *visualizer{};
     MaterialManager *material_manager{};
     ShaderManager *shader_manager{};
+    TextureManager *texture_manager{};
+    MeshManager *mesh_manager{};
 };
 
 extern EngineGlobals engine_globals;

@@ -22,12 +22,16 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshLoader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshLoader.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/MeshManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MeshManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/TextureManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/TextureManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexArrayObject.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexArrayObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.cpp

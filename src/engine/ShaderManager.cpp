@@ -10,7 +10,7 @@ Shader *ShaderManager::createShader(const char *name)
     return addShader(std::move(shader), name);
 }
 
-Shader *ShaderManager::addShader(Shader material, const char *name)
+Shader *ShaderManager::addShader(Shader shader, const char *name)
 {
     auto it = shaders_.find(name);
     assert(it == shaders_.end());
@@ -18,7 +18,7 @@ Shader *ShaderManager::addShader(Shader material, const char *name)
     {
         return nullptr;
     }
-    shaders_[name] = std::make_unique<Shader>(std::move(material));
+    shaders_[name] = std::make_unique<Shader>(std::move(shader));
     shaders_names_[shaders_[name].get()] = name;
     return shaders_[name].get();
 }
@@ -46,9 +46,9 @@ void ShaderManager::removeShader(const char *name)
     shaders_.erase(it);
 }
 
-void ShaderManager::removeShader(Shader *material)
+void ShaderManager::removeShader(Shader *shader)
 {
-    auto name_it = shaders_names_.find(material);
+    auto name_it = shaders_names_.find(shader);
     if (name_it == shaders_names_.end())
     {
         return;
