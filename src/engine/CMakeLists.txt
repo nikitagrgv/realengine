@@ -16,8 +16,6 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Material.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Material.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/MaterialManager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/MaterialManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Mesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshLoader.cpp
