@@ -59,57 +59,61 @@ public:
         light_cube_mesh->flush();
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader shader("shader.shader");
+        Shader *shader = eg.shader_manager->createShader("basic");
+        shader->loadFile("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
-        Texture cat_texture("image.png");
+        Texture *cat_texture = eg.texture_manager->createTexture();
+        cat_texture->load("image.png");
         glm::mat4 cat_transform = glm::mat4{1.0f};
-        Mesh cat_mesh;
+        Mesh *cat_mesh = eg.mesh_manager->createMesh("cat");
         MeshLoader::loadToMesh("object.obj", cat_mesh);
 
-        Material cat_material;
-        cat_material.setShader(&shader);
-        cat_material.addTexture("uTexture");
-        cat_material.setTexture("uTexture", &cat_texture);
-        cat_material.addParameterFloat("uMaterial.shininess");
-        cat_material.setParameterFloat("uMaterial.shininess", 32.0f);
+        Material *cat_material = eg.material_manager->createMaterial("cat");
+        cat_material->setShader(shader);
+        cat_material->addTexture("uTexture");
+        cat_material->setTexture("uTexture", cat_texture);
+        cat_material->addParameterFloat("uMaterial.shininess");
+        cat_material->setParameterFloat("uMaterial.shininess", 32.0f);
 
         ////////////////////////////////////////////////
-        Texture stickman_texture("image2.png");
+        Texture *stickman_texture = eg.texture_manager->createTexture();
+        stickman_texture->load("image2.png");
 
         glm::mat4 stickman_transform = glm::mat4{1.0f};
-        Mesh stickman_mesh;
+        Mesh *stickman_mesh = eg.mesh_manager->createMesh("stickman");
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
 
         ////////////////////////////////////////////////
-        Texture floor_texture("floor.png");
+        Texture *floor_texture = eg.texture_manager->createTexture();
+        floor_texture->load("floor.png");
 
-        Mesh floor_mesh;
+        Mesh *floor_mesh = eg.mesh_manager->createMesh();
         const float floor_size = 10.0f;
         const float floor_y = 0.0f;
         const float max_text_coord = 10.0f;
-        floor_mesh.addVertex({-floor_size, floor_y, -floor_size}, {0, 1, 0}, {0.0f, 0.0f});
-        floor_mesh.addVertex({-floor_size, floor_y, floor_size}, {0, 1, 0}, {0.0f, max_text_coord});
-        floor_mesh.addVertex({floor_size, floor_y, floor_size}, {0, 1, 0},
+        floor_mesh->addVertex({-floor_size, floor_y, -floor_size}, {0, 1, 0}, {0.0f, 0.0f});
+        floor_mesh->addVertex({-floor_size, floor_y, floor_size}, {0, 1, 0}, {0.0f, max_text_coord});
+        floor_mesh->addVertex({floor_size, floor_y, floor_size}, {0, 1, 0},
             {max_text_coord, max_text_coord});
-        floor_mesh.addVertex({floor_size, floor_y, -floor_size}, {0, 1, 0}, {max_text_coord, 0.0f});
-        floor_mesh.addIndices(0, 1, 3);
-        floor_mesh.addIndices(1, 2, 3);
-        floor_mesh.flush();
+        floor_mesh->addVertex({floor_size, floor_y, -floor_size}, {0, 1, 0}, {max_text_coord, 0.0f});
+        floor_mesh->addIndices(0, 1, 3);
+        floor_mesh->addIndices(1, 2, 3);
+        floor_mesh->flush();
         ////////////////////////////////////////////////
 
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
 
-        const auto visualize_normals = [](const Mesh &mesh, const glm::mat4 &transform) {
+        const auto visualize_normals = [](const Mesh *mesh, const glm::mat4 &transform) {
             return;
             const auto to_local = [&](const glm::vec3 &v) {
                 return transform * glm::vec4(v, 1);
             };
-            for (int i = 0; i < mesh.getNumVertices(); i++)
+            for (int i = 0; i < mesh->getNumVertices(); i++)
             {
-                const auto pos = mesh.getVertexPos(i);
-                const auto norm = mesh.getVertexNormal(i);
+                const auto pos = mesh->getVertexPos(i);
+                const auto norm = mesh->getVertexNormal(i);
                 eg.visualizer->addLine(to_local(pos), to_local(pos + norm),
                     {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 0.2f});
             }
@@ -129,43 +133,43 @@ public:
         bool use_diffuse = true;
         bool use_specular = true;
 
-        const auto use_material = [](Material &material) {
-            Shader *shader = material.getShader();
+        const auto use_material = [](Material *material) {
+            Shader *shader = material->getShader();
             shader->bind();
-            for (int i = 0, count = material.getNumTextures(); i < count; i++)
+            for (int i = 0, count = material->getNumTextures(); i < count; i++)
             {
-                const int loc = shader->getUniformLocation(material.getTextureName(i).c_str());
+                const int loc = shader->getUniformLocation(material->getTextureName(i).c_str());
                 if (loc == -1)
                 {
                     continue;
                 }
-                material.getTexture(i)->bind(i);
+                material->getTexture(i)->bind(i);
                 shader->setUniformInt(loc, i);
             }
-            for (int i = 0, count = material.getNumParameters(); i < count; i++)
+            for (int i = 0, count = material->getNumParameters(); i < count; i++)
             {
-                const int loc = shader->getUniformLocation(material.getParameterName(i).c_str());
+                const int loc = shader->getUniformLocation(material->getParameterName(i).c_str());
                 if (loc == -1)
                 {
                     continue;
                 }
-                const auto type = material.getParameterType(i);
+                const auto type = material->getParameterType(i);
                 switch (type)
                 {
                 case Material::ParameterType::Float:
-                    shader->setUniformFloat(loc, material.getParameterFloat(i));
+                    shader->setUniformFloat(loc, material->getParameterFloat(i));
                     break;
                 case Material::ParameterType::Vec2:
-                    shader->setUniformVec2(loc, material.getParameterVec2(i));
+                    shader->setUniformVec2(loc, material->getParameterVec2(i));
                     break;
                 case Material::ParameterType::Vec3:
-                    shader->setUniformVec3(loc, material.getParameterVec3(i));
+                    shader->setUniformVec3(loc, material->getParameterVec3(i));
                     break;
                 case Material::ParameterType::Vec4:
-                    shader->setUniformVec4(loc, material.getParameterVec4(i));
+                    shader->setUniformVec4(loc, material->getParameterVec4(i));
                     break;
                 case Material::ParameterType::Mat4:
-                    shader->setUniformMat4(loc, material.getParameterMat4(i));
+                    shader->setUniformMat4(loc, material->getParameterMat4(i));
                     break;
                 default: break;
                 }
@@ -174,13 +178,13 @@ public:
 
         while (!exit_)
         {
-            shader.setDefine("USE_AMBIENT", use_ambient);
-            shader.setDefine("USE_DIFFUSE", use_diffuse);
-            shader.setDefine("USE_SPECULAR", use_specular);
+            shader->setDefine("USE_AMBIENT", use_ambient);
+            shader->setDefine("USE_DIFFUSE", use_diffuse);
+            shader->setDefine("USE_SPECULAR", use_specular);
 
-            if (shader.isDirty())
+            if (shader->isDirty())
             {
-                shader.recompile();
+                shader->recompile();
             }
 
             glfwPollEvents();
@@ -216,7 +220,7 @@ public:
 
             if (glfwGetKey(window_, GLFW_KEY_F5) == GLFW_PRESS)
             {
-                shader.recompile();
+                shader->recompile();
                 light_cube_shader->recompile();
             }
 
@@ -238,59 +242,58 @@ public:
             light_pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
             light_pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
-            shader.bind();
-            shader.setUniformVec3("uLight.color", light_color);
-            shader.setUniformVec3("uLight.pos", light_pos);
-            shader.setUniformMat4("uViewProj", camera_.getViewProj());
+            shader->bind();
+            shader->setUniformVec3("uLight.color", light_color);
+            shader->setUniformVec3("uLight.pos", light_pos);
+            shader->setUniformMat4("uViewProj", camera_.getViewProj());
             if (use_ambient)
             {
-                shader.setUniformFloat("uLight.ambientPower", ambient_power);
+                shader->setUniformFloat("uLight.ambientPower", ambient_power);
             }
             if (use_diffuse)
             {
-                shader.setUniformFloat("uLight.diffusePower", diffuse_power);
+                shader->setUniformFloat("uLight.diffusePower", diffuse_power);
             }
             if (use_specular)
             {
-                shader.setUniformVec3("uCameraPos", camera_.getPosition());
-                shader.setUniformFloat("uLight.specularPower", specular_power);
-                shader.setUniformFloat("uMaterial.shininess", shininess);
+                shader->setUniformVec3("uCameraPos", camera_.getPosition());
+                shader->setUniformFloat("uLight.specularPower", specular_power);
+                shader->setUniformFloat("uMaterial.shininess", shininess);
             }
 
             glCullFace(GL_BACK);
 
-            cat_transform = glm::rotate(glm::mat4{1.0f},
-                                float(0.25 * eg.time->getTime()),
+            cat_transform = glm::rotate(glm::mat4{1.0f}, float(0.25 * eg.time->getTime()),
                                 glm::vec3(1.0f, 0.0f, 0.0f))
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f});
-            shader.setUniformMat4("uModel", cat_transform);
-            cat_texture.bind();
-            cat_mesh.bind();
+            shader->setUniformMat4("uModel", cat_transform);
+            cat_texture->bind();
+            cat_mesh->bind();
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             use_material(cat_material);
-            glDrawElements(GL_TRIANGLES, cat_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, cat_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
 
 
             ////////////////////////////////////////////////
-            stickman_texture.bind();
-            stickman_mesh.bind();
-            stickman_mesh.flush();
+            stickman_texture->bind();
+            stickman_mesh->bind();
+            stickman_mesh->flush();
             stickman_transform = glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f});
-            shader.setUniformMat4("uModel", stickman_transform);
+            shader->setUniformMat4("uModel", stickman_transform);
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, stickman_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, stickman_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
-            floor_texture.bind();
-            floor_mesh.bind();
-            floor_mesh.flush();
-            shader.setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
+            floor_texture->bind();
+            floor_mesh->bind();
+            floor_mesh->flush();
+            shader->setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, floor_mesh.getNumIndices(), GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, floor_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
 
             ////////////////////////////////////////////////
             light_cube_shader->bind();
