@@ -6,6 +6,7 @@ class Engine;
 class FileSystem;
 class Visualizer;
 class MaterialManager;
+class ShaderManager;
 
 struct EngineGlobals
 {
@@ -14,6 +15,7 @@ struct EngineGlobals
     Time *time{};
     Visualizer *visualizer{};
     MaterialManager *material_manager{};
+    ShaderManager *shader_manager{};
 };
 
 extern EngineGlobals engine_globals;

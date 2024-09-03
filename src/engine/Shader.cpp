@@ -29,6 +29,29 @@ Shader::Shader(const char *path)
     loadFile(path);
 }
 
+Shader::Shader(Shader &&other) noexcept
+{
+    *this = std::move(other);
+}
+
+Shader &Shader::operator=(Shader &&other) noexcept
+{
+    if (this != &other)
+    {
+        clearAll();
+        filepath_ = std::move(other.filepath_);
+        vertex_src_ = std::move(other.vertex_src_);
+        fragment_src_ = std::move(other.fragment_src_);
+        uniform_locations_ = std::move(other.uniform_locations_);
+        program_id_ = other.program_id_;
+        defines_ = std::move(other.defines_);
+        compiled_defines_ = std::move(other.compiled_defines_);
+        other.program_id_ = 0;
+    }
+    return *this;
+}
+
+
 Shader::~Shader()
 {
     clearAll();

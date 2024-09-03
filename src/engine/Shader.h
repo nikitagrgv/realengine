@@ -11,11 +11,14 @@
 class Shader
 {
 public:
-    REMOVE_COPY_MOVE_CLASS(Shader);
+    REMOVE_COPY_CLASS(Shader);
 
     Shader();
     Shader(const char *vertex_src, const char *fragment_src);
     explicit Shader(const char *path);
+
+    Shader(Shader &&other) noexcept;
+    Shader &operator=(Shader &&other) noexcept;
 
     ~Shader();
 

@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "MeshLoader.h"
 #include "Shader.h"
+#include "ShaderManager.h"
 #include "Texture.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
@@ -334,6 +335,7 @@ private:
         engine_globals.engine_ = this;
         engine_globals.time = new Time();
         engine_globals.fs = new FileSystem();
+        engine_globals.shader_manager = new ShaderManager();
         engine_globals.material_manager = new MaterialManager();
 
         glfwInit();
@@ -391,6 +393,7 @@ private:
         };
         delete_and_null(engine_globals.visualizer);
         delete_and_null(engine_globals.material_manager);
+        delete_and_null(engine_globals.shader_manager);
         delete_and_null(engine_globals.fs);
         delete_and_null(engine_globals.time);
         engine_globals.engine_ = nullptr;
