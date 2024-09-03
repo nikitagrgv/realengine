@@ -10,6 +10,7 @@
 #include "EngineGlobals.h"
 #include "Image.h"
 #include "Material.h"
+#include "MaterialManager.h"
 #include "Mesh.h"
 #include "MeshLoader.h"
 #include "Shader.h"
@@ -333,6 +334,7 @@ private:
         engine_globals.engine_ = this;
         engine_globals.time = new Time();
         engine_globals.fs = new FileSystem();
+        engine_globals.material_manager = new MaterialManager();
 
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -388,6 +390,7 @@ private:
             ptr = nullptr;
         };
         delete_and_null(engine_globals.visualizer);
+        delete_and_null(engine_globals.material_manager);
         delete_and_null(engine_globals.fs);
         delete_and_null(engine_globals.time);
         engine_globals.engine_ = nullptr;
