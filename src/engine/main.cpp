@@ -44,10 +44,10 @@ public:
 
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader *light_cube_shader = eg.shader_manager->createShader("light_cube");
+        Shader *light_cube_shader = eg.shader_manager->create("light_cube");
         light_cube_shader->loadFile("light_cube.shader");
 
-        Mesh *light_cube_mesh = eg.mesh_manager->createMesh();
+        Mesh *light_cube_mesh = eg.mesh_manager->create();
         light_cube_mesh->addVertex({0.0f, 1.0f, 0.0f});
         light_cube_mesh->addVertex({1.0f, 0.0f, 0.0f});
         light_cube_mesh->addVertex({-1.0f, 0.0f, 0.0f});
@@ -59,17 +59,17 @@ public:
         light_cube_mesh->flush();
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader *shader = eg.shader_manager->createShader("basic");
+        Shader *shader = eg.shader_manager->create("basic");
         shader->loadFile("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
         Texture *cat_texture = eg.texture_manager->create();
         cat_texture->load("image.png");
         glm::mat4 cat_transform = glm::mat4{1.0f};
-        Mesh *cat_mesh = eg.mesh_manager->createMesh("cat");
+        Mesh *cat_mesh = eg.mesh_manager->create("cat");
         MeshLoader::loadToMesh("object.obj", cat_mesh);
 
-        Material *cat_material = eg.material_manager->createMaterial("cat");
+        Material *cat_material = eg.material_manager->create("cat");
         cat_material->setShader(shader);
         cat_material->addTexture("uTexture");
         cat_material->setTexture("uTexture", cat_texture);
@@ -81,14 +81,14 @@ public:
         stickman_texture->load("image2.png");
 
         glm::mat4 stickman_transform = glm::mat4{1.0f};
-        Mesh *stickman_mesh = eg.mesh_manager->createMesh("stickman");
+        Mesh *stickman_mesh = eg.mesh_manager->create("stickman");
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
 
         ////////////////////////////////////////////////
         Texture *floor_texture = eg.texture_manager->create();
         floor_texture->load("floor.png");
 
-        Mesh *floor_mesh = eg.mesh_manager->createMesh();
+        Mesh *floor_mesh = eg.mesh_manager->create();
         const float floor_size = 10.0f;
         const float floor_y = 0.0f;
         const float max_text_coord = 10.0f;
