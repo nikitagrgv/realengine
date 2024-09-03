@@ -52,7 +52,7 @@ void Image::load(const char *path, bool flip_y)
     clear();
 
     stbi_set_flip_vertically_on_load(flip_y);
-    std::string abs_path = engine_globals.fs->toAbsolutePath(path);
+    std::string abs_path = EG.fs->toAbsolutePath(path);
 
     data_ = stbi_load(abs_path.c_str(), &width_, &height_, &num_ch_, 0);
     if (!data_)

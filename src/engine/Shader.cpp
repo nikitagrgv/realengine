@@ -334,7 +334,7 @@ void Shader::read_from_file(const char *path, std::string &vertex, std::string &
     vertex.clear();
     fragment.clear();
 
-    std::string shaders_source = engine_globals.fs->readFile(path);
+    std::string shaders_source = EG.fs->readFile(path);
 
     const int vertex_idx = shaders_source.find("#vertex");
     const int vertex_idx_end = vertex_idx + strlen("#vertex");

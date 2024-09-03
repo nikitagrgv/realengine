@@ -22,4 +22,4 @@ struct EngineGlobals
     MeshManager *mesh_manager{};
 };
 
-extern EngineGlobals engine_globals;
+extern EngineGlobals EG;
