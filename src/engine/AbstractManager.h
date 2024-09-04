@@ -30,6 +30,10 @@ public:
     const char *getName(int index) const;
     const char *getName(T *obj) const;
 
+    bool contains(int index) const;
+    bool contains(const char *name) const;
+    bool contains(T *obj) const;
+
     void remove(int index);
     void remove(const char *name);
     void remove(T *obj);
@@ -160,6 +164,24 @@ inline const char *AbstractManager<T>::getName(T *obj) const
 {
     const int index = getIndex(obj);
     return index == -1 ? nullptr : getName(index);
+}
+
+template<class T>
+bool AbstractManager<T>::contains(int index) const
+{
+    return index >= 0 && index < objects_.size();
+}
+
+template<class T>
+bool AbstractManager<T>::contains(const char *name) const
+{
+    return by_name_.find(name) != by_name_.end();
+}
+
+template<class T>
+bool AbstractManager<T>::contains(T *obj) const
+{
+    return by_ptr.find(obj) != by_ptr.end();
 }
 
 template<typename T>

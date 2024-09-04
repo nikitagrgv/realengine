@@ -209,8 +209,7 @@ public:
                 ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
                 ImGui::SetNextWindowPos(ImVec2(0, 200), ImGuiCond_FirstUseEver);
 
-                if (!ImGui::Begin("Example: Simple layout", &materials_window_,
-                        ImGuiWindowFlags_MenuBar))
+                if (!ImGui::Begin("Materials", &materials_window_))
                 {
                     ImGui::End();
                     return;
@@ -223,7 +222,6 @@ public:
                     const int num_mat = eg.material_manager->getCount();
                     for (int i = 0; i < num_mat; i++)
                     {
-                        // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
                         const char *name = eg.material_manager->getName(i);
                         char label[128];
                         sprintf(label, "%d. %.100s", i, name);
@@ -239,33 +237,17 @@ public:
                 // Right
                 {
                     ImGui::BeginGroup();
-                    ImGui::BeginChild("item view",
-                        ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1
-                                                                         // line below us
-                    ImGui::Text("MyObject: %d", selected_mat_);
-                    ImGui::Separator();
-                    if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+                    if (eg.material_manager->contains(selected_mat_))
                     {
-                        if (ImGui::BeginTabItem("Description"))
-                        {
-                            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur "
-                                               "adipiscing elit, sed do eiusmod tempor "
-                                               "incididunt ut labore et dolore magna aliqua. ");
-                            ImGui::EndTabItem();
-                        }
-                        if (ImGui::BeginTabItem("Details"))
-                        {
-                            ImGui::Text("ID: 0123456789");
-                            ImGui::EndTabItem();
-                        }
-                        ImGui::EndTabBar();
+                        ImGui::Text("%s", eg.material_manager->getName(selected_mat_));
+
+                        ImGui::Separator();
+
+
+                        ImGui::Text("AFAFFAF");
                     }
                     ImGui::EndChild();
-                    if (ImGui::Button("Revert"))
-                    {}
-                    ImGui::SameLine();
-                    if (ImGui::Button("Save"))
-                    {}
                     ImGui::EndGroup();
                 }
 
@@ -274,8 +256,8 @@ public:
 
         private:
             // Materials
-            int selected_mat_{-1};
-            bool materials_window_{false};
+            int selected_mat_{0};
+            bool materials_window_{true};
         };
         Editor editor;
 
