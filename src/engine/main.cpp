@@ -241,7 +241,8 @@ public:
                     ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
                     if (eg.material_manager->contains(selected_mat_))
                     {
-                        ImGui::Text("%s", eg.material_manager->getName(selected_mat_));
+                        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                            eg.material_manager->getName(selected_mat_));
 
                         ImGui::Separator();
 
@@ -399,7 +400,8 @@ public:
                     ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
                     if (eg.texture_manager->contains(selected_texture_))
                     {
-                        ImGui::Text("%s", eg.texture_manager->getName(selected_texture_));
+                        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                            eg.texture_manager->getName(selected_texture_));
 
                         ImGui::Separator();
 
