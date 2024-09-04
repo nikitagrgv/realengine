@@ -411,6 +411,8 @@ public:
                     const int num_mat = eg.texture_manager->getCount();
                     for (int i = 0; i < num_mat; i++)
                     {
+                        render_texture(eg.texture_manager->get(i), LISTS_HEIGHT, LISTS_HEIGHT - 2);
+                        ImGui::SameLine();
                         const char *name = eg.texture_manager->getName(i);
                         char label[64];
                         sprintf(label, "%d. %.50s", i, name);
@@ -419,8 +421,6 @@ public:
                         {
                             selected_texture_ = i;
                         }
-                        ImGui::SameLine();
-                        render_texture(eg.texture_manager->get(i), LISTS_HEIGHT, LISTS_HEIGHT - 2);
                     }
                     ImGui::EndChild();
                 }
@@ -483,7 +483,10 @@ public:
 
             void render_texture(Texture *texture, float width, float height)
             {
-                ImGui::Image(texture->getID(), ImVec2(width, height));
+                if (texture)
+                {
+                    ImGui::Image(texture->getID(), ImVec2(width, height));
+                }
             }
 
         private:
