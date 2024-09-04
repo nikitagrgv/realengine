@@ -341,11 +341,24 @@ public:
                             const int num_textures = material->getNumTextures();
                             for (int i = 0; i < num_textures; ++i)
                             {
-                                ImGui::BulletText("%s", material->getTextureName(i).c_str());
+                                ImGui::AlignTextToFramePadding();
+                                ImGui::Bullet();
+                                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                                    material->getTextureName(i).c_str());
+
+                                Texture *texture = material->getTexture(i);
+
+                                if (texture)
+                                {
+                                    ImGui::SameLine();
+                                    if (ImGui::Button("Go"))
+                                    {
+                                        // TODO open texture
+                                    }
+                                }
 
                                 ImGui::Indent();
 
-                                Texture *texture = material->getTexture(i);
                                 render_texture(texture);
 
                                 ImGui::Unindent();
