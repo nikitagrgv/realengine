@@ -332,6 +332,18 @@ public:
 
                         {
                             ImGui::SeparatorText("Textures");
+                            const int num_textures = material->getNumTextures();
+                            for (int i = 0; i < num_textures; ++i)
+                            {
+                                ImGui::BulletText("%s", material->getTextureName(i).c_str());
+                                ImGui::SameLine();
+
+                                ImGui::Indent();
+
+                                
+
+                                ImGui::Unindent();
+                            }
                         }
 
                         ImGui::Text("AFAFFAF");
