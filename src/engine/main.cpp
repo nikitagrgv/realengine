@@ -272,7 +272,6 @@ public:
                                 {
                                     selected_shader_ = eg.shader_manager->getIndex(shader);
                                     shaders_window_ = true;
-                                    // TODO open shader
                                 }
                             }
                             else
