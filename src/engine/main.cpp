@@ -343,12 +343,25 @@ public:
                                 Texture *texture = material->getTexture(i);
                                 if (texture)
                                 {
+                                    const int orig_width = texture->getWidth();
+                                    const int orig_height = texture->getHeight();
+
                                     ImGui::Text("Size:");
                                     ImGui::SameLine();
-                                    ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "%dx%d",
-                                        texture->getWidth(), texture->getHeight());
+                                    ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "%dx%d", orig_width,
+                                        orig_height);
 
-                                    ImGui::Text("AFAFFAF");
+                                    float preview_width = orig_width;
+                                    float preview_height = orig_height;
+                                    constexpr float MAX_SIZE = 128.0f;
+                                    while (preview_width > MAX_SIZE || preview_height > MAX_SIZE)
+                                    {
+                                        preview_width *= 0.5;
+                                        preview_height *= 0.5;
+                                    }
+
+                                    ImGui::Image(texture->getID(),
+                                        ImVec2(preview_width, preview_height));
                                 }
                                 else
                                 {
