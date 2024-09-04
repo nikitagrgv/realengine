@@ -93,10 +93,12 @@ public:
         const float floor_y = 0.0f;
         const float max_text_coord = 10.0f;
         floor_mesh->addVertex({-floor_size, floor_y, -floor_size}, {0, 1, 0}, {0.0f, 0.0f});
-        floor_mesh->addVertex({-floor_size, floor_y, floor_size}, {0, 1, 0}, {0.0f, max_text_coord});
+        floor_mesh->addVertex({-floor_size, floor_y, floor_size}, {0, 1, 0},
+            {0.0f, max_text_coord});
         floor_mesh->addVertex({floor_size, floor_y, floor_size}, {0, 1, 0},
             {max_text_coord, max_text_coord});
-        floor_mesh->addVertex({floor_size, floor_y, -floor_size}, {0, 1, 0}, {max_text_coord, 0.0f});
+        floor_mesh->addVertex({floor_size, floor_y, -floor_size}, {0, 1, 0},
+            {max_text_coord, 0.0f});
         floor_mesh->addIndices(0, 1, 3);
         floor_mesh->addIndices(1, 2, 3);
         floor_mesh->flush();
@@ -176,6 +178,100 @@ public:
             }
         };
 
+        class Editor
+        {
+        public:
+            Editor() {}
+
+            void render()
+            {
+                render_main();
+                render_materials();
+            }
+
+        private:
+            void render_main()
+            {
+                ImGui::SetNextWindowSize(ImVec2(180, 120), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+                ImGui::Begin("Editor");
+                ImGui::Checkbox("Materials", &materials_window_);
+                ImGui::End();
+            }
+
+            void render_materials()
+            {
+                if (!materials_window_)
+                {
+                    return;
+                }
+
+                ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowPos(ImVec2(0, 200), ImGuiCond_FirstUseEver);
+
+                if (ImGui::Begin("Example: Simple layout", &materials_window_,
+                        ImGuiWindowFlags_MenuBar))
+                {
+                    // Left
+                    static int selected = 0;
+                    {
+                        ImGui::BeginChild("left pane", ImVec2(150, 0),
+                            ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+                        for (int i = 0; i < 100; i++)
+                        {
+                            // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
+                            char label[128];
+                            sprintf(label, "MyObject %d", i);
+                            if (ImGui::Selectable(label, selected == i))
+                            {
+                                selected = i;
+                            }
+                        }
+                        ImGui::EndChild();
+                    }
+                    ImGui::SameLine();
+
+                    // Right
+                    {
+                        ImGui::BeginGroup();
+                        ImGui::BeginChild("item view",
+                            ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1
+                                                                             // line below us
+                        ImGui::Text("MyObject: %d", selected);
+                        ImGui::Separator();
+                        if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
+                        {
+                            if (ImGui::BeginTabItem("Description"))
+                            {
+                                ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur "
+                                                   "adipiscing elit, sed do eiusmod tempor "
+                                                   "incididunt ut labore et dolore magna aliqua. ");
+                                ImGui::EndTabItem();
+                            }
+                            if (ImGui::BeginTabItem("Details"))
+                            {
+                                ImGui::Text("ID: 0123456789");
+                                ImGui::EndTabItem();
+                            }
+                            ImGui::EndTabBar();
+                        }
+                        ImGui::EndChild();
+                        if (ImGui::Button("Revert"))
+                        {}
+                        ImGui::SameLine();
+                        if (ImGui::Button("Save"))
+                        {}
+                        ImGui::EndGroup();
+                    }
+                }
+                ImGui::End();
+            }
+
+        private:
+            bool materials_window_{false};
+        };
+        Editor editor;
+
         while (!exit_)
         {
             shader->setDefine("USE_AMBIENT", use_ambient);
@@ -193,6 +289,7 @@ public:
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+
             {
                 ImGui::Begin("Parameters");
                 ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
@@ -211,6 +308,11 @@ public:
 
                 ImGui::End();
             }
+
+            ImGui::ShowDemoWindow(nullptr);
+
+            editor.render();
+
             ImGui::Render();
             //////////////////////////////////////////////// IMGUI
 
