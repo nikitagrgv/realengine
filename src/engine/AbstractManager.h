@@ -10,21 +10,27 @@ class T
     std::unique_ptr<int> g;
 };
 
-// template<class T>
+template<class T>
 class AbstractManager
 {
 public:
-    AbstractManager(std::string empty_name_base);
+    explicit AbstractManager(std::string empty_name_base);
 
     T *create(const char *name = nullptr);
+    T *add(T obj, const char *name = nullptr); // TODO: remove
 
-    T *add(T obj, const char *name = nullptr);
-
+    T *get(int index);
     T *get(const char *name);
 
+    int getIndex(T *obj);
+    int getIndex(const char *name);
+
+    const char *getName(int index);
+    const char *getName(T *obj);
+
+    void remove(int index);
     void remove(const char *name);
     void remove(T *obj);
-    void remove(int index);
 
 protected:
     std::string empty_name_base_;
@@ -42,20 +48,20 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// template<typename T>
-inline AbstractManager::AbstractManager(std::string empty_name_base)
+template<typename T>
+inline AbstractManager<T>::AbstractManager(std::string empty_name_base)
     : empty_name_base_(std::move(empty_name_base))
 {}
 
-// template<typename T>
-inline T *AbstractManager::create(const char *name)
+template<typename T>
+inline T *AbstractManager<T>::create(const char *name)
 {
     T obj;
     return add(std::move(obj), name);
 }
 
-// template<typename T>
-inline T *AbstractManager::add(T obj, const char *name)
+template<typename T>
+inline T *AbstractManager<T>::add(T obj, const char *name)
 {
     std::string name_string = name ? name : "";
 
@@ -94,49 +100,112 @@ inline T *AbstractManager::add(T obj, const char *name)
     o.obj = std::move(unique_ptr);
     objects_.push_back(std::move(o));
 
-    by_name_[name_string] = std::move(unique_ptr);
-    by_ptr[ptr] = std::move(name_string);
+    by_name_[name_string] = index;
+    by_ptr[ptr] = index;
     return ptr;
 }
 
-// template<typename T>
-inline T *AbstractManager::get(const char *name)
+template<typename T>
+inline T *AbstractManager<T>::get(int index)
 {
-    auto it = objects_.find(name);
-    if (it == objects_.end())
-    {
-        return nullptr;
-    }
-    return it->second.get();
+    return objects_[index].obj.get();
 }
 
-// template<typename T>
-inline void AbstractManager::remove(const char *name)
+template<typename T>
+inline T *AbstractManager<T>::get(const char *name)
 {
-    auto it = objects_.find(name);
-    if (it == objects_.end())
+    const int index = getIndex(name);
+    return index == -1 ? nullptr : get(index);
+}
+
+template<typename T>
+inline int AbstractManager<T>::getIndex(T *obj)
+{
+    const auto it = by_ptr.find(obj);
+    if (it == by_ptr.end())
+    {
+        return -1;
+    }
+    return it->second;
+}
+
+template<typename T>
+inline int AbstractManager<T>::getIndex(const char *name)
+{
+    const auto it = by_name_.find(name);
+    if (it == by_name_.end())
+    {
+        return -1;
+    }
+    return it->second;
+}
+
+template<typename T>
+inline const char *AbstractManager<T>::getName(int index)
+{
+    return objects_[index].name.c_str();
+}
+
+template<typename T>
+inline const char *AbstractManager<T>::getName(T *obj)
+{
+    const int index = getIndex(obj);
+    return index == -1 ? nullptr : getName(index);
+}
+
+template<typename T>
+inline void AbstractManager<T>::remove(const char *name)
+{
+    const int index = getIndex(name);
+    if (index == -1)
     {
         return;
     }
-    auto name_it = by_ptr.find(it->second.get());
-    assert(name_it != by_ptr.end());
-    by_ptr.erase(name_it);
-    objects_.erase(it);
+    remove(index);
 }
 
-// template<typename T>
-inline void AbstractManager::remove(T *obj)
+template<typename T>
+inline void AbstractManager<T>::remove(T *obj)
 {
-    auto name_it = by_ptr.find(obj);
-    if (name_it == by_ptr.end())
+    const int index = getIndex(obj);
+    if (index == -1)
     {
         return;
     }
-    auto it = objects_.find(name_it->second);
-    assert(it != objects_.end());
-    by_ptr.erase(name_it);
-    objects_.erase(it);
+    remove(index);
 }
 
-// template<typename T>
-inline void AbstractManager::remove(int index) {}
+template<typename T>
+inline void AbstractManager<T>::remove(int index)
+{
+#ifndef NDEBUG
+    const int objects_size = objects_.size();
+    const int by_ptr_size = by_ptr.size();
+    const int by_name_size = by_name_.size();
+    assert(objects_size == by_ptr_size && by_ptr_size == by_name_size);
+#endif
+
+    Object &obj = objects_[index];
+    assert(by_ptr.find(obj.obj.get())->second == index);
+    assert(by_name_.find(obj.name)->second == index);
+    by_ptr.erase(obj.obj.get());
+    by_name_.erase(obj.name);
+
+    const int last_index = objects_.size() - 1;
+    Object &last_obj = objects_[last_index];
+
+    std::swap(obj, last_obj);
+
+    // NOTE: obj now is last_obj
+
+    by_ptr[obj.obj.get()] = index;
+    by_name_[obj.name] = index;
+
+    objects_.resize(last_index);
+
+#ifndef NDEBUG
+    assert(objects_size == objects_.size() + 1);
+    assert(by_ptr_size == by_ptr.size() + 1);
+    assert(by_name_size == by_name_.size() + 1);
+#endif
+}
