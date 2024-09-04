@@ -187,6 +187,7 @@ public:
             {
                 render_main();
                 render_materials();
+                render_textures();
             }
 
         private:
@@ -353,6 +354,62 @@ public:
                 ImGui::End();
             }
 
+            void render_textures()
+            {
+                if (!texture_window_)
+                {
+                    return;
+                }
+
+                ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+
+                if (!ImGui::Begin("Textures", &texture_window_))
+                {
+                    ImGui::End();
+                    return;
+                }
+
+                // Left
+                {
+                    ImGui::BeginChild("left pane", ImVec2(150, 0),
+                        ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+                    const int num_mat = eg.texture_manager->getCount();
+                    for (int i = 0; i < num_mat; i++)
+                    {
+                        const char *name = eg.texture_manager->getName(i);
+                        char label[64];
+                        sprintf(label, "%d. %.50s", i, name);
+                        if (ImGui::Selectable(label, selected_texture_ == i))
+                        {
+                            selected_texture_ = i;
+                        }
+                    }
+                    ImGui::EndChild();
+                }
+                ImGui::SameLine();
+
+                // Right
+                {
+                    ImGui::BeginGroup();
+                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+                    if (eg.texture_manager->contains(selected_texture_))
+                    {
+                        ImGui::Text("%s", eg.texture_manager->getName(selected_texture_));
+
+                        ImGui::Separator();
+
+                        Texture *texture = eg.texture_manager->get(selected_texture_);
+
+                        render_texture(texture);
+                    }
+                    ImGui::EndChild();
+                    ImGui::EndGroup();
+                }
+
+                ImGui::End();
+            }
+
             void render_texture(Texture *texture)
             {
                 if (!texture)
@@ -391,6 +448,10 @@ public:
             // Shaders
             int selected_shader_{0};
             bool shaders_window_{true};
+
+            // Textures
+            int selected_texture_{0};
+            bool texture_window_{true};
 
             // Materials
             int selected_mat_{0};
