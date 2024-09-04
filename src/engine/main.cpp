@@ -335,46 +335,12 @@ public:
                             const int num_textures = material->getNumTextures();
                             for (int i = 0; i < num_textures; ++i)
                             {
-
                                 ImGui::BulletText("%s", material->getTextureName(i).c_str());
 
                                 ImGui::Indent();
 
                                 Texture *texture = material->getTexture(i);
-                                if (texture)
-                                {
-                                    const int orig_width = texture->getWidth();
-                                    const int orig_height = texture->getHeight();
-
-                                    ImGui::Text("Size:");
-                                    ImGui::SameLine();
-                                    ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "%dx%d", orig_width,
-                                        orig_height);
-
-                                    float preview_width = orig_width;
-                                    float preview_height = orig_height;
-                                    constexpr float MAX_SIZE = 128.0f;
-                                    bool resized = false;
-                                    while (preview_width > MAX_SIZE || preview_height > MAX_SIZE)
-                                    {
-                                        preview_width *= 0.5;
-                                        preview_height *= 0.5;
-                                        resized = true;
-                                    }
-
-                                    ImGui::Image(texture->getID(),
-                                        ImVec2(preview_width, preview_height));
-                                    if (resized)
-                                    {
-                                        ImGui::SameLine();
-                                        ImGui::TextDisabled("(preview %dx%d)", (int)preview_width,
-                                            (int)preview_height);
-                                    }
-                                }
-                                else
-                                {
-                                    ImGui::TextDisabled("Empty");
-                                }
+                                render_texture(texture);
 
                                 ImGui::Unindent();
                             }
@@ -385,6 +351,40 @@ public:
                 }
 
                 ImGui::End();
+            }
+
+            void render_texture(Texture *texture)
+            {
+                if (!texture)
+                {
+                    ImGui::TextDisabled("Empty");
+                    return;
+                }
+
+                const int orig_width = texture->getWidth();
+                const int orig_height = texture->getHeight();
+
+                ImGui::Text("Size:");
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "%dx%d", orig_width, orig_height);
+
+                float preview_width = orig_width;
+                float preview_height = orig_height;
+                constexpr float MAX_SIZE = 128.0f;
+                bool resized = false;
+                while (preview_width > MAX_SIZE || preview_height > MAX_SIZE)
+                {
+                    preview_width *= 0.5;
+                    preview_height *= 0.5;
+                    resized = true;
+                }
+
+                ImGui::Image(texture->getID(), ImVec2(preview_width, preview_height));
+                if (resized)
+                {
+                    ImGui::SameLine();
+                    ImGui::TextDisabled("(preview %dx%d)", (int)preview_width, (int)preview_height);
+                }
             }
 
         private:
