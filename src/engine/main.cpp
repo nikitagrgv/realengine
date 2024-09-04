@@ -430,8 +430,16 @@ public:
                     const int num_mat = eg.texture_manager->getCount();
                     for (int i = 0; i < num_mat; i++)
                     {
-                        render_texture(eg.texture_manager->get(i), LISTS_HEIGHT, LISTS_HEIGHT - 2);
-                        ImGui::SameLine();
+                        bool has_icon = render_texture(eg.texture_manager->get(i), LISTS_HEIGHT - 2,
+                            LISTS_HEIGHT - 2);
+                        if (has_icon)
+                        {
+                            ImGui::SameLine();
+                        }
+                        else
+                        {
+                            ImGui::Indent(LISTS_HEIGHT + 2);
+                        }
                         const char *name = eg.texture_manager->getName(i);
                         char label[64];
                         sprintf(label, "%d. %.50s", i, name);
@@ -439,6 +447,12 @@ public:
                                 ImVec2(0, LISTS_HEIGHT)))
                         {
                             selected_texture_ = i;
+                        }
+
+                        // TODO# SHIIIT
+                        if (!has_icon)
+                        {
+                            ImGui::Unindent(LISTS_HEIGHT + 2);
                         }
                     }
                     ImGui::EndChild();
@@ -506,12 +520,14 @@ public:
                 }
             }
 
-            void render_texture(Texture *texture, float width, float height)
+            bool render_texture(Texture *texture, float width, float height)
             {
                 if (texture && texture->isLoaded())
                 {
                     ImGui::Image(texture->getID(), ImVec2(width, height));
+                    return true;
                 }
+                return false;
             }
 
             void render_shaders()
