@@ -328,7 +328,7 @@ public:
                                 case Material::ParameterType::Vec4:
                                 {
                                     glm::vec4 v = material->getParameterVec4(i);
-                                    if (ImGui::ColorEdit3("##", glm::value_ptr(v),
+                                    if (ImGui::ColorEdit4("##", glm::value_ptr(v),
                                             ImGuiColorEditFlags_Float))
                                     {
                                         material->setParameterVec4(i, v);
