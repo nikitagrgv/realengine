@@ -276,7 +276,7 @@ public:
                                 ImGui::Indent();
 
                                 constexpr float SPEED = 0.1f;
-                                constexpr const char *FORMAT = % .3f;
+                                constexpr const char *FORMAT = "%.3f";
                                 switch (material->getParameterType(i))
                                 {
                                 case Material::ParameterType::Float:
@@ -340,7 +340,7 @@ public:
 
                                 ImGui::Indent();
 
-                                
+
 
                                 ImGui::Unindent();
                             }
