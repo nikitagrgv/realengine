@@ -223,8 +223,8 @@ public:
                     for (int i = 0; i < num_mat; i++)
                     {
                         const char *name = eg.material_manager->getName(i);
-                        char label[128];
-                        sprintf(label, "%d. %.100s", i, name);
+                        char label[64];
+                        sprintf(label, "%d. %.50s", i, name);
                         if (ImGui::Selectable(label, selected_mat_ == i))
                         {
                             selected_mat_ = i;
@@ -244,6 +244,32 @@ public:
 
                         ImGui::Separator();
 
+                        Material *material = eg.material_manager->get(selected_mat_);
+
+                        {
+                            ImGui::SeparatorText("Shader");
+                            Shader *shader = material->getShader();
+                            if (shader)
+                            {
+                                char name[64];
+                                sprintf(name, "%.50s", eg.shader_manager->getName(shader));
+                                if (ImGui::Button(name))
+                                {
+                                    // TODO open shader
+                                }
+                            }
+                            else
+                            {
+                                ImGui::TextDisabled("None");
+                            }
+                        }
+                        {
+                            ImGui::SeparatorText("Parameters");
+                        }
+
+                        {
+                            ImGui::SeparatorText("Textures");
+                        }
 
                         ImGui::Text("AFAFFAF");
                     }
@@ -255,6 +281,10 @@ public:
             }
 
         private:
+            // Shaders
+            int selected_shader_{0};
+            bool shaders_window_{true};
+
             // Materials
             int selected_mat_{0};
             bool materials_window_{true};
