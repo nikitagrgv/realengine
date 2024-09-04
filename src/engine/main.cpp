@@ -233,7 +233,8 @@ public:
                         const char *name = eg.material_manager->getName(i);
                         char label[64];
                         sprintf(label, "%d. %.50s", i, name);
-                        if (ImGui::Selectable(label, selected_mat_ == i))
+                        if (ImGui::Selectable(label, selected_mat_ == i, 0,
+                                ImVec2(0, LISTS_HEIGHT)))
                         {
                             selected_mat_ = i;
                         }
@@ -413,12 +414,13 @@ public:
                         const char *name = eg.texture_manager->getName(i);
                         char label[64];
                         sprintf(label, "%d. %.50s", i, name);
-                        if (ImGui::Selectable(label, selected_texture_ == i))
+                        if (ImGui::Selectable(label, selected_texture_ == i, 0,
+                                ImVec2(0, LISTS_HEIGHT)))
                         {
                             selected_texture_ = i;
                         }
                         ImGui::SameLine();
-                        ImGui::Text("FFF");
+                        render_texture(eg.texture_manager->get(i), LISTS_HEIGHT, LISTS_HEIGHT - 2);
                     }
                     ImGui::EndChild();
                 }
@@ -436,7 +438,6 @@ public:
                         ImGui::Separator();
 
                         Texture *texture = eg.texture_manager->get(selected_texture_);
-
                         render_texture_info(texture);
                     }
                     ImGui::EndChild();
@@ -498,6 +499,7 @@ public:
             int selected_mat_{0};
             bool materials_window_{true};
 
+            int LISTS_HEIGHT = 22;
             ImVec4 HIGHLIGHT_COLOR_NAMES{0.6, 0.6, 1, 1};
             ImVec4 HIGHLIGHT_COLOR_OTHER{1, 0.6, 0.6, 1};
         };
