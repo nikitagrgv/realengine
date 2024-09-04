@@ -265,6 +265,49 @@ public:
                         }
                         {
                             ImGui::SeparatorText("Parameters");
+                            const int num_params = material->getNumParameters();
+                            for (int i = 0; i < num_params; ++i)
+                            {
+                                ImGui::BulletText("%s", material->getParameterName(i).c_str());
+                                ImGui::SameLine();
+                                ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "(%s)",
+                                    material->getParameterTypeName(i));
+
+                                ImGui::Indent();
+
+                                switch (material->getParameterType(i))
+                                {
+                                case Material::ParameterType::Float:
+                                {
+                                    float v = material->getParameterFloat(i);
+                                    if (ImGui::DragFloat("##", &v, 0.1f))
+                                    {
+                                        material->setParameterFloat(i, v);
+                                    }
+                                    break;
+                                }
+                                case Material::ParameterType::Vec2:
+                                {
+                                    break;
+                                }
+                                case Material::ParameterType::Vec3:
+                                {
+                                    break;
+                                }
+                                case Material::ParameterType::Vec4:
+                                {
+                                    break;
+                                }
+                                case Material::ParameterType::Mat4:
+                                {
+                                    break;
+                                }
+                                default: break;
+                                }
+
+                                ImGui::Unindent();
+                                // material->getParameterName()
+                            }
                         }
 
                         {

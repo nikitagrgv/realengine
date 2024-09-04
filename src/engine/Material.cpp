@@ -34,7 +34,7 @@
         parameters_[index].##UNION_ELEMENT##_value = value;                                        \
     }                                                                                              \
                                                                                                    \
-    TYPE_VALUE_GET Material::getParameter##TYPE_NAME(const char *name)                             \
+    TYPE_VALUE_GET Material::getParameter##TYPE_NAME(const char *name) const                       \
     {                                                                                              \
         const int index = find_parameter(name);                                                    \
         if (index == -1)                                                                           \
@@ -45,7 +45,7 @@
         return getParameter##TYPE_NAME(index);                                                     \
     }                                                                                              \
                                                                                                    \
-    TYPE_VALUE_GET Material::getParameter##TYPE_NAME(int i)                                        \
+    TYPE_VALUE_GET Material::getParameter##TYPE_NAME(int i) const                                  \
     {                                                                                              \
         if (parameters_[i].type != ParameterType::##TYPE_NAME)                                     \
         {                                                                                          \
@@ -60,6 +60,19 @@ DEFINE_PARAMTERS_METHODS(Vec2, glm::vec2, glm::vec2, vec2, {});
 DEFINE_PARAMTERS_METHODS(Vec3, glm::vec3, glm::vec3, vec3, {});
 DEFINE_PARAMTERS_METHODS(Vec4, glm::vec4, glm::vec4, vec4, {});
 DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4, glm::mat4{1.0f})
+
+const char *Material::getParameterTypeName(ParameterType type)
+{
+    switch (type)
+    {
+    case ParameterType::Float: return "Float";
+    case ParameterType::Vec2: return "Vec2";
+    case ParameterType::Vec3: return "Vec3";
+    case ParameterType::Vec4: return "Vec4";
+    case ParameterType::Mat4: return "Mat4";
+    default: return "Unknown";
+    }
+}
 
 Material::Material() = default;
 
@@ -97,12 +110,17 @@ bool Material::hasParameter(const char *name) const
     return find_parameter(name) != -1;
 }
 
-Material::ParameterType Material::getParameterType(int i)
+Material::ParameterType Material::getParameterType(int i) const
 {
     return parameters_[i].type;
 }
 
-int Material::getNumParameters()
+const char *Material::getParameterTypeName(int i) const
+{
+    return getParameterTypeName(getParameterType(i));
+}
+
+int Material::getNumParameters() const
 {
     return parameters_.size();
 }
@@ -136,7 +154,7 @@ void Material::setTexture(const char *name, Texture *texture)
     textures_[index].texture = texture;
 }
 
-int Material::getNumTextures()
+int Material::getNumTextures() const
 {
     return textures_.size();
 }
