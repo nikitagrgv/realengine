@@ -34,6 +34,16 @@
         parameters_[index].##UNION_ELEMENT##_value = value;                                        \
     }                                                                                              \
                                                                                                    \
+    void Material::setParameter##TYPE_NAME(int i, TYPE_VALUE_SET value)                            \
+    {                                                                                              \
+        if (parameters_[i].type != ParameterType::##TYPE_NAME)                                     \
+        {                                                                                          \
+            std::cout << "Parameter type does not match: " << i << std::endl;                      \
+            return;                                                                                \
+        }                                                                                          \
+        parameters_[i].##UNION_ELEMENT##_value = value;                                            \
+    }                                                                                              \
+                                                                                                   \
     TYPE_VALUE_GET Material::getParameter##TYPE_NAME(const char *name) const                       \
     {                                                                                              \
         const int index = find_parameter(name);                                                    \
