@@ -257,8 +257,9 @@ public:
                                 ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
                                     eg.shader_manager->getName(shader));
                                 ImGui::SameLine();
-                                if (ImGui::Button("Go"))
+                                if (ImGui::Button("Go##shader"))
                                 {
+                                    shaders_window_ = true;
                                     // TODO open shader
                                 }
                             }
@@ -351,7 +352,7 @@ public:
                                 if (texture)
                                 {
                                     ImGui::SameLine();
-                                    if (ImGui::Button("Go"))
+                                    if (ImGui::Button("Go##texture"))
                                     {
                                         texture_window_ = true;
                                         selected_texture_ = eg.texture_manager->getIndex(texture);
