@@ -540,6 +540,8 @@ public:
                         ImGui::Separator();
 
                         Shader *shader = eg.shader_manager->get(selected_shader_);
+
+                        // TODO# SOURCE CODE VIEW
                     }
                     ImGui::EndChild();
                     ImGui::EndGroup();
