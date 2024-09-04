@@ -354,14 +354,21 @@ public:
                                     float preview_width = orig_width;
                                     float preview_height = orig_height;
                                     constexpr float MAX_SIZE = 128.0f;
+                                    bool resized = false;
                                     while (preview_width > MAX_SIZE || preview_height > MAX_SIZE)
                                     {
                                         preview_width *= 0.5;
                                         preview_height *= 0.5;
+                                        resized = true;
                                     }
 
                                     ImGui::Image(texture->getID(),
                                         ImVec2(preview_width, preview_height));
+                                    if (resized)
+                                    {
+                                        ImGui::SameLine();
+                                        ImGui::Text("(downscaled)");
+                                    }
                                 }
                                 else
                                 {
