@@ -335,18 +335,29 @@ public:
                             const int num_textures = material->getNumTextures();
                             for (int i = 0; i < num_textures; ++i)
                             {
+
                                 ImGui::BulletText("%s", material->getTextureName(i).c_str());
-                                ImGui::SameLine();
 
                                 ImGui::Indent();
 
+                                Texture *texture = material->getTexture(i);
+                                if (texture)
+                                {
+                                    ImGui::Text("Size:");
+                                    ImGui::SameLine();
+                                    ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "%dx%d",
+                                        texture->getWidth(), texture->getHeight());
 
+                                    ImGui::Text("AFAFFAF");
+                                }
+                                else
+                                {
+                                    ImGui::TextDisabled("Empty");
+                                }
 
                                 ImGui::Unindent();
                             }
                         }
-
-                        ImGui::Text("AFAFFAF");
                     }
                     ImGui::EndChild();
                     ImGui::EndGroup();

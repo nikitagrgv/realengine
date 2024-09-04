@@ -53,10 +53,15 @@ public:
         Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
 
+    int getWidth() const { return width_; }
+    int getHeight() const { return height_; }
+
     void bind(int slot = 0) const;
 
     void clear();
 
 private:
+    int width_{-1};
+    int height_{-1};
     unsigned int id_{0};
 };

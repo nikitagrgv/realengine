@@ -131,6 +131,9 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
 {
     clear();
 
+    width_ = width;
+    height_ = height;
+
     int gl_src_format = 0;
     if (!format_to_gl_format(src_format, gl_src_format))
     {
@@ -190,6 +193,8 @@ void Texture::bind(int slot) const
 
 void Texture::clear()
 {
+    width_ = -1;
+    height_ = -1;
     if (id_ != 0)
     {
         glDeleteTextures(1, &id_);
