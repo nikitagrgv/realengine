@@ -367,7 +367,8 @@ public:
                                     if (resized)
                                     {
                                         ImGui::SameLine();
-                                        ImGui::Text("(downscaled)");
+                                        ImGui::TextDisabled("(preview %dx%d)", (int)preview_width,
+                                            (int)preview_height);
                                     }
                                 }
                                 else
