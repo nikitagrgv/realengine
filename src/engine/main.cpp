@@ -81,7 +81,9 @@ public:
         cat_material->addParameterVec3("test vec3");
         cat_material->addParameterVec4("test vec4");
         cat_material->addParameterMat4("test mat4");
+        cat_material->addTexture("test texture");
 
+        eg.texture_manager->create("test texture");
 
         ////////////////////////////////////////////////
         Texture *stickman_texture = eg.texture_manager->create();
