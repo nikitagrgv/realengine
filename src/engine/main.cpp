@@ -358,27 +358,37 @@ public:
                             const int num_textures = material->getNumTextures();
                             for (int i = 0; i < num_textures; ++i)
                             {
-                                ImGui::AlignTextToFramePadding();
                                 ImGui::Bullet();
                                 ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
                                     material->getTextureName(i).c_str());
 
                                 Texture *texture = material->getTexture(i);
 
+                                ImGui::Indent();
+
                                 if (texture)
                                 {
+                                    ImGui::AlignTextToFramePadding();
+                                    ImGui::Text("Name:");
+
+                                    ImGui::SameLine();
+                                    ImGui::AlignTextToFramePadding();
+                                    ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                                        eg.texture_manager->getName(texture));
+
                                     ImGui::SameLine();
                                     if (ImGui::Button("Go##texture"))
                                     {
                                         texture_window_ = true;
                                         selected_texture_ = eg.texture_manager->getIndex(texture);
-                                        // TODO open texture
                                     }
+
+                                    render_texture_info(texture);
                                 }
-
-                                ImGui::Indent();
-
-                                render_texture_info(texture);
+                                else
+                                {
+                                    ImGui::TextDisabled("Empty");
+                                }
 
                                 ImGui::Unindent();
                             }
