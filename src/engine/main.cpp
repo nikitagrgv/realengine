@@ -81,9 +81,13 @@ public:
         cat_material->addParameterVec3("test vec3");
         cat_material->addParameterVec4("test vec4");
         cat_material->addParameterMat4("test mat4");
-        cat_material->addTexture("test texture");
+        cat_material->addTexture("test 1");
+        cat_material->addTexture("test 2");
 
         eg.texture_manager->create("test texture");
+        Texture *t2 = eg.texture_manager->create("test texture 2");
+
+        cat_material->setTexture("test 2", t2);
 
         ////////////////////////////////////////////////
         Texture *stickman_texture = eg.texture_manager->create();
@@ -470,6 +474,12 @@ public:
                     return;
                 }
 
+                if (!texture->isLoaded())
+                {
+                    ImGui::TextDisabled("Not loaded");
+                    return;
+                }
+
                 const int orig_width = texture->getWidth();
                 const int orig_height = texture->getHeight();
 
@@ -498,7 +508,7 @@ public:
 
             void render_texture(Texture *texture, float width, float height)
             {
-                if (texture)
+                if (texture && texture->isLoaded())
                 {
                     ImGui::Image(texture->getID(), ImVec2(width, height));
                 }
