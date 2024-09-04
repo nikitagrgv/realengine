@@ -515,7 +515,6 @@ public:
                     const int num_shaders = eg.shader_manager->getCount();
                     for (int i = 0; i < num_shaders; i++)
                     {
-                        Shader *shader = eg.shader_manager->get(i);
                         const char *name = eg.shader_manager->getName(i);
                         char label[64];
                         sprintf(label, "%d. %.50s", i, name);
