@@ -374,7 +374,7 @@ public:
 
                                 ImGui::Indent();
 
-                                render_texture(texture);
+                                render_texture_info(texture);
 
                                 ImGui::Unindent();
                             }
@@ -417,6 +417,8 @@ public:
                         {
                             selected_texture_ = i;
                         }
+                        ImGui::SameLine();
+                        ImGui::Text("FFF");
                     }
                     ImGui::EndChild();
                 }
@@ -435,7 +437,7 @@ public:
 
                         Texture *texture = eg.texture_manager->get(selected_texture_);
 
-                        render_texture(texture);
+                        render_texture_info(texture);
                     }
                     ImGui::EndChild();
                     ImGui::EndGroup();
@@ -444,7 +446,7 @@ public:
                 ImGui::End();
             }
 
-            void render_texture(Texture *texture)
+            void render_texture_info(Texture *texture)
             {
                 if (!texture)
                 {
@@ -470,12 +472,17 @@ public:
                     resized = true;
                 }
 
-                ImGui::Image(texture->getID(), ImVec2(preview_width, preview_height));
+                render_texture(texture, preview_width, preview_height);
                 if (resized)
                 {
                     ImGui::SameLine();
                     ImGui::TextDisabled("(preview %dx%d)", (int)preview_width, (int)preview_height);
                 }
+            }
+
+            void render_texture(Texture *texture, float width, float height)
+            {
+                ImGui::Image(texture->getID(), ImVec2(width, height));
             }
 
         private:
