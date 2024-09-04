@@ -19,14 +19,16 @@ public:
     T *create(const char *name = nullptr);
     T *add(T obj, const char *name = nullptr); // TODO: remove
 
-    T *get(int index);
-    T *get(const char *name);
+    int getCount() const;
 
-    int getIndex(T *obj);
-    int getIndex(const char *name);
+    T *get(int index) const;
+    T *get(const char *name) const;
 
-    const char *getName(int index);
-    const char *getName(T *obj);
+    int getIndex(T *obj) const;
+    int getIndex(const char *name) const;
+
+    const char *getName(int index) const;
+    const char *getName(T *obj) const;
 
     void remove(int index);
     void remove(const char *name);
@@ -105,21 +107,28 @@ inline T *AbstractManager<T>::add(T obj, const char *name)
     return ptr;
 }
 
+template<class T>
+inline int AbstractManager<T>::getCount() const
+{
+    assert(objects_.size() == by_name_.size() && objects_.size() == by_ptr.size());
+    return objects_.size();
+}
+
 template<typename T>
-inline T *AbstractManager<T>::get(int index)
+inline T *AbstractManager<T>::get(int index) const
 {
     return objects_[index].obj.get();
 }
 
 template<typename T>
-inline T *AbstractManager<T>::get(const char *name)
+inline T *AbstractManager<T>::get(const char *name) const
 {
     const int index = getIndex(name);
     return index == -1 ? nullptr : get(index);
 }
 
 template<typename T>
-inline int AbstractManager<T>::getIndex(T *obj)
+inline int AbstractManager<T>::getIndex(T *obj) const
 {
     const auto it = by_ptr.find(obj);
     if (it == by_ptr.end())
@@ -130,7 +139,7 @@ inline int AbstractManager<T>::getIndex(T *obj)
 }
 
 template<typename T>
-inline int AbstractManager<T>::getIndex(const char *name)
+inline int AbstractManager<T>::getIndex(const char *name) const
 {
     const auto it = by_name_.find(name);
     if (it == by_name_.end())
@@ -141,13 +150,13 @@ inline int AbstractManager<T>::getIndex(const char *name)
 }
 
 template<typename T>
-inline const char *AbstractManager<T>::getName(int index)
+inline const char *AbstractManager<T>::getName(int index) const
 {
     return objects_[index].name.c_str();
 }
 
 template<typename T>
-inline const char *AbstractManager<T>::getName(T *obj)
+inline const char *AbstractManager<T>::getName(T *obj) const
 {
     const int index = getIndex(obj);
     return index == -1 ? nullptr : getName(index);

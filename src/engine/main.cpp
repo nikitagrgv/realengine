@@ -217,18 +217,19 @@ public:
                 }
 
                 // Left
-                static int selected = 0;
                 {
                     ImGui::BeginChild("left pane", ImVec2(150, 0),
                         ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-                    for (int i = 0; i < 100; i++)
+                    const int num_mat = eg.material_manager->getCount();
+                    for (int i = 0; i < num_mat; i++)
                     {
                         // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
+                        const char *name = eg.material_manager->getName(i);
                         char label[128];
-                        sprintf(label, "MyObject %d", i);
-                        if (ImGui::Selectable(label, selected == i))
+                        sprintf(label, "%d. %.100s", i, name);
+                        if (ImGui::Selectable(label, selected_mat_ == i))
                         {
-                            selected = i;
+                            selected_mat_ = i;
                         }
                     }
                     ImGui::EndChild();
@@ -241,7 +242,7 @@ public:
                     ImGui::BeginChild("item view",
                         ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1
                                                                          // line below us
-                    ImGui::Text("MyObject: %d", selected);
+                    ImGui::Text("MyObject: %d", selected_mat_);
                     ImGui::Separator();
                     if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None))
                     {
@@ -272,6 +273,8 @@ public:
             }
 
         private:
+            // Materials
+            int selected_mat_{-1};
             bool materials_window_{false};
         };
         Editor editor;
