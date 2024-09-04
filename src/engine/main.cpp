@@ -275,12 +275,14 @@ public:
 
                                 ImGui::Indent();
 
+                                constexpr float SPEED = 0.1f;
+                                constexpr const char *FORMAT = % .3f;
                                 switch (material->getParameterType(i))
                                 {
                                 case Material::ParameterType::Float:
                                 {
                                     float v = material->getParameterFloat(i);
-                                    if (ImGui::DragFloat("##", &v, 0.1f))
+                                    if (ImGui::DragFloat("##", &v, SPEED, 0, 0, FORMAT))
                                     {
                                         material->setParameterFloat(i, v);
                                     }
@@ -288,25 +290,43 @@ public:
                                 }
                                 case Material::ParameterType::Vec2:
                                 {
+                                    glm::vec2 v = material->getParameterVec2(i);
+                                    if (ImGui::DragFloat2("##", glm::value_ptr(v), SPEED, 0, 0,
+                                            FORMAT))
+                                    {
+                                        material->setParameterVec2(i, v);
+                                    }
                                     break;
                                 }
                                 case Material::ParameterType::Vec3:
                                 {
+                                    glm::vec3 v = material->getParameterVec3(i);
+                                    if (ImGui::ColorEdit3("##", glm::value_ptr(v),
+                                            ImGuiColorEditFlags_Float))
+                                    {
+                                        material->setParameterVec3(i, v);
+                                    }
                                     break;
                                 }
                                 case Material::ParameterType::Vec4:
                                 {
+                                    glm::vec4 v = material->getParameterVec4(i);
+                                    if (ImGui::ColorEdit3("##", glm::value_ptr(v),
+                                            ImGuiColorEditFlags_Float))
+                                    {
+                                        material->setParameterVec4(i, v);
+                                    }
                                     break;
                                 }
                                 case Material::ParameterType::Mat4:
                                 {
+                                    // TODO#
                                     break;
                                 }
                                 default: break;
                                 }
 
                                 ImGui::Unindent();
-                                // material->getParameterName()
                             }
                         }
 
@@ -355,7 +375,8 @@ public:
             {
                 ImGui::Begin("Parameters");
                 ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
-                ImGui::ColorEdit3("Light color", glm::value_ptr(light_color));
+                ImGui::ColorEdit3("Light color", glm::value_ptr(light_color),
+                    ImGuiColorEditFlags_Float);
                 ImGui::SliderFloat("Ambient power", &ambient_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Diffuse power", &diffuse_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Specular power", &specular_power, 0.0f, 1.0f);
