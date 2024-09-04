@@ -353,6 +353,8 @@ public:
                                     ImGui::SameLine();
                                     if (ImGui::Button("Go"))
                                     {
+                                        texture_window_ = true;
+                                        selected_texture_ = eg.texture_manager->getIndex(texture);
                                         // TODO open texture
                                     }
                                 }
