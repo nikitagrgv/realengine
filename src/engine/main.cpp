@@ -252,9 +252,11 @@ public:
                             Shader *shader = material->getShader();
                             if (shader)
                             {
-                                char name[64];
-                                sprintf(name, "%.50s", eg.shader_manager->getName(shader));
-                                if (ImGui::Button(name))
+                                ImGui::AlignTextToFramePadding();
+                                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                                    eg.shader_manager->getName(shader));
+                                ImGui::SameLine();
+                                if (ImGui::Button("Go"))
                                 {
                                     // TODO open shader
                                 }
@@ -269,9 +271,11 @@ public:
                             const int num_params = material->getNumParameters();
                             for (int i = 0; i < num_params; ++i)
                             {
-                                ImGui::BulletText("%s", material->getParameterName(i).c_str());
+                                ImGui::Bullet();
+                                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                                    material->getParameterName(i).c_str());
                                 ImGui::SameLine();
-                                ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "(%s)",
+                                ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%s)",
                                     material->getParameterTypeName(i));
 
                                 ImGui::Indent();
@@ -423,7 +427,7 @@ public:
 
                 ImGui::Text("Size:");
                 ImGui::SameLine();
-                ImGui::TextColored(ImVec4(1, 0.6, 0.6, 1), "%dx%d", orig_width, orig_height);
+                ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%dx%d", orig_width, orig_height);
 
                 float preview_width = orig_width;
                 float preview_height = orig_height;
@@ -456,6 +460,9 @@ public:
             // Materials
             int selected_mat_{0};
             bool materials_window_{true};
+
+            ImVec4 HIGHLIGHT_COLOR_NAMES{0.6, 0.6, 1, 1};
+            ImVec4 HIGHLIGHT_COLOR_OTHER{1, 0.6, 0.6, 1};
         };
         Editor editor;
 

@@ -53,7 +53,7 @@ public:
         Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
 
-    void *getID() const { return (void *)id_; }
+    void *getID() const { return (void *)(size_t)id_; }
 
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }
