@@ -3,7 +3,7 @@
 #include <iostream>
 
 #define DEFINE_PARAMTERS_METHODS(TYPE_NAME, TYPE_VALUE_GET, TYPE_VALUE_SET, UNION_ELEMENT,         \
-    DEFAULT_RETURN)                                                                                \
+    DEFAULT_VALUE)                                                                                 \
     void Material::addParameter##TYPE_NAME(const char *name)                                       \
     {                                                                                              \
         const int index = find_parameter(name);                                                    \
@@ -15,6 +15,7 @@
         Parameter parameter;                                                                       \
         parameter.name = name;                                                                     \
         parameter.type = ParameterType::##TYPE_NAME;                                               \
+        parameter.##UNION_ELEMENT##_value = DEFAULT_VALUE;                                         \
         parameters_.push_back(parameter);                                                          \
     }                                                                                              \
                                                                                                    \
@@ -50,7 +51,7 @@
         if (index == -1)                                                                           \
         {                                                                                          \
             std::cout << "Parameter not found: " << name << std::endl;                             \
-            return DEFAULT_RETURN;                                                                 \
+            return DEFAULT_VALUE;                                                                  \
         }                                                                                          \
         return getParameter##TYPE_NAME(index);                                                     \
     }                                                                                              \
@@ -60,16 +61,19 @@
         if (parameters_[i].type != ParameterType::##TYPE_NAME)                                     \
         {                                                                                          \
             std::cout << "Parameter type does not match " << i << std::endl;                       \
-            return DEFAULT_RETURN;                                                                 \
+            return DEFAULT_VALUE;                                                                  \
         }                                                                                          \
         return parameters_[i].##UNION_ELEMENT##_value;                                             \
     }
 
+constexpr glm::vec4 DEFAULT_VEC4 = glm::vec4{0, 0, 0, 1};
+constexpr glm::mat4 DEFAULT_MAT4 = glm::mat4{1.0f};
+
 DEFINE_PARAMTERS_METHODS(Float, float, float, float, {});
 DEFINE_PARAMTERS_METHODS(Vec2, glm::vec2, glm::vec2, vec2, {});
 DEFINE_PARAMTERS_METHODS(Vec3, glm::vec3, glm::vec3, vec3, {});
-DEFINE_PARAMTERS_METHODS(Vec4, glm::vec4, glm::vec4, vec4, {});
-DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4, glm::mat4{1.0f})
+DEFINE_PARAMTERS_METHODS(Vec4, glm::vec4, glm::vec4, vec4, DEFAULT_VEC4);
+DEFINE_PARAMTERS_METHODS(Mat4, glm::mat4, const glm::mat4 &, mat4, DEFAULT_MAT4)
 
 const char *Material::getParameterTypeName(ParameterType type)
 {
