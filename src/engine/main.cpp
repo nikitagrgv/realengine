@@ -195,6 +195,7 @@ public:
                 render_main();
                 render_materials();
                 render_textures();
+                render_shaders();
             }
 
         private:
@@ -204,6 +205,8 @@ public:
                 ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
                 ImGui::Begin("Editor");
                 ImGui::Checkbox("Materials", &materials_window_);
+                ImGui::Checkbox("Textures", &texture_window_);
+                ImGui::Checkbox("Shaders", &shaders_window_);
                 ImGui::End();
             }
 
@@ -267,6 +270,7 @@ public:
                                 ImGui::SameLine();
                                 if (ImGui::Button("Go##shader"))
                                 {
+                                    selected_shader_ = eg.shader_manager->getIndex(shader);
                                     shaders_window_ = true;
                                     // TODO open shader
                                 }
@@ -487,6 +491,63 @@ public:
                 {
                     ImGui::Image(texture->getID(), ImVec2(width, height));
                 }
+            }
+
+            void render_shaders()
+            {
+                if (!shaders_window_)
+                {
+                    return;
+                }
+
+                ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+
+                if (!ImGui::Begin("Shaders", &shaders_window_))
+                {
+                    ImGui::End();
+                    return;
+                }
+
+                // Left
+                {
+                    ImGui::BeginChild("left pane", ImVec2(150, 0),
+                        ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+                    const int num_shaders = eg.shader_manager->getCount();
+                    for (int i = 0; i < num_shaders; i++)
+                    {
+                        Shader *shader = eg.shader_manager->get(i);
+                        const char *name = eg.shader_manager->getName(i);
+                        char label[64];
+                        sprintf(label, "%d. %.50s", i, name);
+                        if (ImGui::Selectable(label, selected_shader_ == i, 0,
+                                ImVec2(0, LISTS_HEIGHT)))
+                        {
+                            selected_shader_ = i;
+                        }
+                    }
+                    ImGui::EndChild();
+                }
+                ImGui::SameLine();
+
+                // Right
+                {
+                    ImGui::BeginGroup();
+                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+                    if (eg.shader_manager->contains(selected_shader_))
+                    {
+                        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                            eg.shader_manager->getName(selected_shader_));
+
+                        ImGui::Separator();
+
+                        Shader *shader = eg.shader_manager->get(selected_shader_);
+                    }
+                    ImGui::EndChild();
+                    ImGui::EndGroup();
+                }
+
+                ImGui::End();
             }
 
         private:
