@@ -17,6 +17,7 @@ private:
     void render_materials();
     void render_textures();
     void render_shaders();
+    void render_meshes();
 
     void render_texture_info(Texture *texture);
     void render_texture(Texture *texture, float width, float height);
@@ -33,6 +34,10 @@ private:
     // Materials
     int selected_mat_{0};
     bool materials_window_{true};
+
+    // Meshes
+    int selected_mesh{0};
+    bool meshes_window_{true};
 
     int LISTS_HEIGHT = 22;
     ImVec4 HIGHLIGHT_COLOR_NAMES{0.6, 0.6, 1, 1};

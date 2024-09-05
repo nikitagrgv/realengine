@@ -2,6 +2,7 @@
 
 #include "EngineGlobals.h"
 #include "MaterialManager.h"
+#include "MeshManager.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
 
@@ -15,6 +16,7 @@ void Editor::render()
     render_materials();
     render_textures();
     render_shaders();
+    render_meshes();
 }
 
 void Editor::render_main()
@@ -25,6 +27,7 @@ void Editor::render_main()
     ImGui::Checkbox("Materials", &materials_window_);
     ImGui::Checkbox("Textures", &texture_window_);
     ImGui::Checkbox("Shaders", &shaders_window_);
+    ImGui::Checkbox("Meshes", &meshes_window_);
     ImGui::End();
 }
 
@@ -322,6 +325,71 @@ void Editor::render_shaders()
             ImGui::Separator();
 
             Shader *shader = eng.shader_manager->get(selected_shader_);
+
+            // TODO# SOURCE CODE VIEW
+        }
+        ImGui::EndChild();
+        ImGui::EndGroup();
+    }
+
+    ImGui::End();
+}
+
+void Editor::render_meshes()
+{
+    if (!meshes_window_)
+    {
+        return;
+    }
+
+    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+
+    if (!ImGui::Begin("Meshes", &meshes_window_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    // Left
+    {
+        ImGui::BeginChild("left pane", ImVec2(150, 0),
+            ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+        const int num_meshes = eng.mesh_manager->getCount();
+        for (int i = 0; i < num_meshes; i++)
+        {
+            const char *name = eng.mesh_manager->getName(i);
+            char label[64];
+            sprintf(label, "%d. %.50s", i, name);
+            if (ImGui::Selectable(label, selected_mesh == i, 0, ImVec2(0, LISTS_HEIGHT)))
+            {
+                selected_mesh = i;
+            }
+        }
+        ImGui::EndChild();
+    }
+    ImGui::SameLine();
+
+    // Right
+    {
+        ImGui::BeginGroup();
+        ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+        if (eng.mesh_manager->contains(selected_mesh))
+        {
+            ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                eng.mesh_manager->getName(selected_mesh));
+
+            ImGui::Separator();
+
+            Mesh *mesh = eng.mesh_manager->get(selected_mesh);
+
+            ImGui::Text("Vertices:");
+            ImGui::SameLine();
+            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", mesh->getNumVertices());
+
+            ImGui::Text("Indices:");
+            ImGui::SameLine();
+            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", mesh->getNumIndices());
 
             // TODO# SOURCE CODE VIEW
         }
