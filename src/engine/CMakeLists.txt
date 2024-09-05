@@ -30,6 +30,8 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshLoader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshManager.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Node.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Node.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderManager.cpp
@@ -44,4 +46,6 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Visualizer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Visualizer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/World.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/World.h
 )

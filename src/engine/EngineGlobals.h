@@ -9,6 +9,7 @@ class MaterialManager;
 class ShaderManager;
 class TextureManager;
 class MeshManager;
+class World;
 
 struct EngineGlobals
 {
@@ -20,6 +21,7 @@ struct EngineGlobals
     ShaderManager *shader_manager{};
     TextureManager *texture_manager{};
     MeshManager *mesh_manager{};
+    World *world{};
 };
 
 extern EngineGlobals eng;
