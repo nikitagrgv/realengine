@@ -164,7 +164,30 @@ void Editor::render_materials()
                     }
                     case Material::ParameterType::Mat4:
                     {
-                        // TODO#
+                        glm::mat4 v = material->getParameterMat4(i);
+                        bool changed = false;
+                        float *ptr = glm::value_ptr(v);
+                        constexpr int STRIDE = 4;
+
+                        ImGui::PushID(0);
+                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 0, SPEED, 0, 0, FORMAT);
+                        ImGui::PopID();
+
+                        ImGui::PushID(1);
+                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 1, SPEED, 0, 0, FORMAT);
+                        ImGui::PopID();
+
+                        ImGui::PushID(2);
+                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 2, SPEED, 0, 0, FORMAT);
+                        ImGui::PopID();
+
+                        ImGui::PushID(3);
+                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 3, SPEED, 0, 0, FORMAT);
+                        ImGui::PopID();
+                        if (changed)
+                        {
+                            material->setParameterMat4(i, v);
+                        }
                         break;
                     }
                     default: break;
