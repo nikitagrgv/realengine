@@ -152,6 +152,9 @@ public:
 
         while (!exit_)
         {
+            eng.time->update();
+
+
             glfwPollEvents();
 
             //////////////////////////////////////////////// IMGUI
@@ -176,8 +179,6 @@ public:
 
             ImGui::Render();
             //////////////////////////////////////////////// IMGUI
-
-            eng.time->update();
 
             process_input();
 
