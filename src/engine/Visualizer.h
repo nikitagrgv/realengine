@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
+#include "math/Bounds.h"
 
 #include "glm/fwd.hpp"
 #include "glm/vec3.hpp"
@@ -15,6 +16,8 @@ public:
     void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color);
     void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color0,
         const glm::vec4 &color1);
+
+    void addBoundBox(const math::BoundBox &bb, const glm::vec4 &color);
 
     void render(const glm::mat4 &viewproj);
 

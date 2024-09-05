@@ -6,6 +6,7 @@
 #include "NodeMesh.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
+#include "Visualizer.h"
 #include "World.h"
 
 #include "glm/gtc/type_ptr.hpp"
@@ -36,6 +37,8 @@ void Editor::render()
     render_textures();
     render_shaders();
     render_meshes();
+
+    visualize_selected_node();
 }
 
 void Editor::render_main()
@@ -603,6 +606,17 @@ void Editor::render_node(NodeMesh *node)
     {
         ImGui::TextDisabled("None");
     }
+}
+
+void Editor::visualize_selected_node()
+{
+    if (!eng.world->hasNodeIndex(selected_node_))
+    {
+        return;
+    }
+    Node *n = eng.world->getNodeByIndex(selected_node_);
+    const math::BoundBox &bb = n->getGlobalBoundBox();
+    eng.visualizer->addBoundBox(bb, glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
 }
 
 bool Editor::render_editor(float &v)

@@ -54,6 +54,11 @@ void Visualizer::addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::ve
     lines_vbo_.addVertex(p);
 }
 
+void Visualizer::addBoundBox(const math::BoundBox &bb, const glm::vec4 &color)
+{
+    addLine(bb.min, bb.min, color); // TODO#
+}
+
 void Visualizer::render(const glm::mat4 &viewproj)
 {
     shader.bind();

@@ -31,6 +31,8 @@ private:
 
     void render_node(NodeMesh *node);
 
+    void visualize_selected_node();
+
     static bool render_editor(float &v);
     static bool render_editor(glm::vec2 &v);
     static bool render_editor(glm::vec3 &v);
