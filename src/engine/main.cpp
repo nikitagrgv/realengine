@@ -7,6 +7,8 @@
 // clang-format on
 
 #include "Camera.h"
+#include "Editor.h"
+#include "EditorGlobals.h"
 #include "EngineGlobals.h"
 #include "Image.h"
 #include "Material.h"
@@ -44,10 +46,10 @@ public:
 
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader *light_cube_shader = eg.shader_manager->create("light_cube");
+        Shader *light_cube_shader = eng.shader_manager->create("light_cube");
         light_cube_shader->loadFile("light_cube.shader");
 
-        Mesh *light_cube_mesh = eg.mesh_manager->create();
+        Mesh *light_cube_mesh = eng.mesh_manager->create();
         light_cube_mesh->addVertex({0.0f, 1.0f, 0.0f});
         light_cube_mesh->addVertex({1.0f, 0.0f, 0.0f});
         light_cube_mesh->addVertex({-1.0f, 0.0f, 0.0f});
@@ -59,17 +61,17 @@ public:
         light_cube_mesh->flush();
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader *shader = eg.shader_manager->create("basic");
+        Shader *shader = eng.shader_manager->create("basic");
         shader->loadFile("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
-        Texture *cat_texture = eg.texture_manager->create();
+        Texture *cat_texture = eng.texture_manager->create();
         cat_texture->load("image.png");
         glm::mat4 cat_transform = glm::mat4{1.0f};
-        Mesh *cat_mesh = eg.mesh_manager->create("cat");
+        Mesh *cat_mesh = eng.mesh_manager->create("cat");
         MeshLoader::loadToMesh("object.obj", cat_mesh);
 
-        Material *cat_material = eg.material_manager->create("cat");
+        Material *cat_material = eng.material_manager->create("cat");
         cat_material->setShader(shader);
         cat_material->addTexture("uTexture");
         cat_material->setTexture("uTexture", cat_texture);
@@ -84,24 +86,24 @@ public:
         cat_material->addTexture("test 1");
         cat_material->addTexture("test 2");
 
-        eg.texture_manager->create("test texture");
-        Texture *t2 = eg.texture_manager->create("test texture 2");
+        eng.texture_manager->create("test texture");
+        Texture *t2 = eng.texture_manager->create("test texture 2");
 
         cat_material->setTexture("test 2", t2);
 
         ////////////////////////////////////////////////
-        Texture *stickman_texture = eg.texture_manager->create();
+        Texture *stickman_texture = eng.texture_manager->create();
         stickman_texture->load("image2.png");
 
         glm::mat4 stickman_transform = glm::mat4{1.0f};
-        Mesh *stickman_mesh = eg.mesh_manager->create("stickman");
+        Mesh *stickman_mesh = eng.mesh_manager->create("stickman");
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
 
         ////////////////////////////////////////////////
-        Texture *floor_texture = eg.texture_manager->create();
+        Texture *floor_texture = eng.texture_manager->create();
         floor_texture->load("floor.png");
 
-        Mesh *floor_mesh = eg.mesh_manager->create();
+        Mesh *floor_mesh = eng.mesh_manager->create();
         const float floor_size = 10.0f;
         const float floor_y = 0.0f;
         const float max_text_coord = 10.0f;
@@ -129,7 +131,7 @@ public:
             {
                 const auto pos = mesh->getVertexPos(i);
                 const auto norm = mesh->getVertexNormal(i);
-                eg.visualizer->addLine(to_local(pos), to_local(pos + norm),
+                eng.visualizer->addLine(to_local(pos), to_local(pos + norm),
                     {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 0.2f});
             }
         };
@@ -191,413 +193,6 @@ public:
             }
         };
 
-        class Editor
-        {
-        public:
-            Editor() {}
-
-            void render()
-            {
-                render_main();
-                render_materials();
-                render_textures();
-                render_shaders();
-            }
-
-        private:
-            void render_main()
-            {
-                ImGui::SetNextWindowSize(ImVec2(180, 120), ImGuiCond_FirstUseEver);
-                ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
-                ImGui::Begin("Editor");
-                ImGui::Checkbox("Materials", &materials_window_);
-                ImGui::Checkbox("Textures", &texture_window_);
-                ImGui::Checkbox("Shaders", &shaders_window_);
-                ImGui::End();
-            }
-
-            void render_materials()
-            {
-                if (!materials_window_)
-                {
-                    return;
-                }
-
-                ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-                ImGui::SetNextWindowPos(ImVec2(0, 200), ImGuiCond_FirstUseEver);
-
-                if (!ImGui::Begin("Materials", &materials_window_))
-                {
-                    ImGui::End();
-                    return;
-                }
-
-                // Left
-                {
-                    ImGui::BeginChild("left pane", ImVec2(150, 0),
-                        ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-                    const int num_mat = eg.material_manager->getCount();
-                    for (int i = 0; i < num_mat; i++)
-                    {
-                        const char *name = eg.material_manager->getName(i);
-                        char label[64];
-                        sprintf(label, "%d. %.50s", i, name);
-                        if (ImGui::Selectable(label, selected_mat_ == i, 0,
-                                ImVec2(0, LISTS_HEIGHT)))
-                        {
-                            selected_mat_ = i;
-                        }
-                    }
-                    ImGui::EndChild();
-                }
-                ImGui::SameLine();
-
-                // Right
-                {
-                    ImGui::BeginGroup();
-                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-                    if (eg.material_manager->contains(selected_mat_))
-                    {
-                        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                            eg.material_manager->getName(selected_mat_));
-
-                        ImGui::Separator();
-
-                        Material *material = eg.material_manager->get(selected_mat_);
-
-                        {
-                            ImGui::SeparatorText("Shader");
-                            Shader *shader = material->getShader();
-                            if (shader)
-                            {
-                                ImGui::AlignTextToFramePadding();
-                                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                                    eg.shader_manager->getName(shader));
-                                ImGui::SameLine();
-                                if (ImGui::Button("Go##shader"))
-                                {
-                                    selected_shader_ = eg.shader_manager->getIndex(shader);
-                                    shaders_window_ = true;
-                                }
-                            }
-                            else
-                            {
-                                ImGui::TextDisabled("None");
-                            }
-                        }
-                        {
-                            ImGui::SeparatorText("Parameters");
-                            const int num_params = material->getNumParameters();
-                            for (int i = 0; i < num_params; ++i)
-                            {
-                                ImGui::Bullet();
-                                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                                    material->getParameterName(i).c_str());
-                                ImGui::SameLine();
-                                ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%s)",
-                                    material->getParameterTypeName(i));
-
-                                ImGui::Indent();
-
-                                constexpr float SPEED = 0.1f;
-                                constexpr const char *FORMAT = "%.3f";
-
-                                ImGui::PushID(i);
-
-                                switch (material->getParameterType(i))
-                                {
-                                case Material::ParameterType::Float:
-                                {
-                                    float v = material->getParameterFloat(i);
-                                    if (ImGui::DragFloat("##", &v, SPEED, 0, 0, FORMAT))
-                                    {
-                                        material->setParameterFloat(i, v);
-                                    }
-                                    break;
-                                }
-                                case Material::ParameterType::Vec2:
-                                {
-                                    glm::vec2 v = material->getParameterVec2(i);
-                                    if (ImGui::DragFloat2("##", glm::value_ptr(v), SPEED, 0, 0,
-                                            FORMAT))
-                                    {
-                                        material->setParameterVec2(i, v);
-                                    }
-                                    break;
-                                }
-                                case Material::ParameterType::Vec3:
-                                {
-                                    glm::vec3 v = material->getParameterVec3(i);
-                                    if (ImGui::ColorEdit3("##", glm::value_ptr(v),
-                                            ImGuiColorEditFlags_Float))
-                                    {
-                                        material->setParameterVec3(i, v);
-                                    }
-                                    break;
-                                }
-                                case Material::ParameterType::Vec4:
-                                {
-                                    glm::vec4 v = material->getParameterVec4(i);
-                                    if (ImGui::ColorEdit4("##", glm::value_ptr(v),
-                                            ImGuiColorEditFlags_Float))
-                                    {
-                                        material->setParameterVec4(i, v);
-                                    }
-                                    break;
-                                }
-                                case Material::ParameterType::Mat4:
-                                {
-                                    // TODO#
-                                    break;
-                                }
-                                default: break;
-                                }
-
-                                ImGui::PopID();
-
-                                ImGui::Unindent();
-                            }
-                        }
-
-                        {
-                            ImGui::SeparatorText("Textures");
-                            const int num_textures = material->getNumTextures();
-                            for (int i = 0; i < num_textures; ++i)
-                            {
-                                ImGui::Bullet();
-                                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                                    material->getTextureName(i).c_str());
-
-                                Texture *texture = material->getTexture(i);
-
-                                ImGui::Indent();
-
-                                if (texture)
-                                {
-                                    ImGui::AlignTextToFramePadding();
-                                    ImGui::Text("Name:");
-
-                                    ImGui::SameLine();
-                                    ImGui::AlignTextToFramePadding();
-                                    ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                                        eg.texture_manager->getName(texture));
-
-                                    ImGui::SameLine();
-                                    if (ImGui::Button("Go##texture"))
-                                    {
-                                        texture_window_ = true;
-                                        selected_texture_ = eg.texture_manager->getIndex(texture);
-                                    }
-
-                                    render_texture_info(texture);
-                                }
-                                else
-                                {
-                                    ImGui::TextDisabled("Empty");
-                                }
-
-                                ImGui::Unindent();
-                            }
-                        }
-                    }
-                    ImGui::EndChild();
-                    ImGui::EndGroup();
-                }
-
-                ImGui::End();
-            }
-
-            void render_textures()
-            {
-                if (!texture_window_)
-                {
-                    return;
-                }
-
-                ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-                ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
-
-                if (!ImGui::Begin("Textures", &texture_window_))
-                {
-                    ImGui::End();
-                    return;
-                }
-
-                // Left
-                {
-                    ImGui::BeginChild("left pane", ImVec2(150, 0),
-                        ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-                    const int num_mat = eg.texture_manager->getCount();
-                    for (int i = 0; i < num_mat; i++)
-                    {
-                        render_texture(eg.texture_manager->get(i), LISTS_HEIGHT - 2,
-                            LISTS_HEIGHT - 2);
-
-                        ImGui::SameLine();
-
-                        const char *name = eg.texture_manager->getName(i);
-                        char label[64];
-                        sprintf(label, "%d. %.50s", i, name);
-                        if (ImGui::Selectable(label, selected_texture_ == i, 0,
-                                ImVec2(0, LISTS_HEIGHT)))
-                        {
-                            selected_texture_ = i;
-                        }
-                    }
-                    ImGui::EndChild();
-                }
-                ImGui::SameLine();
-
-                // Right
-                {
-                    ImGui::BeginGroup();
-                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-                    if (eg.texture_manager->contains(selected_texture_))
-                    {
-                        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                            eg.texture_manager->getName(selected_texture_));
-
-                        ImGui::Separator();
-
-                        Texture *texture = eg.texture_manager->get(selected_texture_);
-                        render_texture_info(texture);
-                    }
-                    ImGui::EndChild();
-                    ImGui::EndGroup();
-                }
-
-                ImGui::End();
-            }
-
-            void render_texture_info(Texture *texture)
-            {
-                if (!texture)
-                {
-                    ImGui::TextDisabled("Empty");
-                    return;
-                }
-
-                if (!texture->isLoaded())
-                {
-                    ImGui::TextDisabled("Not loaded");
-                    return;
-                }
-
-                const int orig_width = texture->getWidth();
-                const int orig_height = texture->getHeight();
-
-                ImGui::Text("Size:");
-                ImGui::SameLine();
-                ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%dx%d", orig_width, orig_height);
-
-                float preview_width = orig_width;
-                float preview_height = orig_height;
-                constexpr float MAX_SIZE = 128.0f;
-                bool resized = false;
-                while (preview_width > MAX_SIZE || preview_height > MAX_SIZE)
-                {
-                    preview_width *= 0.5;
-                    preview_height *= 0.5;
-                    resized = true;
-                }
-
-                render_texture(texture, preview_width, preview_height);
-                if (resized)
-                {
-                    ImGui::SameLine();
-                    ImGui::TextDisabled("(preview %dx%d)", (int)preview_width, (int)preview_height);
-                }
-            }
-
-            void render_texture(Texture *texture, float width, float height)
-            {
-                if (texture && texture->isLoaded())
-                {
-                    ImGui::Image(texture->getID(), ImVec2(width, height));
-                }
-                else
-                {
-                    ImGui::Dummy(ImVec2(width, height));
-                }
-            }
-
-            void render_shaders()
-            {
-                if (!shaders_window_)
-                {
-                    return;
-                }
-
-                ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-                ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
-
-                if (!ImGui::Begin("Shaders", &shaders_window_))
-                {
-                    ImGui::End();
-                    return;
-                }
-
-                // Left
-                {
-                    ImGui::BeginChild("left pane", ImVec2(150, 0),
-                        ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-                    const int num_shaders = eg.shader_manager->getCount();
-                    for (int i = 0; i < num_shaders; i++)
-                    {
-                        const char *name = eg.shader_manager->getName(i);
-                        char label[64];
-                        sprintf(label, "%d. %.50s", i, name);
-                        if (ImGui::Selectable(label, selected_shader_ == i, 0,
-                                ImVec2(0, LISTS_HEIGHT)))
-                        {
-                            selected_shader_ = i;
-                        }
-                    }
-                    ImGui::EndChild();
-                }
-                ImGui::SameLine();
-
-                // Right
-                {
-                    ImGui::BeginGroup();
-                    ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
-                    if (eg.shader_manager->contains(selected_shader_))
-                    {
-                        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                            eg.shader_manager->getName(selected_shader_));
-
-                        ImGui::Separator();
-
-                        Shader *shader = eg.shader_manager->get(selected_shader_);
-
-                        // TODO# SOURCE CODE VIEW
-                    }
-                    ImGui::EndChild();
-                    ImGui::EndGroup();
-                }
-
-                ImGui::End();
-            }
-
-        private:
-            // Shaders
-            int selected_shader_{0};
-            bool shaders_window_{true};
-
-            // Textures
-            int selected_texture_{0};
-            bool texture_window_{true};
-
-            // Materials
-            int selected_mat_{0};
-            bool materials_window_{true};
-
-            int LISTS_HEIGHT = 22;
-            ImVec4 HIGHLIGHT_COLOR_NAMES{0.6, 0.6, 1, 1};
-            ImVec4 HIGHLIGHT_COLOR_OTHER{1, 0.6, 0.6, 1};
-        };
-        Editor editor;
-
         while (!exit_)
         {
             shader->setDefine("USE_AMBIENT", use_ambient);
@@ -638,12 +233,12 @@ public:
 
             ImGui::ShowDemoWindow(nullptr);
 
-            editor.render();
+            edg.editor_->render();
 
             ImGui::Render();
             //////////////////////////////////////////////// IMGUI
 
-            eg.time->update();
+            eng.time->update();
 
             process_input();
 
@@ -654,7 +249,7 @@ public:
             }
 
             const auto add_axis = [](const glm::vec3 &axis) {
-                eg.visualizer->addLine(glm::vec3{0, 0, 0}, axis, glm::vec4{axis, 1.0f});
+                eng.visualizer->addLine(glm::vec3{0, 0, 0}, axis, glm::vec4{axis, 1.0f});
             };
             add_axis(glm::vec3{1, 0, 0});
             add_axis(glm::vec3{0, 1, 0});
@@ -666,7 +261,7 @@ public:
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            anim_time += eg.time->getDelta() * anim_time_multiplier;
+            anim_time += eng.time->getDelta() * anim_time_multiplier;
             light_pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
             light_pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
             light_pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
@@ -692,7 +287,7 @@ public:
 
             glCullFace(GL_BACK);
 
-            cat_transform = glm::rotate(glm::mat4{1.0f}, float(0.25 * eg.time->getTime()),
+            cat_transform = glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
                                 glm::vec3(1.0f, 0.0f, 0.0f))
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f});
             shader->setUniformMat4("uModel", cat_transform);
@@ -741,7 +336,7 @@ public:
             visualize_normals(stickman_mesh, stickman_transform);
             visualize_normals(floor_mesh, glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
             ////////////////////////////////////////////////
-            eg.visualizer->render(camera_.getViewProj());
+            eng.visualizer->render(camera_.getViewProj());
 
 
             ////////////////// IMGUI
@@ -755,11 +350,11 @@ public:
                 exit_ = true;
             }
 
-            if (last_update_fps_time_ < eg.time->getTime() - 1.0f)
+            if (last_update_fps_time_ < eng.time->getTime() - 1.0f)
             {
-                last_update_fps_time_ = eg.time->getTime();
+                last_update_fps_time_ = eng.time->getTime();
                 glfwSetWindowTitle(window_,
-                    std::string("FPS: " + std::to_string(eg.time->getFps())).c_str());
+                    std::string("FPS: " + std::to_string(eng.time->getFps())).c_str());
             }
         }
     }
@@ -767,13 +362,13 @@ public:
 private:
     void init()
     {
-        eg.engine_ = this;
-        eg.time = new Time();
-        eg.fs = new FileSystem();
-        eg.texture_manager = new TextureManager();
-        eg.shader_manager = new ShaderManager();
-        eg.mesh_manager = new MeshManager();
-        eg.material_manager = new MaterialManager();
+        eng.engine_ = this;
+        eng.time = new Time();
+        eng.fs = new FileSystem();
+        eng.texture_manager = new TextureManager();
+        eng.shader_manager = new ShaderManager();
+        eng.mesh_manager = new MeshManager();
+        eng.material_manager = new MaterialManager();
 
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -793,7 +388,7 @@ private:
         }
         glfwMakeContextCurrent(window_);
         glfwSetFramebufferSizeCallback(window_, [](GLFWwindow *window, int width, int height) {
-            eg.engine_->framebuffer_size_callback(window, width, height);
+            eng.engine_->framebuffer_size_callback(window, width, height);
         });
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -818,7 +413,10 @@ private:
         mouse_delta_x_ = 0;
         mouse_delta_y_ = 0;
 
-        eg.visualizer = new Visualizer();
+        eng.visualizer = new Visualizer();
+
+        // Editor
+        edg.editor_ = new Editor();
     }
 
     void shutdown()
@@ -828,14 +426,19 @@ private:
             delete ptr;
             ptr = nullptr;
         };
-        delete_and_null(eg.visualizer);
-        delete_and_null(eg.material_manager);
-        delete_and_null(eg.mesh_manager);
-        delete_and_null(eg.shader_manager);
-        delete_and_null(eg.texture_manager);
-        delete_and_null(eg.fs);
-        delete_and_null(eg.time);
-        eg.engine_ = nullptr;
+
+        // Editor
+        delete_and_null(edg.editor_);
+
+        // Engine
+        delete_and_null(eng.visualizer);
+        delete_and_null(eng.material_manager);
+        delete_and_null(eng.mesh_manager);
+        delete_and_null(eng.shader_manager);
+        delete_and_null(eng.texture_manager);
+        delete_and_null(eng.fs);
+        delete_and_null(eng.time);
+        eng.engine_ = nullptr;
 
         glfwTerminate();
     }
@@ -866,7 +469,7 @@ private:
 
         const float mouse_speed = 0.0015f;
 
-        const float dt = eg.time->getDelta();
+        const float dt = eng.time->getDelta();
 
         glm::vec4 delta_pos{0.0f};
         if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)

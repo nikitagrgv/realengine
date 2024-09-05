@@ -9,8 +9,12 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/Base.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Camera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Camera.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Editor.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Editor.h
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/EditorGlobals.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/EditorGlobals.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.h
         ${CMAKE_CURRENT_SOURCE_DIR}/IndexBufferObject.cpp
