@@ -24,9 +24,15 @@ void Editor::render_main()
     ImGui::SetNextWindowSize(ImVec2(180, 120), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
     ImGui::Begin("Editor");
+
+    constexpr int OFFSET = 110;
+
     ImGui::Checkbox("Materials", &materials_window_);
-    ImGui::Checkbox("Textures", &texture_window_);
+    ImGui::SameLine(OFFSET);
     ImGui::Checkbox("Shaders", &shaders_window_);
+
+    ImGui::Checkbox("Textures", &texture_window_);
+    ImGui::SameLine(OFFSET);
     ImGui::Checkbox("Meshes", &meshes_window_);
     ImGui::End();
 }
