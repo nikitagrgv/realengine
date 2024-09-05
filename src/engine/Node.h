@@ -21,6 +21,12 @@ public:
     explicit Node(int id, Type type);
     virtual ~Node();
 
+    template<typename T>
+    T *cast();
+
+    template<typename T>
+    const T *cast() const;
+
     Type getType() const { return type_; }
     const char *getTypeName() const { return getTypeName(type_); }
 
@@ -38,3 +44,26 @@ private:
     std::string name_;
     glm::mat4 transform_{1.0f};
 };
+
+template<typename T>
+T *Node::cast()
+{
+    if (getType() == T::getTypeStatic())
+    {
+        assert(dynamic_cast<T *>(this));
+        return static_cast<T *>(this);
+    }
+    return nullptr;
+}
+
+
+template<typename T>
+const T *Node::cast() const
+{
+    if (getType() == T::getTypeStatic())
+    {
+        assert(dynamic_cast<const T *>(this));
+        return static_cast<const T *>(this);
+    }
+    return nullptr;
+}

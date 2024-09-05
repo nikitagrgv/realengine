@@ -11,6 +11,7 @@
 #include "EditorGlobals.h"
 #include "EngineGlobals.h"
 #include "Image.h"
+#include "Light.h"
 #include "Material.h"
 #include "MaterialManager.h"
 #include "Mesh.h"
@@ -157,10 +158,13 @@ public:
         glm::vec3 light_pos{1, 1, 1};
 
         float anim_time_multiplier = 1.0f;
-        glm::vec3 light_color{0.2, 0.65, 0.65};
-        float ambient_power = 0.1f;
-        float diffuse_power = 1.0f;
-        float specular_power = 1.0f;
+
+        Light light;
+        light.color = glm::vec3{0.2, 0.65, 0.65};
+        light.ambient_power = 0.1f;
+        light.diffuse_power = 1.0f;
+        light.specular_power = 1.0f;
+
         float shininess = 32.0f;
 
         bool use_ambient = true;
@@ -231,11 +235,11 @@ public:
             {
                 ImGui::Begin("Parameters");
                 ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
-                ImGui::ColorEdit3("Light color", glm::value_ptr(light_color),
+                ImGui::ColorEdit3("Light color", glm::value_ptr(light.color),
                     ImGuiColorEditFlags_Float);
-                ImGui::SliderFloat("Ambient power", &ambient_power, 0.0f, 1.0f);
-                ImGui::SliderFloat("Diffuse power", &diffuse_power, 0.0f, 1.0f);
-                ImGui::SliderFloat("Specular power", &specular_power, 0.0f, 1.0f);
+                ImGui::SliderFloat("Ambient power", &light.ambient_power, 0.0f, 1.0f);
+                ImGui::SliderFloat("Diffuse power", &light.diffuse_power, 0.0f, 1.0f);
+                ImGui::SliderFloat("Specular power", &light.specular_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Shininess", &shininess, 0.0f, 64.0f);
                 ImGui::Checkbox("Use ambient", &use_ambient);
                 ImGui::Checkbox("Use diffuse", &use_diffuse);
@@ -284,21 +288,21 @@ public:
             light_pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
             shader->bind();
-            shader->setUniformVec3("uLight.color", light_color);
+            shader->setUniformVec3("uLight.color", light.color);
             shader->setUniformVec3("uLight.pos", light_pos);
             shader->setUniformMat4("uViewProj", camera_.getViewProj());
             if (use_ambient)
             {
-                shader->setUniformFloat("uLight.ambientPower", ambient_power);
+                shader->setUniformFloat("uLight.ambientPower", light.ambient_power);
             }
             if (use_diffuse)
             {
-                shader->setUniformFloat("uLight.diffusePower", diffuse_power);
+                shader->setUniformFloat("uLight.diffusePower", light.diffuse_power);
             }
             if (use_specular)
             {
                 shader->setUniformVec3("uCameraPos", camera_.getPosition());
-                shader->setUniformFloat("uLight.specularPower", specular_power);
+                shader->setUniformFloat("uLight.specularPower", light.specular_power);
                 shader->setUniformFloat("uMaterial.shininess", shininess);
             }
 

@@ -3,6 +3,7 @@
 #include "EngineGlobals.h"
 #include "MaterialManager.h"
 #include "MeshManager.h"
+#include "NodeMesh.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
 #include "World.h"
@@ -109,19 +110,21 @@ void Editor::render_world()
             ImGui::Separator();
 
             {
-                ImGui::PushItemWidth(-FLT_MIN);
-
                 ImGui::SeparatorText("Transform");
                 glm::mat4 tr = node->getTransform();
+
+                ImGui::PushItemWidth(-FLT_MIN);
                 if (render_editor(tr))
                 {
                     node->setTransform(tr);
                 }
-
                 ImGui::PopItemWidth();
             }
 
-            // TODO# SOURCE CODE VIEW
+            if (auto n = node->cast<NodeMesh>())
+            {
+                render_node(n);
+            }
         }
         ImGui::EndChild();
         ImGui::EndGroup();
@@ -549,6 +552,50 @@ void Editor::render_texture(Texture *texture, float width, float height)
     else
     {
         ImGui::Dummy(ImVec2(width, height));
+    }
+}
+
+void Editor::render_node(NodeMesh *node)
+{
+    ImGui::SeparatorText("NodeMesh");
+
+    Mesh *mesh = node->getMesh();
+    Material *material = node->getMaterial();
+
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("Mesh:");
+    ImGui::SameLine();
+    if (mesh)
+    {
+        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", eng.mesh_manager->getName(mesh));
+        ImGui::SameLine();
+        if (ImGui::Button("Go##mesh"))
+        {
+            selected_mesh = eng.mesh_manager->getIndex(mesh);
+            meshes_window_ = true;
+        }
+    }
+    else
+    {
+        ImGui::TextDisabled("None");
+    }
+
+    ImGui::AlignTextToFramePadding();
+    ImGui::Text("Material:");
+    ImGui::SameLine();
+    if (material)
+    {
+        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", eng.material_manager->getName(material));
+        ImGui::SameLine();
+        if (ImGui::Button("Go##mat"))
+        {
+            selected_mat_ = eng.material_manager->getIndex(material);
+            materials_window_ = true;
+        }
+    }
+    else
+    {
+        ImGui::TextDisabled("None");
     }
 }
 

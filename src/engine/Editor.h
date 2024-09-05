@@ -7,6 +7,7 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 
+class NodeMesh;
 class Texture;
 
 class Editor
@@ -27,6 +28,8 @@ private:
 
     void render_texture_info(Texture *texture);
     void render_texture(Texture *texture, float width, float height);
+
+    void render_node(NodeMesh *node);
 
     static bool render_editor(float &v);
     static bool render_editor(glm::vec2 &v);
