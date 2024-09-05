@@ -8,6 +8,18 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
+namespace
+{
+
+constexpr int LISTS_HEIGHT = 22;
+constexpr ImVec4 HIGHLIGHT_COLOR_NAMES{0.6, 0.6, 1, 1};
+constexpr ImVec4 HIGHLIGHT_COLOR_OTHER{1, 0.6, 0.6, 1};
+
+constexpr float SPEED = 0.1f;
+constexpr const char *FORMAT = "%.3f";
+
+} // namespace
+
 Editor::Editor() {}
 
 void Editor::render()
@@ -119,9 +131,6 @@ void Editor::render_materials()
 
                     ImGui::Indent();
 
-                    constexpr float SPEED = 0.1f;
-                    constexpr const char *FORMAT = "%.3f";
-
                     ImGui::PushID(i);
 
                     switch (material->getParameterType(i))
@@ -129,7 +138,7 @@ void Editor::render_materials()
                     case Material::ParameterType::Float:
                     {
                         float v = material->getParameterFloat(i);
-                        if (ImGui::DragFloat("##", &v, SPEED, 0, 0, FORMAT))
+                        if (render_editor(v))
                         {
                             material->setParameterFloat(i, v);
                         }
@@ -138,7 +147,7 @@ void Editor::render_materials()
                     case Material::ParameterType::Vec2:
                     {
                         glm::vec2 v = material->getParameterVec2(i);
-                        if (ImGui::DragFloat2("##", glm::value_ptr(v), SPEED, 0, 0, FORMAT))
+                        if (render_editor(v))
                         {
                             material->setParameterVec2(i, v);
                         }
@@ -147,7 +156,7 @@ void Editor::render_materials()
                     case Material::ParameterType::Vec3:
                     {
                         glm::vec3 v = material->getParameterVec3(i);
-                        if (ImGui::ColorEdit3("##", glm::value_ptr(v), ImGuiColorEditFlags_Float))
+                        if (render_editor(v))
                         {
                             material->setParameterVec3(i, v);
                         }
@@ -156,7 +165,7 @@ void Editor::render_materials()
                     case Material::ParameterType::Vec4:
                     {
                         glm::vec4 v = material->getParameterVec4(i);
-                        if (ImGui::ColorEdit4("##", glm::value_ptr(v), ImGuiColorEditFlags_Float))
+                        if (render_editor(v))
                         {
                             material->setParameterVec4(i, v);
                         }
@@ -165,26 +174,7 @@ void Editor::render_materials()
                     case Material::ParameterType::Mat4:
                     {
                         glm::mat4 v = material->getParameterMat4(i);
-                        bool changed = false;
-                        float *ptr = glm::value_ptr(v);
-                        constexpr int STRIDE = 4;
-
-                        ImGui::PushID(0);
-                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 0, SPEED, 0, 0, FORMAT);
-                        ImGui::PopID();
-
-                        ImGui::PushID(1);
-                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 1, SPEED, 0, 0, FORMAT);
-                        ImGui::PopID();
-
-                        ImGui::PushID(2);
-                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 2, SPEED, 0, 0, FORMAT);
-                        ImGui::PopID();
-
-                        ImGui::PushID(3);
-                        changed |= ImGui::DragFloat4("##", ptr + STRIDE * 3, SPEED, 0, 0, FORMAT);
-                        ImGui::PopID();
-                        if (changed)
+                        if (render_editor(v))
                         {
                             material->setParameterMat4(i, v);
                         }
@@ -479,4 +469,39 @@ void Editor::render_texture(Texture *texture, float width, float height)
     {
         ImGui::Dummy(ImVec2(width, height));
     }
+}
+
+bool Editor::render_editor(float &v)
+{
+    return ImGui::DragFloat("##", &v, SPEED, 0, 0, FORMAT);
+}
+
+bool Editor::render_editor(glm::vec2 &v)
+{
+    return ImGui::DragFloat2("##", glm::value_ptr(v), SPEED, 0, 0, FORMAT);
+}
+
+bool Editor::render_editor(glm::vec3 &v)
+{
+    return ImGui::ColorEdit3("##", glm::value_ptr(v), ImGuiColorEditFlags_Float);
+}
+
+bool Editor::render_editor(glm::vec4 &v)
+{
+    return ImGui::ColorEdit4("##", glm::value_ptr(v), ImGuiColorEditFlags_Float);
+}
+
+bool Editor::render_editor(glm::mat4 &v)
+{
+    bool changed = false;
+    float *ptr = glm::value_ptr(v);
+    constexpr int STRIDE = 4;
+
+    for (int i = 0; i < 4; ++i)
+    {
+        ImGui::PushID(i);
+        changed |= ImGui::DragFloat4("##", ptr + STRIDE * i, SPEED, 0, 0, FORMAT);
+        ImGui::PopID();
+    }
+    return changed;
 }

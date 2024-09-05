@@ -2,6 +2,11 @@
 
 #include "imgui.h"
 
+#include "glm/mat4x4.hpp"
+#include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
+
 class Texture;
 
 class Editor
@@ -22,6 +27,12 @@ private:
     void render_texture_info(Texture *texture);
     void render_texture(Texture *texture, float width, float height);
 
+    static bool render_editor(float &v);
+    static bool render_editor(glm::vec2 &v);
+    static bool render_editor(glm::vec3 &v);
+    static bool render_editor(glm::vec4 &v);
+    static bool render_editor(glm::mat4 &v);
+
 private:
     // Shaders
     int selected_shader_{0};
@@ -38,8 +49,4 @@ private:
     // Meshes
     int selected_mesh{0};
     bool meshes_window_{true};
-
-    int LISTS_HEIGHT = 22;
-    ImVec4 HIGHLIGHT_COLOR_NAMES{0.6, 0.6, 1, 1};
-    ImVec4 HIGHLIGHT_COLOR_OTHER{1, 0.6, 0.6, 1};
 };
