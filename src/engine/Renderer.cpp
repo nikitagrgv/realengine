@@ -108,4 +108,15 @@ void Renderer::use_material(Material *material)
         default: break;
         }
     }
+
+    shader->clearDefines();
+    for (int i = 0, count = material->getNumDefines(); i < count; ++i)
+    {
+        if (material->getDefine(i))
+        {
+            shader->addDefine(material->getDefineName(i).c_str());
+        }
+    }
+
+    shader->bind(); // recompile
 }

@@ -255,6 +255,10 @@ void Shader::bind()
     {
         std::cout << "Shader is not loaded\n" << std::endl;
     }
+    if (isDirty())
+    {
+        recompile();
+    }
     glUseProgram(program_id_);
 }
 

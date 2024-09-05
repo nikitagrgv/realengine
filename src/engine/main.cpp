@@ -79,20 +79,12 @@ public:
 
         Material *cat_material = eng.material_manager->create("cat");
         cat_material->setShader(shader);
-        cat_material->addTexture("uTexture");
-        cat_material->setTexture("uTexture", cat_texture);
-        cat_material->addParameterFloat("uMaterial.shininess");
-        cat_material->setParameterFloat("uMaterial.shininess", 32.0f);
+        cat_material->addTexture("uTexture", cat_texture);
+        cat_material->addParameterFloat("uMaterial.shininess", 32.0f);
 
-        cat_material->addParameterFloat("test float");
-        cat_material->addParameterMat4("test mat4");
-        cat_material->addTexture("test 1");
-        cat_material->addTexture("test 2");
-
-        eng.texture_manager->create("test texture");
-        Texture *t2 = eng.texture_manager->create("test texture 2");
-
-        cat_material->setTexture("test 2", t2);
+        cat_material->addDefine("USE_AMBIENT", true);
+        cat_material->addDefine("USE_DIFFUSE", true);
+        cat_material->addDefine("USE_SPECULAR", true);
 
         ////////////////////////////////////////////////
         Texture *stickman_texture = eng.texture_manager->create();
@@ -214,15 +206,6 @@ public:
 
         while (!exit_)
         {
-            shader->setDefine("USE_AMBIENT", use_ambient);
-            shader->setDefine("USE_DIFFUSE", use_diffuse);
-            shader->setDefine("USE_SPECULAR", use_specular);
-
-            if (shader->isDirty())
-            {
-                shader->recompile();
-            }
-
             glfwPollEvents();
 
             //////////////////////////////////////////////// IMGUI

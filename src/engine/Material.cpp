@@ -4,19 +4,27 @@
 
 #define DEFINE_PARAMTERS_METHODS(TYPE_NAME, TYPE_VALUE_GET, TYPE_VALUE_SET, UNION_ELEMENT,         \
     DEFAULT_VALUE)                                                                                 \
-    void Material::addParameter##TYPE_NAME(const char *name)                                       \
+                                                                                                   \
+    int Material::addParameter##TYPE_NAME(const char *name)                                        \
+    {                                                                                              \
+        return addParameter##TYPE_NAME(name, DEFAULT_VALUE);                                       \
+    }                                                                                              \
+                                                                                                   \
+    int Material::addParameter##TYPE_NAME(const char *name, TYPE_VALUE_SET value)                  \
     {                                                                                              \
         const int index = find_parameter(name);                                                    \
         if (index != -1)                                                                           \
         {                                                                                          \
             std::cout << "Parameter already exists: " << name << std::endl;                        \
-            return;                                                                                \
+            return -1;                                                                             \
         }                                                                                          \
         Parameter parameter;                                                                       \
         parameter.name = name;                                                                     \
         parameter.type = ParameterType::##TYPE_NAME;                                               \
-        parameter.##UNION_ELEMENT##_value = DEFAULT_VALUE;                                         \
+        parameter.##UNION_ELEMENT##_value = value;                                                 \
+        const int i = parameters_.size();                                                          \
         parameters_.push_back(parameter);                                                          \
+        return i;                                                                                  \
     }                                                                                              \
                                                                                                    \
     void Material::setParameter##TYPE_NAME(const char *name, TYPE_VALUE_SET value)                 \
@@ -144,17 +152,25 @@ void Material::clearParameters()
     parameters_.clear();
 }
 
-void Material::addTexture(const char *name)
+int Material::addTexture(const char *name)
+{
+    return addTexture(name, nullptr);
+}
+
+int Material::addTexture(const char *name, Texture *texture)
 {
     const int index = find_texture(name);
     if (index != -1)
     {
         std::cout << "Texture " << name << " already exists" << std::endl;
+        return -1;
     }
     TextureInfo texture_info;
     texture_info.name = name;
-    texture_info.texture = nullptr;
-    textures_.push_back(texture_info);
+    texture_info.texture = texture;
+    const int i = textures_.size();
+    textures_.push_back(std::move(texture_info));
+    return i;
 }
 
 void Material::setTexture(const char *name, Texture *texture)
@@ -178,6 +194,69 @@ void Material::clearTextures()
     textures_.clear();
 }
 
+int Material::addDefine(const char *name)
+{
+    return addDefine(name, false);
+}
+
+int Material::addDefine(const char *name, bool enabled)
+{
+    const int index = find_define(name);
+    if (index != -1)
+    {
+        std::cout << "Define " << name << " already exists" << std::endl;
+        return -1;
+    }
+    Define define;
+    define.name = name;
+    define.enabled = enabled;
+    const int i = defines_.size();
+    defines_.push_back(std::move(define));
+    return i;
+}
+
+void Material::setDefine(int i, bool enabled)
+{
+    defines_[i].enabled = enabled;
+}
+
+void Material::setDefine(const char *name, bool enabled)
+{
+    const int index = find_define(name);
+    if (index == -1)
+    {
+        std::cout << "Define " << name << " not found" << std::endl;
+        return;
+    }
+    defines_[index].enabled = enabled;
+}
+
+bool Material::getDefine(int i) const
+{
+    return defines_[i].enabled;
+}
+
+bool Material::getDefine(const char *name) const
+{
+    const int index = find_define(name);
+    if (index == -1)
+    {
+        std::cout << "Define " << name << " not found" << std::endl;
+        return false;
+    }
+    return defines_[index].enabled;
+}
+
+int Material::getNumDefines() const
+{
+    return defines_.size();
+}
+
+void Material::clearDefines()
+{
+    defines_.clear();
+}
+
 int Material::find_parameter(const char *name) const
 {
     for (int i = 0; i < parameters_.size(); i++)
@@ -195,6 +274,18 @@ int Material::find_texture(const char *name) const
     for (int i = 0; i < textures_.size(); i++)
     {
         if (textures_[i].name == name)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int Material::find_define(const char *name) const
+{
+    for (int i = 0; i < defines_.size(); i++)
+    {
+        if (defines_[i].name == name)
         {
             return i;
         }
