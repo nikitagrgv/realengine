@@ -342,7 +342,7 @@ public:
 
             ////////////////////////////////////////////////
             light_cube_shader->bind();
-            light_cube_shader->setUniformVec3("uColor", light_color);
+            light_cube_shader->setUniformVec3("uColor", light.color);
             light_cube_shader->setUniformMat4("uMVP",
                 camera_.getMVP(glm::translate(glm::mat4{1.0f}, light_pos)
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
