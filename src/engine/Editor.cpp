@@ -101,7 +101,7 @@ void Editor::render_world()
             ImGui::SameLine();
             ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%s)", node->getTypeName());
 
-            ImGui::Text("ID=");
+            ImGui::Text("ID:");
             ImGui::SameLine();
             ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", node->getId());
 
