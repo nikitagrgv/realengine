@@ -24,7 +24,6 @@ void Renderer::renderWorld(Camera *camera, Light *light)
 
     glEnable(GL_DEPTH_TEST);
 
-    glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
     for (int i = 0, count = eng.world->getNumNodes(); i < count; ++i)
@@ -57,6 +56,15 @@ void Renderer::renderWorld(Camera *camera, Light *light)
                 shader->setUniformFloat("uLight.ambientPower", light->ambient_power);
                 shader->setUniformFloat("uLight.diffusePower", light->diffuse_power);
                 shader->setUniformFloat("uLight.specularPower", light->specular_power);
+            }
+
+            if (mat->isTwoSided())
+            {
+                glDisable(GL_CULL_FACE);
+            }
+            else
+            {
+                glEnable(GL_CULL_FACE);
             }
 
             glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0);

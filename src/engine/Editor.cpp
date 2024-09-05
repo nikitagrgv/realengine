@@ -212,6 +212,16 @@ void Editor::render_materials()
             }
 
             {
+                ImGui::SeparatorText("Options");
+
+                bool two_sided = material->isTwoSided();
+                if (ImGui::Checkbox("Two Sided", &two_sided))
+                {
+                    material->setTwoSided(two_sided);
+                }
+            }
+
+            {
                 ImGui::PushID("params");
                 ImGui::SeparatorText("Parameters");
                 const int num_params = material->getNumParameters();

@@ -99,6 +99,9 @@ public:
     int getNumDefines() const;
     void clearDefines();
 
+    bool isTwoSided() const { return two_sided_; }
+    void setTwoSided(bool two_sided) { two_sided_ = two_sided; }
+
 private:
     struct Parameter
     {
@@ -136,4 +139,6 @@ private:
     std::vector<Parameter> parameters_;
     std::vector<Define> defines_;
     Shader *shader_{};
+
+    bool two_sided_{false};
 };

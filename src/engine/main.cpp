@@ -80,10 +80,12 @@ public:
         cat_material->setShader(shader);
         cat_material->addTexture("uTexture", cat_texture);
         cat_material->addParameterFloat("uMaterial.shininess", 32.0f);
-
         cat_material->addDefine("USE_AMBIENT", true);
         cat_material->addDefine("USE_DIFFUSE", true);
         cat_material->addDefine("USE_SPECULAR", true);
+
+        Material *light_cube_material = eng.material_manager->create("light cube");
+
 
         ////////////////////////////////////////////////
         Texture *stickman_texture = eng.texture_manager->create();
