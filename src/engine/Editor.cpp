@@ -616,7 +616,7 @@ void Editor::visualize_selected_node()
     }
     Node *n = eng.world->getNodeByIndex(selected_node_);
     const math::BoundBox &bb = n->getGlobalBoundBox();
-    eng.visualizer->addBoundBox(bb, glm::vec4{1.0f, 0.0f, 0.0f, 1.0f});
+    eng.visualizer->addBoundBox(bb, glm::vec4{1.0f, 0.0f, 0.0f, 1.0f}, false);
 }
 
 bool Editor::render_editor(float &v)

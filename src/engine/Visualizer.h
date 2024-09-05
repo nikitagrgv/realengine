@@ -13,11 +13,12 @@ class Visualizer
 public:
     Visualizer();
 
-    void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color);
+    void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color,
+        bool depth_test = true);
     void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color0,
-        const glm::vec4 &color1);
+        const glm::vec4 &color1, bool depth_test = true);
 
-    void addBoundBox(const math::BoundBox &bb, const glm::vec4 &color);
+    void addBoundBox(const math::BoundBox &bb, const glm::vec4 &color, bool depth_test = true);
 
     void render(const glm::mat4 &viewproj);
 
@@ -30,4 +31,7 @@ private:
     Shader shader;
     VertexBufferObject<LinePoint> lines_vbo_;
     VertexArrayObject lines_vao_;
+
+    VertexBufferObject<LinePoint> nodepth_lines_vbo_;
+    VertexArrayObject nodepth_lines_vao_;
 };
