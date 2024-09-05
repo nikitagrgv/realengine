@@ -210,7 +210,9 @@ void Editor::render_materials()
                     ImGui::TextDisabled("None");
                 }
             }
+
             {
+                ImGui::PushID("params");
                 ImGui::SeparatorText("Parameters");
                 const int num_params = material->getNumParameters();
                 for (int i = 0; i < num_params; ++i)
@@ -280,6 +282,7 @@ void Editor::render_materials()
 
                     ImGui::Unindent();
                 }
+                ImGui::PopID();
             }
 
             {
@@ -321,6 +324,30 @@ void Editor::render_materials()
 
                     ImGui::Unindent();
                 }
+            }
+
+            {
+                ImGui::PushID("defines");
+                ImGui::SeparatorText("Defines");
+                const int num_defines = material->getNumDefines();
+                for (int i = 0; i < num_defines; ++i)
+                {
+                    ImGui::Bullet();
+
+                    bool enabled = material->getDefine(i);
+                    ImGui::PushID(i);
+                    if (ImGui::Checkbox("##", &enabled))
+                    {
+                        material->setDefine(i, enabled);
+                    }
+                    ImGui::PopID();
+
+                    ImGui::SameLine();
+
+                    ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
+                        material->getDefineName(i).c_str());
+                }
+                ImGui::PopID();
             }
         }
         ImGui::EndChild();
