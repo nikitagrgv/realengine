@@ -27,6 +27,10 @@ Editor::Editor() {}
 void Editor::render()
 {
     render_main();
+    if (hide_all_)
+    {
+        return;
+    }
     render_world();
     render_materials();
     render_textures();
@@ -41,6 +45,8 @@ void Editor::render_main()
     ImGui::Begin("Editor");
 
     constexpr int OFFSET = 110;
+
+    ImGui::Checkbox("Hide All", &hide_all_);
 
     ImGui::Checkbox("Materials", &materials_window_);
     ImGui::SameLine(OFFSET);

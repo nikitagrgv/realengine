@@ -38,6 +38,8 @@ private:
     static bool render_editor(glm::mat4 &v);
 
 private:
+    bool hide_all_{false};
+
     // World
     int selected_node_{0};
     bool nodes_window_{true};

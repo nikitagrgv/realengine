@@ -1,5 +1,6 @@
 add_subdirectory(fs)
 add_subdirectory(imgui)
+add_subdirectory(math)
 add_subdirectory(time)
 
 target_sources(realengine

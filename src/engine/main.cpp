@@ -262,8 +262,7 @@ public:
 
             if (glfwGetKey(window_, GLFW_KEY_F5) == GLFW_PRESS)
             {
-                shader->recompile();
-                light_cube_shader->recompile();
+                eng.shader_manager->recompileAll();
             }
 
             const auto add_axis = [](const glm::vec3 &axis) {

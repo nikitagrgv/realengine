@@ -20,6 +20,9 @@ public:
     void setMaterial(Material *material) { material_ = material; }
 
 private:
+    void update_bounds();
+
+private:
     Mesh *mesh_{};
     Material *material_{};
 };

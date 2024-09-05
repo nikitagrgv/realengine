@@ -7,4 +7,7 @@ class ShaderManager : public AbstractManager<Shader>
 {
 public:
     ShaderManager();
+
+    void recompileAll();
+
 };

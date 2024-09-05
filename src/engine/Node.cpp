@@ -15,3 +15,14 @@ Node::Node(int id, Type type)
 {}
 
 Node::~Node() {}
+
+void Node::setTransform(const glm::mat4 &transform)
+{
+    transform_ = transform;
+    update_global_bound_box();
+}
+
+void Node::update_global_bound_box()
+{
+    global_bound_box_ = bound_box_.transformed(transform_);
+}

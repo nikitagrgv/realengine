@@ -48,6 +48,7 @@ public:
     void addIndices(int num_indices);
     void addIndices(unsigned int v1, unsigned int v2, unsigned int v3);
 
+    int getIndex(int i) const { return ebo_.getIndex(i); }
     void setIndex(int i, unsigned int index) { ebo_.setIndex(i, index); }
 
     int getNumIndices() const;

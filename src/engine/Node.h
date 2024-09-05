@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "math/Bounds.h"
 
 #include <glm/mat4x4.hpp>
 #include <string>
@@ -36,13 +37,24 @@ public:
     void setName(std::string name) { name_ = std::move(name); }
 
     const glm::mat4 &getTransform() const { return transform_; }
-    void setTransform(const glm::mat4 &transform) { transform_ = transform; }
+    void setTransform(const glm::mat4 &transform);
+
+    const math::BoundBox &getBoundBox() const { return bound_box_; }
+    const math::BoundBox &getGlobalBoundBox() const { return global_bound_box_; }
+
+protected:
+    void update_global_bound_box();
+
+protected:
+    math::BoundBox bound_box_;
 
 private:
     const int id_{-1};
     const Type type_;
     std::string name_;
     glm::mat4 transform_{1.0f};
+
+    math::BoundBox global_bound_box_;
 };
 
 template<typename T>
