@@ -17,6 +17,7 @@
 #include "MeshLoader.h"
 #include "MeshManager.h"
 #include "Random.h"
+#include "Renderer.h"
 #include "Shader.h"
 #include "ShaderManager.h"
 #include "Texture.h"
@@ -124,11 +125,19 @@ public:
         update_proj(window_);
 
         auto n1 = eng.world->createNode<NodeMesh>();
-        n1->setName("node s1");
+        n1->setName("cat");
+        n1->setMaterial(cat_material);
+        n1->setMesh(cat_mesh);
+
         auto n2 = eng.world->createNode<NodeMesh>();
-        n2->setName("bababf11");
+        n2->setName("stickman");
+        n2->setMaterial(cat_material);
+        n2->setMesh(stickman_mesh);
+
         auto n3 = eng.world->createNode<NodeMesh>();
-        n3->setName("a1231dggg3");
+        n3->setName("floor");
+        n3->setMaterial(cat_material);
+        n3->setMesh(floor_mesh);
 
         const auto visualize_normals = [](const Mesh *mesh, const glm::mat4 &transform) {
             return;
@@ -378,6 +387,7 @@ private:
         eng.shader_manager = new ShaderManager();
         eng.mesh_manager = new MeshManager();
         eng.material_manager = new MaterialManager();
+        eng.renderer = new Renderer();
         eng.world = new World();
 
         glfwInit();
@@ -443,6 +453,7 @@ private:
         // Engine
         delete_and_null(eng.visualizer);
         delete_and_null(eng.world);
+        delete_and_null(eng.renderer);
         delete_and_null(eng.material_manager);
         delete_and_null(eng.mesh_manager);
         delete_and_null(eng.shader_manager);

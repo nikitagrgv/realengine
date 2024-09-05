@@ -1,6 +1,7 @@
 #pragma once
 
 
+class Renderer;
 class Time;
 class Engine;
 class FileSystem;
@@ -22,6 +23,7 @@ struct EngineGlobals
     TextureManager *texture_manager{};
     MeshManager *mesh_manager{};
     World *world{};
+    Renderer *renderer{};
 };
 
 extern EngineGlobals eng;

@@ -36,6 +36,8 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/NodeMesh.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Random.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Random.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Renderer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Renderer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderManager.cpp
