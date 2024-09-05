@@ -70,7 +70,31 @@ void Visualizer::addBoundBox(const math::BoundBox &bb, const glm::vec4 &color, b
 {
     const auto min = bb.min;
     const auto max = bb.max;
-    addLine(min, max, color, depth_test);
+
+    glm::vec3 a0 = glm::vec3{min.x, min.y, min.z};
+    glm::vec3 a1 = glm::vec3{max.x, min.y, min.z};
+    glm::vec3 a2 = glm::vec3{max.x, max.y, min.z};
+    glm::vec3 a3 = glm::vec3{min.x, max.y, min.z};
+
+    glm::vec3 b0 = glm::vec3{min.x, min.y, max.z};
+    glm::vec3 b1 = glm::vec3{max.x, min.y, max.z};
+    glm::vec3 b2 = glm::vec3{max.x, max.y, max.z};
+    glm::vec3 b3 = glm::vec3{min.x, max.y, max.z};
+
+    addLine(a0, a1, color, depth_test);
+    addLine(a1, a2, color, depth_test);
+    addLine(a2, a3, color, depth_test);
+    addLine(a3, a0, color, depth_test);
+
+    addLine(b0, b1, color, depth_test);
+    addLine(b1, b2, color, depth_test);
+    addLine(b2, b3, color, depth_test);
+    addLine(b3, b0, color, depth_test);
+
+    addLine(a0, b0, color, depth_test);
+    addLine(a1, b1, color, depth_test);
+    addLine(a2, b2, color, depth_test);
+    addLine(a3, b3, color, depth_test);
 }
 
 void Visualizer::render(const glm::mat4 &viewproj)
