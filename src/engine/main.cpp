@@ -73,7 +73,6 @@ public:
         ///////////////////////////////////////////////////////////////////////////////
         Texture *cat_texture = eng.texture_manager->create();
         cat_texture->load("image.png");
-        glm::mat4 cat_transform = glm::mat4{1.0f};
         Mesh *cat_mesh = eng.mesh_manager->create("cat");
         MeshLoader::loadToMesh("object.obj", cat_mesh);
 
@@ -90,7 +89,6 @@ public:
         Texture *stickman_texture = eng.texture_manager->create();
         stickman_texture->load("image2.png");
 
-        glm::mat4 stickman_transform = glm::mat4{1.0f};
         Mesh *stickman_mesh = eng.mesh_manager->create("stickman");
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
 
@@ -117,23 +115,27 @@ public:
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
 
-        auto n1 = eng.world->createNode<NodeMesh>();
-        n1->setName("cat");
-        n1->setMaterial(cat_material);
-        n1->setMesh(cat_mesh);
+        auto node_cat = eng.world->createNode<NodeMesh>();
+        node_cat->setName("cat");
+        node_cat->setMaterial(cat_material);
+        node_cat->setMesh(cat_mesh);
 
-        auto n2 = eng.world->createNode<NodeMesh>();
-        n2->setName("stickman");
-        n2->setMaterial(cat_material);
-        n2->setMesh(stickman_mesh);
+        auto node_stickman = eng.world->createNode<NodeMesh>();
+        node_stickman->setName("stickman");
+        node_stickman->setMaterial(cat_material);
+        node_stickman->setMesh(stickman_mesh);
 
-        auto n3 = eng.world->createNode<NodeMesh>();
-        n3->setName("floor");
-        n3->setMaterial(cat_material);
-        n3->setMesh(floor_mesh);
+        auto node_floor = eng.world->createNode<NodeMesh>();
+        node_floor->setName("floor");
+        node_floor->setMaterial(cat_material);
+        node_floor->setMesh(floor_mesh);
 
-        const auto visualize_normals = [](const Mesh *mesh, const glm::mat4 &transform) {
+        const auto visualize_normals = [](NodeMesh *node) {
             return;
+
+            const glm::mat4 &transform = node->getTransform();
+            const Mesh *mesh = node->getMesh();
+
             const auto to_local = [&](const glm::vec3 &v) {
                 return transform * glm::vec4(v, 1);
             };
@@ -286,43 +288,20 @@ public:
 
             glCullFace(GL_BACK);
 
-            cat_transform = glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
-                                glm::vec3(1.0f, 0.0f, 0.0f))
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f});
-            shader->setUniformMat4("uModel", cat_transform);
-            cat_texture->bind();
-            cat_mesh->bind();
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-            use_material(cat_material);
-            glDrawElements(GL_TRIANGLES, cat_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
+            node_cat->setTransform(glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
+                                       glm::vec3(1.0f, 0.0f, 0.0f))
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
 
+            node_stickman->setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f}));
 
-            ////////////////////////////////////////////////
-            stickman_texture->bind();
-            stickman_mesh->bind();
-            stickman_mesh->flush();
-            stickman_transform = glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f});
-            shader->setUniformMat4("uModel", stickman_transform);
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, stickman_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
-
-            ////////////////////////////////////////////////
-            floor_texture->bind();
-            floor_mesh->bind();
-            floor_mesh->flush();
-            shader->setUniformMat4("uModel", glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
-            glEnable(GL_DEPTH_TEST);
-            glEnable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, floor_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
+            node_floor->setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
 
             ////////////////////////////////////////////////
             light_cube_shader->bind();
             light_cube_shader->setUniformVec3("uColor", light.color);
             light_cube_shader->setUniformMat4("uMVP",
-                camera_.getMVP(glm::translate(glm::mat4{1.0f}, light.pos )
+                camera_.getMVP(glm::translate(glm::mat4{1.0f}, light.pos)
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
             light_cube_mesh->bind();
             light_cube_mesh->flush();
@@ -333,9 +312,9 @@ public:
             eng.renderer->renderWorld(&camera_, &light);
 
             ///////////////////////////////////////////////
-            visualize_normals(cat_mesh, cat_transform);
-            visualize_normals(stickman_mesh, stickman_transform);
-            visualize_normals(floor_mesh, glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
+            visualize_normals(node_cat);
+            visualize_normals(node_stickman);
+            visualize_normals(node_floor);
             ////////////////////////////////////////////////
             eng.visualizer->render(camera_.getViewProj());
 
