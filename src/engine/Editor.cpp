@@ -560,23 +560,43 @@ void Editor::render_info()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
-
-    if (!ImGui::Begin("Info", &info_window_))
-    {
-        ImGui::End();
-        return;
-    }
-
     if (last_update_fps_time_ < eng.time->getTime() - 0.5f)
     {
         last_update_fps_time_ = eng.time->getTime();
         fps_ = eng.time->getFps();
     }
 
-    ImGui::LabelText("FPS", "%.2f", fps_);
+    ImGuiIO &io = ImGui::GetIO();
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration
+        | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings
+        | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    {
+        const float PAD = 10.0f;
+        const ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+        ImVec2 work_size = viewport->WorkSize;
+        ImVec2 window_pos, window_pos_pivot;
+        window_pos.x = work_pos.x + work_size.x - PAD;
+        window_pos.y = work_pos.y + PAD;
+        window_pos_pivot.x = 1.0f;
+        window_pos_pivot.y = 0.0f;
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        window_flags |= ImGuiWindowFlags_NoMove;
+    }
+    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+    if (ImGui::Begin("Info", &info_window_, window_flags))
+    {
+        ImGui::Text("FPS: %.1f", fps_);
 
+        if (ImGui::IsMousePosValid())
+        {
+            ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
+        }
+        else
+        {
+            ImGui::Text("Mouse Position: <invalid>");
+        }
+    }
     ImGui::End();
 }
 
