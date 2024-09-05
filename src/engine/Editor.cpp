@@ -97,6 +97,7 @@ void Editor::render_world()
         if (eng.world->hasNodeIndex(selected_node_))
         {
             Node *node = eng.world->getNodeByIndex(selected_node_);
+
             ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", node->getName().c_str());
             ImGui::SameLine();
             ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%s)", node->getTypeName());
@@ -106,6 +107,15 @@ void Editor::render_world()
             ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", node->getId());
 
             ImGui::Separator();
+
+            {
+                ImGui::SeparatorText("Transform");
+                glm::mat4 tr = node->getTransform();
+                if (render_editor(tr))
+                {
+                    node->setTransform(tr);
+                }
+            }
 
             // TODO# SOURCE CODE VIEW
         }

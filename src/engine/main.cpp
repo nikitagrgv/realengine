@@ -83,9 +83,6 @@ public:
         cat_material->setParameterFloat("uMaterial.shininess", 32.0f);
 
         cat_material->addParameterFloat("test float");
-        cat_material->addParameterVec2("test vec2");
-        cat_material->addParameterVec3("test vec3");
-        cat_material->addParameterVec4("test vec4");
         cat_material->addParameterMat4("test mat4");
         cat_material->addTexture("test 1");
         cat_material->addTexture("test 2");
