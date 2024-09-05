@@ -19,6 +19,9 @@ public:
 
     Node *createNode(Node::Type type);
 
+    template<typename T>
+    T *createNode();
+
     void removeNode(Node *node);
     void removeNodeByIndex(int index);
     void removeNodeById(int id);
@@ -31,3 +34,12 @@ private:
     std::vector<std::unique_ptr<Node>> nodes_;
     std::unordered_map<int, int> index_by_id_;
 };
+
+
+template<typename T>
+T *World::createNode()
+{
+    Node *node = createNode(T::getTypeStatic());
+    assert(dynamic_cast<T *>(node));
+    return static_cast<T *>(node);
+}

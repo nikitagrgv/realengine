@@ -24,8 +24,11 @@
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
 #include "Visualizer.h"
+#include "World.h"
 #include "fs/FileSystem.h"
 #include "time/Time.h"
+
+#include <NodeMesh.h>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -122,6 +125,13 @@ public:
 
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(window_);
+
+        auto n1 = eng.world->createNode<NodeMesh>();
+        n1->setName("node 1");
+        auto n2 = eng.world->createNode<NodeMesh>();
+        n2->setName("babab1");
+        auto n3 = eng.world->createNode<NodeMesh>();
+        n3->setName("a12313");
 
         const auto visualize_normals = [](const Mesh *mesh, const glm::mat4 &transform) {
             return;
