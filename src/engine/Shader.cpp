@@ -111,7 +111,7 @@ void Shader::setUniformInt(int location, int value)
 
 void Shader::setUniformFloat(const char *name, float value)
 {
-    const int location = get_uniform_location_with_warning(name);
+    const int location = getUniformLocation(name);
     if (location != -1)
     {
         setUniformFloat(location, value);
@@ -120,7 +120,7 @@ void Shader::setUniformFloat(const char *name, float value)
 
 void Shader::setUniformVec2(const char *name, const glm::vec2 &value)
 {
-    const int location = get_uniform_location_with_warning(name);
+    const int location = getUniformLocation(name);
     if (location != -1)
     {
         setUniformVec2(location, value);
@@ -129,7 +129,7 @@ void Shader::setUniformVec2(const char *name, const glm::vec2 &value)
 
 void Shader::setUniformVec3(const char *name, const glm::vec3 &value)
 {
-    const int location = get_uniform_location_with_warning(name);
+    const int location = getUniformLocation(name);
     if (location != -1)
     {
         setUniformVec3(location, value);
@@ -138,7 +138,7 @@ void Shader::setUniformVec3(const char *name, const glm::vec3 &value)
 
 void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
 {
-    const int location = get_uniform_location_with_warning(name);
+    const int location = getUniformLocation(name);
     if (location != -1)
     {
         setUniformVec4(location, value);
@@ -147,7 +147,7 @@ void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
 
 void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
 {
-    const int location = get_uniform_location_with_warning(name);
+    const int location = getUniformLocation(name);
     if (location != -1)
     {
         setUniformMat4(location, value);
@@ -156,7 +156,7 @@ void Shader::setUniformMat4(const char *name, const glm::mat4 &value)
 
 void Shader::setUniformInt(const char *name, int value)
 {
-    const int location = get_uniform_location_with_warning(name);
+    const int location = getUniformLocation(name);
     if (location != -1)
     {
         setUniformInt(location, value);

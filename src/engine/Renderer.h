@@ -1,13 +1,15 @@
 #pragma once
 
 
+class Camera;
 class Material;
-class Mesh;
+class Light;
 
 class Renderer
 {
 public:
-    void renderMesh(Mesh *mesh, Material *material);
+    void renderWorld(Camera *camera, Light *light);
 
 private:
+    void use_material(Material *material);
 };

@@ -165,8 +165,6 @@ public:
         light.diffuse_power = 1.0f;
         light.specular_power = 1.0f;
 
-        float shininess = 32.0f;
-
         bool use_ambient = true;
         bool use_diffuse = true;
         bool use_specular = true;
@@ -240,7 +238,6 @@ public:
                 ImGui::SliderFloat("Ambient power", &light.ambient_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Diffuse power", &light.diffuse_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Specular power", &light.specular_power, 0.0f, 1.0f);
-                ImGui::SliderFloat("Shininess", &shininess, 0.0f, 64.0f);
                 ImGui::Checkbox("Use ambient", &use_ambient);
                 ImGui::Checkbox("Use diffuse", &use_diffuse);
                 ImGui::Checkbox("Use specular", &use_specular);
@@ -303,7 +300,6 @@ public:
             {
                 shader->setUniformVec3("uCameraPos", camera_.getPosition());
                 shader->setUniformFloat("uLight.specularPower", light.specular_power);
-                shader->setUniformFloat("uMaterial.shininess", shininess);
             }
 
             glCullFace(GL_BACK);
@@ -351,6 +347,8 @@ public:
             glEnable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
             glDrawElements(GL_TRIANGLES, light_cube_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
+
+            eng.renderer->renderWorld(&camera_, &light);
 
             ///////////////////////////////////////////////
             visualize_normals(cat_mesh, cat_transform);

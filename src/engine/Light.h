@@ -1,11 +1,6 @@
 #pragma once
-#include "glm/vec3.hpp"
 
-// "uLight.color", light_color);
-// "uLight.pos", light_pos);
-// "uLight.ambientPower", ambient_power);
-// "uLight.diffusePower", diffuse_power);
-// "uLight.specularPower", specular_power);
+#include "glm/vec3.hpp"
 
 class Light
 {
