@@ -147,11 +147,11 @@ public:
         };
 
         float anim_time = 0.0f;
-        glm::vec3 light_pos{1, 1, 1};
 
         float anim_time_multiplier = 1.0f;
 
         Light light;
+        light.pos = glm::vec3{1, 1, 1};
         light.color = glm::vec3{0.2, 0.65, 0.65};
         light.ambient_power = 0.1f;
         light.diffuse_power = 1.0f;
@@ -262,13 +262,13 @@ public:
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             anim_time += eng.time->getDelta() * anim_time_multiplier;
-            light_pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
-            light_pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
-            light_pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
+            light.pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
+            light.pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
+            light.pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
             shader->bind();
             shader->setUniformVec3("uLight.color", light.color);
-            shader->setUniformVec3("uLight.pos", light_pos);
+            shader->setUniformVec3("uLight.pos", light.pos);
             shader->setUniformMat4("uViewProj", camera_.getViewProj());
             if (use_ambient)
             {
@@ -322,7 +322,7 @@ public:
             light_cube_shader->bind();
             light_cube_shader->setUniformVec3("uColor", light.color);
             light_cube_shader->setUniformMat4("uMVP",
-                camera_.getMVP(glm::translate(glm::mat4{1.0f}, light_pos)
+                camera_.getMVP(glm::translate(glm::mat4{1.0f}, light.pos )
                     * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
             light_cube_mesh->bind();
             light_cube_mesh->flush();
