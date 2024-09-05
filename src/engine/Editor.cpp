@@ -99,7 +99,11 @@ void Editor::render_world()
             Node *node = eng.world->getNodeByIndex(selected_node_);
             ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", node->getName().c_str());
             ImGui::SameLine();
-            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%d)", node->getId());
+            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%s)", node->getTypeName());
+
+            ImGui::Text("ID=");
+            ImGui::SameLine();
+            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", node->getId());
 
             ImGui::Separator();
 

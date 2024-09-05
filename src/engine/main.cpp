@@ -127,11 +127,11 @@ public:
         update_proj(window_);
 
         auto n1 = eng.world->createNode<NodeMesh>();
-        n1->setName("node 1");
+        n1->setName("node s1");
         auto n2 = eng.world->createNode<NodeMesh>();
-        n2->setName("babab1");
+        n2->setName("bababf11");
         auto n3 = eng.world->createNode<NodeMesh>();
-        n3->setName("a12313");
+        n3->setName("a1231dggg3");
 
         const auto visualize_normals = [](const Mesh *mesh, const glm::mat4 &transform) {
             return;

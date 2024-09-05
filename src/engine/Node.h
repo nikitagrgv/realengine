@@ -14,12 +14,15 @@ public:
     };
 
 public:
+    static const char *getTypeName(Type type);
+
     REMOVE_COPY_MOVE_CLASS(Node);
 
     explicit Node(int id, Type type);
     virtual ~Node();
 
     Type getType() const { return type_; }
+    const char *getTypeName() const { return getTypeName(type_); }
 
     int getId() const { return id_; }
 
