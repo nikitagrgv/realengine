@@ -85,7 +85,9 @@ public:
         cat_material->addDefine("USE_SPECULAR", true);
 
         Material *light_cube_material = eng.material_manager->create("light cube");
-
+        light_cube_material->setShader(light_cube_shader);
+        light_cube_material->addParameterVec3("uColor");
+        light_cube_material->setTwoSided(true);
 
         ////////////////////////////////////////////////
         Texture *stickman_texture = eng.texture_manager->create();
@@ -131,6 +133,11 @@ public:
         node_floor->setName("floor");
         node_floor->setMaterial(cat_material);
         node_floor->setMesh(floor_mesh);
+
+        auto node_light = eng.world->createNode<NodeMesh>();
+        node_light->setName("light");
+        node_light->setMaterial(light_cube_material);
+        node_light->setMesh(light_cube_mesh);
 
         const auto visualize_normals = [](NodeMesh *node) {
             return;
@@ -299,17 +306,9 @@ public:
 
             node_floor->setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
 
-            ////////////////////////////////////////////////
-            light_cube_shader->bind();
-            light_cube_shader->setUniformVec3("uColor", light.color);
-            light_cube_shader->setUniformMat4("uMVP",
-                camera_.getMVP(glm::translate(glm::mat4{1.0f}, light.pos)
-                    * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f})));
-            light_cube_mesh->bind();
-            light_cube_mesh->flush();
-            glEnable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-            glDrawElements(GL_TRIANGLES, light_cube_mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
+            node_light->setTransform(glm::translate(glm::mat4{1.0f}, light.pos)
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f}));
+            light_cube_material->setParameterVec3("uColor", light.color);
 
             eng.renderer->renderWorld(&camera_, &light);
 
