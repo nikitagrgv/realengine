@@ -16,6 +16,7 @@
 #include "Mesh.h"
 #include "MeshLoader.h"
 #include "MeshManager.h"
+#include "Random.h"
 #include "Shader.h"
 #include "ShaderManager.h"
 #include "Texture.h"
@@ -362,6 +363,7 @@ public:
 private:
     void init()
     {
+        Random::init();
         eng.engine_ = this;
         eng.time = new Time();
         eng.fs = new FileSystem();

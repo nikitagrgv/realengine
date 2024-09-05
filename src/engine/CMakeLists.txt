@@ -32,6 +32,10 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/MeshManager.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Node.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Node.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/NodeMesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/NodeMesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Random.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Random.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderManager.cpp
