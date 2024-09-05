@@ -167,11 +167,6 @@ public:
                 ImGui::SliderFloat("Ambient power", &light.ambient_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Diffuse power", &light.diffuse_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Specular power", &light.specular_power, 0.0f, 1.0f);
-                if (ImGui::Button("Button"))
-                {}
-                ImGui::SameLine();
-                ImGui::Text("counter");
-
                 ImGui::End();
             }
 
