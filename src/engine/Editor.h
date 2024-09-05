@@ -25,6 +25,7 @@ private:
     void render_textures();
     void render_shaders();
     void render_meshes();
+    void render_info();
 
     void render_texture_info(Texture *texture);
     void render_texture(Texture *texture, float width, float height);
@@ -61,4 +62,9 @@ private:
     // Meshes
     int selected_mesh{0};
     bool meshes_window_{true};
+
+    // Info
+    double fps_{0.0f};
+    float last_update_fps_time_{0.0f};
+    bool info_window_{true};
 };

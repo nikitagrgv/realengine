@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Shader.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
@@ -7,6 +8,11 @@
 #include "glm/fwd.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
+
+
+class Mesh;
+class NodeMesh;
+
 
 class Visualizer
 {
@@ -19,6 +25,9 @@ public:
         const glm::vec4 &color1, bool depth_test = true);
 
     void addBoundBox(const math::BoundBox &bb, const glm::vec4 &color, bool depth_test = true);
+
+    void addNormals(NodeMesh *node);
+    void addNormals(const Mesh *mesh, const glm::mat4 &transform);
 
     void render(const glm::mat4 &viewproj);
 

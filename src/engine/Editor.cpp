@@ -8,6 +8,7 @@
 #include "TextureManager.h"
 #include "Visualizer.h"
 #include "World.h"
+#include "time/Time.h"
 
 #include "glm/gtc/type_ptr.hpp"
 
@@ -37,6 +38,7 @@ void Editor::render()
     render_textures();
     render_shaders();
     render_meshes();
+    render_info();
 
     visualize_selected_node();
 }
@@ -50,6 +52,8 @@ void Editor::render_main()
     constexpr int OFFSET = 110;
 
     ImGui::Checkbox("Hide All", &hide_all_);
+    ImGui::SameLine(OFFSET);
+    ImGui::Checkbox("Info", &info_window_);
 
     ImGui::Checkbox("Materials", &materials_window_);
     ImGui::SameLine(OFFSET);
@@ -545,6 +549,33 @@ void Editor::render_meshes()
         ImGui::EndChild();
         ImGui::EndGroup();
     }
+
+    ImGui::End();
+}
+
+void Editor::render_info()
+{
+    if (!info_window_)
+    {
+        return;
+    }
+
+    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+
+    if (!ImGui::Begin("Info", &info_window_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    if (last_update_fps_time_ < eng.time->getTime() - 0.5f)
+    {
+        last_update_fps_time_ = eng.time->getTime();
+        fps_ = eng.time->getFps();
+    }
+
+    ImGui::LabelText("FPS", "%.2f", fps_);
 
     ImGui::End();
 }

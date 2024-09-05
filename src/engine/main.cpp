@@ -139,24 +139,6 @@ public:
         node_light->setMaterial(light_cube_material);
         node_light->setMesh(light_cube_mesh);
 
-        const auto visualize_normals = [](NodeMesh *node) {
-            return;
-
-            const glm::mat4 &transform = node->getTransform();
-            const Mesh *mesh = node->getMesh();
-
-            const auto to_local = [&](const glm::vec3 &v) {
-                return transform * glm::vec4(v, 1);
-            };
-            for (int i = 0; i < mesh->getNumVertices(); i++)
-            {
-                const auto pos = mesh->getVertexPos(i);
-                const auto norm = mesh->getVertexNormal(i);
-                eng.visualizer->addLine(to_local(pos), to_local(pos + norm),
-                    {0.0f, 0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f, 0.2f});
-            }
-        };
-
         float anim_time = 0.0f;
 
         float anim_time_multiplier = 1.0f;
@@ -312,10 +294,8 @@ public:
 
             eng.renderer->renderWorld(&camera_, &light);
 
-            ///////////////////////////////////////////////
-            visualize_normals(node_cat);
-            visualize_normals(node_stickman);
-            visualize_normals(node_floor);
+
+
             ////////////////////////////////////////////////
             eng.visualizer->render(camera_.getViewProj());
 
@@ -329,13 +309,6 @@ public:
             if (glfwWindowShouldClose(window_))
             {
                 exit_ = true;
-            }
-
-            if (last_update_fps_time_ < eng.time->getTime() - 1.0f)
-            {
-                last_update_fps_time_ = eng.time->getTime();
-                glfwSetWindowTitle(window_,
-                    std::string("FPS: " + std::to_string(eng.time->getFps())).c_str());
             }
         }
     }
@@ -535,8 +508,6 @@ private:
     double mouse_pos_y_{0};
     double mouse_delta_x_{0};
     double mouse_delta_y_{0};
-
-    float last_update_fps_time_{0.0f};
 };
 
 int main()

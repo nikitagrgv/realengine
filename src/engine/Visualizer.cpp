@@ -1,6 +1,10 @@
 #include "Visualizer.h"
 
 // clang-format off
+#include "Mesh.h"
+
+
+#include <NodeMesh.h>
 #include <glad/glad.h>
 // clang-format on
 
@@ -95,6 +99,31 @@ void Visualizer::addBoundBox(const math::BoundBox &bb, const glm::vec4 &color, b
     addLine(a1, b1, color, depth_test);
     addLine(a2, b2, color, depth_test);
     addLine(a3, b3, color, depth_test);
+}
+
+void Visualizer::addNormals(NodeMesh *node)
+{
+    if (!node->getMesh())
+    {
+        return;
+    }
+    const glm::mat4 &transform = node->getTransform();
+    const Mesh *mesh = node->getMesh();
+    addNormals(mesh, transform);
+}
+
+void Visualizer::addNormals(const Mesh *mesh, const glm::mat4 &transform)
+{
+    const auto to_local = [&](const glm::vec3 &v) {
+        return transform * glm::vec4(v, 1);
+    };
+    for (int i = 0; i < mesh->getNumVertices(); i++)
+    {
+        const auto pos = mesh->getVertexPos(i);
+        const auto norm = mesh->getVertexNormal(i);
+        addLine(to_local(pos), to_local(pos + norm), {0.0f, 0.0f, 0.0f, 0.0f},
+            {1.0f, 0.0f, 0.0f, 0.2f});
+    }
 }
 
 void Visualizer::render(const glm::mat4 &viewproj)
