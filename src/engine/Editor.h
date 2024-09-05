@@ -19,6 +19,7 @@ public:
 private:
     void render_main();
 
+    void render_world();
     void render_materials();
     void render_textures();
     void render_shaders();
@@ -34,6 +35,10 @@ private:
     static bool render_editor(glm::mat4 &v);
 
 private:
+    // World
+    int selected_node_{0};
+    bool nodes_window_{true};
+
     // Shaders
     int selected_shader_{0};
     bool shaders_window_{true};

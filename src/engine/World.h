@@ -28,6 +28,7 @@ public:
 
     int getNumNodes() const;
 
+    bool hasNodeIndex(int index) const;
     bool hasNodeId(int id) const;
 
 private:

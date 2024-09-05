@@ -5,6 +5,7 @@
 #include "MeshManager.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
+#include "World.h"
 
 #include "glm/gtc/type_ptr.hpp"
 
@@ -25,6 +26,7 @@ Editor::Editor() {}
 void Editor::render()
 {
     render_main();
+    render_world();
     render_materials();
     render_textures();
     render_shaders();
@@ -46,6 +48,65 @@ void Editor::render_main()
     ImGui::Checkbox("Textures", &texture_window_);
     ImGui::SameLine(OFFSET);
     ImGui::Checkbox("Meshes", &meshes_window_);
+
+    ImGui::Checkbox("World", &nodes_window_);
+
+    ImGui::End();
+}
+
+void Editor::render_world()
+{
+    if (!nodes_window_)
+    {
+        return;
+    }
+
+    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+
+    if (!ImGui::Begin("Nodes", &nodes_window_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    // Left
+    {
+        ImGui::BeginChild("left pane", ImVec2(150, 0),
+            ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
+        const int num_nodes = eng.world->getNumNodes();
+        for (int i = 0; i < num_nodes; i++)
+        {
+            Node *node = eng.world->getNodeByIndex(i);
+            const char *name = node->getName().c_str();
+            char label[64];
+            sprintf(label, "%d. %.50s", i, name);
+            if (ImGui::Selectable(label, selected_node_ == i, 0, ImVec2(0, LISTS_HEIGHT)))
+            {
+                selected_node_ = i;
+            }
+        }
+        ImGui::EndChild();
+    }
+    ImGui::SameLine();
+
+    // Right
+    {
+        ImGui::BeginGroup();
+        ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
+        if (eng.world->hasNodeIndex(selected_node_))
+        {
+            Node *node = eng.world->getNodeByIndex(selected_node_);
+            ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", node->getName().c_str());
+
+            ImGui::Separator();
+
+            // TODO# SOURCE CODE VIEW
+        }
+        ImGui::EndChild();
+        ImGui::EndGroup();
+    }
+
     ImGui::End();
 }
 

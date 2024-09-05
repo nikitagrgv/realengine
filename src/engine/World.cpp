@@ -106,6 +106,11 @@ int World::getNumNodes() const
     return nodes_.size();
 }
 
+bool World::hasNodeIndex(int index) const
+{
+    return index >= 0 && index < nodes_.size();
+}
+
 bool World::hasNodeId(int id) const
 {
     return index_by_id_.find(id) != index_by_id_.end();
