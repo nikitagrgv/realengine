@@ -150,53 +150,6 @@ public:
         light.diffuse_power = 1.0f;
         light.specular_power = 1.0f;
 
-        bool use_ambient = true;
-        bool use_diffuse = true;
-        bool use_specular = true;
-
-        const auto use_material = [](Material *material) {
-            Shader *shader = material->getShader();
-            shader->bind();
-            for (int i = 0, count = material->getNumTextures(); i < count; i++)
-            {
-                const int loc = shader->getUniformLocation(material->getTextureName(i).c_str());
-                if (loc == -1)
-                {
-                    continue;
-                }
-                material->getTexture(i)->bind(i);
-                shader->setUniformInt(loc, i);
-            }
-            for (int i = 0, count = material->getNumParameters(); i < count; i++)
-            {
-                const int loc = shader->getUniformLocation(material->getParameterName(i).c_str());
-                if (loc == -1)
-                {
-                    continue;
-                }
-                const auto type = material->getParameterType(i);
-                switch (type)
-                {
-                case Material::ParameterType::Float:
-                    shader->setUniformFloat(loc, material->getParameterFloat(i));
-                    break;
-                case Material::ParameterType::Vec2:
-                    shader->setUniformVec2(loc, material->getParameterVec2(i));
-                    break;
-                case Material::ParameterType::Vec3:
-                    shader->setUniformVec3(loc, material->getParameterVec3(i));
-                    break;
-                case Material::ParameterType::Vec4:
-                    shader->setUniformVec4(loc, material->getParameterVec4(i));
-                    break;
-                case Material::ParameterType::Mat4:
-                    shader->setUniformMat4(loc, material->getParameterMat4(i));
-                    break;
-                default: break;
-                }
-            }
-        };
-
         while (!exit_)
         {
             glfwPollEvents();
@@ -214,9 +167,6 @@ public:
                 ImGui::SliderFloat("Ambient power", &light.ambient_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Diffuse power", &light.diffuse_power, 0.0f, 1.0f);
                 ImGui::SliderFloat("Specular power", &light.specular_power, 0.0f, 1.0f);
-                ImGui::Checkbox("Use ambient", &use_ambient);
-                ImGui::Checkbox("Use diffuse", &use_diffuse);
-                ImGui::Checkbox("Use specular", &use_specular);
                 if (ImGui::Button("Button"))
                 {}
                 ImGui::SameLine();
@@ -258,26 +208,6 @@ public:
             light.pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
             light.pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
             light.pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
-
-            shader->bind();
-            shader->setUniformVec3("uLight.color", light.color);
-            shader->setUniformVec3("uLight.pos", light.pos);
-            shader->setUniformMat4("uViewProj", camera_.getViewProj());
-            if (use_ambient)
-            {
-                shader->setUniformFloat("uLight.ambientPower", light.ambient_power);
-            }
-            if (use_diffuse)
-            {
-                shader->setUniformFloat("uLight.diffusePower", light.diffuse_power);
-            }
-            if (use_specular)
-            {
-                shader->setUniformVec3("uCameraPos", camera_.getPosition());
-                shader->setUniformFloat("uLight.specularPower", light.specular_power);
-            }
-
-            glCullFace(GL_BACK);
 
             node_cat->setTransform(glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
                                        glm::vec3(1.0f, 0.0f, 0.0f))
