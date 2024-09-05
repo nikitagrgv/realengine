@@ -68,8 +68,7 @@ void Visualizer::addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::ve
 
 void Visualizer::addBoundBox(const math::BoundBox &bb, const glm::vec4 &color, bool depth_test)
 {
-    // addLine(bb.min, bb.min, color); // TODO#
-    addLine({}, {1.0f, 1, 1}, glm::vec4{1, 1, 1, 1}, depth_test);
+    addLine(bb.min, bb.max, color, depth_test);
 }
 
 void Visualizer::render(const glm::mat4 &viewproj)
