@@ -381,6 +381,7 @@ private:
         eng.shader_manager = new ShaderManager();
         eng.mesh_manager = new MeshManager();
         eng.material_manager = new MaterialManager();
+        eng.world = new World();
 
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -444,6 +445,7 @@ private:
 
         // Engine
         delete_and_null(eng.visualizer);
+        delete_and_null(eng.world);
         delete_and_null(eng.material_manager);
         delete_and_null(eng.mesh_manager);
         delete_and_null(eng.shader_manager);

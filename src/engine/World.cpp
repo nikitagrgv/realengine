@@ -48,6 +48,7 @@ Node *World::createNode(Node::Type type)
     case Node::Type::Mesh:
     {
         node = new NodeMesh(id);
+        break;
     }
     default: assert(0); break;
     }
