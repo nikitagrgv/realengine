@@ -109,12 +109,16 @@ void Editor::render_world()
             ImGui::Separator();
 
             {
+                ImGui::PushItemWidth(-FLT_MIN);
+
                 ImGui::SeparatorText("Transform");
                 glm::mat4 tr = node->getTransform();
                 if (render_editor(tr))
                 {
                     node->setTransform(tr);
                 }
+
+                ImGui::PopItemWidth();
             }
 
             // TODO# SOURCE CODE VIEW
