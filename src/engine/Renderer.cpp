@@ -91,7 +91,18 @@ void Renderer::resetStatistics()
 void Renderer::use_material(Material *material)
 {
     Shader *shader = material->getShader();
-    shader->bind();
+
+    // MUST BE FIRST BECAUSE IT MAY BE RECOMPILED AFTER THIS
+    shader->clearDefines();
+    for (int i = 0, count = material->getNumDefines(); i < count; ++i)
+    {
+        if (material->getDefine(i))
+        {
+            shader->addDefine(material->getDefineName(i).c_str());
+        }
+    }
+
+    shader->bind(); // recompile
 
     for (int i = 0, count = material->getNumTextures(); i < count; i++)
     {
@@ -132,15 +143,4 @@ void Renderer::use_material(Material *material)
         default: break;
         }
     }
-
-    shader->clearDefines();
-    for (int i = 0, count = material->getNumDefines(); i < count; ++i)
-    {
-        if (material->getDefine(i))
-        {
-            shader->addDefine(material->getDefineName(i).c_str());
-        }
-    }
-
-    shader->bind(); // recompile
 }
