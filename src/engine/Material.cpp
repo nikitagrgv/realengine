@@ -112,8 +112,10 @@ Material &Material::operator=(Material &&other) noexcept
         shader_ = other.shader_;
         parameters_ = std::move(other.parameters_);
         textures_ = std::move(other.textures_);
+        defines_ = std::move(other.defines_);
 
         other.shader_ = nullptr;
+        other.two_sided_ = false;
     }
     return *this;
 }
@@ -124,6 +126,8 @@ Material Material::clone() const
     material.shader_ = shader_;
     material.parameters_ = parameters_;
     material.textures_ = textures_;
+    material.defines_ = defines_;
+    material.two_sided_ = two_sided_;
     return material;
 }
 

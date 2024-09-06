@@ -7,4 +7,6 @@ class MaterialManager : public AbstractManager<Material>
 {
 public:
     MaterialManager();
+
+    Material *clone(Material *m, const char *name = nullptr);
 };

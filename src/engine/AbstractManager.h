@@ -39,6 +39,11 @@ public:
     void remove(T *obj);
 
 protected:
+    std::string generate_or_check_name(const char *name);
+
+    T *add(T obj, std::string name);
+
+protected:
     std::string empty_name_base_;
 
     struct Object
@@ -69,46 +74,8 @@ inline T *AbstractManager<T>::create(const char *name)
 template<typename T>
 inline T *AbstractManager<T>::add(T obj, const char *name)
 {
-    std::string name_string = name ? name : "";
-
-    // TODO: shitty
-    if (name_string.empty())
-    {
-        int i = 0;
-        while (true)
-        {
-            name_string = empty_name_base_;
-            name_string += std::to_string(i);
-            if (by_name_.find(name_string) == by_name_.end())
-            {
-                break;
-            }
-            i++;
-        }
-    }
-    else
-    {
-        auto it = by_name_.find(name_string);
-        assert(it == by_name_.end());
-        if (it != by_name_.end())
-        {
-            return nullptr;
-        }
-    }
-
-    auto unique_ptr = std::make_unique<T>(std::move(obj));
-    auto ptr = unique_ptr.get();
-
-    const int index = int(objects_.size());
-
-    Object o;
-    o.name = name_string;
-    o.obj = std::move(unique_ptr);
-    objects_.push_back(std::move(o));
-
-    by_name_[name_string] = index;
-    by_ptr[ptr] = index;
-    return ptr;
+    std::string name_string = generate_or_check_name(name);
+    return add(std::move(obj), std::move(name_string));
 }
 
 template<class T>
@@ -204,6 +171,53 @@ inline void AbstractManager<T>::remove(T *obj)
         return;
     }
     remove(index);
+}
+
+template<class T>
+std::string AbstractManager<T>::generate_or_check_name(const char *name)
+{
+    // TODO: shitty
+    std::string name_string = name ? name : "";
+
+    auto it = by_name_.find(name_string);
+    assert(it == by_name_.end());
+
+    if (name_string.empty() || it != by_name_.end())
+    {
+        int i = 0;
+        while (true)
+        {
+            name_string = empty_name_base_;
+            name_string += std::to_string(i);
+            if (by_name_.find(name_string) == by_name_.end())
+            {
+                break;
+            }
+            i++;
+        }
+    }
+
+    return name_string;
+}
+
+template<class T>
+T *AbstractManager<T>::add(T obj, std::string name)
+{
+    assert(by_name_.find(name) == by_name_.end());
+
+    auto unique_ptr = std::make_unique<T>(std::move(obj));
+    auto ptr = unique_ptr.get();
+
+    const int index = int(objects_.size());
+
+    Object o;
+    o.name = name;
+    o.obj = std::move(unique_ptr);
+    objects_.push_back(std::move(o));
+
+    by_name_[std::move(name)] = index;
+    by_ptr[ptr] = index;
+    return ptr;
 }
 
 template<typename T>
