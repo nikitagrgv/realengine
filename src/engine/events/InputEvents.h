@@ -1,6 +1,7 @@
 #pragma once
 
 #include "events/Event.h"
+#include "input/InputCommon.h"
 
 // TODO: setters+getters instead of public fields
 

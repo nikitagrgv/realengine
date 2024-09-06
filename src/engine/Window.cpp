@@ -4,6 +4,12 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "EngineGlobals.h"
+#include "events/Event.h"
+#include "events/InputEvents.h"
+#include "input/Input.h"
+#include "input/InputUtils.h"
+
 #include <cassert>
 #include <iostream>
 
@@ -111,13 +117,53 @@ void Window::framebuffer_size_callback(int width, int height)
     signal_resized_(width, height);
 }
 
-void Window::key_callback(int key, int scancode, int action, int mods) {}
+void Window::key_callback(int key, int scancode, int action, int mods)
+{
+    Key k = utils::keyFromGlfw(key);
+    if (k == Key::KEY_UNKNOWN)
+    {
+        return;
+    }
 
-void Window::button_callback(int button, int action, int mods) {}
+    if (action == GLFW_PRESS)
+    {
+        EventPtr event = std::make_unique<KeyPressEvent>(k);
+        eng.input->addEvent(std::move(event));
+    }
+    if (action == GLFW_RELEASE)
+    {
+        EventPtr event = std::make_unique<KeyReleaseEvent>(k);
+        eng.input->addEvent(std::move(event));
+    }
+}
 
-void Window::cursor_move_callback(double xpos, double ypos) {}
+void Window::button_callback(int button, int action, int mods)
+{
+    Button b = utils::buttonFromGlfw(button);
+    glm::ivec2 p = eng.input->getMousePos();
 
-void Window::scroll_callback(double xoffset, double yoffset) {}
+    if (action == GLFW_PRESS)
+    {
+        EventPtr event = std::make_unique<ButtonPressEvent>(b, p.x, p.y);
+        eng.input->addEvent(std::move(event));
+    }
+    if (action == GLFW_RELEASE)
+    {
+        EventPtr event = std::make_unique<ButtonReleaseEvent>(b, p.x, p.y);
+        eng.input->addEvent(std::move(event));
+    }
+}
+
+void Window::cursor_move_callback(double xpos, double ypos)
+{
+    // nothing now
+}
+
+void Window::scroll_callback(double xoffset, double yoffset)
+{
+    EventPtr event = std::make_unique<MouseWheelEvent>(xoffset, yoffset);
+    eng.input->addEvent(std::move(event));
+}
 
 void Window::close_callback()
 {
