@@ -76,7 +76,7 @@ void Shader::loadFile(const char *path)
 void Shader::setUniformFloat(int location, float value)
 {
     assert(location != -1);
-    if (use_program())
+    if (check_used_program())
     {
         glUniform1f(location, value);
     }
@@ -85,7 +85,7 @@ void Shader::setUniformFloat(int location, float value)
 void Shader::setUniformVec2(int location, const glm::vec2 &value)
 {
     assert(location != -1);
-    if (use_program())
+    if (check_used_program())
     {
         glUniform2f(location, value.x, value.y);
     }
@@ -94,7 +94,7 @@ void Shader::setUniformVec2(int location, const glm::vec2 &value)
 void Shader::setUniformVec3(int location, const glm::vec3 &value)
 {
     assert(location != -1);
-    if (use_program())
+    if (check_used_program())
     {
         glUniform3f(location, value.x, value.y, value.z);
     }
@@ -103,7 +103,7 @@ void Shader::setUniformVec3(int location, const glm::vec3 &value)
 void Shader::setUniformVec4(int location, const glm::vec4 &value)
 {
     assert(location != -1);
-    if (use_program())
+    if (check_used_program())
     {
         glUniform4f(location, value.x, value.y, value.z, value.w);
     }
@@ -112,7 +112,7 @@ void Shader::setUniformVec4(int location, const glm::vec4 &value)
 void Shader::setUniformMat4(int location, const glm::mat4 &value)
 {
     assert(location != -1);
-    if (use_program())
+    if (check_used_program())
     {
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
@@ -121,7 +121,7 @@ void Shader::setUniformMat4(int location, const glm::mat4 &value)
 void Shader::setUniformInt(int location, int value)
 {
     assert(location != -1);
-    if (use_program())
+    if (check_used_program())
     {
         glUniform1i(location, value);
     }
@@ -436,12 +436,15 @@ int Shader::get_uniform_location_with_warning(const char *name)
     return location;
 }
 
-bool Shader::use_program()
+bool Shader::check_used_program()
 {
-    if (program_id_ != 0)
-    {
-        glUseProgram(program_id_);
-        return true;
-    }
-    return false;
+    assert(get_current_program() == program_id_);
+    return true;
+}
+
+unsigned int Shader::get_current_program()
+{
+    int id;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &id);
+    return (unsigned int)id;
 }

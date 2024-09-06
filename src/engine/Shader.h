@@ -60,14 +60,15 @@ public:
 private:
     static unsigned int compile_shader(const char *vertex_src, const char *fragment_src);
     static void read_from_file(const char *path, std::string &vertex, std::string &fragment);
-    static void prepare_shader(std::string &shader,
-        const std::unordered_set<std::string> &defines);
+    static void prepare_shader(std::string &shader, const std::unordered_set<std::string> &defines);
     static bool check_compiler_errors(unsigned int shader, const char *type);
     static bool check_linking_errors(unsigned int program);
 
     int get_uniform_location_with_warning(const char *name);
 
-    bool use_program();
+    bool check_used_program();
+
+    static unsigned int get_current_program();
 
 private:
     std::string filepath_;
