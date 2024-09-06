@@ -23,7 +23,7 @@ Window::Window(int width, int height, const char *title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    // glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); // TODO add flag
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); // TODO add flag
 
     window_ = glfwCreateWindow(width, height, title, NULL, NULL);
     if (window_ == NULL)
@@ -144,12 +144,12 @@ void Window::button_callback(int button, int action, int mods)
 
     if (action == GLFW_PRESS)
     {
-        EventPtr event = std::make_unique<ButtonPressEvent>(b, p.x, p.y);
+        EventPtr event = std::make_unique<ButtonPressEvent>(b, (float)p.x, (float)p.y);
         eng.input->addEvent(std::move(event));
     }
     if (action == GLFW_RELEASE)
     {
-        EventPtr event = std::make_unique<ButtonReleaseEvent>(b, p.x, p.y);
+        EventPtr event = std::make_unique<ButtonReleaseEvent>(b, (float)p.x, (float)p.y);
         eng.input->addEvent(std::move(event));
     }
 }
@@ -161,7 +161,7 @@ void Window::cursor_move_callback(double xpos, double ypos)
 
 void Window::scroll_callback(double xoffset, double yoffset)
 {
-    EventPtr event = std::make_unique<MouseWheelEvent>(xoffset, yoffset);
+    EventPtr event = std::make_unique<MouseWheelEvent>((int)xoffset, (int)yoffset);
     eng.input->addEvent(std::move(event));
 }
 
