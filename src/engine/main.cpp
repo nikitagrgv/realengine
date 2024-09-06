@@ -147,13 +147,19 @@ public:
         node_light->setMaterial(light_cube_material);
         node_light->setMesh(light_cube_mesh);
 
-        for (int i = 0; i < 10; ++i)
+
+        glm::mat4 transform = glm::scale(glm::mat4{1.0f}, {0.4, 0.4, 0.4});
+        for (int i = -5; i < 5; ++i)
         {
             std::string name = "cube_" + std::to_string(i);
 
             auto cube = eng.world->createNode<NodeMesh>();
             cube->setName(name);
             cube->setMesh(cat_mesh);
+            cube->setTransform(glm::translate(transform,
+                {
+                    glm::vec3{i * 3.0f, 0.0f, 6.0f}
+            }));
 
             auto mat = eng.material_manager->clone(cat_material, name.c_str());
             cube->setMaterial(mat);
