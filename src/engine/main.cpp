@@ -158,35 +158,25 @@ public:
         light.diffuse_power = 1.0f;
         light.specular_power = 1.0f;
 
+        eng.gui->getSignalOnUpdate().connect(ctx, [&] {
+            ImGui::Begin("Parameters");
+            ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
+            ImGui::ColorEdit3("Light color", glm::value_ptr(light.color),
+                ImGuiColorEditFlags_Float);
+            ImGui::SliderFloat("Ambient power", &light.ambient_power, 0.0f, 1.0f);
+            ImGui::SliderFloat("Diffuse power", &light.diffuse_power, 0.0f, 1.0f);
+            ImGui::SliderFloat("Specular power", &light.specular_power, 0.0f, 1.0f);
+            ImGui::End();
+
+            ImGui::ShowDemoWindow(nullptr);
+        });
+
         while (!exit_)
         {
             eng.time->update();
-            eng.input->update();
 
             glfwPollEvents();
-
-            //////////////////////////////////////////////// IMGUI
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-
-            {
-                ImGui::Begin("Parameters");
-                ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
-                ImGui::ColorEdit3("Light color", glm::value_ptr(light.color),
-                    ImGuiColorEditFlags_Float);
-                ImGui::SliderFloat("Ambient power", &light.ambient_power, 0.0f, 1.0f);
-                ImGui::SliderFloat("Diffuse power", &light.diffuse_power, 0.0f, 1.0f);
-                ImGui::SliderFloat("Specular power", &light.specular_power, 0.0f, 1.0f);
-                ImGui::End();
-            }
-
-            ImGui::ShowDemoWindow(nullptr);
-
-            edg.editor_->render();
-
-            ImGui::Render();
-            //////////////////////////////////////////////// IMGUI
+            eng.input->update();
 
             process_input();
 
@@ -226,17 +216,11 @@ public:
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f}));
             light_cube_material->setParameterVec3("uColor", light.color);
 
+            ///////////////////////////////////////////////////////////
             eng.renderer->renderWorld(&camera_, &light);
-
-
-            ////////////////////////////////////////////////
             eng.visualizer->render(camera_.getViewProj());
-
-
-            ////////////////// IMGUI
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            ////////////////// IMGUI
-
+            eng.gui->update();
+            eng.gui->swap();
             eng.window->swap();
         }
     }

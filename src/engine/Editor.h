@@ -1,6 +1,7 @@
 #pragma once
 
 #include "imgui.h"
+#include "signals/Signals.h"
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec2.hpp"
@@ -15,9 +16,9 @@ class Editor
 public:
     Editor();
 
+private:
     void render();
 
-private:
     void render_main();
 
     void render_world();
@@ -67,4 +68,6 @@ private:
     double fps_{0.0f};
     float last_update_fps_time_{0.0f};
     bool info_window_{true};
+
+    Context ctx_;
 };

@@ -23,3 +23,20 @@ Gui::Gui()
 }
 
 Gui::~Gui() {}
+
+void Gui::update()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    on_update_.call();
+
+    ImGui::Render();
+}
+
+
+void Gui::swap()
+{
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}

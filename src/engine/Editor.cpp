@@ -1,6 +1,7 @@
 #include "Editor.h"
 
 #include "EngineGlobals.h"
+#include "Gui.h"
 #include "MaterialManager.h"
 #include "MeshManager.h"
 #include "NodeMesh.h"
@@ -25,7 +26,10 @@ constexpr const char *FORMAT = "%.3f";
 
 } // namespace
 
-Editor::Editor() {}
+Editor::Editor()
+{
+    eng.gui->getSignalOnUpdate().connect(ctx_, [this] { render(); });
+}
 
 void Editor::render()
 {
