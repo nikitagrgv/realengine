@@ -8,6 +8,7 @@
 #include "TextureManager.h"
 #include "Visualizer.h"
 #include "World.h"
+#include "input/Input.h"
 #include "time/Time.h"
 
 #include "glm/gtc/type_ptr.hpp"
@@ -566,7 +567,6 @@ void Editor::render_info()
         fps_ = eng.time->getFps();
     }
 
-    ImGuiIO &io = ImGui::GetIO();
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration
         | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings
         | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
@@ -586,16 +586,10 @@ void Editor::render_info()
     ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
     if (ImGui::Begin("Info", &info_window_, window_flags))
     {
-        ImGui::Text("FPS: %.1f", fps_);
+        const glm::vec2 mpos = eng.input->getMousePos();
 
-        if (ImGui::IsMousePosValid())
-        {
-            ImGui::Text("Mouse Position: (%.1f,%.1f)", io.MousePos.x, io.MousePos.y);
-        }
-        else
-        {
-            ImGui::Text("Mouse Position: <invalid>");
-        }
+        ImGui::Text("FPS: %.1f", fps_);
+        ImGui::Text("Mouse Position : (%.1f,%.1f)", mpos.x, mpos.y);
     }
     ImGui::End();
 }

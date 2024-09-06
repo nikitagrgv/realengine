@@ -20,7 +20,7 @@ public:
     bool isButtonPressed(Button button) const;
     bool isButtonReleased(Button button) const;
 
-    glm::vec2 getGlobalMousePos() const;
+    glm::vec2 getMousePos() const;
     glm::vec2 getMouseDelta() const;
 
     int getWheel() const;

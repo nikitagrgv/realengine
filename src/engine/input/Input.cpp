@@ -5,6 +5,7 @@
 // clang-format on
 
 #include "EngineGlobals.h"
+#include "Window.h"
 #include "events/InputEvents.h"
 
 #include <cassert>
@@ -40,7 +41,7 @@ bool Input::isButtonReleased(Button button) const
     return !cur_pressed_buttons_[(int)button] && old_pressed_buttons_[(int)button];
 }
 
-glm::vec2 Input::getGlobalMousePos() const
+glm::vec2 Input::getMousePos() const
 {
     return mouse_pos_;
 }
@@ -62,14 +63,12 @@ int Input::getHorizontalWheel() const
 
 void Input::setMouseGrabbed(bool grab)
 {
-    const int mode = grab ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;
-    glfwSetInputMode(eng.window, GLFW_CURSOR, mode);
+    eng.window->setMouseGrabbed(grab);
 }
 
 bool Input::isMouseGrabbed() const
 {
-    const int mode = glfwGetInputMode(eng.window, GLFW_CURSOR);
-    return mode == GLFW_CURSOR_DISABLED;
+    return eng.window->isMouseGrabbed();
 }
 
 Input::Input()
@@ -85,10 +84,7 @@ Input::~Input() {}
 
 void Input::update()
 {
-    double x, y;
-    glfwGetCursorPos(eng.window, &x, &y);
-    mouse_pos_.x = x;
-    mouse_pos_.y = y;
+    mouse_pos_ = eng.window->getCursorPos();
 
     mouse_delta_ = glm::vec2();
 

@@ -5,12 +5,17 @@
 #include <GLFW/glfw3.h>
 // clang-format on
 
+#include "Window.h"
+
 #include <iostream>
 
 
 SystemProxy::SystemProxy()
 {
     glfwInit();
+    glfwSetErrorCallback([](int error, const char *description) {
+        std::cout << "GLFW Error: " << description << std::endl;
+    });
 }
 
 SystemProxy::~SystemProxy()
@@ -18,18 +23,9 @@ SystemProxy::~SystemProxy()
     glfwTerminate();
 }
 
-GLFWwindow *SystemProxy::createWindow(int width, int height, const char *title)
+Window *SystemProxy::createWindow(int width, int height, const char *title)
 {
-    GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-    }
-    glfwMakeContextCurrent(window);
-
-    glfwSetFramebufferSizeCallback(window, [](GLFWwindow *window, int width, int height) {
-        // eng.engine_->framebuffer_size_callback(window, width, height);
-    });
+    Window *window = new Window(width, height, title);
 
     if (!glad_loaded_)
     {

@@ -3,6 +3,7 @@ add_subdirectory(fs)
 add_subdirectory(imgui)
 add_subdirectory(input)
 add_subdirectory(math)
+add_subdirectory(signals)
 add_subdirectory(time)
 
 target_sources(realengine
@@ -18,6 +19,8 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.h
         ${CMAKE_CURRENT_SOURCE_DIR}/EditorGlobals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/EditorGlobals.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Gui.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Gui.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.h
         ${CMAKE_CURRENT_SOURCE_DIR}/IndexBufferObject.cpp
@@ -59,6 +62,8 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Visualizer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Visualizer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Window.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Window.h
         ${CMAKE_CURRENT_SOURCE_DIR}/World.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/World.h
 )

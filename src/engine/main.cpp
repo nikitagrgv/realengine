@@ -10,6 +10,7 @@
 #include "Editor.h"
 #include "EditorGlobals.h"
 #include "EngineGlobals.h"
+#include "Gui.h"
 #include "Image.h"
 #include "Light.h"
 #include "Material.h"
@@ -27,6 +28,7 @@
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
 #include "Visualizer.h"
+#include "Window.h"
 #include "World.h"
 #include "fs/FileSystem.h"
 #include "input/Input.h"
@@ -49,9 +51,13 @@ class Engine
 public:
     void exec()
     {
-        init();
-        glfwMaximizeWindow(eng.window);
+        Context ctx;
 
+        init();
+        eng.window->maximize();
+        eng.window->getSignalCloseRequested().connect(ctx, [this] { exit_ = true; });
+        eng.window->getSignalResized().connect(ctx,
+            [this](int w, int h) { update_proj(eng.window); });
 
         ///////////////////////////////////////////////////////////////////////////////
         Shader *light_cube_shader = eng.shader_manager->create("light_cube");
@@ -184,7 +190,7 @@ public:
 
             process_input();
 
-            if (glfwGetKey(eng.window, GLFW_KEY_F5) == GLFW_PRESS)
+            if (eng.input->isKeyDown(Key::KEY_F5))
             {
                 eng.shader_manager->recompileAll();
             }
@@ -231,12 +237,7 @@ public:
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             ////////////////// IMGUI
 
-            glfwSwapBuffers(eng.window);
-
-            if (glfwWindowShouldClose(eng.window))
-            {
-                exit_ = true;
-            }
+            eng.window->swap();
         }
     }
 
@@ -256,29 +257,9 @@ private:
         eng.renderer = new Renderer();
         eng.world = new World();
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        // glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE); // TODO DEBUG
-
-        glfwSetErrorCallback([](int error, const char *description) {
-            std::cout << "GLFW Error: " << description << std::endl;
-        });
-
         eng.window = eng.proxy->createWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "RealEngine");
 
-        //////////////////////////////////////
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO &io = ImGui::GetIO();
-        (void)io;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
-        ImGui::StyleColorsDark();
-        ImGui_ImplGlfw_InitForOpenGL(eng.window, true);
-        ImGui_ImplOpenGL3_Init("#version 330");
-        //////////////////////////////////////
-
+        eng.gui = new Gui();
 
         update_mouse();
         mouse_delta_x_ = 0;
@@ -320,22 +301,16 @@ private:
     {
         update_mouse();
 
-        if (glfwGetKey(eng.window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_ESCAPE))
         {
             exit_ = true;
         }
 
-        if (glfwGetMouseButton(eng.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-        {
-            eng.input->setMouseGrabbed(true);
-        }
-        else
-        {
-            eng.input->setMouseGrabbed(false);
-        }
+        const bool right_btn = eng.input->isButtonDown(Button::BUTTON_RIGHT);
+        eng.input->setMouseGrabbed(right_btn);
 
         float speed = 2.0f;
-        if (glfwGetKey(eng.window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_LEFT_SHIFT))
         {
             speed *= 2;
         }
@@ -345,32 +320,32 @@ private:
         const float dt = eng.time->getDelta();
 
         glm::vec4 delta_pos{0.0f};
-        if (glfwGetKey(eng.window, GLFW_KEY_W) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_W))
         {
             delta_pos.z -= speed * dt;
         }
-        if (glfwGetKey(eng.window, GLFW_KEY_S) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_S))
         {
             delta_pos.z += speed * dt;
         }
-        if (glfwGetKey(eng.window, GLFW_KEY_A) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_A))
         {
             delta_pos.x -= speed * dt;
         }
-        if (glfwGetKey(eng.window, GLFW_KEY_D) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_D))
         {
             delta_pos.x += speed * dt;
         }
-        if (glfwGetKey(eng.window, GLFW_KEY_E) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_E))
         {
             delta_pos.y += speed * dt;
         }
-        if (glfwGetKey(eng.window, GLFW_KEY_Q) == GLFW_PRESS)
+        if (eng.input->isKeyDown(Key::KEY_Q))
         {
             delta_pos.y -= speed * dt;
         }
 
-        if (glfwGetMouseButton(eng.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        if (right_btn)
         {
             pitch_ -= mouse_delta_y_ * mouse_speed;
             yaw_ -= mouse_delta_x_ * mouse_speed;
@@ -385,24 +360,18 @@ private:
     void update_mouse()
     {
         double x, y;
-        glfwGetCursorPos(eng.window, &x, &y);
+        x = eng.window->getCursorX();
+        y = eng.window->getCursorY();
         mouse_delta_x_ = x - mouse_pos_x_;
         mouse_delta_y_ = y - mouse_pos_y_;
         mouse_pos_x_ = x;
         mouse_pos_y_ = y;
     }
 
-    void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+    void update_proj(Window *window)
     {
-        glViewport(0, 0, width, height);
-        update_proj(window);
-    }
-
-    void update_proj(GLFWwindow *window)
-    {
-        int width = 0;
-        int height = 0;
-        glfwGetWindowSize(window, &width, &height);
+        int width = window->getWidth();
+        int height = window->getHeight();
         width = std::max(1, width);
         height = std::max(1, height);
         camera_.setPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f);

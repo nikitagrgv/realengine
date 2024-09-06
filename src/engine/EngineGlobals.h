@@ -11,9 +11,10 @@ class ShaderManager;
 class TextureManager;
 class MeshManager;
 class World;
+class Window;
 class Input;
 class SystemProxy;
-struct GLFWwindow;
+class Gui;
 
 struct EngineGlobals
 {
@@ -27,9 +28,10 @@ struct EngineGlobals
     MeshManager *mesh_manager{};
     World *world{};
     Renderer *renderer{};
-    GLFWwindow *window{};
+    Window *window{};
     Input *input{};
     SystemProxy *proxy{};
+    Gui *gui{};
 };
 
 extern EngineGlobals eng;

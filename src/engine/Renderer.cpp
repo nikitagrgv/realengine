@@ -11,6 +11,7 @@
 #include "Mesh.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Window.h"
 #include "World.h"
 
 #include <NodeMesh.h>
@@ -25,6 +26,8 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     glEnable(GL_DEPTH_TEST);
 
     glCullFace(GL_BACK);
+
+    glViewport(0, 0, eng.window->getWidth(), eng.window->getHeight());
 
     for (int i = 0, count = eng.world->getNumNodes(); i < count; ++i)
     {
