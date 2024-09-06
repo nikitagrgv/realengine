@@ -12,6 +12,7 @@ class TextureManager;
 class MeshManager;
 class World;
 class Input;
+class SystemProxy;
 struct GLFWwindow;
 
 struct EngineGlobals
@@ -28,6 +29,7 @@ struct EngineGlobals
     Renderer *renderer{};
     GLFWwindow *window{};
     Input *input{};
+    SystemProxy *proxy{};
 };
 
 extern EngineGlobals eng;

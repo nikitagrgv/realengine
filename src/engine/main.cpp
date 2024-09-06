@@ -21,6 +21,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "ShaderManager.h"
+#include "SystemProxy.h"
 #include "Texture.h"
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
@@ -222,7 +223,6 @@ public:
             eng.renderer->renderWorld(&camera_, &light);
 
 
-
             ////////////////////////////////////////////////
             eng.visualizer->render(camera_.getViewProj());
 
@@ -245,6 +245,7 @@ private:
     {
         Random::init();
         eng.engine_ = this;
+        eng.proxy = new SystemProxy();
         eng.input = new Input();
         eng.time = new Time();
         eng.fs = new FileSystem();
@@ -255,7 +256,6 @@ private:
         eng.renderer = new Renderer();
         eng.world = new World();
 
-        glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -265,21 +265,7 @@ private:
             std::cout << "GLFW Error: " << description << std::endl;
         });
 
-        eng.window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "LearnOpenGL", NULL, NULL);
-        if (eng.window == NULL)
-        {
-            std::cout << "Failed to create GLFW window" << std::endl;
-            glfwTerminate();
-        }
-        glfwMakeContextCurrent(eng.window);
-        glfwSetFramebufferSizeCallback(eng.window, [](GLFWwindow *window, int width, int height) {
-            eng.engine_->framebuffer_size_callback(window, width, height);
-        });
-
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
-            std::cout << "Failed to initialize GLAD" << std::endl;
-        }
+        eng.window = eng.proxy->createWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "RealEngine");
 
         //////////////////////////////////////
         IMGUI_CHECKVERSION();
@@ -326,9 +312,8 @@ private:
         delete_and_null(eng.fs);
         delete_and_null(eng.time);
         delete_and_null(eng.input);
+        delete_and_null(eng.proxy);
         eng.engine_ = nullptr;
-
-        glfwTerminate();
     }
 
     void process_input()
