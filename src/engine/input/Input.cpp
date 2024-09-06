@@ -84,9 +84,9 @@ Input::~Input() {}
 
 void Input::update()
 {
-    mouse_pos_ = eng.window->getCursorPos();
-
-    mouse_delta_ = glm::vec2();
+    const glm::vec2 new_pos = eng.window->getCursorPos();
+    mouse_delta_ = new_pos - mouse_pos_;
+    mouse_pos_ = new_pos;
 
     vertical_wheel_ = 0;
     horizontal_wheel_ = 0;
@@ -121,13 +121,6 @@ void Input::update()
         {
             auto *e = static_event_cast<ButtonReleaseEvent>(event.get());
             cur_pressed_buttons_[(int)e->button_] = false;
-            break;
-        }
-        case EventType::MouseMoveEvent:
-        {
-            auto *e = static_event_cast<MouseMoveEvent>(event.get());
-            mouse_delta_.x += e->dx_;
-            mouse_delta_.y += e->dy_;
             break;
         }
         case EventType::MouseWheelEvent:

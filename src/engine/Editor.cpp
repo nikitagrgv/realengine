@@ -591,9 +591,11 @@ void Editor::render_info()
     if (ImGui::Begin("Info", &info_window_, window_flags))
     {
         const glm::vec2 mpos = eng.input->getMousePos();
+        const glm::vec2 delta = eng.input->getMouseDelta();
 
         ImGui::Text("FPS: %.1f", fps_);
         ImGui::Text("Mouse Position : (%.1f,%.1f)", mpos.x, mpos.y);
+        ImGui::Text("Mouse Delta : (%.1f,%.1f)", delta.x, delta.y);
     }
     ImGui::End();
 }

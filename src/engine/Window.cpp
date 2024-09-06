@@ -156,7 +156,7 @@ void Window::button_callback(int button, int action, int mods)
 
 void Window::cursor_move_callback(double xpos, double ypos)
 {
-    // nothing now
+    // Input handles this by itself
 }
 
 void Window::scroll_callback(double xoffset, double yoffset)
