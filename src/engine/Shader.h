@@ -67,6 +67,8 @@ private:
 
     int get_uniform_location_with_warning(const char *name);
 
+    bool use_program();
+
 private:
     std::string filepath_;
     std::string vertex_src_;

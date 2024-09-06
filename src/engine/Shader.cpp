@@ -76,37 +76,55 @@ void Shader::loadFile(const char *path)
 void Shader::setUniformFloat(int location, float value)
 {
     assert(location != -1);
-    glUniform1f(location, value);
+    if (use_program())
+    {
+        glUniform1f(location, value);
+    }
 }
 
 void Shader::setUniformVec2(int location, const glm::vec2 &value)
 {
     assert(location != -1);
-    glUniform2f(location, value.x, value.y);
+    if (use_program())
+    {
+        glUniform2f(location, value.x, value.y);
+    }
 }
 
 void Shader::setUniformVec3(int location, const glm::vec3 &value)
 {
     assert(location != -1);
-    glUniform3f(location, value.x, value.y, value.z);
+    if (use_program())
+    {
+        glUniform3f(location, value.x, value.y, value.z);
+    }
 }
 
 void Shader::setUniformVec4(int location, const glm::vec4 &value)
 {
     assert(location != -1);
-    glUniform4f(location, value.x, value.y, value.z, value.w);
+    if (use_program())
+    {
+        glUniform4f(location, value.x, value.y, value.z, value.w);
+    }
 }
 
 void Shader::setUniformMat4(int location, const glm::mat4 &value)
 {
     assert(location != -1);
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    if (use_program())
+    {
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    }
 }
 
 void Shader::setUniformInt(int location, int value)
 {
     assert(location != -1);
-    glUniform1i(location, value);
+    if (use_program())
+    {
+        glUniform1i(location, value);
+    }
 }
 
 void Shader::setUniformFloat(const char *name, float value)
@@ -416,4 +434,14 @@ int Shader::get_uniform_location_with_warning(const char *name)
         std::cout << "Could not find uniform: " << name << std::endl;
     }
     return location;
+}
+
+bool Shader::use_program()
+{
+    if (program_id_ != 0)
+    {
+        glUseProgram(program_id_);
+        return true;
+    }
+    return false;
 }
