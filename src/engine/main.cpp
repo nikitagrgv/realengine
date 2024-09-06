@@ -165,7 +165,7 @@ public:
 
         Light light;
         light.pos = glm::vec3{1, 1, 1};
-        light.color = glm::vec3{0.2, 0.65, 0.65};
+        light.color = glm::vec3{0.8, 0.88, 0.72};
         light.ambient_power = 0.1f;
         light.diffuse_power = 1.0f;
         light.specular_power = 1.0f;
