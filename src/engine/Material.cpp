@@ -188,6 +188,11 @@ void Material::setTexture(const char *name, Texture *texture)
     textures_[index].texture = texture;
 }
 
+void Material::setTexture(int i, Texture *texture)
+{
+    textures_[i].texture = texture;
+}
+
 int Material::getNumTextures() const
 {
     return textures_.size();

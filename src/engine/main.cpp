@@ -139,7 +139,7 @@ public:
 
         auto node_floor = eng.world->createNode<NodeMesh>();
         node_floor->setName("floor");
-        node_floor->setMaterial(cat_material);
+        node_floor->setMaterial(eng.material_manager->clone(cat_material, "floor"));
         node_floor->setMesh(floor_mesh);
 
         auto node_light = eng.world->createNode<NodeMesh>();
@@ -148,18 +148,21 @@ public:
         node_light->setMesh(light_cube_mesh);
 
 
-        glm::mat4 transform = glm::scale(glm::mat4{1.0f}, {0.4, 0.4, 0.4});
+        const float SCALE_FACTOR = 0.01;
+        glm::mat4 sc = glm::scale(glm::mat4{1.0f}, {SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR});
         for (int i = -5; i < 5; ++i)
         {
             std::string name = "cube_" + std::to_string(i);
 
             auto cube = eng.world->createNode<NodeMesh>();
             cube->setName(name);
-            cube->setMesh(cat_mesh);
-            cube->setTransform(glm::translate(transform,
-                {
-                    glm::vec3{i * 3.0f, 0.0f, 6.0f}
-            }));
+            cube->setMesh(stickman_mesh);
+            cube->setTransform(glm::translate(
+                                   glm::mat4{
+                                       1.0f
+            },
+                                   {glm::vec3{i * 1.0f, 0.0f, -1.0f}})
+                * sc);
 
             auto mat = eng.material_manager->clone(cat_material, name.c_str());
             cube->setMaterial(mat);

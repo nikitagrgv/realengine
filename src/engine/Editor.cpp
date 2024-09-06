@@ -340,6 +340,21 @@ void Editor::render_materials()
                             selected_texture_ = eng.texture_manager->getIndex(texture);
                         }
 
+                        if (ImGui::BeginPopupContextItem())
+                        {
+                            for (int j = 0; j < eng.texture_manager->getCount(); ++j)
+                            {
+                                const char *name = eng.texture_manager->getName(j);
+                                if (ImGui::Button(name))
+                                {
+                                    material->setTexture(i, eng.texture_manager->get(j));
+                                    ImGui::CloseCurrentPopup();
+                                }
+                            }
+
+                            ImGui::EndPopup();
+                        }
+
                         render_texture_info(texture);
                     }
                     else

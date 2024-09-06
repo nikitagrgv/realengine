@@ -84,6 +84,7 @@ public:
     int addTexture(const char *name);
     int addTexture(const char *name, Texture *texture);
     void setTexture(const char *name, Texture *texture);
+    void setTexture(int i, Texture *texture);
     Texture *getTexture(int i) const { return textures_[i].texture; }
     const std::string &getTextureName(int i) const { return textures_[i].name; }
     int getNumTextures() const;
