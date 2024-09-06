@@ -241,10 +241,6 @@ private:
 
         eng.gui = new Gui();
 
-        update_mouse();
-        mouse_delta_x_ = 0;
-        mouse_delta_y_ = 0;
-
         eng.visualizer = new Visualizer();
 
         // Editor
@@ -279,8 +275,6 @@ private:
 
     void process_input()
     {
-        update_mouse();
-
         if (eng.input->isKeyDown(Key::KEY_ESCAPE))
         {
             exit_ = true;
@@ -327,25 +321,15 @@ private:
 
         if (right_btn)
         {
-            pitch_ -= mouse_delta_y_ * mouse_speed;
-            yaw_ -= mouse_delta_x_ * mouse_speed;
+            const glm::vec2 mouse_delta = eng.input->getMouseDelta();
+            yaw_ -= mouse_delta.x * mouse_speed;
+            pitch_ -= mouse_delta.y * mouse_speed;
         }
 
         glm::mat4 rot = glm::rotate(glm::mat4(1.0f), yaw_, glm::vec3(0.0f, 1.0f, 0.0f))
             * glm::rotate(glm::mat4(1.0f), pitch_, glm::vec3(1.0f, 0.0f, 0.0f));
         camera_pos_ += glm::vec3(rot * delta_pos);
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, camera_pos_) * rot);
-    }
-
-    void update_mouse()
-    {
-        double x, y;
-        x = eng.window->getCursorX();
-        y = eng.window->getCursorY();
-        mouse_delta_x_ = x - mouse_pos_x_;
-        mouse_delta_y_ = y - mouse_pos_y_;
-        mouse_pos_x_ = x;
-        mouse_pos_y_ = y;
     }
 
     void update_proj(Window *window)
@@ -365,11 +349,6 @@ private:
     Camera camera_;
 
     bool exit_{false};
-
-    double mouse_pos_x_{0};
-    double mouse_pos_y_{0};
-    double mouse_delta_x_{0};
-    double mouse_delta_y_{0};
 };
 
 int main()
