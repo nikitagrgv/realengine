@@ -192,11 +192,7 @@ public:
             add_axis(glm::vec3{0, 1, 0});
             add_axis(glm::vec3{0, 0, 1});
 
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            eng.renderer->clear();
 
             anim_time += eng.time->getDelta() * anim_time_multiplier;
             light.pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
