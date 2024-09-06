@@ -5,6 +5,7 @@
 #include "MaterialManager.h"
 #include "MeshManager.h"
 #include "NodeMesh.h"
+#include "Renderer.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
 #include "Visualizer.h"
@@ -33,6 +34,11 @@ Editor::Editor()
 
 void Editor::render()
 {
+    if (eng.input->isKeyPressed(Key::KEY_F2))
+    {
+        hide_all_ = !hide_all_;
+    }
+
     render_main();
     if (hide_all_)
     {
@@ -594,8 +600,9 @@ void Editor::render_info()
         const glm::vec2 delta = eng.input->getMouseDelta();
 
         ImGui::Text("FPS: %.1f", fps_);
-        ImGui::Text("Mouse Position : (%.1f,%.1f)", mpos.x, mpos.y);
-        ImGui::Text("Mouse Delta : (%.1f,%.1f)", delta.x, delta.y);
+        ImGui::Text("Rendered Indices : %d", eng.renderer->getNumRenderedIndices());
+        ImGui::Text("Mouse Position : %5.0f,%5.0f", mpos.x, mpos.y);
+        ImGui::Text("Mouse Delta    : %5.0f,%5.0f", delta.x, delta.y);
     }
     ImGui::End();
 }

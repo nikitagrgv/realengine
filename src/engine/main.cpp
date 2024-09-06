@@ -192,8 +192,6 @@ public:
             add_axis(glm::vec3{0, 1, 0});
             add_axis(glm::vec3{0, 0, 1});
 
-            eng.renderer->clear();
-
             anim_time += eng.time->getDelta() * anim_time_multiplier;
             light.pos.x = sin(6 + anim_time * 1.0351) * 1.5f + 0.5f;
             light.pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
@@ -213,11 +211,14 @@ public:
             light_cube_material->setParameterVec3("uColor", light.color);
 
             ///////////////////////////////////////////////////////////
+            eng.renderer->clearBuffers();
+
             eng.renderer->renderWorld(&camera_, &light);
             eng.visualizer->render(camera_.getViewProj());
             eng.gui->update();
             eng.gui->swap();
             eng.window->swap();
+            eng.renderer->resetStatistics();
         }
     }
 

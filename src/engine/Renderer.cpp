@@ -16,7 +16,7 @@
 
 #include <NodeMesh.h>
 
-void Renderer::clear()
+void Renderer::clearBuffers()
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -78,8 +78,14 @@ void Renderer::renderWorld(Camera *camera, Light *light)
             }
 
             glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
+            num_rendered_indices_ += mesh->getNumIndices();
         }
     }
+}
+
+void Renderer::resetStatistics()
+{
+    num_rendered_indices_ = 0;
 }
 
 void Renderer::use_material(Material *material)
