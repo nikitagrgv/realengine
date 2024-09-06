@@ -28,6 +28,7 @@
 #include "Visualizer.h"
 #include "World.h"
 #include "fs/FileSystem.h"
+#include "input/Input.h"
 #include "time/Time.h"
 
 #include <NodeMesh.h>
@@ -48,7 +49,7 @@ public:
     void exec()
     {
         init();
-        glfwMaximizeWindow(window_);
+        glfwMaximizeWindow(eng.window);
 
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -117,7 +118,7 @@ public:
         ////////////////////////////////////////////////
 
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
-        update_proj(window_);
+        update_proj(eng.window);
 
         auto node_cat = eng.world->createNode<NodeMesh>();
         node_cat->setName("cat");
@@ -153,7 +154,7 @@ public:
         while (!exit_)
         {
             eng.time->update();
-
+            eng.input->update();
 
             glfwPollEvents();
 
@@ -182,7 +183,7 @@ public:
 
             process_input();
 
-            if (glfwGetKey(window_, GLFW_KEY_F5) == GLFW_PRESS)
+            if (glfwGetKey(eng.window, GLFW_KEY_F5) == GLFW_PRESS)
             {
                 eng.shader_manager->recompileAll();
             }
@@ -230,9 +231,9 @@ public:
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             ////////////////// IMGUI
 
-            glfwSwapBuffers(window_);
+            glfwSwapBuffers(eng.window);
 
-            if (glfwWindowShouldClose(window_))
+            if (glfwWindowShouldClose(eng.window))
             {
                 exit_ = true;
             }
@@ -244,6 +245,7 @@ private:
     {
         Random::init();
         eng.engine_ = this;
+        eng.input = new Input();
         eng.time = new Time();
         eng.fs = new FileSystem();
         eng.texture_manager = new TextureManager();
@@ -263,14 +265,14 @@ private:
             std::cout << "GLFW Error: " << description << std::endl;
         });
 
-        window_ = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "LearnOpenGL", NULL, NULL);
-        if (window_ == NULL)
+        eng.window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "LearnOpenGL", NULL, NULL);
+        if (eng.window == NULL)
         {
             std::cout << "Failed to create GLFW window" << std::endl;
             glfwTerminate();
         }
-        glfwMakeContextCurrent(window_);
-        glfwSetFramebufferSizeCallback(window_, [](GLFWwindow *window, int width, int height) {
+        glfwMakeContextCurrent(eng.window);
+        glfwSetFramebufferSizeCallback(eng.window, [](GLFWwindow *window, int width, int height) {
             eng.engine_->framebuffer_size_callback(window, width, height);
         });
 
@@ -287,7 +289,7 @@ private:
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
         ImGui::StyleColorsDark();
-        ImGui_ImplGlfw_InitForOpenGL(window_, true);
+        ImGui_ImplGlfw_InitForOpenGL(eng.window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
         //////////////////////////////////////
 
@@ -323,6 +325,7 @@ private:
         delete_and_null(eng.texture_manager);
         delete_and_null(eng.fs);
         delete_and_null(eng.time);
+        delete_and_null(eng.input);
         eng.engine_ = nullptr;
 
         glfwTerminate();
@@ -332,22 +335,22 @@ private:
     {
         update_mouse();
 
-        if (glfwGetKey(window_, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         {
             exit_ = true;
         }
 
-        if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        if (glfwGetMouseButton(eng.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
         {
-            glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            eng.input->setMouseGrabbed(true);
         }
         else
         {
-            glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            eng.input->setMouseGrabbed(false);
         }
 
         float speed = 2.0f;
-        if (glfwGetKey(window_, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         {
             speed *= 2;
         }
@@ -357,32 +360,32 @@ private:
         const float dt = eng.time->getDelta();
 
         glm::vec4 delta_pos{0.0f};
-        if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_W) == GLFW_PRESS)
         {
             delta_pos.z -= speed * dt;
         }
-        if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_S) == GLFW_PRESS)
         {
             delta_pos.z += speed * dt;
         }
-        if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_A) == GLFW_PRESS)
         {
             delta_pos.x -= speed * dt;
         }
-        if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_D) == GLFW_PRESS)
         {
             delta_pos.x += speed * dt;
         }
-        if (glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_E) == GLFW_PRESS)
         {
             delta_pos.y += speed * dt;
         }
-        if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS)
+        if (glfwGetKey(eng.window, GLFW_KEY_Q) == GLFW_PRESS)
         {
             delta_pos.y -= speed * dt;
         }
 
-        if (glfwGetMouseButton(window_, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+        if (glfwGetMouseButton(eng.window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
         {
             pitch_ -= mouse_delta_y_ * mouse_speed;
             yaw_ -= mouse_delta_x_ * mouse_speed;
@@ -397,7 +400,7 @@ private:
     void update_mouse()
     {
         double x, y;
-        glfwGetCursorPos(window_, &x, &y);
+        glfwGetCursorPos(eng.window, &x, &y);
         mouse_delta_x_ = x - mouse_pos_x_;
         mouse_delta_y_ = y - mouse_pos_y_;
         mouse_pos_x_ = x;
@@ -428,7 +431,6 @@ private:
     Camera camera_;
 
     bool exit_{false};
-    GLFWwindow *window_{};
 
     double mouse_pos_x_{0};
     double mouse_pos_y_{0};

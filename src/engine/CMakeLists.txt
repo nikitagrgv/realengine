@@ -1,5 +1,7 @@
+add_subdirectory(events)
 add_subdirectory(fs)
 add_subdirectory(imgui)
+add_subdirectory(input)
 add_subdirectory(math)
 add_subdirectory(time)
 
