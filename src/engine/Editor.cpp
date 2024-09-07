@@ -102,7 +102,18 @@ void Editor::render_world()
         const int num_nodes = eng.world->getNumNodes();
         for (int i = 0; i < num_nodes; i++)
         {
+            ImGui::PushID(i);
+
             Node *node = eng.world->getNodeByIndex(i);
+
+            bool enabled = node->isEnabled();
+            if (ImGui::Checkbox("##", &enabled))
+            {
+                node->setEnabled(enabled);
+            }
+
+            ImGui::SameLine();
+
             const char *name = node->getName().c_str();
             char label[64];
             sprintf(label, "%d. %.50s", i, name);
@@ -110,6 +121,8 @@ void Editor::render_world()
             {
                 selected_node_ = i;
             }
+
+            ImGui::PopID();
         }
         ImGui::EndChild();
     }
