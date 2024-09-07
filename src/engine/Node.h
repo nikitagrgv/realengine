@@ -42,6 +42,9 @@ public:
     const math::BoundBox &getBoundBox() const { return bound_box_; }
     const math::BoundBox &getGlobalBoundBox() const { return global_bound_box_; }
 
+    bool isEnabled() const { return enabled_; }
+    void setEnabled(bool enabled) { enabled_ = enabled; }
+
 protected:
     void update_global_bound_box();
 
@@ -49,6 +52,7 @@ protected:
     math::BoundBox bound_box_;
 
 private:
+    bool enabled_{true};
     const int id_{-1};
     const Type type_;
     std::string name_;

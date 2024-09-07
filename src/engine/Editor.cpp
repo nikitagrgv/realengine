@@ -133,6 +133,12 @@ void Editor::render_world()
 
             ImGui::Separator();
 
+            bool enabled = node->isEnabled();
+            if (ImGui::Checkbox("Enabled", &enabled))
+            {
+                node->setEnabled(enabled);
+            }
+
             {
                 ImGui::SeparatorText("Transform");
                 glm::mat4 tr = node->getTransform();
@@ -614,6 +620,7 @@ void Editor::render_info()
         const glm::vec2 mpos = eng.input->getMousePos();
         const glm::vec2 delta = eng.input->getMouseDelta();
 
+        ImGui::Text("Frame: %d", eng.time->getFrame());
         ImGui::Text("FPS: %.1f", fps_);
         ImGui::Text("Rendered Indices : %d", eng.renderer->getNumRenderedIndices());
         ImGui::Text("Mouse Position : %5.0f,%5.0f", mpos.x, mpos.y);

@@ -40,6 +40,11 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     {
         Node *n = eng.world->getNodeByIndex(i);
 
+        if (!n->isEnabled())
+        {
+            continue;
+        }
+
         if (auto node = n->cast<NodeMesh>())
         {
             Mesh *mesh = node->getMesh();
