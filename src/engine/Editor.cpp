@@ -631,13 +631,14 @@ void Editor::render_info()
     if (ImGui::Begin("Info", &info_window_, window_flags))
     {
         const glm::vec2 mpos = eng.input->getMousePos();
-        const glm::vec2 delta = eng.input->getMouseDelta();
 
         ImGui::Text("Frame: %d", eng.time->getFrame());
         ImGui::Text("FPS: %.1f", fps_);
-        ImGui::Text("Rendered Indices : %d", eng.renderer->getNumRenderedIndices());
-        ImGui::Text("Mouse Position : %5.0f,%5.0f", mpos.x, mpos.y);
-        ImGui::Text("Mouse Delta    : %5.0f,%5.0f", delta.x, delta.y);
+        ImGui::Text("Mouse: %5.0f,%5.0f", mpos.x, mpos.y);
+        ImGui::SeparatorText("Frame");
+        ImGui::Text("Rendered Indices: %d", eng.stat.numRenderedIndices);
+        ImGui::Text("Compiled Shaders: %d", eng.stat.numCompiledShadersInFrame);
+        ImGui::Separator();
     }
     ImGui::End();
 }

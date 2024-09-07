@@ -239,7 +239,7 @@ public:
             eng.gui->update();
             eng.gui->swap();
             eng.window->swap();
-            eng.renderer->resetStatistics();
+            eng.stat.reset();
         }
     }
 

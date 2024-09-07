@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Statistics.h"
+
 
 class Renderer;
 class Time;
@@ -32,6 +34,8 @@ struct EngineGlobals
     Input *input{};
     SystemProxy *proxy{};
     Gui *gui{};
+
+    Statistics stat{};
 };
 
 extern EngineGlobals eng;

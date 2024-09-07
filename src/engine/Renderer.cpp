@@ -83,14 +83,9 @@ void Renderer::renderWorld(Camera *camera, Light *light)
             }
 
             glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
-            num_rendered_indices_ += mesh->getNumIndices();
+            eng.stat.numRenderedIndices += mesh->getNumIndices();
         }
     }
-}
-
-void Renderer::resetStatistics()
-{
-    num_rendered_indices_ = 0;
 }
 
 void Renderer::use_material(Material *material)

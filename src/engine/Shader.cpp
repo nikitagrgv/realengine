@@ -348,6 +348,7 @@ unsigned int Shader::compile_shader(const char *vertex_src, const char *fragment
     glUseProgram(program_id);
     glDeleteShader(vertex_id);
     glDeleteShader(fragment_id);
+    ++eng.stat.numCompiledShadersInFrame;
     return program_id;
 }
 
