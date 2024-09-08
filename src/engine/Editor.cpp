@@ -646,8 +646,11 @@ void Editor::render_info()
         ImGui::Text("FPS: %.1f", fps_);
         ImGui::Text("Mouse: %5.0f,%5.0f", mpos.x, mpos.y);
         ImGui::SeparatorText("Frame");
-        ImGui::Text("Rendered Indices: %d", eng.stat.numRenderedIndices);
-        ImGui::Text("Compiled Shaders: %d", eng.stat.numCompiledShadersInFrame);
+        ImGui::Text("Rendered Indices: %d", eng.stat.getNumRenderedIndicesInFrame());
+        ImGui::Text("Compiled Shaders: %d", eng.stat.getNumCompiledShadersInFrame());
+        ImGui::SeparatorText("Total");
+        ImGui::Text("Rendered Indices: %d", eng.stat.getNumRenderedIndicesTotal());
+        ImGui::Text("Compiled Shaders: %d", eng.stat.getNumCompiledShadersTotal());
         ImGui::Separator();
     }
     ImGui::End();
