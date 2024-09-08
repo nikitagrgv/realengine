@@ -4,7 +4,7 @@
 
 struct Statistics
 {
-    void reset()
+    void finishFrame()
     {
         numRenderedIndices = 0;
         numCompiledShadersInFrame = 0;

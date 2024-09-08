@@ -104,6 +104,9 @@ public:
     void setTwoSided(bool two_sided) { two_sided_ = two_sided; }
 
 private:
+    void set_defines_to_shader();
+
+private:
     struct Parameter
     {
         std::string name;

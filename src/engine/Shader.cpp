@@ -9,6 +9,7 @@
 #include "glm/mat4x4.hpp"
 #include <cassert>
 #include <iostream>
+#include <unordered_set>
 
 Shader::Shader() = default;
 
@@ -144,52 +145,20 @@ void Shader::setUniformInt(const char *name, int value)
     }
 }
 
-void Shader::setDefine(const char *name, bool value)
+void Shader::setDefines(std::vector<std::string> defines)
 {
-    if (value)
+#ifndef NDEBUG
+    std::unordered_set<std::string> set;
+    for (const std::string &d : defines)
     {
-        addDefine(name);
+        auto it = set.find(d);
+        assert(it == set.end());
+        set.insert(d);
     }
-    else
-    {
-        removeDefine(name);
-    }
-}
+#endif
 
-void Shader::addDefine(const char *name)
-{
-    if (hasDefine(name))
-    {
-        return;
-    }
+    defines_ = std::move(defines);
     dirty_ = true;
-    defines_.emplace_back(name);
-}
-
-void Shader::removeDefine(const char *name)
-{
-    // TODO: removeFast
-    auto it = std::find_if(defines_.begin(), defines_.end(),
-        [&](const std::string &d) { return d == name; });
-    if (it == defines_.end())
-    {
-        return;
-    }
-    dirty_ = true;
-    defines_.erase(it);
-}
-
-void Shader::clearDefines()
-{
-    defines_.clear();
-    dirty_ = true;
-}
-
-bool Shader::hasDefine(const char *name)
-{
-    auto it = std::find_if(defines_.begin(), defines_.end(),
-        [&](const std::string &d) { return d == name; });
-    return it != defines_.end();
 }
 
 void Shader::recompile()

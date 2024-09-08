@@ -240,7 +240,7 @@ public:
             eng.gui->update();
             eng.gui->swap();
             eng.window->swap();
-            eng.stat.reset();
+            eng.stat.finishFrame();
         }
     }
 

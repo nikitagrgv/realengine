@@ -36,11 +36,7 @@ public:
     void setUniformMat4(const char *name, const glm::mat4 &value);
     void setUniformInt(const char *name, int value);
 
-    void setDefine(const char *name, bool value);
-    void addDefine(const char *name);
-    void removeDefine(const char *name);
-    void clearDefines();
-    bool hasDefine(const char *name);
+    void setDefines(std::vector<std::string> defines);
 
     void recompile();
 

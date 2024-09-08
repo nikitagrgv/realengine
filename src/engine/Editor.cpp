@@ -536,7 +536,7 @@ void Editor::render_shaders()
                 ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", file.c_str());
             }
 
-            // TODO# SOURCE CODE VIEW
+            // TODO: source code view
         }
         ImGui::EndChild();
         ImGui::EndGroup();
@@ -600,8 +600,6 @@ void Editor::render_meshes()
             ImGui::Text("Indices:");
             ImGui::SameLine();
             ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", mesh->getNumIndices());
-
-            // TODO# SOURCE CODE VIEW
         }
         ImGui::EndChild();
         ImGui::EndGroup();

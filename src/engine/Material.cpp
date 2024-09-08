@@ -109,6 +109,7 @@ void Material::cloneTo(Material &dest) const
     dest.textures_ = textures_;
     dest.defines_ = defines_;
     dest.two_sided_ = two_sided_;
+    dest.set_defines_to_shader();
 }
 
 ShaderSource *Material::getShaderSource() const
@@ -221,12 +222,22 @@ int Material::addDefine(const char *name, bool enabled)
     define.enabled = enabled;
     const int i = defines_.size();
     defines_.push_back(std::move(define));
+    if (enabled)
+    {
+        set_defines_to_shader();
+    }
     return i;
 }
 
 void Material::setDefine(int i, bool enabled)
 {
-    defines_[i].enabled = enabled;
+    Define &define = defines_[i];
+    if (define.enabled == enabled)
+    {
+        return;
+    }
+    define.enabled = enabled;
+    set_defines_to_shader();
 }
 
 void Material::setDefine(const char *name, bool enabled)
@@ -237,7 +248,7 @@ void Material::setDefine(const char *name, bool enabled)
         std::cout << "Define " << name << " not found" << std::endl;
         return;
     }
-    defines_[index].enabled = enabled;
+    setDefine(index, enabled);
 }
 
 bool Material::getDefine(int i) const
@@ -264,6 +275,20 @@ int Material::getNumDefines() const
 void Material::clearDefines()
 {
     defines_.clear();
+    set_defines_to_shader();
+}
+
+void Material::set_defines_to_shader()
+{
+    std::vector<std::string> defines;
+    for (const auto &d : defines_)
+    {
+        if (d.enabled)
+        {
+            defines.push_back(d.name);
+        }
+    }
+    shader_.setDefines(defines);
 }
 
 int Material::find_parameter(const char *name) const
