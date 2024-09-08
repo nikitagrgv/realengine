@@ -103,7 +103,7 @@ Material::Material()
 
 Material::~Material() = default;
 
-void Material::cloneTo(Material &dest) const
+void Material::copyTo(Material &dest) const
 {
     assert(this != &dest);
     dest.shader_->setSource(shader_->getSource());

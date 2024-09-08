@@ -31,7 +31,8 @@ public:
     Material();
     ~Material();
 
-    void cloneTo(Material &dest) const;
+    void copyTo(Material &dest) const;
+
 
     ShaderSource *getShaderSource() const;
     void setShaderSource(ShaderSource *source);
