@@ -104,7 +104,6 @@ void Material::cloneTo(Material &dest) const
 {
     assert(this != &dest);
     dest.shader_.setSource(shader_.getSource());
-    dest.shader_.recompile();
     dest.parameters_ = parameters_;
     dest.textures_ = textures_;
     dest.defines_ = defines_;
