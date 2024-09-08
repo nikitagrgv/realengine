@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "Shader.h"
 
 #include "glm/mat4x4.hpp"
 #include "glm/vec3.hpp"
@@ -8,7 +9,7 @@
 #include <vector>
 
 class Texture;
-class Shader;
+class ShaderSource;
 
 class Material
 {
@@ -35,9 +36,11 @@ public:
 
     Material clone() const;
 
-    void setShader(Shader *shader) { shader_ = shader; }
-    Shader *getShader() const { return shader_; }
-    void clearShader() { shader_ = nullptr; }
+    ShaderSource *getShaderSource() const;
+    void setShaderSource(ShaderSource *source);
+    void clearShaderSource();
+
+    Shader *getShader();
 
     int addParameterFloat(const char *name);
     int addParameterFloat(const char *name, float value);
@@ -139,7 +142,7 @@ private:
     std::vector<TextureInfo> textures_;
     std::vector<Parameter> parameters_;
     std::vector<Define> defines_;
-    Shader *shader_{};
+    Shader shader_{};
 
     bool two_sided_{false};
 };

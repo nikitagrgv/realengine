@@ -4,10 +4,10 @@ ShaderManager::ShaderManager()
     : AbstractManager("shader_")
 {}
 
-void ShaderManager::recompileAll()
+void ShaderManager::refreshAll()
 {
     for (auto &o : objects_)
     {
-        o.obj->recompile();
+        o.obj->refresh();
     }
 }

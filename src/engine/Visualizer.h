@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Shader.h"
+#include "ShaderSource.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
 #include "math/Bounds.h"
@@ -37,6 +38,7 @@ private:
         glm::vec3 pos;
         glm::vec4 color;
     };
+    ShaderSource source_;
     Shader shader;
     VertexBufferObject<LinePoint> lines_vbo_;
     VertexArrayObject lines_vao_;

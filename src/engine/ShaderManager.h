@@ -1,13 +1,12 @@
 #pragma once
 
 #include "AbstractManager.h"
-#include "Shader.h"
+#include "ShaderSource.h"
 
-class ShaderManager : public AbstractManager<Shader>
+class ShaderManager : public AbstractManager<ShaderSource>
 {
 public:
     ShaderManager();
 
-    void recompileAll();
-
+    void refreshAll();
 };

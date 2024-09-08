@@ -50,6 +50,8 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ShaderManager.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/ShaderSource.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ShaderSource.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Statistics.h
         ${CMAKE_CURRENT_SOURCE_DIR}/SystemProxy.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/SystemProxy.h

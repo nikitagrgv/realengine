@@ -60,8 +60,9 @@ public:
             [this](int w, int h) { update_proj(eng.window); });
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader *light_cube_shader = eng.shader_manager->create("light_cube");
-        light_cube_shader->loadFile("light_cube.shader");
+
+        ShaderSource *light_cube_shader_src = eng.shader_manager->create("light_cube");
+        light_cube_shader_src->setFile("light_cube.shader");
 
         Mesh *light_cube_mesh = eng.mesh_manager->create();
         light_cube_mesh->addVertex({0.0f, 1.0f, 0.0f});
@@ -75,8 +76,8 @@ public:
         light_cube_mesh->flush();
 
         ///////////////////////////////////////////////////////////////////////////////
-        Shader *shader = eng.shader_manager->create("basic");
-        shader->loadFile("shader.shader");
+        ShaderSource *basic_shader_src = eng.shader_manager->create("basic");
+        basic_shader_src->setFile("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
         Texture *cat_texture = eng.texture_manager->create();
@@ -85,7 +86,7 @@ public:
         MeshLoader::loadToMesh("object.obj", cat_mesh);
 
         Material *cat_material = eng.material_manager->create("cat");
-        cat_material->setShader(shader);
+        cat_material->setShaderSource(basic_shader_src);
         cat_material->addTexture("uTexture", cat_texture);
         cat_material->addParameterFloat("uMaterial.shininess", 32.0f);
         cat_material->addDefine("USE_AMBIENT", true);
@@ -93,7 +94,7 @@ public:
         cat_material->addDefine("USE_SPECULAR", true);
 
         Material *light_cube_material = eng.material_manager->create("light cube");
-        light_cube_material->setShader(light_cube_shader);
+        light_cube_material->setShaderSource(light_cube_shader_src);
         light_cube_material->addParameterVec3("uColor");
         light_cube_material->setTwoSided(true);
 
@@ -203,7 +204,7 @@ public:
 
             if (eng.input->isKeyDown(Key::KEY_F5))
             {
-                eng.shader_manager->recompileAll();
+                eng.shader_manager->refreshAll();
             }
 
             const auto add_axis = [](const glm::vec3 &axis) {

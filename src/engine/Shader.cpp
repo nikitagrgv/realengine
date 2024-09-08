@@ -1,6 +1,7 @@
 #include "Shader.h"
 
 #include "EngineGlobals.h"
+#include "ShaderSource.h"
 #include "fs/FileSystem.h"
 #include "glad/glad.h"
 
@@ -9,24 +10,11 @@
 #include <cassert>
 #include <iostream>
 
-
-namespace
-{
-
-const char SHADER_VERSION_LINE[] = "#version 330 core\n";
-
-}
-
 Shader::Shader() = default;
 
-Shader::Shader(const char *vertex_src, const char *fragment_src)
+Shader::Shader(ShaderSource *source)
 {
-    loadSources(vertex_src, fragment_src);
-}
-
-Shader::Shader(const char *path)
-{
-    loadFile(path);
+    setSource(source);
 }
 
 Shader::Shader(Shader &&other) noexcept
@@ -39,14 +27,14 @@ Shader &Shader::operator=(Shader &&other) noexcept
     if (this != &other)
     {
         clearAll();
-        filepath_ = std::move(other.filepath_);
-        vertex_src_ = std::move(other.vertex_src_);
-        fragment_src_ = std::move(other.fragment_src_);
+
+        setSource(other.source_);
         uniform_locations_ = std::move(other.uniform_locations_);
         program_id_ = other.program_id_;
         defines_ = std::move(other.defines_);
-        compiled_defines_ = std::move(other.compiled_defines_);
-        other.program_id_ = 0;
+        dirty_ = other.dirty_;
+
+        other.clearAll();
     }
     return *this;
 }
@@ -57,74 +45,72 @@ Shader::~Shader()
     clearAll();
 }
 
-void Shader::loadSources(const char *vertex_src, const char *fragment_src)
+void Shader::setSource(ShaderSource *source)
 {
-    filepath_.clear();
-    vertex_src_ = vertex_src;
-    fragment_src_ = fragment_src;
-    recompile();
+    if (source_ == source)
+    {
+        return;
+    }
+    unbindSource();
+    source_ = source;
+    if (source_)
+    {
+        source_->add_shader(this);
+    }
+    dirty_ = true;
 }
 
-void Shader::loadFile(const char *path)
+void Shader::unbindSource()
 {
-    filepath_ = path;
-    vertex_src_.clear();
-    fragment_src_.clear();
-    recompile();
+    if (!source_)
+    {
+        return;
+    }
+    source_->remove_shader(this);
+    source_ = nullptr;
+    dirty_ = true;
 }
 
 void Shader::setUniformFloat(int location, float value)
 {
     assert(location != -1);
-    if (check_used_program())
-    {
-        glUniform1f(location, value);
-    }
+    check_used_program();
+    glUniform1f(location, value);
 }
 
 void Shader::setUniformVec2(int location, const glm::vec2 &value)
 {
     assert(location != -1);
-    if (check_used_program())
-    {
-        glUniform2f(location, value.x, value.y);
-    }
+    check_used_program();
+    glUniform2f(location, value.x, value.y);
 }
 
 void Shader::setUniformVec3(int location, const glm::vec3 &value)
 {
     assert(location != -1);
-    if (check_used_program())
-    {
-        glUniform3f(location, value.x, value.y, value.z);
-    }
+    check_used_program();
+    glUniform3f(location, value.x, value.y, value.z);
 }
 
 void Shader::setUniformVec4(int location, const glm::vec4 &value)
 {
     assert(location != -1);
-    if (check_used_program())
-    {
-        glUniform4f(location, value.x, value.y, value.z, value.w);
-    }
+    check_used_program();
+    glUniform4f(location, value.x, value.y, value.z, value.w);
 }
 
 void Shader::setUniformMat4(int location, const glm::mat4 &value)
 {
     assert(location != -1);
-    if (check_used_program())
-    {
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
-    }
+    check_used_program();
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 void Shader::setUniformInt(int location, int value)
 {
     assert(location != -1);
-    if (check_used_program())
-    {
-        glUniform1i(location, value);
-    }
+    check_used_program();
+    glUniform1i(location, value);
 }
 
 void Shader::setUniformFloat(const char *name, float value)
@@ -195,17 +181,38 @@ void Shader::setDefine(const char *name, bool value)
 
 void Shader::addDefine(const char *name)
 {
-    defines_.insert(name);
+    if (hasDefine(name))
+    {
+        return;
+    }
+    dirty_ = true;
+    defines_.emplace_back(name);
 }
 
 void Shader::removeDefine(const char *name)
 {
-    defines_.erase(name);
+    // TODO: removeFast
+    auto it = std::find_if(defines_.begin(), defines_.end(),
+        [&](const std::string &d) { return d == name; });
+    if (it == defines_.end())
+    {
+        return;
+    }
+    dirty_ = true;
+    defines_.erase(it);
 }
 
 void Shader::clearDefines()
 {
     defines_.clear();
+    dirty_ = true;
+}
+
+bool Shader::hasDefine(const char *name)
+{
+    auto it = std::find_if(defines_.begin(), defines_.end(),
+        [&](const std::string &d) { return d == name; });
+    return it != defines_.end();
 }
 
 void Shader::recompile()
@@ -213,33 +220,17 @@ void Shader::recompile()
     clearProgram();
     assert(program_id_ == 0);
 
-    std::string vertex_source;
-    std::string fragment_source;
-
-    if (!filepath_.empty())
+    if (!source_)
     {
-        assert(vertex_src_.empty() && fragment_src_.empty());
-        read_from_file(filepath_.c_str(), vertex_source, fragment_source);
-    }
-    else
-    {
-        assert(!vertex_src_.empty() && !fragment_src_.empty());
-        vertex_source = vertex_src_;
-        fragment_source = fragment_src_;
+        dirty_ = false;
+        return;
     }
 
-    prepare_shader(vertex_source, defines_);
-    prepare_shader(fragment_source, defines_);
+    std::string vertex_source = source_->makeSourceVertex(defines_);
+    std::string fragment_source = source_->makeSourceFragment(defines_);
+
     program_id_ = compile_shader(vertex_source.c_str(), fragment_source.c_str());
-
-    if (program_id_ != 0)
-    {
-        compiled_defines_ = defines_;
-    }
-    else
-    {
-        compiled_defines_.clear();
-    }
+    dirty_ = false;
 }
 
 bool Shader::isLoaded() const
@@ -259,30 +250,25 @@ void Shader::clearProgram()
 
 void Shader::clearAll()
 {
-    filepath_.clear();
-    vertex_src_.clear();
-    fragment_src_.clear();
-    defines_.clear();
-    compiled_defines_.clear();
+    unbindSource();
     clearProgram();
+    defines_.clear();
+    dirty_ = true;
 }
 
-void Shader::bind()
+void Shader::bind() const
 {
+    assert(!dirty_);
     if (program_id_ == 0)
     {
         std::cout << "Shader is not loaded\n" << std::endl;
-    }
-    if (isDirty())
-    {
-        recompile();
     }
     glUseProgram(program_id_);
 }
 
 bool Shader::isDirty() const
 {
-    return !isLoaded() || defines_ != compiled_defines_;
+    return !isLoaded() || dirty_;
 }
 
 int Shader::getUniformLocation(const char *name)
@@ -352,54 +338,6 @@ unsigned int Shader::compile_shader(const char *vertex_src, const char *fragment
     return program_id;
 }
 
-void Shader::read_from_file(const char *path, std::string &vertex, std::string &fragment)
-{
-    vertex.clear();
-    fragment.clear();
-
-    std::string shaders_source = eng.fs->readFile(path);
-
-    const int vertex_idx = shaders_source.find("#vertex");
-    const int vertex_idx_end = vertex_idx + strlen("#vertex");
-
-    const int fragment_idx = shaders_source.find("#fragment");
-    const int fragment_idx_end = fragment_idx + strlen("#fragment");
-
-    assert(vertex_idx < fragment_idx);
-
-    std::string common = shaders_source.substr(0, vertex_idx);
-
-    const auto replace_with = [](std::string &string, const char *from, const char *to) {
-        std::string::size_type pos = 0;
-        while ((pos = string.find(from, pos)) != std::string::npos)
-        {
-            string.replace(pos, strlen(from), to);
-            pos += strlen(to);
-        }
-    };
-
-    vertex = common;
-    replace_with(vertex, "#inout", "out");
-    vertex += shaders_source.substr(vertex_idx_end, fragment_idx - vertex_idx_end);
-
-    fragment = std::move(common);
-    replace_with(fragment, "#inout", "in");
-    fragment += shaders_source.substr(fragment_idx_end);
-}
-
-void Shader::prepare_shader(std::string &shader, const std::unordered_set<std::string> &defines)
-{
-    std::string header;
-    header += SHADER_VERSION_LINE;
-
-    for (const std::string &define : defines)
-    {
-        header += "#define " + define + "\n";
-    }
-
-    shader = header + shader;
-}
-
 bool Shader::check_compiler_errors(unsigned int shader, const char *type)
 {
     int success;
@@ -437,10 +375,9 @@ int Shader::get_uniform_location_with_warning(const char *name)
     return location;
 }
 
-bool Shader::check_used_program()
+void Shader::check_used_program()
 {
     assert(get_current_program() == program_id_);
-    return true;
 }
 
 unsigned int Shader::get_current_program()

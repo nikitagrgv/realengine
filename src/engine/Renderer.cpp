@@ -102,6 +102,8 @@ void Renderer::use_material(Material *material)
         }
     }
 
+    // TODO#!!!!!!! TEMP
+    shader->recompile();
     shader->bind(); // recompile
 
     for (int i = 0, count = material->getNumTextures(); i < count; i++)

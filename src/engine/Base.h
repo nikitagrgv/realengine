@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #if defined(_WIN32) && defined(REALENGINE_SHARED)
     #define REALENGINE_IMPORT __declspec(dllimport)
     #define REALENGINE_EXPORT __declspec(dllexport)
@@ -25,3 +27,12 @@
 #define REMOVE_COPY_MOVE_CLASS(className)                                                          \
     REMOVE_COPY_CLASS(className);                                                                  \
     REMOVE_MOVE_CLASS(className)
+
+template<typename T>
+using UPtr = std::unique_ptr<T>;
+
+template<typename T, class... Args>
+UPtr<T> makeU(Args &&...args)
+{
+    return std::make_unique<T>(std::forward<Args>(args));
+}

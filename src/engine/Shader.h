@@ -3,27 +3,27 @@
 #include "Base.h"
 
 #include "glm/fwd.hpp"
-#include "glm/vec4.hpp"
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 
+
+class ShaderSource;
 class Shader
 {
 public:
     REMOVE_COPY_CLASS(Shader);
 
     Shader();
-    Shader(const char *vertex_src, const char *fragment_src);
-    explicit Shader(const char *path);
+    explicit Shader(ShaderSource *source);
 
     Shader(Shader &&other) noexcept;
     Shader &operator=(Shader &&other) noexcept;
 
     ~Shader();
 
-    void loadSources(const char *vertex_src, const char *fragment_src);
-    void loadFile(const char *path);
+    void setSource(ShaderSource *source);
+    void unbindSource();
+    ShaderSource *getSource() const { return source_; }
 
     void setUniformFloat(int location, float value);
     void setUniformVec2(int location, const glm::vec2 &value);
@@ -43,6 +43,7 @@ public:
     void addDefine(const char *name);
     void removeDefine(const char *name);
     void clearDefines();
+    bool hasDefine(const char *name);
 
     void recompile();
 
@@ -50,7 +51,7 @@ public:
     void clearProgram();
     void clearAll();
 
-    void bind();
+    void bind() const;
 
     bool isDirty() const;
 
@@ -59,24 +60,21 @@ public:
 
 private:
     static unsigned int compile_shader(const char *vertex_src, const char *fragment_src);
-    static void read_from_file(const char *path, std::string &vertex, std::string &fragment);
-    static void prepare_shader(std::string &shader, const std::unordered_set<std::string> &defines);
     static bool check_compiler_errors(unsigned int shader, const char *type);
     static bool check_linking_errors(unsigned int program);
 
     int get_uniform_location_with_warning(const char *name);
 
-    bool check_used_program();
+    void check_used_program();
 
     static unsigned int get_current_program();
 
 private:
-    std::string filepath_;
-    std::string vertex_src_;
-    std::string fragment_src_;
+    friend ShaderSource;
+    ShaderSource *source_{};
 
     std::unordered_map<std::string, int> uniform_locations_;
     unsigned int program_id_{0};
-    std::unordered_set<std::string> defines_;
-    std::unordered_set<std::string> compiled_defines_;
+    std::vector<std::string> defines_;
+    bool dirty_{true};
 };

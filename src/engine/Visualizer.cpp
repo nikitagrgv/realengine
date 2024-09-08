@@ -40,7 +40,9 @@ Visualizer::Visualizer()
             {
                 FragColor = ioColor;
             })";
-    shader.loadSources(vertex_shader, fragment_shader);
+    source_.setSources(vertex_shader, fragment_shader);
+    shader.setSource(&source_);
+    shader.recompile();
 }
 
 void Visualizer::addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color,

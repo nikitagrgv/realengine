@@ -109,12 +109,15 @@ Material &Material::operator=(Material &&other) noexcept
 {
     if (this != &other)
     {
-        shader_ = other.shader_;
+        ShaderSource *source = getShaderSource();
+
+        shader_.setSource(source);
+        shader_.recompile();
         parameters_ = std::move(other.parameters_);
         textures_ = std::move(other.textures_);
         defines_ = std::move(other.defines_);
 
-        other.shader_ = nullptr;
+        other.shader_.clearAll();
         other.two_sided_ = false;
     }
     return *this;
@@ -123,12 +126,33 @@ Material &Material::operator=(Material &&other) noexcept
 Material Material::clone() const
 {
     Material material;
-    material.shader_ = shader_;
+    material.shader_.setSource(shader_.getSource());
+    material.shader_.recompile();
     material.parameters_ = parameters_;
     material.textures_ = textures_;
     material.defines_ = defines_;
     material.two_sided_ = two_sided_;
     return material;
+}
+
+ShaderSource *Material::getShaderSource() const
+{
+    return shader_.getSource();
+}
+
+void Material::setShaderSource(ShaderSource *source)
+{
+    shader_.setSource(source);
+}
+
+void Material::clearShaderSource()
+{
+    shader_.setSource(nullptr);
+}
+
+Shader *Material::getShader()
+{
+    return &shader_;
 }
 
 bool Material::hasParameter(const char *name) const

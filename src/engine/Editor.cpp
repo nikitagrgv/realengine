@@ -68,7 +68,7 @@ void Editor::render_main()
 
     ImGui::Checkbox("Materials", &materials_window_);
     ImGui::SameLine(OFFSET);
-    ImGui::Checkbox("Shaders", &shaders_window_);
+    ImGui::Checkbox("Shader Sources", &shaders_window_);
 
     ImGui::Checkbox("Textures", &texture_window_);
     ImGui::SameLine(OFFSET);
@@ -226,16 +226,16 @@ void Editor::render_materials()
 
             {
                 ImGui::SeparatorText("Shader");
-                Shader *shader = material->getShader();
-                if (shader)
+                ShaderSource *source = material->getShaderSource();
+                if (source)
                 {
                     ImGui::AlignTextToFramePadding();
                     ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                        eng.shader_manager->getName(shader));
+                        eng.shader_manager->getName(source));
                     ImGui::SameLine();
                     if (ImGui::Button("Go##shader"))
                     {
-                        selected_shader_ = eng.shader_manager->getIndex(shader);
+                        selected_shader_ = eng.shader_manager->getIndex(source);
                         shaders_window_ = true;
                     }
                 }
@@ -522,7 +522,19 @@ void Editor::render_shaders()
 
             ImGui::Separator();
 
-            Shader *shader = eng.shader_manager->get(selected_shader_);
+            ShaderSource *source = eng.shader_manager->get(selected_shader_);
+            const std::string file = source->getFilepath();
+
+            ImGui::Text("File:");
+            ImGui::SameLine();
+            if (file.empty())
+            {
+                ImGui::TextDisabled("None");
+            }
+            else
+            {
+                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", file.c_str());
+            }
 
             // TODO# SOURCE CODE VIEW
         }

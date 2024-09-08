@@ -37,9 +37,24 @@ std::string FileSystem::toAbsolutePath(const char *path) const
     return data_path_ + '/' + path;
 }
 
+bool FileSystem::isAbsolutePath(const char *path)
+{
+    // C:\blabla
+    // TODO: shitty
+    return std::isalpha(path[0]) && path[1] == ':' && path[2] == '\\';
+}
+
 std::string FileSystem::readFile(const char *path)
 {
-    std::string abs_path = toAbsolutePath(path);
+    std::string abs_path;
+    if (isAbsolutePath(path))
+    {
+        abs_path = path;
+    }
+    else
+    {
+        abs_path = toAbsolutePath(path);
+    }
     std::ifstream file(abs_path, std::ios::binary);
     std::string str;
     file.seekg(0, std::ios::end);
