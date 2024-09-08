@@ -96,14 +96,17 @@ const char *Material::getParameterTypeName(ParameterType type)
     }
 }
 
-Material::Material() = default;
+Material::Material()
+{
+    shader_ = makeU<Shader>();
+}
 
 Material::~Material() = default;
 
 void Material::cloneTo(Material &dest) const
 {
     assert(this != &dest);
-    dest.shader_.setSource(shader_.getSource());
+    dest.shader_->setSource(shader_->getSource());
     dest.parameters_ = parameters_;
     dest.textures_ = textures_;
     dest.defines_ = defines_;
@@ -113,22 +116,22 @@ void Material::cloneTo(Material &dest) const
 
 ShaderSource *Material::getShaderSource() const
 {
-    return shader_.getSource();
+    return shader_->getSource();
 }
 
 void Material::setShaderSource(ShaderSource *source)
 {
-    shader_.setSource(source);
+    shader_->setSource(source);
 }
 
 void Material::clearShaderSource()
 {
-    shader_.setSource(nullptr);
+    shader_->setSource(nullptr);
 }
 
 Shader *Material::getShader()
 {
-    return &shader_;
+    return shader_.get();
 }
 
 bool Material::hasParameter(const char *name) const
@@ -287,7 +290,7 @@ void Material::set_defines_to_shader()
             defines.push_back(d.name);
         }
     }
-    shader_.setDefines(defines);
+    shader_->setDefines(defines);
 }
 
 int Material::find_parameter(const char *name) const

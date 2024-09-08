@@ -142,7 +142,7 @@ private:
     std::vector<TextureInfo> textures_;
     std::vector<Parameter> parameters_;
     std::vector<Define> defines_;
-    Shader shader_{};
+    UPtr<Shader> shader_{};
 
     bool two_sided_{false};
 };
