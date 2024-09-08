@@ -10,6 +10,8 @@
 class Mesh
 {
 public:
+    REMOVE_COPY_MOVE_CLASS(Mesh);
+
     Mesh();
 
     // Vertices

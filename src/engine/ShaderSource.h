@@ -10,17 +10,13 @@ class Shader;
 class ShaderSource
 {
 public:
-    REMOVE_COPY_CLASS(ShaderSource);
+    REMOVE_COPY_MOVE_CLASS(ShaderSource);
 
     ShaderSource();
     ~ShaderSource();
 
     ShaderSource(const char *vertex_src, const char *fragment_src);
     explicit ShaderSource(const char *path);
-
-    // TODO: remove?
-    ShaderSource(ShaderSource &&other) noexcept;
-    ShaderSource &operator=(ShaderSource &&other) noexcept;
 
     const std::string &getFilepath();
 

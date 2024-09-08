@@ -33,34 +33,6 @@ ShaderSource::ShaderSource(const char *path)
     setFile(path);
 }
 
-ShaderSource::ShaderSource(ShaderSource &&other) noexcept
-{
-    *this = std::move(other);
-}
-
-ShaderSource &ShaderSource::operator=(ShaderSource &&other) noexcept
-{
-    if (this != &other)
-    {
-        // TODO: shitty
-        for (int i = shaders_.size() - 1; i >= 0; --i)
-        {
-            assert(shaders_[i]->getSource() == this);
-            shaders_[i]->unbindSource();
-        }
-        assert(shaders_.empty());
-
-        for (Shader *s : other.shaders_)
-        {
-            assert(s->source_ == &other);
-            other.remove_shader(s);
-            add_shader(s);
-        }
-        shaders_ = std::move(other.shaders_);
-    }
-    return *this;
-}
-
 const std::string &ShaderSource::getFilepath()
 {
     return filepath_;

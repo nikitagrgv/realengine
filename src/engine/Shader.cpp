@@ -17,29 +17,6 @@ Shader::Shader(ShaderSource *source)
     setSource(source);
 }
 
-Shader::Shader(Shader &&other) noexcept
-{
-    *this = std::move(other);
-}
-
-Shader &Shader::operator=(Shader &&other) noexcept
-{
-    if (this != &other)
-    {
-        clearAll();
-
-        setSource(other.source_);
-        uniform_locations_ = std::move(other.uniform_locations_);
-        program_id_ = other.program_id_;
-        defines_ = std::move(other.defines_);
-        dirty_ = other.dirty_;
-
-        other.clearAll();
-    }
-    return *this;
-}
-
-
 Shader::~Shader()
 {
     clearAll();

@@ -11,13 +11,10 @@ class ShaderSource;
 class Shader
 {
 public:
-    REMOVE_COPY_CLASS(Shader);
+    REMOVE_COPY_MOVE_CLASS(Shader);
 
     Shader();
     explicit Shader(ShaderSource *source);
-
-    Shader(Shader &&other) noexcept;
-    Shader &operator=(Shader &&other) noexcept;
 
     ~Shader();
 
@@ -70,7 +67,6 @@ private:
     static unsigned int get_current_program();
 
 private:
-    friend ShaderSource;
     ShaderSource *source_{};
 
     std::unordered_map<std::string, int> uniform_locations_;

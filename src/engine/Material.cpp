@@ -100,39 +100,14 @@ Material::Material() = default;
 
 Material::~Material() = default;
 
-Material::Material(Material &&other) noexcept
+void Material::cloneTo(Material &dest) const
 {
-    *this = std::move(other);
-}
-
-Material &Material::operator=(Material &&other) noexcept
-{
-    if (this != &other)
-    {
-        ShaderSource *source = getShaderSource();
-
-        shader_.setSource(source);
-        shader_.recompile();
-        parameters_ = std::move(other.parameters_);
-        textures_ = std::move(other.textures_);
-        defines_ = std::move(other.defines_);
-
-        other.shader_.clearAll();
-        other.two_sided_ = false;
-    }
-    return *this;
-}
-
-Material Material::clone() const
-{
-    Material material;
-    material.shader_.setSource(shader_.getSource());
-    material.shader_.recompile();
-    material.parameters_ = parameters_;
-    material.textures_ = textures_;
-    material.defines_ = defines_;
-    material.two_sided_ = two_sided_;
-    return material;
+    dest.shader_.setSource(shader_.getSource());
+    dest.shader_.recompile();
+    dest.parameters_ = parameters_;
+    dest.textures_ = textures_;
+    dest.defines_ = defines_;
+    dest.two_sided_ = two_sided_;
 }
 
 ShaderSource *Material::getShaderSource() const

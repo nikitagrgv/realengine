@@ -7,5 +7,7 @@ MaterialManager::MaterialManager()
 Material *MaterialManager::clone(Material *m, const char *name)
 {
     std::string name_string = generate_or_check_name(name);
-    return add(m->clone(), std::move(name_string));
+    auto cloned = makeU<Material>();
+    cloned->cloneTo(*cloned);
+    return add(std::move(cloned), std::move(name_string));
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base.h"
+
 #include <cassert>
 #include <memory>
 #include <string>
@@ -17,7 +19,7 @@ public:
     explicit AbstractManager(std::string empty_name_base);
 
     T *create(const char *name = nullptr);
-    T *add(T obj, const char *name = nullptr); // TODO: remove
+    T *add(UPtr<T> obj, const char *name = nullptr); // TODO: remove
 
     int getCount() const;
 
@@ -41,7 +43,7 @@ public:
 protected:
     std::string generate_or_check_name(const char *name);
 
-    T *add(T obj, std::string name);
+    T *add(UPtr<T> obj, std::string name);
 
 protected:
     std::string empty_name_base_;
@@ -49,7 +51,7 @@ protected:
     struct Object
     {
         std::string name;
-        std::unique_ptr<T> obj;
+        UPtr<T> obj;
     };
     std::vector<Object> objects_;
 
@@ -67,12 +69,12 @@ inline AbstractManager<T>::AbstractManager(std::string empty_name_base)
 template<typename T>
 inline T *AbstractManager<T>::create(const char *name)
 {
-    T obj;
+    UPtr<T> obj = makeU<T>();
     return add(std::move(obj), name);
 }
 
 template<typename T>
-inline T *AbstractManager<T>::add(T obj, const char *name)
+inline T *AbstractManager<T>::add(UPtr<T> obj, const char *name)
 {
     std::string name_string = generate_or_check_name(name);
     return add(std::move(obj), std::move(name_string));
@@ -201,18 +203,17 @@ std::string AbstractManager<T>::generate_or_check_name(const char *name)
 }
 
 template<class T>
-T *AbstractManager<T>::add(T obj, std::string name)
+T *AbstractManager<T>::add(UPtr<T> obj, std::string name)
 {
     assert(by_name_.find(name) == by_name_.end());
 
-    auto unique_ptr = std::make_unique<T>(std::move(obj));
-    auto ptr = unique_ptr.get();
+    auto ptr = obj.get();
 
     const int index = int(objects_.size());
 
     Object o;
     o.name = name;
-    o.obj = std::move(unique_ptr);
+    o.obj = std::move(obj);
     objects_.push_back(std::move(o));
 
     by_name_[std::move(name)] = index;

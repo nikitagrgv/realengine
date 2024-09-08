@@ -34,5 +34,5 @@ using UPtr = std::unique_ptr<T>;
 template<typename T, class... Args>
 UPtr<T> makeU(Args &&...args)
 {
-    return std::make_unique<T>(std::forward<Args>(args));
+    return std::make_unique<T>(std::forward<Args>(args)...);
 }

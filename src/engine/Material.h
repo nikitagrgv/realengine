@@ -26,15 +26,12 @@ public:
     static const char *getParameterTypeName(ParameterType type);
 
 public:
-    REMOVE_COPY_CLASS(Material);
+    REMOVE_COPY_MOVE_CLASS(Material);
 
     Material();
     ~Material();
 
-    Material(Material &&other) noexcept;
-    Material &operator=(Material &&other) noexcept;
-
-    Material clone() const;
+    void cloneTo(Material &dest) const;
 
     ShaderSource *getShaderSource() const;
     void setShaderSource(ShaderSource *source);
