@@ -196,17 +196,28 @@ void Editor::render_materials()
     {
         ImGui::BeginChild("left pane", ImVec2(150, 0),
             ImGuiChildFlags_Border | ImGuiChildFlags_ResizeX);
-        const int num_mat = eng.material_manager->getCount();
-        for (int i = 0; i < num_mat; i++)
+
+        ImGui::Checkbox("Flat", &flat_mode_);
+
+        ImGui::Separator();
+
+        if (flat_mode_)
         {
-            const char *name = eng.material_manager->getName(i);
-            char label[64];
-            sprintf(label, "%d. %.50s", i, name);
-            if (ImGui::Selectable(label, selected_mat_ == i, 0, ImVec2(0, LISTS_HEIGHT)))
+            const int num_mat = eng.material_manager->getCount();
+            for (int i = 0; i < num_mat; i++)
             {
-                selected_mat_ = i;
+                const char *name = eng.material_manager->getName(i);
+                char label[64];
+                sprintf(label, "%d. %.50s", i, name);
+                if (ImGui::Selectable(label, selected_mat_ == i, 0, ImVec2(0, LISTS_HEIGHT)))
+                {
+                    selected_mat_ = i;
+                }
             }
         }
+        else
+        {}
+
         ImGui::EndChild();
     }
     ImGui::SameLine();

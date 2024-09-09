@@ -59,6 +59,7 @@ private:
     // Materials
     int selected_mat_{0};
     bool materials_window_{true};
+    bool flat_mode_{false};
 
     // Meshes
     int selected_mesh{0};
