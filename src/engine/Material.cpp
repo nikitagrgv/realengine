@@ -53,9 +53,9 @@
             std::cout << "Parameter type does not match: " << i << std::endl;                      \
             return;                                                                                \
         }                                                                                          \
-        auto &value = isBase() ? base_.parameters[i].##UNION_ELEMENT##_value                       \
-                               : inherited_.parameters[i].##UNION_ELEMENT##_value;                 \
-        value = value;                                                                             \
+        auto &dst = isBase() ? base_.parameters[i].##UNION_ELEMENT##_value                         \
+                             : inherited_.parameters[i].##UNION_ELEMENT##_value;                   \
+        dst = value;                                                                               \
     }                                                                                              \
                                                                                                    \
     TYPE_VALUE_GET Material::getParameter##TYPE_NAME(const char *name) const                       \
@@ -150,7 +150,7 @@ UPtr<Material> Material::clone() const
     return std::move(cloned);
 }
 
-UPtr<Material> Material::inherit() const
+UPtr<Material> Material::inherit()
 {
     UPtr<Material> inherited = makeU<Material>(this);
     return std::move(inherited);

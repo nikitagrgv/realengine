@@ -34,7 +34,7 @@ public:
     ~Material();
 
     UPtr<Material> clone() const;
-    UPtr<Material> inherit() const;
+    UPtr<Material> inherit();
 
     Material *getBase() const { return base_mat_; }
     Material *getParent() const { return parent_mat_; }
