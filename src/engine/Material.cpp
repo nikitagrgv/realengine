@@ -7,14 +7,14 @@
                                                                                                    \
     int Material::addParameter##TYPE_NAME(const char *name)                                        \
     {                                                                                              \
+        assert(isBase() && children_.empty());                                                     \
         return addParameter##TYPE_NAME(name, DEFAULT_VALUE);                                       \
     }                                                                                              \
                                                                                                    \
     int Material::addParameter##TYPE_NAME(const char *name, TYPE_VALUE_SET value)                  \
     {                                                                                              \
-        assert(isBase());                                                                          \
-        const int index = find_parameter(name);                                                    \
-        if (index != -1)                                                                           \
+        assert(isBase() && children_.empty());                                                     \
+        if (find_parameter(name) != -1)                                                            \
         {                                                                                          \
             std::cout << "Parameter already exists: " << name << std::endl;                        \
             return -1;                                                                             \
@@ -23,8 +23,8 @@
         parameter.name = name;                                                                     \
         parameter.type = ParameterType::##TYPE_NAME;                                               \
         parameter.##UNION_ELEMENT##_value = value;                                                 \
-        const int i = parameters_.size();                                                          \
-        parameters_.push_back(parameter);                                                          \
+        const int i = base_.parameters.size();                                                     \
+        base_.parameters.push_back(parameter);                                                     \
         return i;                                                                                  \
     }                                                                                              \
                                                                                                    \
@@ -37,23 +37,25 @@
             std::cout << "Parameter not found: " << name << std::endl;                             \
             return;                                                                                \
         }                                                                                          \
-        if (parameters_[index].type != ParameterType::##TYPE_NAME)                                 \
+        if (getParameterType(index) != ParameterType::##TYPE_NAME)                                 \
         {                                                                                          \
             std::cout << "Parameter type does not match: " << name << std::endl;                   \
             return;                                                                                \
         }                                                                                          \
-        parameters_[index].##UNION_ELEMENT##_value = value;                                        \
+        setParameter##TYPE_NAME(index, value);                                                     \
     }                                                                                              \
                                                                                                    \
     void Material::setParameter##TYPE_NAME(int i, TYPE_VALUE_SET value)                            \
     {                                                                                              \
-        if (parameters_[i].type != ParameterType::##TYPE_NAME)                                     \
+        assert(isBase() || isParameterOverriden(i));                                               \
+        if (getParameterType(i) != ParameterType::##TYPE_NAME)                                     \
         {                                                                                          \
             std::cout << "Parameter type does not match: " << i << std::endl;                      \
             return;                                                                                \
         }                                                                                          \
-        assert(isBase() || isParameterOverriden(name));                                            \
-        parameters_[i].##UNION_ELEMENT##_value = value;                                            \
+        auto &value = isBase() ? base_.parameters[i].##UNION_ELEMENT##_value                       \
+                               : inherited_.parameters[i].##UNION_ELEMENT##_value;                 \
+        value = value;                                                                             \
     }                                                                                              \
                                                                                                    \
     TYPE_VALUE_GET Material::getParameter##TYPE_NAME(const char *name) const                       \
@@ -69,12 +71,24 @@
                                                                                                    \
     TYPE_VALUE_GET Material::getParameter##TYPE_NAME(int i) const                                  \
     {                                                                                              \
-        if (parameters_[i].type != ParameterType::##TYPE_NAME)                                     \
+        if (getParameterType(i) != ParameterType::##TYPE_NAME)                                     \
         {                                                                                          \
             std::cout << "Parameter type does not match " << i << std::endl;                       \
             return DEFAULT_VALUE;                                                                  \
         }                                                                                          \
-        return parameters_[i].##UNION_ELEMENT##_value;                                             \
+                                                                                                   \
+        const Material *cur = this;                                                                \
+        while (!cur->isBase())                                                                     \
+        {                                                                                          \
+            const ParameterOverride &ov = cur->inherited_.parameters[i];                           \
+            if (ov.override)                                                                       \
+            {                                                                                      \
+                return ov.##UNION_ELEMENT##_value;                                                 \
+            }                                                                                      \
+            cur = cur->parent_mat_;                                                                \
+        }                                                                                          \
+        assert(cur == base_mat_);                                                                  \
+        return cur->base_.parameters[i].##UNION_ELEMENT##_value;                                   \
     }
 
 constexpr glm::vec4 DEFAULT_VEC4 = glm::vec4{0, 0, 0, 1};
