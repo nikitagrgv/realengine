@@ -140,7 +140,7 @@ public:
 
         auto node_floor = eng.world->createNode<NodeMesh>();
         node_floor->setName("floor");
-        node_floor->setMaterial(eng.material_manager->clone(cat_material, "floor"));
+        node_floor->setMaterial(eng.material_manager->inherit(cat_material, "floor"));
         node_floor->setMesh(floor_mesh);
 
         auto node_light = eng.world->createNode<NodeMesh>();
@@ -165,7 +165,7 @@ public:
                                    {glm::vec3{i * 1.0f, 0.0f, -1.0f}})
                 * sc);
 
-            auto mat = eng.material_manager->clone(cat_material, name.c_str());
+            auto mat = eng.material_manager->inherit(cat_material, name.c_str());
             cube->setMaterial(mat);
         }
 

@@ -41,8 +41,8 @@ public:
 
     bool isBase() const
     {
-        assert(base_mat_ != this || parent_mat_ != nullptr);
-        return !parent_mat_;
+        assert((base_mat_ == this) == (parent_mat_ == nullptr));
+        return parent_mat_ == nullptr;
     }
 
     ShaderSource *getShaderSource() const;
