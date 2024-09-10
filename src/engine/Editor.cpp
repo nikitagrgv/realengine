@@ -718,7 +718,7 @@ void Editor::render_texture_info(Texture *texture)
     if (resized)
     {
         ImGui::SameLine();
-        ImGui::TextDisabled("(preview %dx%d)", (int)preview_width, (int)preview_height);
+        ImGui::TextDisabled("(%dx%d)", (int)preview_width, (int)preview_height);
     }
 }
 
