@@ -201,9 +201,9 @@ void Editor::render_materials()
 
         ImGui::Separator();
 
+        const int num_mat = eng.material_manager->getCount();
         if (flat_mode_)
         {
-            const int num_mat = eng.material_manager->getCount();
             for (int i = 0; i < num_mat; i++)
             {
                 const char *name = eng.material_manager->getName(i);
@@ -216,7 +216,22 @@ void Editor::render_materials()
             }
         }
         else
-        {}
+        {
+            for (int i = 0; i < num_mat; i++)
+            {
+                Material *mat = eng.material_manager->get(i);
+                if (!mat->isBase())
+                {
+                    continue;
+                }
+
+                if (ImGui::BeginTable("##tree", 1, ImGuiTableFlags_RowBg))
+                {
+                    draw_tree(mat);
+                    ImGui::EndTable();
+                }
+            }
+        }
 
         ImGui::EndChild();
     }
@@ -772,6 +787,53 @@ void Editor::visualize_selected_node()
     Node *n = eng.world->getNodeByIndex(selected_node_);
     const math::BoundBox &bb = n->getGlobalBoundBox();
     eng.visualizer->addBoundBox(bb, glm::vec4{1.0f, 0.0f, 0.0f, 1.0f}, false);
+}
+
+void Editor::draw_tree(Material *mat)
+{
+    // const char *name = eng.material_manager->getName(i);
+    // char label[64];
+    // sprintf(label, "%d. %.50s", i, name);
+    // if (ImGui::Selectable(label, selected_mat_ == i, 0, ImVec2(0, LISTS_HEIGHT)))
+    // {
+    //     selected_mat_ = i;
+    // }
+    const int num_children = mat->getNumChildren();
+    const bool leaf = num_children == 0;
+    const int mat_index = eng.material_manager->getIndex(mat);
+    const char *mat_name = eng.material_manager->getName(mat);
+    assert(mat_index != -1);
+
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+    ImGui::PushID(mat_index);
+    ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_None;
+    tree_flags |= ImGuiTreeNodeFlags_DefaultOpen;
+    tree_flags |= ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+    tree_flags |= ImGuiTreeNodeFlags_NavLeftJumpsBackHere;
+    if (selected_mat_ == mat_index)
+    {
+        tree_flags |= ImGuiTreeNodeFlags_Selected;
+    }
+    if (leaf)
+    {
+        tree_flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_Bullet;
+    }
+    const bool node_open = ImGui::TreeNodeEx("", tree_flags, "%s", mat_name);
+    if (ImGui::IsItemFocused())
+    {
+        selected_mat_ = mat_index;
+    }
+    if (node_open)
+    {
+        for (int j = 0, count = mat->getNumChildren(); j < count; ++j)
+        {
+            Material *child = mat->getChild(j);
+            draw_tree(child);
+        }
+        ImGui::TreePop();
+    }
+    ImGui::PopID();
 }
 
 bool Editor::render_editor(float &v)

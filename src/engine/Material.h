@@ -39,6 +39,9 @@ public:
     Material *getBase() const { return base_mat_; }
     Material *getParent() const { return parent_mat_; }
 
+    int getNumChildren() const { return children_.size(); }
+    Material *getChild(int i) const { return children_[i]; }
+
     bool isBase() const
     {
         assert((base_mat_ == this) == (parent_mat_ == nullptr));

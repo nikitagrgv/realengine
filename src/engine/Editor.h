@@ -8,6 +8,8 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 
+
+class Material;
 class NodeMesh;
 class Texture;
 
@@ -34,6 +36,8 @@ private:
     void render_node(NodeMesh *node);
 
     void visualize_selected_node();
+
+    void draw_tree(Material *mat);
 
     static bool render_editor(float &v);
     static bool render_editor(glm::vec2 &v);
