@@ -221,7 +221,10 @@ void Material::clearParameters()
 
 void Material::setParameterOverriden(const char *name, bool overriden)
 {
-    assert(!isBase());
+    if (isBase())
+    {
+        return;
+    }
     const int index = find_parameter(name);
     if (index == -1)
     {
@@ -384,7 +387,10 @@ void Material::clearTextures()
 
 void Material::setTextureOverriden(const char *name, bool overriden)
 {
-    assert(!isBase());
+    if (isBase())
+    {
+        return;
+    }
     const int index = find_texture(name);
     if (index == -1)
     {
@@ -396,7 +402,10 @@ void Material::setTextureOverriden(const char *name, bool overriden)
 
 void Material::setTextureOverriden(int i, bool overriden)
 {
-    assert(!isBase());
+    if (isBase())
+    {
+        return;
+    }
     TextureInfoOverride &ov = inherited_.textures[i];
     if (ov.override == overriden)
     {
@@ -532,7 +541,10 @@ void Material::clearDefines()
 
 void Material::setDefineOverriden(const char *name, bool overriden)
 {
-    assert(!isBase());
+    if (isBase())
+    {
+        return;
+    }
     const int index = find_define(name);
     if (index == -1)
     {
@@ -544,7 +556,10 @@ void Material::setDefineOverriden(const char *name, bool overriden)
 
 void Material::setDefineOverriden(int i, bool overriden)
 {
-    assert(!isBase());
+    if (isBase())
+    {
+        return;
+    }
     DefineOverride &ov = inherited_.defines[i];
     if (ov.override == overriden)
     {

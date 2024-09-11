@@ -399,6 +399,7 @@ void Editor::render_materials()
                 {
                     ImGui::PushID(i);
 
+                    ImGui::AlignTextToFramePadding();
                     ImGui::Bullet();
                     ImGui::TextColored(get_color(material->isTextureWritable(i)), "%s",
                         material->getTextureName(i).c_str());
@@ -445,6 +446,7 @@ void Editor::render_materials()
                                 const char *name = eng.texture_manager->getName(j);
                                 if (ImGui::Button(name))
                                 {
+                                    material->setTextureOverriden(i, true);
                                     material->setTexture(i, eng.texture_manager->get(j));
                                     ImGui::CloseCurrentPopup();
                                 }
@@ -478,6 +480,7 @@ void Editor::render_materials()
                     bool enabled = material->getDefine(i);
                     if (ImGui::Checkbox("##", &enabled))
                     {
+                        material->setDefineOverriden(i, true);
                         material->setDefine(i, enabled);
                     }
 
