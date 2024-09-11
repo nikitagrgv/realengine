@@ -100,6 +100,8 @@ public:
     void setParameterOverriden(int i, bool overriden);
     bool isParameterOverriden(const char *name) const;
     bool isParameterOverriden(int i) const;
+    bool isParameterWritable(const char *name) const;
+    bool isParameterWritable(int i) const;
 
     int addTexture(const char *name);
     int addTexture(const char *name, Texture *texture);
@@ -114,6 +116,8 @@ public:
     void setTextureOverriden(int i, bool overriden);
     bool isTextureOverriden(const char *name) const;
     bool isTextureOverriden(int i) const;
+    bool isTextureWritable(const char *name) const;
+    bool isTextureWritable(int i) const;
 
     int addDefine(const char *name);
     int addDefine(const char *name, bool enabled);
@@ -129,11 +133,14 @@ public:
     void setDefineOverriden(int i, bool overriden);
     bool isDefineOverriden(const char *name) const;
     bool isDefineOverriden(int i) const;
+    bool isDefineWritable(const char *name);
+    bool isDefineWritable(int i);
 
     bool isTwoSided() const;
     void setTwoSided(bool two_sided);
     void setTwoSidedOverriden(bool overriden);
     bool isTwoSidedOverriden() const;
+    bool isTwoSidedWritable() const;
 
 private:
     struct Parameter

@@ -233,7 +233,10 @@ void Material::setParameterOverriden(const char *name, bool overriden)
 
 void Material::setParameterOverriden(int i, bool overriden)
 {
-    assert(!isBase());
+    if (isBase())
+    {
+        return;
+    }
     ParameterOverride &ov = inherited_.parameters[i];
     if (ov.override == overriden)
     {
@@ -291,6 +294,16 @@ bool Material::isParameterOverriden(int i) const
 {
     assert(!isBase());
     return inherited_.parameters[i].override;
+}
+
+bool Material::isParameterWritable(const char *name) const
+{
+    return isBase() || isParameterOverriden(name);
+}
+
+bool Material::isParameterWritable(int i) const
+{
+    return isBase() || isParameterOverriden(i);
 }
 
 int Material::addTexture(const char *name)
@@ -412,6 +425,16 @@ bool Material::isTextureOverriden(int i) const
 {
     assert(!isBase());
     return inherited_.textures[i].override;
+}
+
+bool Material::isTextureWritable(const char *name) const
+{
+    return isBase() || isTextureOverriden(name);
+}
+
+bool Material::isTextureWritable(int i) const
+{
+    return isBase() || isTextureOverriden(i);
 }
 
 int Material::addDefine(const char *name)
@@ -553,6 +576,16 @@ bool Material::isDefineOverriden(int i) const
     return inherited_.defines[i].override;
 }
 
+bool Material::isDefineWritable(const char *name)
+{
+    return isBase() || isDefineOverriden(name);
+}
+
+bool Material::isDefineWritable(int i)
+{
+    return isBase() || isDefineOverriden(i);
+}
+
 // TODO: macros?
 bool Material::isTwoSided() const
 {
@@ -577,7 +610,10 @@ void Material::setTwoSided(bool two_sided)
 
 void Material::setTwoSidedOverriden(bool overriden)
 {
-    assert(!isBase());
+    if (isBase())
+    {
+        return;
+    }
     if (options_.two_sided.override == overriden)
     {
         return;
@@ -593,6 +629,11 @@ bool Material::isTwoSidedOverriden() const
 {
     assert(!isBase());
     return options_.two_sided.override;
+}
+
+bool Material::isTwoSidedWritable() const
+{
+    return isBase() || isTwoSidedOverriden();
 }
 
 void Material::set_defines_to_shader()

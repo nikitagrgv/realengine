@@ -136,13 +136,13 @@ void Editor::render_world()
         {
             Node *node = eng.world->getNodeByIndex(selected_node_);
 
-            ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", node->getName().c_str());
+            ImGui::Text("%s", node->getName().c_str());
             ImGui::SameLine();
-            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%s)", node->getTypeName());
+            ImGui::Text("(%s)", node->getTypeName());
 
             ImGui::Text("ID:");
             ImGui::SameLine();
-            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", node->getId());
+            ImGui::Text("%d", node->getId());
 
             ImGui::Separator();
 
@@ -239,16 +239,26 @@ void Editor::render_materials()
 
     // Right
     {
+        constexpr ImColor OVERRIDE_COLOR(181, 230, 29);
+        const ImVec4 DEFAULT_TEXT_COLOR = ImGui::GetStyle().Colors[ImGuiCol_Text];
+        constexpr ImVec2 RESET_BUTTON_SIZE(15, 19);
+
+        const auto get_color = [&](bool is_writable) {
+            return is_writable ? OVERRIDE_COLOR : DEFAULT_TEXT_COLOR;
+        };
+
         ImGui::BeginGroup();
         ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
         if (eng.material_manager->contains(selected_mat_))
         {
-            ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                eng.material_manager->getName(selected_mat_));
+            ImGui::Text("%s", eng.material_manager->getName(selected_mat_));
 
             ImGui::Separator();
 
             Material *material = eng.material_manager->get(selected_mat_);
+
+            const bool is_base = material->isBase();
+            const bool inhertid = !is_base;
 
             {
                 ImGui::SeparatorText("Shader");
@@ -256,8 +266,7 @@ void Editor::render_materials()
                 if (source)
                 {
                     ImGui::AlignTextToFramePadding();
-                    ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                        eng.shader_manager->getName(source));
+                    ImGui::Text("%s", eng.shader_manager->getName(source));
                     ImGui::SameLine();
                     if (ImGui::Button("Go##shader"))
                     {
@@ -275,9 +284,20 @@ void Editor::render_materials()
                 ImGui::SeparatorText("Options");
 
                 bool two_sided = material->isTwoSided();
-                if (ImGui::Checkbox("Two Sided", &two_sided))
+                if (ImGui::Checkbox("##two_sided", &two_sided))
                 {
+                    material->setTwoSidedOverriden(true);
                     material->setTwoSided(two_sided);
+                }
+                ImGui::SameLine();
+                ImGui::TextColored(get_color(material->isTwoSidedWritable()), "Two Sided");
+                if (inhertid && material->isTwoSidedOverriden())
+                {
+                    ImGui::SameLine();
+                    if (ImGui::Button("R##two_sided", RESET_BUTTON_SIZE))
+                    {
+                        material->setTwoSidedOverriden(false);
+                    }
                 }
             }
 
@@ -287,16 +307,27 @@ void Editor::render_materials()
                 const int num_params = material->getNumParameters();
                 for (int i = 0; i < num_params; ++i)
                 {
+                    ImGui::PushID(i);
+
+                    ImColor color = get_color(is_base || material->isParameterOverriden(i));
+
                     ImGui::Bullet();
-                    ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                        material->getParameterName(i).c_str());
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::TextColored(color, "%s", material->getParameterName(i).c_str());
                     ImGui::SameLine();
-                    ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "(%s)",
-                        material->getParameterTypeName(i));
+                    ImGui::AlignTextToFramePadding();
+                    ImGui::TextColored(color, "(%s)", material->getParameterTypeName(i));
+
+                    if (inhertid && material->isParameterOverriden(i))
+                    {
+                        ImGui::SameLine();
+                        if (ImGui::Button("R", RESET_BUTTON_SIZE))
+                        {
+                            material->setParameterOverriden(i, false);
+                        }
+                    }
 
                     ImGui::Indent();
-
-                    ImGui::PushID(i);
 
                     switch (material->getParameterType(i))
                     {
@@ -305,6 +336,7 @@ void Editor::render_materials()
                         float v = material->getParameterFloat(i);
                         if (render_editor(v))
                         {
+                            material->setParameterOverriden(i, true);
                             material->setParameterFloat(i, v);
                         }
                         break;
@@ -314,6 +346,7 @@ void Editor::render_materials()
                         glm::vec2 v = material->getParameterVec2(i);
                         if (render_editor(v))
                         {
+                            material->setParameterOverriden(i, true);
                             material->setParameterVec2(i, v);
                         }
                         break;
@@ -323,6 +356,7 @@ void Editor::render_materials()
                         glm::vec3 v = material->getParameterVec3(i);
                         if (render_editor(v))
                         {
+                            material->setParameterOverriden(i, true);
                             material->setParameterVec3(i, v);
                         }
                         break;
@@ -332,6 +366,7 @@ void Editor::render_materials()
                         glm::vec4 v = material->getParameterVec4(i);
                         if (render_editor(v))
                         {
+                            material->setParameterOverriden(i, true);
                             material->setParameterVec4(i, v);
                         }
                         break;
@@ -341,6 +376,7 @@ void Editor::render_materials()
                         glm::mat4 v = material->getParameterMat4(i);
                         if (render_editor(v))
                         {
+                            material->setParameterOverriden(i, true);
                             material->setParameterMat4(i, v);
                         }
                         break;
@@ -356,13 +392,15 @@ void Editor::render_materials()
             }
 
             {
+                ImGui::PushID("textures");
                 ImGui::SeparatorText("Textures");
                 const int num_textures = material->getNumTextures();
                 for (int i = 0; i < num_textures; ++i)
                 {
+                    ImGui::PushID(i);
+
                     ImGui::Bullet();
-                    ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                        material->getTextureName(i).c_str());
+                    ImGui::Text("%s", material->getTextureName(i).c_str());
 
                     Texture *texture = material->getTexture(i);
 
@@ -375,8 +413,7 @@ void Editor::render_materials()
 
                         ImGui::SameLine();
                         ImGui::AlignTextToFramePadding();
-                        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                            eng.texture_manager->getName(texture));
+                        ImGui::Text("%s", eng.texture_manager->getName(texture));
 
                         ImGui::SameLine();
                         if (ImGui::Button("Go##texture"))
@@ -385,7 +422,13 @@ void Editor::render_materials()
                             selected_texture_ = eng.texture_manager->getIndex(texture);
                         }
 
-                        if (ImGui::BeginPopupContextItem())
+                        ImGui::SameLine();
+                        if (ImGui::Button("Change"))
+                        {
+                            ImGui::OpenPopup("change");
+                        }
+
+                        if (ImGui::BeginPopup("change"))
                         {
                             for (int j = 0; j < eng.texture_manager->getCount(); ++j)
                             {
@@ -396,7 +439,6 @@ void Editor::render_materials()
                                     ImGui::CloseCurrentPopup();
                                 }
                             }
-
                             ImGui::EndPopup();
                         }
 
@@ -408,7 +450,9 @@ void Editor::render_materials()
                     }
 
                     ImGui::Unindent();
+                    ImGui::PopID();
                 }
+                ImGui::PopID();
             }
 
             {
@@ -429,8 +473,7 @@ void Editor::render_materials()
 
                     ImGui::SameLine();
 
-                    ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                        material->getDefineName(i).c_str());
+                    ImGui::Text("%s", material->getDefineName(i).c_str());
                 }
                 ImGui::PopID();
             }
@@ -487,8 +530,7 @@ void Editor::render_textures()
         ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
         if (eng.texture_manager->contains(selected_texture_))
         {
-            ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                eng.texture_manager->getName(selected_texture_));
+            ImGui::Text("%s", eng.texture_manager->getName(selected_texture_));
 
             ImGui::Separator();
 
@@ -543,8 +585,7 @@ void Editor::render_shaders()
         ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
         if (eng.shader_manager->contains(selected_shader_))
         {
-            ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                eng.shader_manager->getName(selected_shader_));
+            ImGui::Text("%s", eng.shader_manager->getName(selected_shader_));
 
             ImGui::Separator();
 
@@ -559,7 +600,7 @@ void Editor::render_shaders()
             }
             else
             {
-                ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", file.c_str());
+                ImGui::Text("%s", file.c_str());
             }
 
             // TODO: source code view
@@ -612,8 +653,7 @@ void Editor::render_meshes()
         ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()));
         if (eng.mesh_manager->contains(selected_mesh))
         {
-            ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s",
-                eng.mesh_manager->getName(selected_mesh));
+            ImGui::Text("%s", eng.mesh_manager->getName(selected_mesh));
 
             ImGui::Separator();
 
@@ -621,11 +661,11 @@ void Editor::render_meshes()
 
             ImGui::Text("Vertices:");
             ImGui::SameLine();
-            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", mesh->getNumVertices());
+            ImGui::Text("%d", mesh->getNumVertices());
 
             ImGui::Text("Indices:");
             ImGui::SameLine();
-            ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%d", mesh->getNumIndices());
+            ImGui::Text("%d", mesh->getNumIndices());
         }
         ImGui::EndChild();
         ImGui::EndGroup();
@@ -701,7 +741,7 @@ void Editor::render_texture_info(Texture *texture)
 
     ImGui::Text("Size:");
     ImGui::SameLine();
-    ImGui::TextColored(HIGHLIGHT_COLOR_OTHER, "%dx%d", orig_width, orig_height);
+    ImGui::Text("%dx%d", orig_width, orig_height);
 
     float preview_width = orig_width;
     float preview_height = orig_height;
@@ -746,7 +786,7 @@ void Editor::render_node(NodeMesh *node)
     ImGui::SameLine();
     if (mesh)
     {
-        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", eng.mesh_manager->getName(mesh));
+        ImGui::Text("%s", eng.mesh_manager->getName(mesh));
         ImGui::SameLine();
         if (ImGui::Button("Go##mesh"))
         {
@@ -764,7 +804,7 @@ void Editor::render_node(NodeMesh *node)
     ImGui::SameLine();
     if (material)
     {
-        ImGui::TextColored(HIGHLIGHT_COLOR_NAMES, "%s", eng.material_manager->getName(material));
+        ImGui::Text("%s", eng.material_manager->getName(material));
         ImGui::SameLine();
         if (ImGui::Button("Go##mat"))
         {
