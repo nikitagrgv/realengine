@@ -258,7 +258,7 @@ void Editor::render_materials()
             Material *material = eng.material_manager->get(selected_mat_);
 
             const bool is_base = material->isBase();
-            const bool inhertid = !is_base;
+            const bool inherited = !is_base;
 
             {
                 ImGui::SeparatorText("Shader");
@@ -291,7 +291,7 @@ void Editor::render_materials()
                 }
                 ImGui::SameLine();
                 ImGui::TextColored(get_color(material->isTwoSidedWritable()), "Two Sided");
-                if (inhertid && material->isTwoSidedOverriden())
+                if (inherited && material->isTwoSidedOverriden())
                 {
                     ImGui::SameLine();
                     if (ImGui::Button("R##two_sided", RESET_BUTTON_SIZE))
@@ -318,7 +318,7 @@ void Editor::render_materials()
                     ImGui::AlignTextToFramePadding();
                     ImGui::TextColored(color, "(%s)", material->getParameterTypeName(i));
 
-                    if (inhertid && material->isParameterOverriden(i))
+                    if (inherited && material->isParameterOverriden(i))
                     {
                         ImGui::SameLine();
                         if (ImGui::Button("R", RESET_BUTTON_SIZE))
@@ -400,7 +400,17 @@ void Editor::render_materials()
                     ImGui::PushID(i);
 
                     ImGui::Bullet();
-                    ImGui::Text("%s", material->getTextureName(i).c_str());
+                    ImGui::TextColored(get_color(material->isTextureWritable(i)), "%s",
+                        material->getTextureName(i).c_str());
+
+                    if (inherited && material->isTextureOverriden(i))
+                    {
+                        ImGui::SameLine();
+                        if (ImGui::Button("R", RESET_BUTTON_SIZE))
+                        {
+                            material->setTextureOverriden(i, false);
+                        }
+                    }
 
                     Texture *texture = material->getTexture(i);
 
@@ -461,19 +471,30 @@ void Editor::render_materials()
                 const int num_defines = material->getNumDefines();
                 for (int i = 0; i < num_defines; ++i)
                 {
+                    ImGui::PushID(i);
+
                     ImGui::Bullet();
 
                     bool enabled = material->getDefine(i);
-                    ImGui::PushID(i);
                     if (ImGui::Checkbox("##", &enabled))
                     {
                         material->setDefine(i, enabled);
                     }
-                    ImGui::PopID();
 
                     ImGui::SameLine();
+                    ImGui::TextColored(get_color(material->isDefineWritable(i)), "%s",
+                        material->getDefineName(i).c_str());
 
-                    ImGui::Text("%s", material->getDefineName(i).c_str());
+                    if (inherited && material->isDefineOverriden(i))
+                    {
+                        ImGui::SameLine();
+                        if (ImGui::Button("R", RESET_BUTTON_SIZE))
+                        {
+                            material->setDefineOverriden(i, false);
+                        }
+                    }
+
+                    ImGui::PopID();
                 }
                 ImGui::PopID();
             }
