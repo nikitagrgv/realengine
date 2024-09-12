@@ -133,15 +133,15 @@ void Visualizer::render(const glm::mat4 &viewproj)
     shader.bind();
     shader.setUniformMat4("uViewProj", viewproj);
 
-    glEnable(GL_DEPTH_TEST);
+    GL_CHECKED(glEnable(GL_DEPTH_TEST));
     lines_vao_.bind();
     lines_vbo_.flush(true);
-    glDrawArrays(GL_LINES, 0, lines_vbo_.getNumVertices());
+    GL_CHECKED(glDrawArrays(GL_LINES, 0, lines_vbo_.getNumVertices()));
     lines_vbo_.clear();
 
-    glDisable(GL_DEPTH_TEST);
+    GL_CHECKED(glDisable(GL_DEPTH_TEST));
     nodepth_lines_vao_.bind();
     nodepth_lines_vbo_.flush(true);
-    glDrawArrays(GL_LINES, 0, nodepth_lines_vbo_.getNumVertices());
+    GL_CHECKED(glDrawArrays(GL_LINES, 0, nodepth_lines_vbo_.getNumVertices()));
     nodepth_lines_vbo_.clear();
 }

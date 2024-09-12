@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <memory>
 
 #if defined(_WIN32) && defined(REALENGINE_SHARED)
@@ -36,3 +37,23 @@ UPtr<T> makeU(Args &&...args)
 {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
+
+void clearGLErrors();
+bool checkGLErrors(const char *function, const char *file, int line);
+
+#ifndef NDEBUG
+    #define GL_CHECKED(x)                                                                          \
+        clearGLErrors();                                                                           \
+        x;                                                                                         \
+        assert(checkGLErrors(#x, __FILE__, __LINE__))
+    #define GL_CHECKED_RET(x)                                                                      \
+        [&]() {                                                                                    \
+            clearGLErrors();                                                                       \
+            auto ret = x;                                                                          \
+            assert(checkGLErrors(#x, __FILE__, __LINE__));                                         \
+            return ret;                                                                            \
+        }()
+#else
+    #define GL_CHECKED(x)     x
+    #define GL_CHECKED_RET(x) x
+#endif

@@ -7,19 +7,19 @@
 
 void VertexArrayObject::unbind()
 {
-    glBindVertexArray(0);
+    GL_CHECKED(glBindVertexArray(0));
 }
 
 VertexArrayObject::VertexArrayObject()
 {
-    glGenVertexArrays(1, &vao_);
+    GL_CHECKED(glGenVertexArrays(1, &vao_));
 }
 
 VertexArrayObject::~VertexArrayObject()
 {
     if (vao_ != 0)
     {
-        glDeleteVertexArrays(1, &vao_);
+        GL_CHECKED(glDeleteVertexArrays(1, &vao_));
     }
 }
 
@@ -34,7 +34,7 @@ VertexArrayObject &VertexArrayObject::operator=(VertexArrayObject &&other) noexc
     {
         if (vao_ != 0)
         {
-            glDeleteVertexArrays(1, &vao_);
+            GL_CHECKED(glDeleteVertexArrays(1, &vao_));
         }
         vao_ = other.vao_;
         other.vao_ = 0;
@@ -64,7 +64,7 @@ void VertexArrayObject::bind() const
         std::cout << "VertexArrayObject::bind() - vao_ == 0" << std::endl;
         return;
     }
-    glBindVertexArray(vao_);
+    GL_CHECKED(glBindVertexArray(vao_));
 }
 
 void VertexArrayObject::flush() const
@@ -81,14 +81,14 @@ void VertexArrayObject::flush() const
         stride += attribute.count * attribute.size_of_type;
     }
 
-    glBindVertexArray(vao_);
+    GL_CHECKED(glBindVertexArray(vao_));
     size_t offset = 0;
     for (int i = 0; i < attributes_.size(); ++i)
     {
         const Attribute &attribute = attributes_[i];
-        glVertexAttribPointer(i, attribute.count, attribute.type, GL_FALSE, stride,
-            reinterpret_cast<void *>(offset));
-        glEnableVertexAttribArray(i);
+        GL_CHECKED(glVertexAttribPointer(i, attribute.count, attribute.type, GL_FALSE, stride,
+            reinterpret_cast<void *>(offset)));
+        GL_CHECKED(glEnableVertexAttribArray(i));
         offset += attribute.count * attribute.size_of_type;
     }
     unbind();

@@ -9,17 +9,17 @@
 
 void IndexBufferObject::unbind()
 {
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    GL_CHECKED(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
 
 IndexBufferObject::IndexBufferObject()
 {
-    glGenBuffers(1, &ebo_);
+    GL_CHECKED(glGenBuffers(1, &ebo_));
 }
 
 IndexBufferObject::~IndexBufferObject()
 {
-    glDeleteBuffers(1, &ebo_);
+    GL_CHECKED(glDeleteBuffers(1, &ebo_));
 }
 
 IndexBufferObject::IndexBufferObject(IndexBufferObject &&other) noexcept
@@ -33,7 +33,7 @@ IndexBufferObject &IndexBufferObject::operator=(IndexBufferObject &&other) noexc
     {
         if (ebo_ != 0)
         {
-            glDeleteBuffers(1, &ebo_);
+            GL_CHECKED(glDeleteBuffers(1, &ebo_));
         }
         ebo_ = other.ebo_;
         other.ebo_ = 0;
@@ -81,7 +81,7 @@ void IndexBufferObject::bind()
         std::cout << "IndexBufferObject::bind() - ebo_ == 0" << std::endl;
         return;
     }
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
+    GL_CHECKED(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_));
 }
 
 void IndexBufferObject::flush(bool dynamic)
@@ -92,6 +92,6 @@ void IndexBufferObject::flush(bool dynamic)
         return;
     }
     const int load_flag = dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * INDEX_SIZE, indices_.data(), load_flag);
+    GL_CHECKED(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_));
+    GL_CHECKED(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * INDEX_SIZE, indices_.data(), load_flag));
 }

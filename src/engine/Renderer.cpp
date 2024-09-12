@@ -18,23 +18,23 @@
 
 void Renderer::clearBuffers()
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GL_CHECKED(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
+    GL_CHECKED(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
 void Renderer::renderWorld(Camera *camera, Light *light)
 {
     assert(camera);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    GL_CHECKED(glEnable(GL_BLEND));
+    GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-    glEnable(GL_DEPTH_TEST);
+    GL_CHECKED(glEnable(GL_DEPTH_TEST));
 
-    glCullFace(GL_BACK);
+    GL_CHECKED(glCullFace(GL_BACK));
 
     eng.window->bind();
-    glViewport(0, 0, eng.window->getWidth(), eng.window->getHeight());
+    GL_CHECKED(glViewport(0, 0, eng.window->getWidth(), eng.window->getHeight()));
 
     for (int i = 0, count = eng.world->getNumNodes(); i < count; ++i)
     {
@@ -75,14 +75,14 @@ void Renderer::renderWorld(Camera *camera, Light *light)
 
             if (mat->isTwoSided())
             {
-                glDisable(GL_CULL_FACE);
+                GL_CHECKED(glDisable(GL_CULL_FACE));
             }
             else
             {
-                glEnable(GL_CULL_FACE);
+                GL_CHECKED(glEnable(GL_CULL_FACE));
             }
 
-            glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0);
+            GL_CHECKED(glDrawElements(GL_TRIANGLES, mesh->getNumIndices(), GL_UNSIGNED_INT, 0));
             eng.stat.addRenderedIndices(mesh->getNumIndices());
         }
     }

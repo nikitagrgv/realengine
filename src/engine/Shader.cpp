@@ -53,42 +53,42 @@ void Shader::setUniformFloat(int location, float value)
 {
     assert(location != -1);
     check_used_program();
-    glUniform1f(location, value);
+    GL_CHECKED(glUniform1f(location, value));
 }
 
 void Shader::setUniformVec2(int location, const glm::vec2 &value)
 {
     assert(location != -1);
     check_used_program();
-    glUniform2f(location, value.x, value.y);
+    GL_CHECKED(glUniform2f(location, value.x, value.y));
 }
 
 void Shader::setUniformVec3(int location, const glm::vec3 &value)
 {
     assert(location != -1);
     check_used_program();
-    glUniform3f(location, value.x, value.y, value.z);
+    GL_CHECKED(glUniform3f(location, value.x, value.y, value.z));
 }
 
 void Shader::setUniformVec4(int location, const glm::vec4 &value)
 {
     assert(location != -1);
     check_used_program();
-    glUniform4f(location, value.x, value.y, value.z, value.w);
+    GL_CHECKED(glUniform4f(location, value.x, value.y, value.z, value.w));
 }
 
 void Shader::setUniformMat4(int location, const glm::mat4 &value)
 {
     assert(location != -1);
     check_used_program();
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    GL_CHECKED(glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value)));
 }
 
 void Shader::setUniformInt(int location, int value)
 {
     assert(location != -1);
     check_used_program();
-    glUniform1i(location, value);
+    GL_CHECKED(glUniform1i(location, value));
 }
 
 void Shader::setUniformFloat(const char *name, float value)
@@ -188,7 +188,7 @@ void Shader::clearProgram()
 {
     if (program_id_ != 0)
     {
-        glDeleteProgram(program_id_);
+        GL_CHECKED(glDeleteProgram(program_id_));
         program_id_ = 0;
     }
     uniform_locations_.clear();
@@ -209,7 +209,7 @@ void Shader::bind() const
     {
         std::cout << "Shader is not loaded\n" << std::endl;
     }
-    glUseProgram(program_id_);
+    GL_CHECKED(glUseProgram(program_id_));
 }
 
 bool Shader::isDirty() const
@@ -226,10 +226,10 @@ int Shader::getUniformLocation(const char *name)
     auto it = uniform_locations_.find(name);
     if (it != uniform_locations_.end())
     {
-        assert(it->second == glGetUniformLocation(program_id_, name));
+        assert(it->second == GL_CHECKED_RET(glGetUniformLocation(program_id_, name)));
         return it->second;
     }
-    const int location = glGetUniformLocation(program_id_, name);
+    const int location = GL_CHECKED_RET(glGetUniformLocation(program_id_, name));
     uniform_locations_[name] = location;
     return location;
 }
@@ -242,44 +242,44 @@ int Shader::hasUniform(const char *name)
 unsigned int Shader::compile_shader(const char *vertex_src, const char *fragment_src)
 {
     unsigned int vertex_id;
-    vertex_id = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_id, 1, &vertex_src, NULL);
-    glCompileShader(vertex_id);
+    vertex_id = GL_CHECKED_RET(glCreateShader(GL_VERTEX_SHADER));
+    GL_CHECKED(glShaderSource(vertex_id, 1, &vertex_src, NULL));
+    GL_CHECKED(glCompileShader(vertex_id));
     bool success = check_compiler_errors(vertex_id, "VERTEX");
     if (!success)
     {
-        glDeleteShader(vertex_id);
+        GL_CHECKED(glDeleteShader(vertex_id));
         return 0;
     }
 
     unsigned int fragment_id;
-    fragment_id = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_id, 1, &fragment_src, NULL);
-    glCompileShader(fragment_id);
+    fragment_id = GL_CHECKED_RET(glCreateShader(GL_FRAGMENT_SHADER));
+    GL_CHECKED(glShaderSource(fragment_id, 1, &fragment_src, NULL));
+    GL_CHECKED(glCompileShader(fragment_id));
     success = check_compiler_errors(fragment_id, "FRAGMENT");
     if (!success)
     {
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
+        GL_CHECKED(glDeleteShader(vertex_id));
+        GL_CHECKED(glDeleteShader(fragment_id));
         return 0;
     }
 
-    unsigned int program_id = glCreateProgram();
-    glAttachShader(program_id, vertex_id);
-    glAttachShader(program_id, fragment_id);
-    glLinkProgram(program_id);
+    unsigned int program_id = GL_CHECKED_RET(glCreateProgram());
+    GL_CHECKED(glAttachShader(program_id, vertex_id));
+    GL_CHECKED(glAttachShader(program_id, fragment_id));
+    GL_CHECKED(glLinkProgram(program_id));
     success = check_linking_errors(program_id);
     if (!success)
     {
-        glDeleteShader(vertex_id);
-        glDeleteShader(fragment_id);
-        glDeleteProgram(program_id);
+        GL_CHECKED(glDeleteShader(vertex_id));
+        GL_CHECKED(glDeleteShader(fragment_id));
+        GL_CHECKED(glDeleteProgram(program_id));
         return 0;
     }
 
-    glUseProgram(program_id);
-    glDeleteShader(vertex_id);
-    glDeleteShader(fragment_id);
+    GL_CHECKED(glUseProgram(program_id));
+    GL_CHECKED(glDeleteShader(vertex_id));
+    GL_CHECKED(glDeleteShader(fragment_id));
     eng.stat.addCompiledShaders(1);
     return program_id;
 }
@@ -288,10 +288,10 @@ bool Shader::check_compiler_errors(unsigned int shader, const char *type)
 {
     int success;
     char infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    GL_CHECKED(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
     if (!success)
     {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        GL_CHECKED(glGetShaderInfoLog(shader, 512, NULL, infoLog));
         std::cout << "ERROR::SHADER::COMPILATION_FAILED (" << type << "):\n"
                   << infoLog << std::endl;
     }
@@ -302,10 +302,10 @@ bool Shader::check_linking_errors(unsigned int program)
 {
     int success;
     char infoLog[512];
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    GL_CHECKED(glGetProgramiv(program, GL_LINK_STATUS, &success));
     if (!success)
     {
-        glGetProgramInfoLog(program, 512, NULL, infoLog);
+        GL_CHECKED(glGetProgramInfoLog(program, 512, NULL, infoLog));
         std::cout << "ERROR::SHADER::LINKING_FAILED:\n" << infoLog << std::endl;
     }
     return success;
@@ -329,6 +329,6 @@ void Shader::check_used_program()
 unsigned int Shader::get_current_program()
 {
     int id;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &id);
+    GL_CHECKED(glGetIntegerv(GL_CURRENT_PROGRAM, &id));
     return (unsigned int)id;
 }

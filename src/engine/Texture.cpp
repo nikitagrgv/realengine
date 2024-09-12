@@ -148,19 +148,19 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
         std::cout << "Invalid mag filter" << std::endl;
     }
 
-    glGenTextures(1, &id_);
-    glBindTexture(GL_TEXTURE_2D, id_);
-    glTexImage2D(GL_TEXTURE_2D, 0, gl_dst_format, width, height, 0, gl_src_format, GL_UNSIGNED_BYTE,
-        data);
+    GL_CHECKED(glGenTextures(1, &id_));
+    GL_CHECKED(glBindTexture(GL_TEXTURE_2D, id_));
+    GL_CHECKED(glTexImage2D(GL_TEXTURE_2D, 0, gl_dst_format, width, height, 0, gl_src_format, GL_UNSIGNED_BYTE,
+        data));
     if (gl_min_filter == GL_LINEAR_MIPMAP_LINEAR || gl_min_filter == GL_LINEAR_MIPMAP_NEAREST
         || gl_mag_filter == GL_LINEAR_MIPMAP_LINEAR || gl_mag_filter == GL_LINEAR_MIPMAP_NEAREST)
     {
-        glGenerateMipmap(GL_TEXTURE_2D);
+        GL_CHECKED(glGenerateMipmap(GL_TEXTURE_2D));
     }
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gl_wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gl_wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter);
+    GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gl_wrap));
+    GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gl_wrap));
+    GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_min_filter));
+    GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_mag_filter));
 }
 
 void Texture::bind(int slot) const
@@ -171,8 +171,8 @@ void Texture::bind(int slot) const
         return;
     }
     assert(slot >= 0 && slot < 32);
-    glActiveTexture(GL_TEXTURE0 + slot);
-    glBindTexture(GL_TEXTURE_2D, id_);
+    GL_CHECKED(glActiveTexture(GL_TEXTURE0 + slot));
+    GL_CHECKED(glBindTexture(GL_TEXTURE_2D, id_));
 }
 
 void Texture::clear()
@@ -181,7 +181,7 @@ void Texture::clear()
     height_ = -1;
     if (id_ != 0)
     {
-        glDeleteTextures(1, &id_);
+        GL_CHECKED(glDeleteTextures(1, &id_));
         id_ = 0;
     }
 }
