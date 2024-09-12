@@ -43,6 +43,7 @@ bool checkGLErrors(const char *function, const char *file, int line);
 
 #ifndef NDEBUG
     #define GL_CHECKED(x)                                                                          \
+        assert(checkGLErrors(#x, __FILE__, __LINE__) && "Previous errors");                        \
         x;                                                                                         \
         assert(checkGLErrors(#x, __FILE__, __LINE__))
     #define GL_CHECKED_RET(x)                                                                      \
