@@ -88,6 +88,9 @@ public:
         Material *cat_material = eng.material_manager->create("cat");
         cat_material->setShaderSource(basic_shader_src);
         cat_material->addTexture("uTexture", cat_texture);
+        cat_material->addParameterVec3("uMaterial.ambient", glm::vec3{1, 1, 1});
+        cat_material->addParameterVec3("uMaterial.diffuse", glm::vec3{1, 1, 1});
+        cat_material->addParameterVec3("uMaterial.specular", glm::vec3{1, 1, 1});
         cat_material->addParameterFloat("uMaterial.shininess", 32.0f);
         cat_material->addDefine("USE_AMBIENT", true);
         cat_material->addDefine("USE_DIFFUSE", true);

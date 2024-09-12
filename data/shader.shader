@@ -55,19 +55,19 @@ void main()
     vec3 norm = normalize(ioNormalGlobal);
 
     #ifdef USE_AMBIENT
-    ambient = uLight.ambientPower * uLight.color;
+    ambient = uLight.ambientPower * uLight.color * uMaterial.ambient;
     #endif
 
     #ifdef USE_DIFFUSE
     float diff = max(dot(norm, dir_to_light), 0.0);
-    diffuse = uLight.diffusePower * diff * uLight.color;
+    diffuse = uLight.diffusePower * diff * uLight.color * uMaterial.diffuse;
     #endif
 
     #ifdef USE_SPECULAR
     vec3 dir_to_view = normalize(uCameraPos - ioFragPosGlobal);
     vec3 reflect_dir = reflect(-dir_to_light, norm);
     float spec = pow(max(dot(dir_to_view, reflect_dir), 0.0), uMaterial.shininess);
-    specular = uLight.specularPower * spec * uLight.color;
+    specular = uLight.specularPower * spec * uLight.color * uMaterial.specular;
     #endif
 
     FragColor = vec4(ambient + diffuse + specular, 1) * texture(uTexture, ioUV);
