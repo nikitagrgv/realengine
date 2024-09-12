@@ -80,21 +80,26 @@ public:
         basic_shader_src->setFile("shader.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
+        Texture *white_texture = eng.texture_manager->create("white");
+        white_texture->load("white.png");
+
+        ///////////////////////////////////////////////////////////////////////////////
         Texture *cat_texture = eng.texture_manager->create();
         cat_texture->load("image.png");
         Mesh *cat_mesh = eng.mesh_manager->create("cat");
         MeshLoader::loadToMesh("object.obj", cat_mesh);
 
-        Material *cat_material = eng.material_manager->create("cat");
-        cat_material->setShaderSource(basic_shader_src);
-        cat_material->addTexture("uTexture", cat_texture);
-        cat_material->addParameterVec3("uMaterial.ambient", glm::vec3{1, 1, 1});
-        cat_material->addParameterVec3("uMaterial.diffuse", glm::vec3{1, 1, 1});
-        cat_material->addParameterVec3("uMaterial.specular", glm::vec3{1, 1, 1});
-        cat_material->addParameterFloat("uMaterial.shininess", 32.0f);
-        cat_material->addDefine("USE_AMBIENT", true);
-        cat_material->addDefine("USE_DIFFUSE", true);
-        cat_material->addDefine("USE_SPECULAR", true);
+        Material *basic_material = eng.material_manager->create("basic");
+        basic_material->setShaderSource(basic_shader_src);
+        basic_material->addTexture("uAlbedo", white_texture);
+        basic_material->addTexture("uSpecular", white_texture);
+        basic_material->addParameterVec3("uMaterial.ambient", glm::vec3{1, 1, 1});
+        basic_material->addParameterVec3("uMaterial.diffuse", glm::vec3{1, 1, 1});
+        basic_material->addParameterVec3("uMaterial.specular", glm::vec3{1, 1, 1});
+        basic_material->addParameterFloat("uMaterial.shininess", 32.0f);
+        basic_material->addDefine("USE_AMBIENT", true);
+        basic_material->addDefine("USE_DIFFUSE", true);
+        basic_material->addDefine("USE_SPECULAR", true);
 
         Material *light_cube_material = eng.material_manager->create("light cube");
         light_cube_material->setShaderSource(light_cube_shader_src);
@@ -107,6 +112,22 @@ public:
 
         Mesh *stickman_mesh = eng.mesh_manager->create("stickman");
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
+
+        /////////////////////////////////////////////////
+        Mesh *crate_mesh = eng.mesh_manager->create("crate");
+        MeshLoader::loadToMesh("crate.obj", crate_mesh, false);
+
+        Texture *crate_albedo_texture = eng.texture_manager->create("crate_albedo");
+        crate_albedo_texture->load("crate_albedo.png");
+
+        Texture *crate_specular_texture = eng.texture_manager->create("crate_specular");
+        crate_specular_texture->load("crate_specular.png");
+
+        auto crate_mat = eng.material_manager->inherit(basic_material);
+        crate_mat->setTextureOverriden("uAlbedo", true);
+        crate_mat->setTextureOverriden("uSpecular", true);
+        crate_mat->setTexture("uAlbedo", crate_albedo_texture);
+        crate_mat->setTexture("uSpecular", crate_specular_texture);
 
         ////////////////////////////////////////////////
         Texture *floor_texture = eng.texture_manager->create();
@@ -133,17 +154,22 @@ public:
 
         auto node_cat = eng.world->createNode<NodeMesh>();
         node_cat->setName("cat");
-        node_cat->setMaterial(cat_material);
+        node_cat->setMaterial(basic_material);
         node_cat->setMesh(cat_mesh);
+
+        auto node_crate = eng.world->createNode<NodeMesh>();
+        node_crate->setName("crate");
+        node_crate->setMaterial(crate_mat);
+        node_crate->setMesh(crate_mesh);
 
         auto node_stickman = eng.world->createNode<NodeMesh>();
         node_stickman->setName("stickman");
-        node_stickman->setMaterial(cat_material);
+        node_stickman->setMaterial(basic_material);
         node_stickman->setMesh(stickman_mesh);
 
         auto node_floor = eng.world->createNode<NodeMesh>();
         node_floor->setName("floor");
-        node_floor->setMaterial(eng.material_manager->inherit(cat_material, "floor"));
+        node_floor->setMaterial(eng.material_manager->inherit(basic_material, "floor"));
         node_floor->setMesh(floor_mesh);
 
         auto node_light = eng.world->createNode<NodeMesh>();
@@ -168,7 +194,7 @@ public:
                                    {glm::vec3{i * 1.0f, 0.0f, -1.0f}})
                 * sc);
 
-            auto mat = eng.material_manager->inherit(cat_material, name.c_str());
+            auto mat = eng.material_manager->inherit(basic_material, name.c_str());
             cube->setMaterial(mat);
         }
 
@@ -224,6 +250,11 @@ public:
 
             node_cat->setTransform(glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
                                        glm::vec3(1.0f, 0.0f, 0.0f))
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
+
+            node_crate->setTransform(glm::translate(glm::mat4{1.0f}, {2, 0, 2})
+                * glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
+                    glm::vec3(1.0f, 1.0f, 1.0f))
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
 
             node_stickman->setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
