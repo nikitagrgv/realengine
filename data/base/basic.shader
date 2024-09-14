@@ -25,8 +25,6 @@ void main()
 #fragment
 out vec4 FragColor;
 
-uniform sampler2D uAlbedo;
-uniform sampler2D uSpecular;
 uniform vec3 uCameraPos;
 
 struct Light {
@@ -39,6 +37,9 @@ struct Light {
 uniform Light uLight;
 
 struct Material {
+    sampler2D diffuseMap;
+    sampler2D specularMap;
+    sampler2D emissionMap;
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
@@ -51,11 +52,12 @@ void main()
     vec3 ambient = vec3(0.0);
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
+    vec3 emission = texture(uMaterial.emissionMap, ioUV).rgb;
 
     vec3 dir_to_light = normalize(uLight.pos - ioFragPosGlobal);
     vec3 norm = normalize(ioNormalGlobal);
-    vec3 albedo_tex_color = vec3(texture(uAlbedo, ioUV));
-    vec3 specular_tex_color = vec3(texture(uSpecular, ioUV));
+    vec3 albedo_tex_color = vec3(texture(uMaterial.diffuseMap, ioUV));
+    vec3 specular_tex_color = vec3(texture(uMaterial.specularMap, ioUV));
 
     #ifdef USE_AMBIENT
     ambient = uLight.ambientPower * uLight.color * uMaterial.ambient * albedo_tex_color;
@@ -73,5 +75,5 @@ void main()
     specular = uLight.specularPower * spec * uLight.color * uMaterial.specular * specular_tex_color;
     #endif
 
-    FragColor = vec4(ambient + diffuse + specular, 1);
+    FragColor = vec4(ambient + diffuse + specular + emission, 1);
 }

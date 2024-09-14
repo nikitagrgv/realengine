@@ -83,6 +83,12 @@ public:
         Texture *white_texture = eng.texture_manager->create("white");
         white_texture->load("base/white.png");
 
+        Texture *black_texture = eng.texture_manager->create("black");
+        black_texture->load("base/black.png");
+
+        Texture *normal_default_texture = eng.texture_manager->create("normal_default");
+        normal_default_texture->load("base/normal_default.png");
+
         ///////////////////////////////////////////////////////////////////////////////
         Texture *cat_texture = eng.texture_manager->create("cat");
         cat_texture->load("cat.png");
@@ -92,8 +98,9 @@ public:
 
         Material *basic_material = eng.material_manager->create("basic");
         basic_material->setShaderSource(basic_shader_src);
-        basic_material->addTexture("uAlbedo", white_texture);
-        basic_material->addTexture("uSpecular", white_texture);
+        basic_material->addTexture("uMaterial.diffuseMap", white_texture);
+        basic_material->addTexture("uMaterial.specularMap", white_texture);
+        basic_material->addTexture("uMaterial.emissionMap", black_texture);
         basic_material->addParameterVec3("uMaterial.ambient", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.diffuse", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.specular", glm::vec3{1, 1, 1});
@@ -124,14 +131,16 @@ public:
         Texture *crate_specular_texture = eng.texture_manager->create("crate_specular");
         crate_specular_texture->load("crate_specular.png");
 
-        Texture *crate_emission = eng.texture_manager->create("crate_emission");
-        crate_emission->load("crate_emission.png");
+        Texture *crate_emission_texture = eng.texture_manager->create("crate_emission");
+        crate_emission_texture->load("crate_emission.png");
 
         auto crate_mat = eng.material_manager->inherit(basic_material);
-        crate_mat->setTextureOverriden("uAlbedo", true);
-        crate_mat->setTextureOverriden("uSpecular", true);
-        crate_mat->setTexture("uAlbedo", crate_albedo_texture);
-        crate_mat->setTexture("uSpecular", crate_specular_texture);
+        crate_mat->setTextureOverriden("uMaterial.diffuseMap", true);
+        crate_mat->setTextureOverriden("uMaterial.specularMap", true);
+        crate_mat->setTextureOverriden("uMaterial.emissionMap", true);
+        crate_mat->setTexture("uMaterial.diffuseMap", crate_albedo_texture);
+        crate_mat->setTexture("uMaterial.specularMap", crate_specular_texture);
+        crate_mat->setTexture("uMaterial.emissionMap", crate_emission_texture);
 
         ////////////////////////////////////////////////
         Texture *floor_texture = eng.texture_manager->create("floor");
