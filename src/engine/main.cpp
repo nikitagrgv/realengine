@@ -77,17 +77,18 @@ public:
 
         ///////////////////////////////////////////////////////////////////////////////
         ShaderSource *basic_shader_src = eng.shader_manager->create("basic");
-        basic_shader_src->setFile("shader.shader");
+        basic_shader_src->setFile("base/basic.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
         Texture *white_texture = eng.texture_manager->create("white");
-        white_texture->load("white.png");
+        white_texture->load("base/white.png");
 
         ///////////////////////////////////////////////////////////////////////////////
-        Texture *cat_texture = eng.texture_manager->create();
-        cat_texture->load("image.png");
-        Mesh *cat_mesh = eng.mesh_manager->create("cat");
-        MeshLoader::loadToMesh("object.obj", cat_mesh);
+        Texture *cat_texture = eng.texture_manager->create("cat");
+        cat_texture->load("cat.png");
+
+        Mesh *deformed_cube_mesh = eng.mesh_manager->create("deformed_cube");
+        MeshLoader::loadToMesh("deformed_cube.obj", deformed_cube_mesh);
 
         Material *basic_material = eng.material_manager->create("basic");
         basic_material->setShaderSource(basic_shader_src);
@@ -107,8 +108,8 @@ public:
         light_cube_material->setTwoSided(true);
 
         ////////////////////////////////////////////////
-        Texture *stickman_texture = eng.texture_manager->create();
-        stickman_texture->load("image2.png");
+        Texture *meme_texture = eng.texture_manager->create("meme");
+        meme_texture->load("meme.png");
 
         Mesh *stickman_mesh = eng.mesh_manager->create("stickman");
         MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
@@ -123,6 +124,9 @@ public:
         Texture *crate_specular_texture = eng.texture_manager->create("crate_specular");
         crate_specular_texture->load("crate_specular.png");
 
+        Texture *crate_emission = eng.texture_manager->create("crate_emission");
+        crate_emission->load("crate_emission.png");
+
         auto crate_mat = eng.material_manager->inherit(basic_material);
         crate_mat->setTextureOverriden("uAlbedo", true);
         crate_mat->setTextureOverriden("uSpecular", true);
@@ -130,7 +134,7 @@ public:
         crate_mat->setTexture("uSpecular", crate_specular_texture);
 
         ////////////////////////////////////////////////
-        Texture *floor_texture = eng.texture_manager->create();
+        Texture *floor_texture = eng.texture_manager->create("floor");
         floor_texture->load("floor.png");
 
         Mesh *floor_mesh = eng.mesh_manager->create();
@@ -152,10 +156,10 @@ public:
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(eng.window);
 
-        auto node_cat = eng.world->createNode<NodeMesh>();
-        node_cat->setName("cat");
-        node_cat->setMaterial(basic_material);
-        node_cat->setMesh(cat_mesh);
+        auto node_deformed_cube = eng.world->createNode<NodeMesh>();
+        node_deformed_cube->setName("deformed cube");
+        node_deformed_cube->setMaterial(basic_material);
+        node_deformed_cube->setMesh(deformed_cube_mesh);
 
         auto node_crate = eng.world->createNode<NodeMesh>();
         node_crate->setName("crate");
@@ -248,7 +252,7 @@ public:
             light.pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
             light.pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
-            node_cat->setTransform(glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
+            node_deformed_cube->setTransform(glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
                                        glm::vec3(1.0f, 0.0f, 0.0f))
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
 
