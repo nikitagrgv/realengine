@@ -135,9 +135,6 @@ public:
         crate_emission_texture->load("crate_emission.png");
 
         auto crate_mat = eng.material_manager->inherit(basic_material);
-        crate_mat->setTextureOverriden("uMaterial.diffuseMap", true);
-        crate_mat->setTextureOverriden("uMaterial.specularMap", true);
-        crate_mat->setTextureOverriden("uMaterial.emissionMap", true);
         crate_mat->setTexture("uMaterial.diffuseMap", crate_albedo_texture);
         crate_mat->setTexture("uMaterial.specularMap", crate_specular_texture);
         crate_mat->setTexture("uMaterial.emissionMap", crate_emission_texture);

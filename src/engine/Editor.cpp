@@ -286,11 +286,10 @@ void Editor::render_materials()
                 bool two_sided = material->isTwoSided();
                 if (ImGui::Checkbox("##two_sided", &two_sided))
                 {
-                    material->setTwoSidedOverriden(true);
                     material->setTwoSided(two_sided);
                 }
                 ImGui::SameLine();
-                ImGui::TextColored(get_color(material->isTwoSidedWritable()), "Two Sided");
+                ImGui::TextColored(get_color(material->isTwoSidedOverriden()), "Two Sided");
                 if (inherited && material->isTwoSidedOverriden())
                 {
                     ImGui::SameLine();
@@ -336,7 +335,6 @@ void Editor::render_materials()
                         float v = material->getParameterFloat(i);
                         if (render_editor(v))
                         {
-                            material->setParameterOverriden(i, true);
                             material->setParameterFloat(i, v);
                         }
                         break;
@@ -346,7 +344,6 @@ void Editor::render_materials()
                         glm::vec2 v = material->getParameterVec2(i);
                         if (render_editor(v))
                         {
-                            material->setParameterOverriden(i, true);
                             material->setParameterVec2(i, v);
                         }
                         break;
@@ -356,7 +353,6 @@ void Editor::render_materials()
                         glm::vec3 v = material->getParameterVec3(i);
                         if (render_editor(v))
                         {
-                            material->setParameterOverriden(i, true);
                             material->setParameterVec3(i, v);
                         }
                         break;
@@ -366,7 +362,6 @@ void Editor::render_materials()
                         glm::vec4 v = material->getParameterVec4(i);
                         if (render_editor(v))
                         {
-                            material->setParameterOverriden(i, true);
                             material->setParameterVec4(i, v);
                         }
                         break;
@@ -376,7 +371,6 @@ void Editor::render_materials()
                         glm::mat4 v = material->getParameterMat4(i);
                         if (render_editor(v))
                         {
-                            material->setParameterOverriden(i, true);
                             material->setParameterMat4(i, v);
                         }
                         break;
@@ -401,7 +395,7 @@ void Editor::render_materials()
 
                     ImGui::AlignTextToFramePadding();
                     ImGui::Bullet();
-                    ImGui::TextColored(get_color(material->isTextureWritable(i)), "%s",
+                    ImGui::TextColored(get_color(material->isTextureOverriden(i)), "%s",
                         material->getTextureName(i).c_str());
 
                     if (inherited && material->isTextureOverriden(i))
@@ -446,7 +440,6 @@ void Editor::render_materials()
                                 const char *name = eng.texture_manager->getName(j);
                                 if (ImGui::Button(name))
                                 {
-                                    material->setTextureOverriden(i, true);
                                     material->setTexture(i, eng.texture_manager->get(j));
                                     ImGui::CloseCurrentPopup();
                                 }
@@ -480,12 +473,11 @@ void Editor::render_materials()
                     bool enabled = material->getDefine(i);
                     if (ImGui::Checkbox("##", &enabled))
                     {
-                        material->setDefineOverriden(i, true);
                         material->setDefine(i, enabled);
                     }
 
                     ImGui::SameLine();
-                    ImGui::TextColored(get_color(material->isDefineWritable(i)), "%s",
+                    ImGui::TextColored(get_color(material->isDefineOverriden(i)), "%s",
                         material->getDefineName(i).c_str());
 
                     if (inherited && material->isDefineOverriden(i))

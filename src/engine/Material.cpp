@@ -30,7 +30,6 @@
                                                                                                    \
     void Material::setParameter##TYPE_NAME(const char *name, TYPE_VALUE_SET value)                 \
     {                                                                                              \
-        assert(isBase() || isParameterOverriden(name));                                            \
         const int index = find_parameter(name);                                                    \
         if (index == -1)                                                                           \
         {                                                                                          \
@@ -47,15 +46,30 @@
                                                                                                    \
     void Material::setParameter##TYPE_NAME(int i, TYPE_VALUE_SET value)                            \
     {                                                                                              \
-        assert(isBase() || isParameterOverriden(i));                                               \
         if (getParameterType(i) != ParameterType::##TYPE_NAME)                                     \
         {                                                                                          \
             std::cout << "Parameter type does not match: " << i << std::endl;                      \
             return;                                                                                \
         }                                                                                          \
-        auto &dst = isBase() ? base_.parameters[i].##UNION_ELEMENT##_value                         \
-                             : inherited_.parameters[i].##UNION_ELEMENT##_value;                   \
-        dst = value;                                                                               \
+                                                                                                   \
+        if (isBase())                                                                              \
+        {                                                                                          \
+            auto &v = base_.parameters[i].##UNION_ELEMENT##_value;                                 \
+            if (v == value)                                                                        \
+            {                                                                                      \
+                return;                                                                            \
+            }                                                                                      \
+            v = value;                                                                             \
+            return;                                                                                \
+        }                                                                                          \
+                                                                                                   \
+        ParameterOverride &v = inherited_.parameters[i];                                           \
+        if (v.##UNION_ELEMENT##_value == value)                                                    \
+        {                                                                                          \
+            return;                                                                                \
+        }                                                                                          \
+        v.override = true;                                                                         \
+        v.##UNION_ELEMENT##_value = value;                                                         \
     }                                                                                              \
                                                                                                    \
     TYPE_VALUE_GET Material::getParameter##TYPE_NAME(const char *name) const                       \
@@ -283,7 +297,6 @@ void Material::setParameterOverriden(int i, bool overriden)
 
 bool Material::isParameterOverriden(const char *name) const
 {
-    assert(!isBase());
     const int index = find_parameter(name);
     if (index == -1)
     {
@@ -295,18 +308,7 @@ bool Material::isParameterOverriden(const char *name) const
 
 bool Material::isParameterOverriden(int i) const
 {
-    assert(!isBase());
-    return inherited_.parameters[i].override;
-}
-
-bool Material::isParameterWritable(const char *name) const
-{
-    return isBase() || isParameterOverriden(name);
-}
-
-bool Material::isParameterWritable(int i) const
-{
-    return isBase() || isParameterOverriden(i);
+    return isBase() || inherited_.parameters[i].override;
 }
 
 int Material::addTexture(const char *name)
@@ -344,13 +346,24 @@ void Material::setTexture(const char *name, Texture *texture)
 
 void Material::setTexture(int i, Texture *texture)
 {
-    assert(isBase() || isTextureOverriden(i));
-    Texture *&value = isBase() ? base_.textures[i].texture : inherited_.textures[i].texture;
-    if (value == texture)
+    if (isBase())
+    {
+        Texture *&v = base_.textures[i].texture;
+        if (v == texture)
+        {
+            return;
+        }
+        v = texture;
+        return;
+    }
+
+    TextureInfoOverride &v = inherited_.textures[i];
+    if (v.texture == texture)
     {
         return;
     }
-    value = texture;
+    v.override = true;
+    v.texture = texture;
 }
 
 Texture *Material::getTexture(int i) const
@@ -420,7 +433,6 @@ void Material::setTextureOverriden(int i, bool overriden)
 
 bool Material::isTextureOverriden(const char *name) const
 {
-    assert(!isBase());
     const int index = find_texture(name);
     if (index == -1)
     {
@@ -432,18 +444,7 @@ bool Material::isTextureOverriden(const char *name) const
 
 bool Material::isTextureOverriden(int i) const
 {
-    assert(!isBase());
-    return inherited_.textures[i].override;
-}
-
-bool Material::isTextureWritable(const char *name) const
-{
-    return isBase() || isTextureOverriden(name);
-}
-
-bool Material::isTextureWritable(int i) const
-{
-    return isBase() || isTextureOverriden(i);
+    return isBase() || inherited_.textures[i].override;
 }
 
 int Material::addDefine(const char *name)
@@ -474,13 +475,25 @@ int Material::addDefine(const char *name, bool enabled)
 
 void Material::setDefine(int i, bool enabled)
 {
-    assert(isBase() || isDefineOverriden(i));
-    bool &value = isBase() ? base_.defines[i].enabled : inherited_.defines[i].enabled;
-    if (value == enabled)
+    if (isBase())
+    {
+        bool &v = base_.defines[i].enabled;
+        if (v == enabled)
+        {
+            return;
+        }
+        v = enabled;
+        set_defines_to_shader();
+        return;
+    }
+
+    DefineOverride &v = inherited_.defines[i];
+    if (v.enabled == enabled)
     {
         return;
     }
-    value = enabled;
+    v.override = true;
+    v.enabled = enabled;
     set_defines_to_shader();
 }
 
@@ -575,7 +588,6 @@ void Material::setDefineOverriden(int i, bool overriden)
 
 bool Material::isDefineOverriden(const char *name) const
 {
-    assert(!isBase());
     const int index = find_define(name);
     if (index == -1)
     {
@@ -587,18 +599,7 @@ bool Material::isDefineOverriden(const char *name) const
 
 bool Material::isDefineOverriden(int i) const
 {
-    assert(!isBase());
-    return inherited_.defines[i].override;
-}
-
-bool Material::isDefineWritable(const char *name)
-{
-    return isBase() || isDefineOverriden(name);
-}
-
-bool Material::isDefineWritable(int i)
-{
-    return isBase() || isDefineOverriden(i);
+    return isBase() || inherited_.defines[i].override;
 }
 
 // TODO: macros?
@@ -619,7 +620,11 @@ bool Material::isTwoSided() const
 
 void Material::setTwoSided(bool two_sided)
 {
-    assert(isBase() || isTwoSidedOverriden());
+    if (options_.two_sided.value == two_sided)
+    {
+        return;
+    }
+    options_.two_sided.override = true;
     options_.two_sided.value = two_sided;
 }
 
@@ -642,13 +647,7 @@ void Material::setTwoSidedOverriden(bool overriden)
 
 bool Material::isTwoSidedOverriden() const
 {
-    assert(!isBase());
-    return options_.two_sided.override;
-}
-
-bool Material::isTwoSidedWritable() const
-{
-    return isBase() || isTwoSidedOverriden();
+    return isBase() || options_.two_sided.override;
 }
 
 void Material::set_defines_to_shader()
