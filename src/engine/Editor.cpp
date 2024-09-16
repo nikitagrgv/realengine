@@ -952,46 +952,44 @@ bool Editor::render_editor(glm::mat4 &v)
     scale.z = glm::length(v[2]);
 
     glm::vec3 angles{0};
-    if (v[1][0] < 0.999f)
     {
-        if (v[1][0] > -0.999f)
+        glm::vec3 inv_scale(1 / scale.x, 1 / scale.y, 1 / scale.z);
+
+        const float v10 = v[1][0] * inv_scale.y;
+
+        if (v10 < 0.99999f)
         {
-            angles.z = std::asin(-v[1][0]);
-            angles.x = std::atan2(v[1][2], v[1][1]);
-            angles.y = std::atan2(v[2][0], v[0][0]);
+            if (v10 > -0.99999f)
+            {
+                const float v00 = v[0][0] * inv_scale.x;
+                const float v12 = v[1][2] * inv_scale.y;
+                const float v11 = v[1][1] * inv_scale.y;
+                const float v20 = v[2][0] * inv_scale.z;
+
+                angles.z = std::asin(-v10);
+                angles.x = std::atan2(v12, v11);
+                angles.y = std::atan2(v20, v00);
+            }
+            else
+            {
+                const float v02 = v[0][2] * inv_scale.x;
+                const float v22 = v[2][2] * inv_scale.z;
+
+                angles.z = glm::half_pi<float>();
+                angles.x = -std::atan2(-v02, v22);
+                angles.y = 0;
+            }
         }
         else
         {
-            angles.z = glm::half_pi<float>();
-            angles.x = -std::atan2(-v[0][2], v[2][2]);
+            const float v02 = v[0][2] * inv_scale.x;
+            const float v22 = v[2][2] * inv_scale.z;
+
+            angles.z = -glm::half_pi<float>();
+            angles.x = std::atan2(-v02, v22);
             angles.y = 0;
         }
     }
-    else
-    {
-        angles.z = -glm::half_pi<float>();
-        angles.x = std::atan2(-v[0][2], v[2][2]);
-        angles.y = 0;
-    }
-
-    // if (v[1][0] > 0.999)
-    // {
-    //     angles.y = std::atan2(v[0][2], v[2][2]);
-    //     angles.z = glm::half_pi<float>();
-    //     angles.x = 0;
-    // }
-    // else if (v[1][0] < -0.999)
-    // {
-    //     angles.y = std::atan2(v[0][2], v[2][2]);
-    //     angles.z = -glm::half_pi<float>();
-    //     angles.x = 0;
-    // }
-    // else
-    // {
-    //     angles.y = std::atan2(-v[2][0], v[0][0]);
-    //     angles.x = std::atan2(-v[1][2], -v[1][1]);
-    //     angles.z = std::asin(v[1][0]);
-    // }
 
     angles = glm::degrees(angles);
 
@@ -1038,6 +1036,21 @@ bool Editor::render_editor(glm::mat4 &v)
         rot[0][2] = -c.x * s.y + c.y * s.x * s.z;
         rot[1][2] = c.z * s.x;
         rot[2][2] = c.x * c.y + s.x * s.y * s.z;
+
+        constexpr float EPS = 0.001;
+        constexpr float EPS2 = EPS * EPS;
+        if (scale.x * scale.x < EPS2)
+        {
+            scale.x = scale.x < 0 ? -EPS : EPS;
+        }
+        if (scale.y * scale.y < EPS2)
+        {
+            scale.y = scale.y < 0 ? -EPS : EPS;
+        }
+        if (scale.z * scale.z < EPS2)
+        {
+            scale.z = scale.z < 0 ? -EPS : EPS;
+        }
 
         v = glm::translate(identity, pos);
         v *= rot;
