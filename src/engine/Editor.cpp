@@ -951,7 +951,29 @@ bool Editor::render_editor(glm::mat4 &v)
     scale.y = glm::length(v[1]);
     scale.z = glm::length(v[2]);
 
-    static glm::vec3 angles{0};
+    glm::vec3 angles{0};
+    if (v[1][0] < 0.999f)
+    {
+        if (v[1][0] > -0.999f)
+        {
+            angles.z = std::asin(-v[1][0]);
+            angles.x = std::atan2(v[1][2], v[1][1]);
+            angles.y = std::atan2(v[2][0], v[0][0]);
+        }
+        else
+        {
+            angles.z = glm::half_pi<float>();
+            angles.x = -std::atan2(-v[0][2], v[2][2]);
+            angles.y = 0;
+        }
+    }
+    else
+    {
+        angles.z = -glm::half_pi<float>();
+        angles.x = std::atan2(-v[0][2], v[2][2]);
+        angles.y = 0;
+    }
+
     // if (v[1][0] > 0.999)
     // {
     //     angles.y = std::atan2(v[0][2], v[2][2]);
