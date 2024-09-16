@@ -915,14 +915,112 @@ bool Editor::render_editor(glm::vec4 &v)
 bool Editor::render_editor(glm::mat4 &v)
 {
     bool changed = false;
-    float *ptr = glm::value_ptr(v);
-    constexpr int STRIDE = 4;
 
-    for (int i = 0; i < 4; ++i)
+    // static bool active = false;
+    //
+    // static glm::vec4 pos;
+    //
+    // if (!active)
+    // {
+    //     pos = v[3];
+    // }
+
+    // {
+    //     float *pos_ptr = glm::value_ptr(pos);
+    //
+    //     ImGui::PushID("pos");
+    //     changed |= ImGui::DragFloat3("Pos", pos_ptr, SPEED, 0, 0, FORMAT);
+    //     if (changed)
+    //     {
+    //         active = true;
+    //     }
+    //     if (ImGui::IsItemDeactivated())
+    //     {
+    //         active = false;
+    //         v[3] = pos;
+    //         changed = true;
+    //     }
+    //     ImGui::PopID();
+    // }
+
+
+    glm::vec3 pos = v[3];
+
+    glm::vec3 scale;
+    scale.x = glm::length(v[0]);
+    scale.y = glm::length(v[1]);
+    scale.z = glm::length(v[2]);
+
+    static glm::vec3 angles{0};
+    // if (v[1][0] > 0.999)
+    // {
+    //     angles.y = std::atan2(v[0][2], v[2][2]);
+    //     angles.z = glm::half_pi<float>();
+    //     angles.x = 0;
+    // }
+    // else if (v[1][0] < -0.999)
+    // {
+    //     angles.y = std::atan2(v[0][2], v[2][2]);
+    //     angles.z = -glm::half_pi<float>();
+    //     angles.x = 0;
+    // }
+    // else
+    // {
+    //     angles.y = std::atan2(-v[2][0], v[0][0]);
+    //     angles.x = std::atan2(-v[1][2], -v[1][1]);
+    //     angles.z = std::asin(v[1][0]);
+    // }
+
+    angles = glm::degrees(angles);
+
+    // Right -> Forward -> Up
+    // Forward -Z
+    // Up +Y
+    // Right +X
+
+    // local: XZY
+    // global: yzx
+
+
     {
-        ImGui::PushID(i);
-        changed |= ImGui::DragFloat4("##", ptr + STRIDE * i, SPEED, 0, 0, FORMAT);
-        ImGui::PopID();
+        const bool c = ImGui::DragFloat3("Pos", glm::value_ptr(pos), SPEED, 0, 0, FORMAT);
+        changed |= c;
     }
+    {
+        const bool c = ImGui::DragFloat3("Rot", glm::value_ptr(angles), SPEED, 0, 0, FORMAT);
+        changed |= c;
+    }
+    {
+        const bool c = ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.01, 0, 0, FORMAT);
+        changed |= c;
+    }
+
+    angles = glm::radians(angles);
+
+    if (changed)
+    {
+        constexpr auto identity = glm::mat4{1.0f};
+
+        const glm::vec3 s = glm::sin(angles);
+        const glm::vec3 c = glm::cos(angles);
+
+        glm::mat4 rot{1.0f};
+        rot[0][0] = c.y * c.z;
+        rot[1][0] = -s.z;
+        rot[2][0] = c.z * s.y;
+
+        rot[0][1] = s.x * s.y + c.x * c.y * s.z;
+        rot[1][1] = c.x * c.z;
+        rot[2][1] = -c.y * s.x + c.x * s.y * s.z;
+
+        rot[0][2] = -c.x * s.y + c.y * s.x * s.z;
+        rot[1][2] = c.z * s.x;
+        rot[2][2] = c.x * c.y + s.x * s.y * s.z;
+
+        v = glm::translate(identity, pos);
+        v *= rot;
+        v *= glm::scale(identity, scale);
+    }
+
     return changed;
 }

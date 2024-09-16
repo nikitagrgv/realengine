@@ -119,11 +119,11 @@ public:
         meme_texture->load("meme.png");
 
         Mesh *stickman_mesh = eng.mesh_manager->create("stickman");
-        MeshLoader::loadToMesh("stickman.obj", stickman_mesh, true);
+        MeshLoader::loadToMesh("stickman.obj", stickman_mesh, 0.01, true);
 
         /////////////////////////////////////////////////
         Mesh *crate_mesh = eng.mesh_manager->create("crate");
-        MeshLoader::loadToMesh("crate.obj", crate_mesh, false);
+        MeshLoader::loadToMesh("crate.obj", crate_mesh, 0.5f);
 
         Texture *crate_albedo_texture = eng.texture_manager->create("crate_albedo");
         crate_albedo_texture->load("crate_albedo.png");
@@ -188,23 +188,27 @@ public:
         node_light->setMesh(light_cube_mesh);
 
 
-        const float SCALE_FACTOR = 0.01;
-        glm::mat4 sc = glm::scale(glm::mat4{1.0f}, {SCALE_FACTOR, SCALE_FACTOR, SCALE_FACTOR});
         for (int i = -5; i < 5; ++i)
         {
             std::string name = "cube_" + std::to_string(i);
 
             auto cube = eng.world->createNode<NodeMesh>();
             cube->setName(name);
-            cube->setMesh(stickman_mesh);
+            if (i % 2 == 0)
+            {
+                cube->setMesh(stickman_mesh);
+            }
+            else
+            {
+                cube->setMesh(crate_mesh);
+            }
             cube->setTransform(glm::translate(
-                                   glm::mat4{
-                                       1.0f
+                glm::mat4{
+                    1.0f
             },
-                                   {glm::vec3{i * 1.0f, 0.0f, -1.0f}})
-                * sc);
+                {glm::vec3{i * 1.0f, 0.0f, -1.0f}}));
 
-            auto mat = eng.material_manager->inherit(basic_material, name.c_str());
+            auto mat = eng.material_manager->inherit(crate_mat, name.c_str());
             cube->setMaterial(mat);
         }
 
@@ -258,17 +262,17 @@ public:
             light.pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
             light.pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
-            node_deformed_cube->setTransform(glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
-                                       glm::vec3(1.0f, 0.0f, 0.0f))
+            node_deformed_cube->setTransform(
+                glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
+                    glm::vec3(1.0f, 0.0f, 0.0f))
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
 
             node_crate->setTransform(glm::translate(glm::mat4{1.0f}, {2, 0, 2})
                 * glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
-                    glm::vec3(1.0f, 1.0f, 1.0f))
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
+                    glm::vec3(1.0f, 1.0f, 1.0f)));
 
             node_stickman->setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3{1, 1, 0})
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.016f}));
+                * glm::scale(glm::mat4{1.0f}, glm::vec3{1.6}));
 
             node_floor->setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3{0, -1, 0}));
 

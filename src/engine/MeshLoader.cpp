@@ -5,10 +5,10 @@
 #include "OBJ_Loader.h"
 #include "fs/FileSystem.h"
 
-void MeshLoader::loadToMesh(const char *path, Mesh *mesh, bool invert_normals)
+void MeshLoader::loadToMesh(const char *path, Mesh *mesh, float scale, bool invert_normals)
 {
     MeshLoader loader(path);
-    loader.loadToMesh(mesh, invert_normals);
+    loader.loadToMesh(mesh, scale, invert_normals);
 }
 
 MeshLoader::MeshLoader(const char *path)
@@ -52,7 +52,7 @@ MeshLoader::MeshLoader(const char *path)
     is_loaded_ = true;
 }
 
-void MeshLoader::loadToMesh(Mesh *mesh, bool invert_normals)
+void MeshLoader::loadToMesh(Mesh *mesh, float scale, bool invert_normals)
 {
     mesh->clear();
     if (!is_loaded_)
@@ -64,7 +64,7 @@ void MeshLoader::loadToMesh(Mesh *mesh, bool invert_normals)
     for (int i = 0; i < vertices_.size(); i++)
     {
         const Vertex &vertex = vertices_[i];
-        mesh->setVertexPos(i, vertex.position);
+        mesh->setVertexPos(i, vertex.position * scale);
         mesh->setVertexUV(i, invert_normals ? -vertex.texture_coords : vertex.texture_coords);
         mesh->setVertexNormal(i, vertex.normal);
     }
