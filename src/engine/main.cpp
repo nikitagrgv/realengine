@@ -104,7 +104,7 @@ public:
         basic_material->addParameterVec3("uMaterial.ambient", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.diffuse", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.specular", glm::vec3{1, 1, 1});
-        basic_material->addParameterMat4("test");
+        // basic_material->addParameterMat4("test");
         basic_material->addParameterFloat("uMaterial.shininess", 32.0f);
         basic_material->addDefine("USE_AMBIENT", true);
         basic_material->addDefine("USE_DIFFUSE", true);
@@ -163,6 +163,31 @@ public:
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, glm::vec3(0.0f, 0.0f, 3.0f)));
         update_proj(eng.window);
 
+        for (int i = -5; i < 5; ++i)
+        {
+            std::string name = "cube_" + std::to_string(i);
+
+            auto cube = eng.world->createNode<NodeMesh>();
+            cube->setName(name);
+            if (i % 2 == 0)
+            {
+                cube->setMesh(stickman_mesh);
+            }
+            else
+            {
+                cube->setMesh(crate_mesh);
+            }
+            cube->setTransform(glm::translate(
+                glm::mat4{
+                    1.0f
+            },
+                {glm::vec3{i * 1.0f, 0.0f, -1.0f}}));
+
+            auto mat = eng.material_manager->inherit(crate_mat, name.c_str());
+            cube->setMaterial(mat);
+        }
+
+
         auto node_deformed_cube = eng.world->createNode<NodeMesh>();
         node_deformed_cube->setName("deformed cube");
         node_deformed_cube->setMaterial(basic_material);
@@ -187,31 +212,6 @@ public:
         node_light->setName("light");
         node_light->setMaterial(light_cube_material);
         node_light->setMesh(light_cube_mesh);
-
-
-        for (int i = -5; i < 5; ++i)
-        {
-            std::string name = "cube_" + std::to_string(i);
-
-            auto cube = eng.world->createNode<NodeMesh>();
-            cube->setName(name);
-            if (i % 2 == 0)
-            {
-                cube->setMesh(stickman_mesh);
-            }
-            else
-            {
-                cube->setMesh(crate_mesh);
-            }
-            cube->setTransform(glm::translate(
-                glm::mat4{
-                    1.0f
-            },
-                {glm::vec3{i * 1.0f, 0.0f, -1.0f}}));
-
-            auto mat = eng.material_manager->inherit(crate_mat, name.c_str());
-            cube->setMaterial(mat);
-        }
 
         float anim_time = 0.0f;
 

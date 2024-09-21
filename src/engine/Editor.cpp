@@ -932,53 +932,50 @@ bool Editor::render_editor(glm::mat4 &v)
     Mat4WidgetData &wdata = widgets_data_[ImGui::GetID(0)];
     wdata.used = true;
 
-    if (wdata.on_hold)
+    glm::vec3 &pos = wdata.pos;
+    glm::vec3 &scale = wdata.scale;
+    glm::vec3 &angles = wdata.angles;
+
+    if (!wdata.on_hold || !wdata.initialized)
     {
-
+        math::decomposeDegrees(v, pos, scale, angles);
+        wdata.initialized = true;
     }
-
-    // static bool active = false;
-    //
-    // static glm::vec4 pos;
-    //
-    // if (!active)
-    // {
-    //     pos = v[3];
-    // }
-
-    // {
-    //     float *pos_ptr = glm::value_ptr(pos);
-    //
-    //     IMGUI_SCOPED_ID("pos");
-    //     changed |= ImGui::DragFloat3("Pos", pos_ptr, SPEED, 0, 0, FORMAT);
-    //     if (changed)
-    //     {
-    //         active = true;
-    //     }
-    //     if (ImGui::IsItemDeactivated())
-    //     {
-    //         active = false;
-    //         v[3] = pos;
-    //         changed = true;
-    //     }
-    // }
-
-
-    glm::vec3 pos = v[3];
-    glm::vec3 scale;
-    glm::vec3 angles{0};
-    math::decomposeDegrees(v, pos, scale, angles);
 
     {
         const bool c = ImGui::DragFloat3("Pos", glm::value_ptr(pos), SPEED, 0, 0, FORMAT);
+        if (c)
+        {
+            wdata.on_hold = true;
+        }
+        if (ImGui::IsItemDeactivated())
+        {
+            wdata.on_hold = false;
+        }
         changed |= c;
     }
     {
         const bool c = ImGui::DragFloat3("Rot", glm::value_ptr(angles), SPEED, 0, 0, FORMAT);
+        if (c)
+        {
+            wdata.on_hold = true;
+        }
+        if (ImGui::IsItemDeactivated())
+        {
+            wdata.on_hold = false;
+        }
         changed |= c;
     }
     {
         const bool c = ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.01, 0, 0, FORMAT);
+        if (c)
+        {
+            wdata.on_hold = true;
+        }
+        if (ImGui::IsItemDeactivated())
+        {
+            wdata.on_hold = false;
+        }
         changed |= c;
     }
 

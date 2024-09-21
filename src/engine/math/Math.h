@@ -77,6 +77,8 @@ inline glm::vec3 minByComponens(const glm::vec3 &a, const glm::vec3 &b)
 // Angles in radians
 inline void decompose(const glm::mat4 &m, glm::vec3 &pos, glm::vec3 &scale, glm::vec3 &angles)
 {
+    pos = m[3];
+
     scale.x = glm::length(m[0]);
     scale.y = glm::length(m[1]);
     scale.z = glm::length(m[2]);

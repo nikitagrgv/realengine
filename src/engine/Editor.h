@@ -76,9 +76,12 @@ private:
 
     struct Mat4WidgetData
     {
-        glm::mat4 mat{1.0f};
+        glm::vec3 pos{};
+        glm::vec3 scale{};
+        glm::vec3 angles{};
         bool used = false;
         bool on_hold = false;
+        bool initialized = false;
     };
     std::unordered_map<ImGuiID, Mat4WidgetData> widgets_data_;
 
