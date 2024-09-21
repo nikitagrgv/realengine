@@ -60,6 +60,16 @@ public:
             [this](int w, int h) { update_proj(eng.window); });
 
         ///////////////////////////////////////////////////////////////////////////////
+        Texture *cubemap = eng.texture_manager->create("cubemap");
+        const char *filenames[6] = {
+            "skybox/right.jpg",  //
+            "skybox/left.jpg",   //
+            "skybox/top.jpg",    //
+            "skybox/bottom.jpg", //
+            "skybox/front.jpg",  //
+            "skybox/back.jpg"    //
+        };
+        cubemap->loadCubemap(filenames);
 
         ShaderSource *light_cube_shader_src = eng.shader_manager->create("light_cube");
         light_cube_shader_src->setFile("light_cube.shader");

@@ -7,9 +7,16 @@ class Image;
 class Texture
 {
 public:
+    enum class Type
+    {
+        Invalid,
+        Texture2D,
+        Cubemap,
+    };
+
     enum class Format
     {
-        INVALID,
+        Invalid,
         RGBA,
         RGB
     };
@@ -50,12 +57,24 @@ public:
         Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
 
+    void loadCubemap(const char **filenames, Format target_format = Format::RGBA,
+        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
+        Filter mag_filter = Filter::Linear);
+    void loadCubemap(const Image *images, Format target_format = Format::RGBA,
+        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
+        Filter mag_filter = Filter::Linear);
+    void loadCubemap(void **datas, const int *widths, const int *heights, const Format *src_formats,
+        Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
+        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
+
     bool isLoaded() const { return id_ != 0; }
 
     void *getID() const { return (void *)(size_t)id_; }
 
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }
+
+    Type getType() const { return type_; }
 
     void bind(int slot = 0) const;
 
@@ -64,5 +83,6 @@ public:
 private:
     int width_{-1};
     int height_{-1};
+    Type type_{Type::Invalid};
     unsigned int id_{0};
 };

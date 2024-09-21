@@ -794,7 +794,7 @@ void Editor::render_texture_info(Texture *texture)
 
 void Editor::render_texture(Texture *texture, float width, float height)
 {
-    if (texture && texture->isLoaded())
+    if (texture && texture->isLoaded() && texture->getType() == Texture::Type::Texture2D)
     {
         ImGui::Image(texture->getID(), ImVec2(width, height));
     }
