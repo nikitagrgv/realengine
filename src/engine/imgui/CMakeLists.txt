@@ -24,3 +24,10 @@ target_include_directories(realengine PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/
         ${CMAKE_CURRENT_SOURCE_DIR}/backends/
 )
+
+# Utils
+target_sources(realengine
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiUtils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ImGuiUtils.h
+)

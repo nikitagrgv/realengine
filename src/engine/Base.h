@@ -29,6 +29,9 @@
     REMOVE_COPY_CLASS(className);                                                                  \
     REMOVE_MOVE_CLASS(className)
 
+#define _REALENGINE_CONCATENATE_HELPER(x, y) x##y
+#define REALENGINE_CONCATENATE(x, y)         _REALENGINE_CONCATENATE_HELPER(x, y)
+
 template<typename T>
 using UPtr = std::unique_ptr<T>;
 

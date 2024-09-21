@@ -2,6 +2,7 @@
 
 #include "EngineGlobals.h"
 #include "Gui.h"
+#include "ImguiUtils.h"
 #include "MaterialManager.h"
 #include "MeshManager.h"
 #include "NodeMesh.h"
@@ -102,7 +103,7 @@ void Editor::render_world()
         const int num_nodes = eng.world->getNumNodes();
         for (int i = 0; i < num_nodes; i++)
         {
-            ImGui::PushID(i);
+            IMGUI_SCOPED_ID(i);
 
             Node *node = eng.world->getNodeByIndex(i);
 
@@ -121,8 +122,6 @@ void Editor::render_world()
             {
                 selected_node_ = i;
             }
-
-            ImGui::PopID();
         }
         ImGui::EndChild();
     }
@@ -301,12 +300,12 @@ void Editor::render_materials()
             }
 
             {
-                ImGui::PushID("params");
+                IMGUI_SCOPED_ID("params");
                 ImGui::SeparatorText("Parameters");
                 const int num_params = material->getNumParameters();
                 for (int i = 0; i < num_params; ++i)
                 {
-                    ImGui::PushID(i);
+                    IMGUI_SCOPED_ID(i);
 
                     ImColor color = get_color(is_base || material->isParameterOverriden(i));
 
@@ -378,20 +377,17 @@ void Editor::render_materials()
                     default: break;
                     }
 
-                    ImGui::PopID();
-
                     ImGui::Unindent();
                 }
-                ImGui::PopID();
             }
 
             {
-                ImGui::PushID("textures");
+                IMGUI_SCOPED_ID("textures");
                 ImGui::SeparatorText("Textures");
                 const int num_textures = material->getNumTextures();
                 for (int i = 0; i < num_textures; ++i)
                 {
-                    ImGui::PushID(i);
+                    IMGUI_SCOPED_ID(i);
 
                     ImGui::AlignTextToFramePadding();
                     ImGui::Bullet();
@@ -455,18 +451,16 @@ void Editor::render_materials()
                     }
 
                     ImGui::Unindent();
-                    ImGui::PopID();
                 }
-                ImGui::PopID();
             }
 
             {
-                ImGui::PushID("defines");
+                IMGUI_SCOPED_ID("defines");
                 ImGui::SeparatorText("Defines");
                 const int num_defines = material->getNumDefines();
                 for (int i = 0; i < num_defines; ++i)
                 {
-                    ImGui::PushID(i);
+                    IMGUI_SCOPED_ID(i);
 
                     ImGui::Bullet();
 
@@ -488,10 +482,7 @@ void Editor::render_materials()
                             material->setDefineOverriden(i, false);
                         }
                     }
-
-                    ImGui::PopID();
                 }
-                ImGui::PopID();
             }
         }
         ImGui::EndChild();
@@ -862,7 +853,7 @@ void Editor::draw_tree(Material *mat)
 
     ImGui::TableNextRow();
     ImGui::TableNextColumn();
-    ImGui::PushID(mat_index);
+    IMGUI_SCOPED_ID(mat_index);
     ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_None;
     tree_flags |= ImGuiTreeNodeFlags_DefaultOpen;
     tree_flags |= ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
@@ -889,7 +880,6 @@ void Editor::draw_tree(Material *mat)
         }
         ImGui::TreePop();
     }
-    ImGui::PopID();
 }
 
 bool Editor::render_editor(float &v)
@@ -916,6 +906,8 @@ bool Editor::render_editor(glm::mat4 &v)
 {
     bool changed = false;
 
+    std::cout << ImGui::GetID(0) << std::endl;
+
     // static bool active = false;
     //
     // static glm::vec4 pos;
@@ -928,7 +920,7 @@ bool Editor::render_editor(glm::mat4 &v)
     // {
     //     float *pos_ptr = glm::value_ptr(pos);
     //
-    //     ImGui::PushID("pos");
+    //     IMGUI_SCOPED_ID("pos");
     //     changed |= ImGui::DragFloat3("Pos", pos_ptr, SPEED, 0, 0, FORMAT);
     //     if (changed)
     //     {
@@ -940,7 +932,6 @@ bool Editor::render_editor(glm::mat4 &v)
     //         v[3] = pos;
     //         changed = true;
     //     }
-    //     ImGui::PopID();
     // }
 
 

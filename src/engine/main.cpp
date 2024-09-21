@@ -104,6 +104,7 @@ public:
         basic_material->addParameterVec3("uMaterial.ambient", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.diffuse", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.specular", glm::vec3{1, 1, 1});
+        basic_material->addParameterMat4("test");
         basic_material->addParameterFloat("uMaterial.shininess", 32.0f);
         basic_material->addDefine("USE_AMBIENT", true);
         basic_material->addDefine("USE_DIFFUSE", true);
