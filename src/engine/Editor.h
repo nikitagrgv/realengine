@@ -43,7 +43,7 @@ private:
     static bool render_editor(glm::vec2 &v);
     static bool render_editor(glm::vec3 &v);
     static bool render_editor(glm::vec4 &v);
-    static bool render_editor(glm::mat4 &v);
+    bool render_editor(glm::mat4 &v);
 
 private:
     bool hide_all_{false};
@@ -73,6 +73,14 @@ private:
     double fps_{0.0f};
     float last_update_fps_time_{0.0f};
     bool info_window_{true};
+
+    struct Mat4WidgetData
+    {
+        glm::mat4 mat{1.0f};
+        bool used = false;
+        bool on_hold = false;
+    };
+    std::unordered_map<ImGuiID, Mat4WidgetData> widgets_data_;
 
     Context ctx_;
 };

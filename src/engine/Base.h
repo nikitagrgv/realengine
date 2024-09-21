@@ -32,6 +32,21 @@
 #define _REALENGINE_CONCATENATE_HELPER(x, y) x##y
 #define REALENGINE_CONCATENATE(x, y)         _REALENGINE_CONCATENATE_HELPER(x, y)
 
+template<typename F>
+class ScopedExit
+{
+public:
+    explicit ScopedExit(F f)
+        : f_(std::move(f))
+    {}
+    ~ScopedExit() { f_(); }
+
+private:
+    F f_;
+};
+
+#define REALENGINE_SCOPE_EXIT(f) ScopedExit REALENGINE_CONCATENATE(scoped_exit_, __LINE__)(f)
+
 template<typename T>
 using UPtr = std::unique_ptr<T>;
 

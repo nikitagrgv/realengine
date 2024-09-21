@@ -12,6 +12,7 @@
 #include "Visualizer.h"
 #include "World.h"
 #include "input/Input.h"
+#include "math/Math.h"
 #include "time/Time.h"
 
 #include "glm/gtc/type_ptr.hpp"
@@ -35,6 +36,28 @@ Editor::Editor()
 
 void Editor::render()
 {
+    for (auto &it : widgets_data_)
+    {
+        Mat4WidgetData &data = it.second;
+        data.used = false;
+    }
+
+    REALENGINE_SCOPE_EXIT([&] {
+        std::vector<ImGuiID> ids_to_remove;
+        for (auto &it : widgets_data_)
+        {
+            Mat4WidgetData &data = it.second;
+            if (!data.used)
+            {
+                ids_to_remove.push_back(it.first);
+            }
+        }
+        for (ImGuiID id : ids_to_remove)
+        {
+            widgets_data_.erase(id);
+        }
+    });
+
     if (eng.input->isKeyPressed(Key::KEY_F2))
     {
         hide_all_ = !hide_all_;
@@ -906,7 +929,13 @@ bool Editor::render_editor(glm::mat4 &v)
 {
     bool changed = false;
 
-    std::cout << ImGui::GetID(0) << std::endl;
+    Mat4WidgetData &wdata = widgets_data_[ImGui::GetID(0)];
+    wdata.used = true;
+
+    if (wdata.on_hold)
+    {
+
+    }
 
     // static bool active = false;
     //
@@ -936,62 +965,9 @@ bool Editor::render_editor(glm::mat4 &v)
 
 
     glm::vec3 pos = v[3];
-
     glm::vec3 scale;
-    scale.x = glm::length(v[0]);
-    scale.y = glm::length(v[1]);
-    scale.z = glm::length(v[2]);
-
     glm::vec3 angles{0};
-    {
-        glm::vec3 inv_scale(1 / scale.x, 1 / scale.y, 1 / scale.z);
-
-        const float v10 = v[1][0] * inv_scale.y;
-
-        if (v10 < 0.99999f)
-        {
-            if (v10 > -0.99999f)
-            {
-                const float v00 = v[0][0] * inv_scale.x;
-                const float v12 = v[1][2] * inv_scale.y;
-                const float v11 = v[1][1] * inv_scale.y;
-                const float v20 = v[2][0] * inv_scale.z;
-
-                angles.z = std::asin(-v10);
-                angles.x = std::atan2(v12, v11);
-                angles.y = std::atan2(v20, v00);
-            }
-            else
-            {
-                const float v02 = v[0][2] * inv_scale.x;
-                const float v22 = v[2][2] * inv_scale.z;
-
-                angles.z = glm::half_pi<float>();
-                angles.x = -std::atan2(-v02, v22);
-                angles.y = 0;
-            }
-        }
-        else
-        {
-            const float v02 = v[0][2] * inv_scale.x;
-            const float v22 = v[2][2] * inv_scale.z;
-
-            angles.z = -glm::half_pi<float>();
-            angles.x = std::atan2(-v02, v22);
-            angles.y = 0;
-        }
-    }
-
-    angles = glm::degrees(angles);
-
-    // Right -> Forward -> Up
-    // Forward -Z
-    // Up +Y
-    // Right +X
-
-    // local: XZY
-    // global: yzx
-
+    math::decomposeDegrees(v, pos, scale, angles);
 
     {
         const bool c = ImGui::DragFloat3("Pos", glm::value_ptr(pos), SPEED, 0, 0, FORMAT);
@@ -1006,46 +982,9 @@ bool Editor::render_editor(glm::mat4 &v)
         changed |= c;
     }
 
-    angles = glm::radians(angles);
-
     if (changed)
     {
-        constexpr auto identity = glm::mat4{1.0f};
-
-        const glm::vec3 s = glm::sin(angles);
-        const glm::vec3 c = glm::cos(angles);
-
-        glm::mat4 rot{1.0f};
-        rot[0][0] = c.y * c.z;
-        rot[1][0] = -s.z;
-        rot[2][0] = c.z * s.y;
-
-        rot[0][1] = s.x * s.y + c.x * c.y * s.z;
-        rot[1][1] = c.x * c.z;
-        rot[2][1] = -c.y * s.x + c.x * s.y * s.z;
-
-        rot[0][2] = -c.x * s.y + c.y * s.x * s.z;
-        rot[1][2] = c.z * s.x;
-        rot[2][2] = c.x * c.y + s.x * s.y * s.z;
-
-        constexpr float EPS = 0.001;
-        constexpr float EPS2 = EPS * EPS;
-        if (scale.x * scale.x < EPS2)
-        {
-            scale.x = scale.x < 0 ? -EPS : EPS;
-        }
-        if (scale.y * scale.y < EPS2)
-        {
-            scale.y = scale.y < 0 ? -EPS : EPS;
-        }
-        if (scale.z * scale.z < EPS2)
-        {
-            scale.z = scale.z < 0 ? -EPS : EPS;
-        }
-
-        v = glm::translate(identity, pos);
-        v *= rot;
-        v *= glm::scale(identity, scale);
+        v = math::composeDegrees(pos, scale, angles);
     }
 
     return changed;
