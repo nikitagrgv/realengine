@@ -60,7 +60,7 @@ public:
             [this](int w, int h) { update_proj(eng.window); });
 
         ///////////////////////////////////////////////////////////////////////////////
-        Texture *cubemap = eng.texture_manager->create("cubemap");
+        Texture *cubemap_texture = eng.texture_manager->create("cubemap");
         const char *filenames[6] = {
             "skybox/right.jpg",  //
             "skybox/left.jpg",   //
@@ -69,7 +69,53 @@ public:
             "skybox/front.jpg",  //
             "skybox/back.jpg"    //
         };
-        cubemap->loadCubemap(filenames);
+        cubemap_texture->loadCubemap(filenames, Texture::Format::RGB, Texture::Wrap::ClampToEdge,
+            Texture::Filter::Linear, Texture::Filter::Linear, false);
+
+        // TODO: without mesh
+        Mesh *cubemap_mesh = eng.mesh_manager->create("cubemap");
+        {
+            int v0 = cubemap_mesh->addVertex(glm::vec3{-1, -1, -1});
+            int v1 = cubemap_mesh->addVertex(glm::vec3{1, -1, -1});
+            int v2 = cubemap_mesh->addVertex(glm::vec3{-1, -1, 1});
+            int v3 = cubemap_mesh->addVertex(glm::vec3{1, -1, 1});
+
+            int v4 = cubemap_mesh->addVertex(glm::vec3{-1, 1, -1});
+            int v5 = cubemap_mesh->addVertex(glm::vec3{1, 1, -1});
+            int v6 = cubemap_mesh->addVertex(glm::vec3{-1, 1, 1});
+            int v7 = cubemap_mesh->addVertex(glm::vec3{1, 1, 1});
+
+            cubemap_mesh->addIndices(v1, v2, v3); // -Y
+            cubemap_mesh->addIndices(v1, v0, v2);
+
+            cubemap_mesh->addIndices(v5, v6, v7); // +Y
+            cubemap_mesh->addIndices(v5, v4, v6);
+
+            cubemap_mesh->addIndices(v4, v0, v2); // -X
+            cubemap_mesh->addIndices(v4, v2, v6);
+
+            cubemap_mesh->addIndices(v5, v1, v3); // +X
+            cubemap_mesh->addIndices(v5, v3, v7);
+
+            cubemap_mesh->addIndices(v1, v0, v4); // -Z
+            cubemap_mesh->addIndices(v1, v5, v4);
+
+            cubemap_mesh->addIndices(v3, v2, v6); // +Z
+            cubemap_mesh->addIndices(v3, v7, v6);
+
+            cubemap_mesh->flush();
+        }
+
+        ShaderSource *cubemap_shader = eng.shader_manager->create("cubemap");
+        cubemap_shader->setFile("base/environment.shader");
+
+        Material *cubemap_material = eng.material_manager->create("cubemap");
+        cubemap_material->setShaderSource(cubemap_shader);
+        cubemap_material->setTwoSided(true);
+        cubemap_material->addTexture("uSkybox");
+        cubemap_material->setTexture("uSkybox", cubemap_texture);
+
+        ///////////////////////////////////////////////////////////////////////////////
 
         ShaderSource *light_cube_shader_src = eng.shader_manager->create("light_cube");
         light_cube_shader_src->setFile("light_cube.shader");
@@ -293,6 +339,24 @@ public:
 
             ///////////////////////////////////////////////////////////
             eng.renderer->clearBuffers();
+
+            //////////////////
+            Shader *s = cubemap_material->getShader();
+            if (s->isDirty())
+            {
+                s->recompile();
+            }
+            s->bind();
+            auto c = camera_.getView();
+            c[3] = glm::vec4{0, 0, 0, 1};
+            c = camera_.getProj() * c;
+            s->setUniformMat4("uViewProj", c);
+            cubemap_mesh->bind();
+            GL_CHECKED(glDisable(GL_CULL_FACE));
+            GL_CHECKED(
+                glDrawElements(GL_TRIANGLES, cubemap_mesh->getNumIndices(), GL_UNSIGNED_INT, 0));
+
+            //////////////////
 
             eng.renderer->renderWorld(&camera_, &light);
             eng.visualizer->render(camera_.getViewProj());

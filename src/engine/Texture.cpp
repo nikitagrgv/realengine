@@ -82,10 +82,10 @@ Texture::~Texture()
 }
 
 void Texture::load(const char *filename, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter)
+    Filter mag_filter, bool flip_y)
 {
     clear();
-    Image image(filename);
+    Image image(filename, flip_y);
     if (!image.isLoaded())
     {
         std::cout << "Failed to load image" << std::endl;
@@ -166,14 +166,14 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
 }
 
 void Texture::loadCubemap(const char **filenames, Format target_format, Wrap wrap,
-    Filter min_filter, Filter mag_filter)
+    Filter min_filter, Filter mag_filter, bool flip_y)
 {
     clear();
     Image images[6];
     for (int i = 0; i < 6; ++i)
     {
         Image &image = images[i];
-        image.load(filenames[i]);
+        image.load(filenames[i], flip_y);
         if (!image.isLoaded())
         {
             std::cout << "Failed to load image" << std::endl;
@@ -285,7 +285,12 @@ void Texture::bind(int slot) const
     }
     assert(slot >= 0 && slot < 32);
     GL_CHECKED(glActiveTexture(GL_TEXTURE0 + slot));
-    GL_CHECKED(glBindTexture(GL_TEXTURE_2D, id_));
+    switch (type_)
+    {
+    case Type::Texture2D: GL_CHECKED(glBindTexture(GL_TEXTURE_2D, id_)); break;
+    case Type::Cubemap: GL_CHECKED(glBindTexture(GL_TEXTURE_CUBE_MAP, id_)); break;
+    default: assert(0);
+    }
 }
 
 void Texture::clear()
