@@ -8,13 +8,31 @@
 #include "EngineGlobals.h"
 #include "Light.h"
 #include "Material.h"
+#include "MaterialManager.h"
 #include "Mesh.h"
+#include "MeshManager.h"
 #include "Shader.h"
+#include "ShaderManager.h"
 #include "Texture.h"
+#include "TextureManager.h"
 #include "Window.h"
 #include "World.h"
 
 #include <NodeMesh.h>
+
+void Renderer::init()
+{
+    base_.white_ = eng.texture_manager->create("white");
+    base_.white_->load("base/white.png");
+
+    base_.black_ = eng.texture_manager->create("black");
+    base_.black_->load("base/black.png");
+
+    base_.normal_default_ = eng.texture_manager->create("normal_default");
+    base_.normal_default_->load("base/normal_default.png");
+
+    init_environment();
+}
 
 void Renderer::clearBuffers()
 {
@@ -25,6 +43,8 @@ void Renderer::clearBuffers()
 void Renderer::renderWorld(Camera *camera, Light *light)
 {
     assert(camera);
+
+    render_environment(camera);
 
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -88,6 +108,52 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     }
 }
 
+void Renderer::init_environment()
+{
+    ShaderSource *cubemap_shader = eng.shader_manager->create("environment");
+    cubemap_shader->setFile("base/environment.shader");
+
+    env_.material = eng.material_manager->create("environment");
+    env_.material->setShaderSource(cubemap_shader);
+    env_.material->setTwoSided(true);
+    env_.material->addTexture("uSkybox");
+    env_.material->setTexture("uSkybox", getBlackTexture());
+
+    // TODO: without mesh
+    env_.skybox_mesh = eng.mesh_manager->create("skybox");
+    {
+        int v0 = env_.skybox_mesh->addVertex(glm::vec3{-1, -1, -1});
+        int v1 = env_.skybox_mesh->addVertex(glm::vec3{1, -1, -1});
+        int v2 = env_.skybox_mesh->addVertex(glm::vec3{-1, -1, 1});
+        int v3 = env_.skybox_mesh->addVertex(glm::vec3{1, -1, 1});
+
+        int v4 = env_.skybox_mesh->addVertex(glm::vec3{-1, 1, -1});
+        int v5 = env_.skybox_mesh->addVertex(glm::vec3{1, 1, -1});
+        int v6 = env_.skybox_mesh->addVertex(glm::vec3{-1, 1, 1});
+        int v7 = env_.skybox_mesh->addVertex(glm::vec3{1, 1, 1});
+
+        env_.skybox_mesh->addIndices(v1, v2, v3); // -Y
+        env_.skybox_mesh->addIndices(v1, v0, v2);
+
+        env_.skybox_mesh->addIndices(v5, v6, v7); // +Y
+        env_.skybox_mesh->addIndices(v5, v4, v6);
+
+        env_.skybox_mesh->addIndices(v4, v0, v2); // -X
+        env_.skybox_mesh->addIndices(v4, v2, v6);
+
+        env_.skybox_mesh->addIndices(v5, v1, v3); // +X
+        env_.skybox_mesh->addIndices(v5, v3, v7);
+
+        env_.skybox_mesh->addIndices(v1, v0, v4); // -Z
+        env_.skybox_mesh->addIndices(v1, v5, v4);
+
+        env_.skybox_mesh->addIndices(v3, v2, v6); // +Z
+        env_.skybox_mesh->addIndices(v3, v7, v6);
+
+        env_.skybox_mesh->flush();
+    }
+}
+
 void Renderer::use_material(Material *material)
 {
     Shader *shader = material->getShader();
@@ -137,4 +203,25 @@ void Renderer::use_material(Material *material)
         default: break;
         }
     }
+}
+
+void Renderer::render_environment(Camera *camera)
+{
+    //////////////////
+    Shader *s = env_.material->getShader();
+    if (s->isDirty())
+    {
+        s->recompile();
+    }
+    s->bind();
+    auto c = camera->getView();
+    c[3] = glm::vec4{0, 0, 0, 1};
+    c = camera->getProj() * c;
+    s->setUniformMat4("uViewProj", c);
+    env_.skybox_mesh->bind();
+    GL_CHECKED(glDisable(GL_CULL_FACE));
+    GL_CHECKED(glDisable(GL_DEPTH_TEST));
+    GL_CHECKED(glDrawElements(GL_TRIANGLES, env_.skybox_mesh->getNumIndices(), GL_UNSIGNED_INT, 0));
+
+    //////////////////
 }

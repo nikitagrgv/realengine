@@ -72,48 +72,7 @@ public:
         cubemap_texture->loadCubemap(filenames, Texture::Format::RGB, Texture::Wrap::ClampToEdge,
             Texture::Filter::Linear, Texture::Filter::Linear, false);
 
-        // TODO: without mesh
-        Mesh *cubemap_mesh = eng.mesh_manager->create("cubemap");
-        {
-            int v0 = cubemap_mesh->addVertex(glm::vec3{-1, -1, -1});
-            int v1 = cubemap_mesh->addVertex(glm::vec3{1, -1, -1});
-            int v2 = cubemap_mesh->addVertex(glm::vec3{-1, -1, 1});
-            int v3 = cubemap_mesh->addVertex(glm::vec3{1, -1, 1});
-
-            int v4 = cubemap_mesh->addVertex(glm::vec3{-1, 1, -1});
-            int v5 = cubemap_mesh->addVertex(glm::vec3{1, 1, -1});
-            int v6 = cubemap_mesh->addVertex(glm::vec3{-1, 1, 1});
-            int v7 = cubemap_mesh->addVertex(glm::vec3{1, 1, 1});
-
-            cubemap_mesh->addIndices(v1, v2, v3); // -Y
-            cubemap_mesh->addIndices(v1, v0, v2);
-
-            cubemap_mesh->addIndices(v5, v6, v7); // +Y
-            cubemap_mesh->addIndices(v5, v4, v6);
-
-            cubemap_mesh->addIndices(v4, v0, v2); // -X
-            cubemap_mesh->addIndices(v4, v2, v6);
-
-            cubemap_mesh->addIndices(v5, v1, v3); // +X
-            cubemap_mesh->addIndices(v5, v3, v7);
-
-            cubemap_mesh->addIndices(v1, v0, v4); // -Z
-            cubemap_mesh->addIndices(v1, v5, v4);
-
-            cubemap_mesh->addIndices(v3, v2, v6); // +Z
-            cubemap_mesh->addIndices(v3, v7, v6);
-
-            cubemap_mesh->flush();
-        }
-
-        ShaderSource *cubemap_shader = eng.shader_manager->create("cubemap");
-        cubemap_shader->setFile("base/environment.shader");
-
-        Material *cubemap_material = eng.material_manager->create("cubemap");
-        cubemap_material->setShaderSource(cubemap_shader);
-        cubemap_material->setTwoSided(true);
-        cubemap_material->addTexture("uSkybox");
-        cubemap_material->setTexture("uSkybox", cubemap_texture);
+        eng.renderer->setSkyboxTexture(cubemap_texture);
 
         ///////////////////////////////////////////////////////////////////////////////
 
@@ -136,16 +95,6 @@ public:
         basic_shader_src->setFile("base/basic.shader");
 
         ///////////////////////////////////////////////////////////////////////////////
-        Texture *white_texture = eng.texture_manager->create("white");
-        white_texture->load("base/white.png");
-
-        Texture *black_texture = eng.texture_manager->create("black");
-        black_texture->load("base/black.png");
-
-        Texture *normal_default_texture = eng.texture_manager->create("normal_default");
-        normal_default_texture->load("base/normal_default.png");
-
-        ///////////////////////////////////////////////////////////////////////////////
         Texture *cat_texture = eng.texture_manager->create("cat");
         cat_texture->load("cat.png");
 
@@ -154,9 +103,9 @@ public:
 
         Material *basic_material = eng.material_manager->create("basic");
         basic_material->setShaderSource(basic_shader_src);
-        basic_material->addTexture("uMaterial.diffuseMap", white_texture);
-        basic_material->addTexture("uMaterial.specularMap", white_texture);
-        basic_material->addTexture("uMaterial.emissionMap", black_texture);
+        basic_material->addTexture("uMaterial.diffuseMap", eng.renderer->getWhiteTexture());
+        basic_material->addTexture("uMaterial.specularMap", eng.renderer->getWhiteTexture());
+        basic_material->addTexture("uMaterial.emissionMap", eng.renderer->getBlackTexture());
         basic_material->addParameterVec3("uMaterial.ambient", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.diffuse", glm::vec3{1, 1, 1});
         basic_material->addParameterVec3("uMaterial.specular", glm::vec3{1, 1, 1});
@@ -340,24 +289,6 @@ public:
             ///////////////////////////////////////////////////////////
             eng.renderer->clearBuffers();
 
-            //////////////////
-            Shader *s = cubemap_material->getShader();
-            if (s->isDirty())
-            {
-                s->recompile();
-            }
-            s->bind();
-            auto c = camera_.getView();
-            c[3] = glm::vec4{0, 0, 0, 1};
-            c = camera_.getProj() * c;
-            s->setUniformMat4("uViewProj", c);
-            cubemap_mesh->bind();
-            GL_CHECKED(glDisable(GL_CULL_FACE));
-            GL_CHECKED(
-                glDrawElements(GL_TRIANGLES, cubemap_mesh->getNumIndices(), GL_UNSIGNED_INT, 0));
-
-            //////////////////
-
             eng.renderer->renderWorld(&camera_, &light);
             eng.visualizer->render(camera_.getViewProj());
             eng.gui->update();
@@ -388,6 +319,9 @@ private:
         eng.gui = new Gui();
 
         eng.visualizer = new Visualizer();
+
+        // Post initialization
+        eng.renderer->init();
 
         // Editor
         edg.editor_ = new Editor();

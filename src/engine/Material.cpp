@@ -63,11 +63,11 @@
             return;                                                                                \
         }                                                                                          \
                                                                                                    \
-        ParameterOverride &v = inherited_.parameters[i];                                           \
-        if (v.##UNION_ELEMENT##_value == value)                                                    \
+        if (getParameter##TYPE_NAME(i) == value)                                                   \
         {                                                                                          \
             return;                                                                                \
         }                                                                                          \
+        ParameterOverride &v = inherited_.parameters[i];                                           \
         v.override = true;                                                                         \
         v.##UNION_ELEMENT##_value = value;                                                         \
     }                                                                                              \
@@ -357,11 +357,12 @@ void Material::setTexture(int i, Texture *texture)
         return;
     }
 
-    TextureInfoOverride &v = inherited_.textures[i];
-    if (v.texture == texture)
+    if (getTexture(i) == texture)
     {
         return;
     }
+
+    TextureInfoOverride &v = inherited_.textures[i];
     v.override = true;
     v.texture = texture;
 }
@@ -487,11 +488,12 @@ void Material::setDefine(int i, bool enabled)
         return;
     }
 
-    DefineOverride &v = inherited_.defines[i];
-    if (v.enabled == enabled)
+    if (getDefine(i) == enabled)
     {
         return;
     }
+
+    DefineOverride &v = inherited_.defines[i];
     v.override = true;
     v.enabled = enabled;
     set_defines_to_shader();
@@ -620,7 +622,7 @@ bool Material::isTwoSided() const
 
 void Material::setTwoSided(bool two_sided)
 {
-    if (options_.two_sided.value == two_sided)
+    if (isTwoSided() == two_sided)
     {
         return;
     }
