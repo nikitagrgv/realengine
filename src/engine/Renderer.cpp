@@ -50,6 +50,7 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
     GL_CHECKED(glEnable(GL_DEPTH_TEST));
+    GL_CHECKED(glDepthMask(GL_TRUE));
 
     GL_CHECKED(glCullFace(GL_BACK));
 
@@ -221,6 +222,7 @@ void Renderer::render_environment(Camera *camera)
     env_.skybox_mesh->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
+    GL_CHECKED(glDepthMask(GL_FALSE));
     GL_CHECKED(glDrawElements(GL_TRIANGLES, env_.skybox_mesh->getNumIndices(), GL_UNSIGNED_INT, 0));
 
     //////////////////
