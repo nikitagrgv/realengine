@@ -208,22 +208,19 @@ void Renderer::use_material(Material *material)
 
 void Renderer::render_environment(Camera *camera)
 {
-    //////////////////
-    Shader *s = env_.material->getShader();
-    if (s->isDirty())
+    Shader *shader = env_.material->getShader();
+    if (shader->isDirty())
     {
-        s->recompile();
+        shader->recompile();
     }
-    s->bind();
-    auto c = camera->getView();
-    c[3] = glm::vec4{0, 0, 0, 1};
-    c = camera->getProj() * c;
-    s->setUniformMat4("uViewProj", c);
+    shader->bind();
+    glm::mat4 viewproj = camera->getView();
+    viewproj[3] = glm::vec4{0, 0, 0, 1};
+    viewproj = camera->getProj() * viewproj;
+    shader->setUniformMat4("uViewProj", viewproj);
     env_.skybox_mesh->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
     GL_CHECKED(glDepthMask(GL_FALSE));
     GL_CHECKED(glDrawElements(GL_TRIANGLES, env_.skybox_mesh->getNumIndices(), GL_UNSIGNED_INT, 0));
-
-    //////////////////
 }
