@@ -65,6 +65,17 @@ public:
 
     int getNumVertices() const { return vertices_.size(); }
 
+    void addRaw(const void *data, int size_bytes)
+    {
+        assert(size_bytes % VERTEX_SIZE == 0);
+        const int num_vertices = size_bytes / VERTEX_SIZE;
+        const int old_size = vertices_.size();
+        vertices_.resize(old_size + num_vertices);
+        V *vdata = vertices_.data();
+        V *vdata_to_paste = vdata + old_size;
+        memcpy(vdata_to_paste, data, size_bytes);
+    }
+
     void clear() { vertices_.clear(); }
 
     void bind() const

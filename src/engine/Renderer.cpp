@@ -120,38 +120,65 @@ void Renderer::init_environment()
     env_.material->addTexture("uSkybox");
     env_.material->setTexture("uSkybox", getBlackTexture());
 
-    // TODO: without mesh
-    env_.skybox_mesh = eng.mesh_manager->create("skybox");
+    // build cube
+    env_.vao_ = makeU<VertexArrayObject>();
+    env_.vbo_ = makeU<VertexBufferObject<glm::vec3>>();
+
+    env_.vao_->bind();
+    env_.vao_->addAttributeFloat(3); // pos
+    env_.vbo_->bind();
+    env_.vao_->flush();
+
     {
-        int v0 = env_.skybox_mesh->addVertex(glm::vec3{-1, -1, -1});
-        int v1 = env_.skybox_mesh->addVertex(glm::vec3{1, -1, -1});
-        int v2 = env_.skybox_mesh->addVertex(glm::vec3{-1, -1, 1});
-        int v3 = env_.skybox_mesh->addVertex(glm::vec3{1, -1, 1});
+        // clang-format off
+         constexpr float skybox_vertices[] = {
+            // positions
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
 
-        int v4 = env_.skybox_mesh->addVertex(glm::vec3{-1, 1, -1});
-        int v5 = env_.skybox_mesh->addVertex(glm::vec3{1, 1, -1});
-        int v6 = env_.skybox_mesh->addVertex(glm::vec3{-1, 1, 1});
-        int v7 = env_.skybox_mesh->addVertex(glm::vec3{1, 1, 1});
+            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
 
-        env_.skybox_mesh->addIndices(v1, v2, v3); // -Y
-        env_.skybox_mesh->addIndices(v1, v0, v2);
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
 
-        env_.skybox_mesh->addIndices(v5, v6, v7); // +Y
-        env_.skybox_mesh->addIndices(v5, v4, v6);
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
 
-        env_.skybox_mesh->addIndices(v4, v0, v2); // -X
-        env_.skybox_mesh->addIndices(v4, v2, v6);
+            -1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
 
-        env_.skybox_mesh->addIndices(v5, v1, v3); // +X
-        env_.skybox_mesh->addIndices(v5, v3, v7);
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f
+        };
+        // clang-format on
 
-        env_.skybox_mesh->addIndices(v1, v0, v4); // -Z
-        env_.skybox_mesh->addIndices(v1, v5, v4);
-
-        env_.skybox_mesh->addIndices(v3, v2, v6); // +Z
-        env_.skybox_mesh->addIndices(v3, v7, v6);
-
-        env_.skybox_mesh->flush();
+        env_.vbo_->addRaw(skybox_vertices, sizeof(skybox_vertices));
+        env_.vbo_->flush();
     }
 }
 
@@ -218,9 +245,9 @@ void Renderer::render_environment(Camera *camera)
     viewproj[3] = glm::vec4{0, 0, 0, 1};
     viewproj = camera->getProj() * viewproj;
     shader->setUniformMat4("uViewProj", viewproj);
-    env_.skybox_mesh->bind();
+    env_.vao_->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
     GL_CHECKED(glDepthMask(GL_FALSE));
-    GL_CHECKED(glDrawElements(GL_TRIANGLES, env_.skybox_mesh->getNumIndices(), GL_UNSIGNED_INT, 0));
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, env_.vbo_->getNumVertices()));
 }

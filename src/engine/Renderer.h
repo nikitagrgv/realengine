@@ -1,5 +1,10 @@
 #pragma once
 
+#include "VertexArrayObject.h"
+#include "VertexBufferObject.h"
+
+#include "glm/vec3.hpp"
+
 
 class Camera;
 class Material;
@@ -35,7 +40,9 @@ private:
     {
         Texture *skybox{};
         Material *material{};
-        Mesh *skybox_mesh{};
+
+        UPtr<VertexBufferObject<glm::vec3>> vbo_;
+        UPtr<VertexArrayObject> vao_;
     } env_;
 
     struct
