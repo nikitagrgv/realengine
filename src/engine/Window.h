@@ -14,14 +14,16 @@ public:
 
     void maximize();
 
-    int getWidth();
-    int getHeight();
-    glm::ivec2 getSize();
+    int getWidth() const;
+    int getHeight() const;
+    glm::ivec2 getSize() const;
 
     float getCursorX() const;
     float getCursorY() const;
 
     glm::vec2 getCursorPos() const;
+
+    glm::vec2 getNormalizedCursorPos() const;
 
     void setMouseGrabbed(bool grab);
     bool isMouseGrabbed() const;

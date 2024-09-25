@@ -298,8 +298,8 @@ public:
                 texture = eng.renderer->getBlackTexture();
             }
 
-            const glm::vec2 pos = eng.input->getMousePos() / glm::vec2(eng.window->getSize());
-            eng.renderer->renderTexture(texture, pos, glm::vec2{0.2, 0.2});
+            eng.renderer->renderTexture(texture, eng.window->getNormalizedCursorPos(),
+                glm::vec2{0.2, 0.2});
 
             eng.gui->update();
             eng.gui->swap();
@@ -313,8 +313,7 @@ private:
     {
         Random::init();
         eng.engine_ = this;
-        eng.proxy = new SystemProxy();
-        eng.input = new Input();
+        eng.proxy = new SystemProxy(); eng.input = new Input();
         eng.time = new Time();
         eng.fs = new FileSystem();
         eng.texture_manager = new TextureManager();

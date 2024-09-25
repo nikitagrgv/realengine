@@ -51,17 +51,17 @@ void Window::maximize()
     glfwMaximizeWindow(window_);
 }
 
-int Window::getWidth()
+int Window::getWidth() const
 {
     return getSize().x;
 }
 
-int Window::getHeight()
+int Window::getHeight() const
 {
     return getSize().y;
 }
 
-glm::ivec2 Window::getSize()
+glm::ivec2 Window::getSize() const
 {
     glm::ivec2 v;
     glfwGetWindowSize(window_, &v.x, &v.y);
@@ -83,6 +83,11 @@ glm::vec2 Window::getCursorPos() const
     double x, y;
     glfwGetCursorPos(window_, &x, &y);
     return glm::vec2(x, y);
+}
+
+glm::vec2 Window::getNormalizedCursorPos() const
+{
+    return getCursorPos() / glm::vec2(getSize());
 }
 
 void Window::setMouseGrabbed(bool grab)
