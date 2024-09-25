@@ -118,31 +118,32 @@ void Renderer::renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size)
         return;
     }
 
-    sprite_renderer_.vbo_->clear();
+    SpriteRenderer &sr = sprite_renderer_;
+
+    sr.vbo_->clear();
 
     const SpriteRenderer::Vertex v0(pos, glm::vec2{0, 1});
     const SpriteRenderer::Vertex v1(glm::vec2{pos.x + size.x, pos.y}, glm::vec2{1, 1});
     const SpriteRenderer::Vertex v2(glm::vec2{pos.x, pos.y + size.y}, glm::vec2{0, 0});
     const SpriteRenderer::Vertex v3(glm::vec2{pos.x + size.x, pos.y + size.y}, glm::vec2{1, 0});
 
-    sprite_renderer_.vbo_->addVertex(v1);
-    sprite_renderer_.vbo_->addVertex(v2);
-    sprite_renderer_.vbo_->addVertex(v3);
+    sr.vbo_->addVertex(v1);
+    sr.vbo_->addVertex(v2);
+    sr.vbo_->addVertex(v3);
 
-    sprite_renderer_.vbo_->addVertex(v0);
-    sprite_renderer_.vbo_->addVertex(v1);
-    sprite_renderer_.vbo_->addVertex(v2);
-    sprite_renderer_.vbo_->flush();
+    sr.vbo_->addVertex(v0);
+    sr.vbo_->addVertex(v1);
+    sr.vbo_->addVertex(v2);
+    sr.vbo_->flush();
 
-    sprite_renderer_.shader_->bind();
-    assert(
-        sprite_renderer_.shader_->getUniformLocation("uTexture") == sprite_renderer_.texture_loc_);
-    texture->bind(sprite_renderer_.texture_loc_);
-    sprite_renderer_.vao_->bind();
+    sr.shader_->bind();
+    assert(sr.shader_->getUniformLocation("uTexture") == sr.texture_loc_);
+    texture->bind(sr.texture_loc_);
+    sr.vao_->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
-    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, sprite_renderer_.vbo_->getNumVertices()));
-    eng.stat.addRenderedIndices(sprite_renderer_.vbo_->getNumVertices());
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, sr.vbo_->getNumVertices()));
+    eng.stat.addRenderedIndices(sr.vbo_->getNumVertices());
 }
 
 void Renderer::init_environment()
@@ -220,24 +221,26 @@ void Renderer::init_environment()
 
 void Renderer::init_sprite()
 {
-    sprite_renderer_.vao_ = makeU<VertexArrayObject>();
-    sprite_renderer_.vbo_ = makeU<VertexBufferObject<SpriteRenderer::Vertex>>();
+    SpriteRenderer &sr = sprite_renderer_;
 
-    sprite_renderer_.vao_->bind();
-    sprite_renderer_.vao_->addAttributeFloat(2);
-    sprite_renderer_.vao_->addAttributeFloat(2);
-    sprite_renderer_.vbo_->bind();
-    sprite_renderer_.vao_->flush();
+    sr.vao_ = makeU<VertexArrayObject>();
+    sr.vbo_ = makeU<VertexBufferObject<SpriteRenderer::Vertex>>();
 
-    sprite_renderer_.shader_source_ = makeU<ShaderSource>();
-    sprite_renderer_.shader_source_->setFile("base/sprite.shader");
+    sr.vao_->bind();
+    sr.vao_->addAttributeFloat(2);
+    sr.vao_->addAttributeFloat(2);
+    sr.vbo_->bind();
+    sr.vao_->flush();
 
-    sprite_renderer_.shader_ = makeU<Shader>();
-    sprite_renderer_.shader_->setSource(sprite_renderer_.shader_source_.get());
-    sprite_renderer_.shader_->recompile();
-    sprite_renderer_.texture_loc_ = sprite_renderer_.shader_->getUniformLocation("uTexture");
+    sr.shader_source_ = makeU<ShaderSource>();
+    sr.shader_source_->setFile("base/sprite.shader");
 
-    assert(sprite_renderer_.texture_loc_ != -1);
+    sr.shader_ = makeU<Shader>();
+    sr.shader_->setSource(sr.shader_source_.get());
+    sr.shader_->recompile();
+    sr.texture_loc_ = sr.shader_->getUniformLocation("uTexture");
+
+    assert(sr.texture_loc_ != -1);
 }
 
 void Renderer::use_material(Material *material)
