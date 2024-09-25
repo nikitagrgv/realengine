@@ -229,11 +229,11 @@ void Renderer::init_sprite()
     sprite_renderer_.vbo_->bind();
     sprite_renderer_.vao_->flush();
 
-    ShaderSource *sprite_shader_src = eng.shader_manager->create("sprite");
-    sprite_shader_src->setFile("base/sprite.shader");
+    sprite_renderer_.shader_source_ = makeU<ShaderSource>();
+    sprite_renderer_.shader_source_->setFile("base/sprite.shader");
 
     sprite_renderer_.shader_ = makeU<Shader>();
-    sprite_renderer_.shader_->setSource(sprite_shader_src);
+    sprite_renderer_.shader_->setSource(sprite_renderer_.shader_source_.get());
     sprite_renderer_.shader_->recompile();
     sprite_renderer_.texture_loc_ = sprite_renderer_.shader_->getUniformLocation("uTexture");
 

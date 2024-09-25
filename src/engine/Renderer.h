@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ShaderSource.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
 
@@ -63,7 +64,10 @@ private:
         };
         UPtr<VertexBufferObject<Vertex>> vbo_;
         UPtr<VertexArrayObject> vao_;
+
+        UPtr<ShaderSource> shader_source_;
         UPtr<Shader> shader_;
+
         int texture_loc_ = -1;
         int matrix_loc_ = -1;
     } sprite_renderer_;
