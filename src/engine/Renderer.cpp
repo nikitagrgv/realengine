@@ -109,6 +109,11 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     }
 }
 
+void Renderer::renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size)
+{
+
+}
+
 void Renderer::init_environment()
 {
     ShaderSource *cubemap_shader = eng.shader_manager->create("environment");
@@ -250,4 +255,5 @@ void Renderer::render_environment(Camera *camera)
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
     GL_CHECKED(glDepthMask(GL_FALSE));
     GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, env_.vbo_->getNumVertices()));
+    eng.stat.addRenderedIndices(env_.vbo_->getNumVertices());
 }

@@ -3,6 +3,7 @@
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
 
+#include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 
 
@@ -20,6 +21,8 @@ public:
 
     void clearBuffers();
     void renderWorld(Camera *camera, Light *light);
+
+    void renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size);
 
     Texture *getWhiteTexture() const { return base_.white_; }
     Texture *getBlackTexture() const { return base_.black_; }
