@@ -45,6 +45,8 @@ private:
     struct
     {
         Texture *skybox_{};
+
+        UPtr<ShaderSource> shader_source_;
         Material *material_{};
 
         UPtr<VertexBufferObject<glm::vec3>> vbo_;

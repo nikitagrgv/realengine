@@ -147,11 +147,11 @@ void Renderer::renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size)
 
 void Renderer::init_environment()
 {
-    ShaderSource *cubemap_shader = eng.shader_manager->create("environment");
-    cubemap_shader->setFile("base/environment.shader");
+    env_.shader_source_ = makeU<ShaderSource>();
+    env_.shader_source_->setFile("base/environment.shader");
 
     env_.material_ = eng.material_manager->create("environment");
-    env_.material_->setShaderSource(cubemap_shader);
+    env_.material_->setShaderSource(env_.shader_source_.get());
     env_.material_->setTwoSided(true);
     env_.material_->addTexture("uSkybox");
     env_.material_->setTexture("uSkybox", getBlackTexture());
