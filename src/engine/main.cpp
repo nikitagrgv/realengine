@@ -245,10 +245,10 @@ public:
         ShaderSource *sprite_shader_src = eng.shader_manager->create("sprite");
         sprite_shader_src->setFile("base/sprite.shader");
 
-        // TODO# use shader instead
-        Material *sprite_material = eng.material_manager->create("sprite");
-        sprite_material->setShaderSource(sprite_shader_src);
-        sprite_material->addTexture("uTexture", eng.renderer->getWhiteTexture());
+        Shader sprite_shader;
+        sprite_shader.setSource(sprite_shader_src);
+        sprite_shader.recompile();
+        const int sprite_shader_texture_loc = sprite_shader.getUniformLocation("uTexture");
 
         class Sprite
         {
@@ -282,10 +282,6 @@ public:
                 size_ = size;
                 flush();
             }
-
-
-            Texture *texture{};
-
 
         public:
             void flush()
@@ -324,7 +320,6 @@ public:
         };
 
         Sprite sprite{};
-        sprite.texture = cat_texture;
         sprite.setPosition({0, 0});
         sprite.setSize({0.4, 0.4});
 
@@ -380,25 +375,14 @@ public:
 
             /////////////////
             {
-                Shader *shader = sprite_material->getShader();
-                if (shader->isDirty())
+                sprite_shader.bind();
+                Texture *texture = edg.editor_->getSelectedTexture();
+                if (!texture)
                 {
-                    shader->recompile();
+                    texture = eng.renderer->getBlackTexture();
                 }
-                shader->bind();
-                sprite_material->setTexture("uTexture", cat_texture);
-                for (int i = 0, count = sprite_material->getNumTextures(); i < count; i++)
-                {
-                    const int loc = shader->getUniformLocation(
-                        sprite_material->getTextureName(i).c_str());
-                    if (loc == -1)
-                    {
-                        continue;
-                    }
-                    sprite_material->getTexture(i)->bind(i);
-                    shader->setUniformInt(loc, i);
-                }
-
+                assert(sprite_shader.getUniformLocation("uTexture") == sprite_shader_texture_loc);
+                texture->bind(sprite_shader_texture_loc);
                 sprite.vao_.bind();
                 GL_CHECKED(glDisable(GL_CULL_FACE));
                 GL_CHECKED(glDisable(GL_DEPTH_TEST));

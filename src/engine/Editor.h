@@ -18,6 +18,8 @@ class Editor
 public:
     Editor();
 
+    Texture *getSelectedTexture() const;
+
 private:
     void render();
 

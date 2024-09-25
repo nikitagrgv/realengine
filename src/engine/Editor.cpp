@@ -34,6 +34,15 @@ Editor::Editor()
     eng.gui->getSignalOnUpdate().connect(ctx_, [this] { render(); });
 }
 
+Texture *Editor::getSelectedTexture() const
+{
+    if (eng.texture_manager->contains(selected_texture_))
+    {
+        return eng.texture_manager->get(selected_texture_);
+    }
+    return nullptr;
+}
+
 void Editor::render()
 {
     for (auto &it : widgets_data_)
