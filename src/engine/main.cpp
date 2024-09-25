@@ -242,87 +242,6 @@ public:
             ImGui::ShowDemoWindow(nullptr);
         });
 
-        ShaderSource *sprite_shader_src = eng.shader_manager->create("sprite");
-        sprite_shader_src->setFile("base/sprite.shader");
-
-        Shader sprite_shader;
-        sprite_shader.setSource(sprite_shader_src);
-        sprite_shader.recompile();
-        const int sprite_shader_texture_loc = sprite_shader.getUniformLocation("uTexture");
-
-        class Sprite
-        {
-        public:
-            Sprite()
-            {
-                vao_.bind();
-                vao_.addAttributeFloat(2);
-                vao_.addAttributeFloat(2);
-                vbo_.bind();
-                vao_.flush();
-                flush();
-            }
-
-            void setPosition(glm::vec2 pos)
-            {
-                if (pos_ == pos)
-                {
-                    return;
-                }
-                pos_ = pos;
-                flush();
-            }
-
-            void setSize(glm::vec2 size)
-            {
-                if (size == size_)
-                {
-                    return;
-                }
-                size_ = size;
-                flush();
-            }
-
-        public:
-            void flush()
-            {
-                vbo_.clear();
-
-                const Vertex v0(pos_, glm::vec2{0, 1});
-                const Vertex v1(glm::vec2{pos_.x + size_.x, pos_.y}, glm::vec2{1, 1});
-                const Vertex v2(glm::vec2{pos_.x, pos_.y + size_.y}, glm::vec2{0, 0});
-                const Vertex v3(glm::vec2{pos_.x + size_.x, pos_.y + size_.y}, glm::vec2{1, 0});
-
-                vbo_.addVertex(v1);
-                vbo_.addVertex(v2);
-                vbo_.addVertex(v3);
-
-                vbo_.addVertex(v0);
-                vbo_.addVertex(v1);
-                vbo_.addVertex(v2);
-                vbo_.flush();
-            }
-
-            glm::vec2 pos_{};
-            glm::vec2 size_{};
-
-            struct Vertex
-            {
-                Vertex(glm::vec2 pos, glm::vec2 uv)
-                    : pos(pos)
-                    , uv(uv)
-                {}
-                glm::vec2 pos;
-                glm::vec2 uv;
-            };
-            VertexBufferObject<Vertex> vbo_;
-            VertexArrayObject vao_;
-        };
-
-        Sprite sprite{};
-        sprite.setPosition({0, 0});
-        sprite.setSize({0.4, 0.4});
-
         while (!exit_)
         {
             eng.time->update();
@@ -373,24 +292,12 @@ public:
             eng.renderer->renderWorld(&camera_, &light);
             eng.visualizer->render(camera_.getViewProj());
 
-            /////////////////
+            Texture *texture = edg.editor_->getSelectedTexture();
+            if (!texture)
             {
-                sprite_shader.bind();
-                Texture *texture = edg.editor_->getSelectedTexture();
-                if (!texture)
-                {
-                    texture = eng.renderer->getBlackTexture();
-                }
-                assert(sprite_shader.getUniformLocation("uTexture") == sprite_shader_texture_loc);
-                texture->bind(sprite_shader_texture_loc);
-                sprite.vao_.bind();
-                GL_CHECKED(glDisable(GL_CULL_FACE));
-                GL_CHECKED(glDisable(GL_DEPTH_TEST));
-                GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, sprite.vbo_.getNumVertices()));
-                eng.stat.addRenderedIndices(sprite.vbo_.getNumVertices());
+                texture = eng.renderer->getBlackTexture();
             }
-            /////////////////
-
+            eng.renderer->renderTexture(texture, glm::vec2{0, 0}, glm::vec2{0.4, 0.4});
 
             eng.gui->update();
             eng.gui->swap();

@@ -32,6 +32,7 @@ void Renderer::init()
     base_.normal_default_->load("base/normal_default.png");
 
     init_environment();
+    init_sprite();
 }
 
 void Renderer::clearBuffers()
@@ -112,7 +113,36 @@ void Renderer::renderWorld(Camera *camera, Light *light)
 
 void Renderer::renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size)
 {
+    if (!texture)
+    {
+        return;
+    }
 
+    sprite_renderer_.vbo_->clear();
+
+    const SpriteRenderer::Vertex v0(pos, glm::vec2{0, 1});
+    const SpriteRenderer::Vertex v1(glm::vec2{pos.x + size.x, pos.y}, glm::vec2{1, 1});
+    const SpriteRenderer::Vertex v2(glm::vec2{pos.x, pos.y + size.y}, glm::vec2{0, 0});
+    const SpriteRenderer::Vertex v3(glm::vec2{pos.x + size.x, pos.y + size.y}, glm::vec2{1, 0});
+
+    sprite_renderer_.vbo_->addVertex(v1);
+    sprite_renderer_.vbo_->addVertex(v2);
+    sprite_renderer_.vbo_->addVertex(v3);
+
+    sprite_renderer_.vbo_->addVertex(v0);
+    sprite_renderer_.vbo_->addVertex(v1);
+    sprite_renderer_.vbo_->addVertex(v2);
+    sprite_renderer_.vbo_->flush();
+
+    sprite_renderer_.shader_->bind();
+    assert(
+        sprite_renderer_.shader_->getUniformLocation("uTexture") == sprite_renderer_.texture_loc_);
+    texture->bind(sprite_renderer_.texture_loc_);
+    sprite_renderer_.vao_->bind();
+    GL_CHECKED(glDisable(GL_CULL_FACE));
+    GL_CHECKED(glDisable(GL_DEPTH_TEST));
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, sprite_renderer_.vbo_->getNumVertices()));
+    eng.stat.addRenderedIndices(sprite_renderer_.vbo_->getNumVertices());
 }
 
 void Renderer::init_environment()
@@ -120,11 +150,11 @@ void Renderer::init_environment()
     ShaderSource *cubemap_shader = eng.shader_manager->create("environment");
     cubemap_shader->setFile("base/environment.shader");
 
-    env_.material = eng.material_manager->create("environment");
-    env_.material->setShaderSource(cubemap_shader);
-    env_.material->setTwoSided(true);
-    env_.material->addTexture("uSkybox");
-    env_.material->setTexture("uSkybox", getBlackTexture());
+    env_.material_ = eng.material_manager->create("environment");
+    env_.material_->setShaderSource(cubemap_shader);
+    env_.material_->setTwoSided(true);
+    env_.material_->addTexture("uSkybox");
+    env_.material_->setTexture("uSkybox", getBlackTexture());
 
     // build cube
     env_.vao_ = makeU<VertexArrayObject>();
@@ -188,6 +218,28 @@ void Renderer::init_environment()
     }
 }
 
+void Renderer::init_sprite()
+{
+    sprite_renderer_.vao_ = makeU<VertexArrayObject>();
+    sprite_renderer_.vbo_ = makeU<VertexBufferObject<SpriteRenderer::Vertex>>();
+
+    sprite_renderer_.vao_->bind();
+    sprite_renderer_.vao_->addAttributeFloat(2);
+    sprite_renderer_.vao_->addAttributeFloat(2);
+    sprite_renderer_.vbo_->bind();
+    sprite_renderer_.vao_->flush();
+
+    ShaderSource *sprite_shader_src = eng.shader_manager->create("sprite");
+    sprite_shader_src->setFile("base/sprite.shader");
+
+    sprite_renderer_.shader_ = makeU<Shader>();
+    sprite_renderer_.shader_->setSource(sprite_shader_src);
+    sprite_renderer_.shader_->recompile();
+    sprite_renderer_.texture_loc_ = sprite_renderer_.shader_->getUniformLocation("uTexture");
+
+    assert(sprite_renderer_.texture_loc_ != -1);
+}
+
 void Renderer::use_material(Material *material)
 {
     Shader *shader = material->getShader();
@@ -241,7 +293,7 @@ void Renderer::use_material(Material *material)
 
 void Renderer::render_environment(Camera *camera)
 {
-    Shader *shader = env_.material->getShader();
+    Shader *shader = env_.material_->getShader();
     if (shader->isDirty())
     {
         shader->recompile();
