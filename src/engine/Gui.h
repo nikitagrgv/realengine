@@ -5,13 +5,11 @@ class Gui
 {
 public:
     Gui();
-    ~Gui();
 
-    Signal<> &getSignalOnUpdate() { return on_update_; }
+    Signal<> &getSignalOnRender() { return on_render_; }
 
-    void update();
-    void swap();
+    void render();
 
 private:
-    Signal<> on_update_;
+    Signal<> on_render_;
 };

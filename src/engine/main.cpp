@@ -229,7 +229,7 @@ public:
         light.diffuse_power = 1.0f;
         light.specular_power = 1.0f;
 
-        eng.gui->getSignalOnUpdate().connect(ctx, [&] {
+        eng.gui->getSignalOnRender().connect(ctx, [&] {
             ImGui::Begin("Parameters");
             ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
             ImGui::ColorEdit3("Light color", glm::value_ptr(light.color),
@@ -301,8 +301,7 @@ public:
             eng.renderer->renderTexture(texture, eng.window->getNormalizedCursorPos(),
                 glm::vec2{0.2, 0.2});
 
-            eng.gui->update();
-            eng.gui->swap();
+            eng.gui->render();
             eng.window->swap();
             eng.stat.finishFrame();
         }

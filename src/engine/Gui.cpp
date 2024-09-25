@@ -22,21 +22,15 @@ Gui::Gui()
     ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-Gui::~Gui() {}
-
-void Gui::update()
+void Gui::render()
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    on_update_.call();
+    on_render_.call();
 
     ImGui::Render();
-}
 
-
-void Gui::swap()
-{
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

@@ -31,7 +31,7 @@ constexpr const char *FORMAT = "%.3f";
 
 Editor::Editor()
 {
-    eng.gui->getSignalOnUpdate().connect(ctx_, [this] { render(); });
+    eng.gui->getSignalOnRender().connect(ctx_, [this] { render(); });
 }
 
 Texture *Editor::getSelectedTexture() const
