@@ -378,7 +378,7 @@ public:
             eng.renderer->renderWorld(&camera_, &light);
             eng.visualizer->render(camera_.getViewProj());
 
-/////////////////
+            /////////////////
             {
                 Shader *shader = sprite_material->getShader();
                 if (shader->isDirty())
@@ -389,7 +389,8 @@ public:
                 sprite_material->setTexture("uTexture", cat_texture);
                 for (int i = 0, count = sprite_material->getNumTextures(); i < count; i++)
                 {
-                    const int loc = shader->getUniformLocation(sprite_material->getTextureName(i).c_str());
+                    const int loc = shader->getUniformLocation(
+                        sprite_material->getTextureName(i).c_str());
                     if (loc == -1)
                     {
                         continue;

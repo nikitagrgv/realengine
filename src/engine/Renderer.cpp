@@ -36,6 +36,7 @@ void Renderer::init()
 
 void Renderer::clearBuffers()
 {
+    GL_CHECKED(glDepthMask(GL_TRUE));
     GL_CHECKED(glClearColor(0.2f, 0.3f, 0.3f, 1.0f));
     GL_CHECKED(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
