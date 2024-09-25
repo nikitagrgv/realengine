@@ -297,7 +297,9 @@ public:
             {
                 texture = eng.renderer->getBlackTexture();
             }
-            eng.renderer->renderTexture(texture, glm::vec2{0, 0}, glm::vec2{0.4, 0.4});
+
+            const glm::vec2 pos = eng.input->getMousePos() / glm::vec2(eng.window->getSize());
+            eng.renderer->renderTexture(texture, pos, glm::vec2{0.2, 0.2});
 
             eng.gui->update();
             eng.gui->swap();

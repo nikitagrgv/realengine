@@ -120,6 +120,14 @@ void Renderer::renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size)
 
     SpriteRenderer &sr = sprite_renderer_;
 
+    glm::mat3 mat;
+    mat[0] = glm::vec3{2, 0, 0};
+    mat[1] = glm::vec3{0, -2, 0};
+    mat[2] = glm::vec3{-1, 1, 1};
+
+    pos = mat * glm::vec3{pos, 1};
+    size = mat * glm::vec3{size, 0};
+
     sr.vbo_->clear();
 
     const SpriteRenderer::Vertex v0(pos, glm::vec2{0, 1});
