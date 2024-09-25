@@ -71,7 +71,7 @@ private:
         UPtr<Shader> shader_;
 
         int texture_loc_ = -1;
-        int matrix_loc_ = -1;
+        int transform_loc_ = -1;
     } sprite_renderer_;
 
     struct

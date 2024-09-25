@@ -6,10 +6,14 @@
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aUV;
 
+uniform mat3 uTransform;
+
 void main()
 {
     ioUV = aUV;
-    gl_Position = vec4(aPos, 0.0, 1.0);
+
+    vec2 pos = (uTransform * vec3(aPos, 1.0)).xy;
+    gl_Position = vec4(pos, 0.0, 1.0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -26,6 +26,7 @@ public:
     void setUniformVec2(int location, const glm::vec2 &value);
     void setUniformVec3(int location, const glm::vec3 &value);
     void setUniformVec4(int location, const glm::vec4 &value);
+    void setUniformMat3(int location, const glm::mat3 &value);
     void setUniformMat4(int location, const glm::mat4 &value);
     void setUniformInt(int location, int value);
 
@@ -33,6 +34,7 @@ public:
     void setUniformVec2(const char *name, const glm::vec2 &value);
     void setUniformVec3(const char *name, const glm::vec3 &value);
     void setUniformVec4(const char *name, const glm::vec4 &value);
+    void setUniformMat3(const char *name, const glm::mat3 &value);
     void setUniformMat4(const char *name, const glm::mat4 &value);
     void setUniformInt(const char *name, int value);
 

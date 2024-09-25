@@ -77,6 +77,13 @@ void Shader::setUniformVec4(int location, const glm::vec4 &value)
     GL_CHECKED(glUniform4f(location, value.x, value.y, value.z, value.w));
 }
 
+void Shader::setUniformMat3(int location, const glm::mat3 &value)
+{
+    assert(location != -1);
+    check_used_program();
+    GL_CHECKED(glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value)));
+}
+
 void Shader::setUniformMat4(int location, const glm::mat4 &value)
 {
     assert(location != -1);
@@ -124,6 +131,15 @@ void Shader::setUniformVec4(const char *name, const glm::vec4 &value)
     if (location != -1)
     {
         setUniformVec4(location, value);
+    }
+}
+
+void Shader::setUniformMat3(const char *name, const glm::mat3 &value)
+{
+    const int location = getUniformLocation(name);
+    if (location != -1)
+    {
+        setUniformMat3(location, value);
     }
 }
 
