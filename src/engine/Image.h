@@ -1,5 +1,8 @@
 #pragma once
+
 #include "Base.h"
+
+#include "glm/vec4.hpp"
 
 class Image
 {
@@ -12,6 +15,8 @@ public:
         RG,
         R,
     };
+
+    static int getNumChannels(Format format);
 
     REMOVE_COPY_CLASS(Image);
 
@@ -36,7 +41,23 @@ public:
 
     unsigned char *getData() const { return data_; }
 
+    void setPixelFloat(int x, int y, const glm::vec4 &pixel);
+    glm::vec4 getPixelFloat(int x, int y) const;
+
+    void setPixel(int x, int y, const glm::u8vec4 &pixel);
+    glm::u8vec4 getPixel(int x, int y) const;
+
+    void fill(const glm::vec4 &color);
+    void fill(const glm::u8vec4 &color);
+
     void clear();
+
+private:
+    static unsigned char convert_to_u8_pixel(float float_pixel);
+    static glm::u8vec4 convert_to_u8_pixel(glm::vec4 vec4_pixel);
+
+    static float convert_to_float_pixel(unsigned char u8_pixel);
+    static glm::vec4 convert_to_float_pixel(glm::u8vec4 u8_pixel);
 
 private:
     unsigned char *data_{};

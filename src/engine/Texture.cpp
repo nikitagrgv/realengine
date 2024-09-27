@@ -149,6 +149,9 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
         std::cout << "Invalid mag filter" << std::endl;
     }
 
+    // TODO: fix or ok?
+    GL_CHECKED(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
     GL_CHECKED(glGenTextures(1, &id_));
     GL_CHECKED(glBindTexture(GL_TEXTURE_2D, id_));
     GL_CHECKED(glTexImage2D(GL_TEXTURE_2D, 0, gl_dst_format, width, height, 0, gl_src_format,

@@ -6,6 +6,7 @@
 
 #include "Camera.h"
 #include "EngineGlobals.h"
+#include "Image.h"
 #include "Light.h"
 #include "Material.h"
 #include "MaterialManager.h"
@@ -22,14 +23,20 @@
 
 void Renderer::init()
 {
+    Image image;
+    image.create(2, 2, Image::Format::RGB);
+
     base_.white_ = eng.texture_manager->create("white");
-    base_.white_->load("base/white.png");
+    image.fill(glm::u8vec4{255, 255, 255, 255});
+    base_.white_->load(image);
 
     base_.black_ = eng.texture_manager->create("black");
-    base_.black_->load("base/black.png");
+    image.fill(glm::u8vec4{0, 0, 0, 255});
+    base_.black_->load(image);
 
     base_.normal_default_ = eng.texture_manager->create("normal_default");
-    base_.normal_default_->load("base/normal_default.png");
+    image.fill(glm::u8vec4{128, 128, 255, 255});
+    base_.normal_default_->load(image);
 
     init_environment();
     init_sprite();
