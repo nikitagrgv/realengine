@@ -17,6 +17,11 @@ Image::Image(const char *path, bool flip_y)
     load(path, flip_y);
 }
 
+Image::Image(int width, int height, Format format)
+{
+
+}
+
 Image::~Image()
 {
     clear();
@@ -54,12 +59,21 @@ void Image::load(const char *path, bool flip_y)
     stbi_set_flip_vertically_on_load(flip_y);
     std::string abs_path = eng.fs->toAbsolutePath(path);
 
-    data_ = stbi_load(abs_path.c_str(), &width_, &height_, &num_ch_, 0);
-    if (!data_)
+    unsigned char *stbi_data = stbi_load(abs_path.c_str(), &width_, &height_, &num_ch_, 0);
+    if (!stbi_data)
     {
         std::cout << "Failed to load image: " << abs_path << std::endl;
         clear();
+        return;
     }
+
+    assert(!data_);
+
+    const int data_size = num_ch_ * width_ * height_;
+    data_ = new unsigned char[data_size];
+    memcpy(data_, stbi_data, data_size);
+
+    stbi_image_free(stbi_data);
 
     switch (num_ch_)
     {
@@ -71,11 +85,16 @@ void Image::load(const char *path, bool flip_y)
     }
 }
 
+void Image::create(int width, int height, Format format)
+{
+
+}
+
 void Image::clear()
 {
     if (data_)
     {
-        stbi_image_free(data_);
+        delete[] data_;
         data_ = nullptr;
         width_ = -1;
         height_ = -1;

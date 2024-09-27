@@ -17,12 +17,15 @@ public:
 
     Image();
     explicit Image(const char *path, bool flip_y = true);
+    Image(int width, int height, Format format);
+
     ~Image();
 
     Image(Image &&other) noexcept;
     Image &operator=(Image &&other) noexcept;
 
     void load(const char *path, bool flip_y = true);
+    void create(int width, int height, Format format);
 
     bool isLoaded() const { return data_ != nullptr; }
 
