@@ -26,7 +26,7 @@ public:
 
     void renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size);
 
-    void renderText2D(const char *text, glm::vec2 pos, float size);
+    void renderText2D(const char *text, glm::vec2 pos, float height);
 
     Texture *getWhiteTexture() const { return base_.white_; }
     Texture *getBlackTexture() const { return base_.black_; }
