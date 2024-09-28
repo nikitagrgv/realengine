@@ -148,7 +148,7 @@ void Renderer::renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size)
 }
 
 void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_size,
-    float height_px)
+    float height_px, TextPivot pivot)
 {
     TextRenderer &tr = text_renderer_;
 
@@ -170,18 +170,24 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
     const float width_px = height_px * char_uv_size.x / char_uv_size.y;
     const float height = height_px / viewport_size.y;
     const float width = width_px / viewport_size.x;
-    // const float height = height_px / viewport_size.y * 2;
-    // const float width = height;
-    // const float width = char_uv_size.x / char_uv_size.y * height;
 
     constexpr int chars_in_row = 12;
 
     vbo.clear();
 
-    const char *cur = text;
-
-    float cur_x = pos.x;
-    float cur_y = pos.y;
+    glm::vec2 cur_pos = pos;
+    switch (pivot)
+    {
+    case TextPivot::TopLeft:
+    {
+        break;
+    }
+    case TextPivot::BottomLeft:
+    {
+        cur_pos.y -= height;
+        break;
+    }
+    }
 
     const auto calc_uv = [&](char ch, glm::vec2 &top_left, glm::vec2 &bottom_right) {
         assert(ch >= 0x20 && ch < 0x80);
@@ -197,13 +203,14 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
     };
 
     glm::mat3 mat;
-    mat[0] = glm::vec3{1, 0, 0};
-    mat[1] = glm::vec3{0, -1, 0};
-    mat[2] = glm::vec3{-1 + 1 * pos.x, 1 - 1 * pos.y, 1};
+    mat[0] = glm::vec3{2, 0, 0};
+    mat[1] = glm::vec3{0, -2, 0};
+    mat[2] = glm::vec3{-1, 1, 1};
 
-    while (*cur)
+    const char *p = text;
+    while (*p)
     {
-        const char ch = *cur;
+        const char ch = *p;
 
         if (ch >= 0x20 && ch < 0x80)
         {
@@ -211,7 +218,7 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
             glm::vec2 bot_right_uv;
             calc_uv(ch, top_left_uv, bot_right_uv);
 
-            const glm::vec2 top_left_pos = mat * glm::vec3{cur_x, cur_y, 1};
+            const glm::vec2 top_left_pos = mat * glm::vec3{cur_pos.x, cur_pos.y, 1};
             const glm::vec2 bot_right_pos = top_left_pos
                 + glm::vec2{
                     mat * glm::vec3{width, height, 0}
@@ -230,8 +237,8 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
             vbo.addVertex(TextRenderer::Vertex{bot_right_pos, bot_right_uv});
         }
 
-        cur_x += width;
-        ++cur;
+        cur_pos.x += width;
+        ++p;
     }
 
     if (vbo.getNumVertices() == 0)

@@ -297,12 +297,13 @@ public:
             {
                 texture = eng.renderer->getBlackTexture();
             }
+            const char* texture_name = eng.texture_manager->getName(texture);
 
-            // eng.renderer->renderTexture2D(texture, eng.window->getNormalizedCursorPos(),
-            // glm::vec2{0.2, 0.2});
+            eng.renderer->renderTexture2D(texture, eng.window->getNormalizedCursorPos(),
+            glm::vec2{0.2, 0.2});
 
-            eng.renderer->renderText2D("S!oMe jext!!!{}", eng.window->getNormalizedCursorPos(),
-                eng.window->getSize(), 32);
+            eng.renderer->renderText2D(texture_name, eng.window->getNormalizedCursorPos(),
+                eng.window->getSize(), 25, Renderer::TextPivot::BottomLeft);
 
             eng.gui->render();
             eng.window->swap();
