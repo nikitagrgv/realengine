@@ -40,6 +40,7 @@ void Renderer::init()
 
     init_environment();
     init_sprite();
+    init_text();
 }
 
 void Renderer::clearBuffers()
@@ -118,7 +119,7 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     }
 }
 
-void Renderer::renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size)
+void Renderer::renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size)
 {
     if (!texture)
     {
@@ -144,6 +145,93 @@ void Renderer::renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size)
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
     GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, sr.vbo_->getNumVertices()));
     eng.stat.addRenderedIndices(sr.vbo_->getNumVertices());
+}
+
+void Renderer::renderText2D(const char *text, glm::vec2 pos, float size)
+{
+    TextRenderer &tr = text_renderer_;
+
+    VertexBufferObject<TextRenderer::Vertex> &vbo = *tr.vbo_;
+
+    // TODO: hardcoded
+    constexpr glm::vec2 char_uv_pixels_size{20.0f, 32.0f};
+    const glm::vec2 char_uv_size = char_uv_pixels_size
+        / glm::vec2(tr.font_->getWidth(), tr.font_->getHeight());
+    constexpr int chars_in_row = 12;
+
+    vbo.clear();
+
+    const char *cur = text;
+
+    float cur_x = pos.x;
+    float cur_y = pos.y;
+
+    const auto calc_uv = [&](char ch) {
+        assert(ch >= 0x20 && ch < 0x80);
+        const int glob_offset = ch - 0x20;
+        const int row = glob_offset / chars_in_row;
+        const int column = glob_offset % chars_in_row;
+
+        glm::vec2 uv;
+        uv.x = char_uv_size.x * static_cast<float>(column);
+        uv.y = char_uv_size.y * static_cast<float>(row);
+        return uv;
+    };
+
+    glm::mat3 mat;
+    mat[0] = glm::vec3{1, 0, 0};
+    mat[1] = glm::vec3{0, -1, 0};
+    mat[2] = glm::vec3{-1 + 1 * pos.x, 1 - 1 * pos.y, 1};
+
+    while (*cur)
+    {
+        const char ch = *cur;
+
+        if (ch >= 0x20 && ch < 0x80)
+        {
+            const glm::vec2 top_left_uv = calc_uv(ch);
+            const glm::vec2 top_left_pos = mat * glm::vec3{cur_x, cur_y, 1};
+
+            const glm::vec2 bot_right_uv = top_left_uv + char_uv_size;
+            const glm::vec2 bot_right_pos = top_left_pos
+                + glm::vec2{
+                    mat * glm::vec3{size, size, 0}
+            };
+
+            vbo.addVertex(TextRenderer::Vertex{top_left_pos, top_left_uv});
+            vbo.addVertex(TextRenderer::Vertex{glm::vec2(top_left_pos.x, bot_right_pos.y),
+                glm::vec2(top_left_uv.x, bot_right_uv.y)});
+            vbo.addVertex(TextRenderer::Vertex{glm::vec2(bot_right_pos.x, top_left_pos.y),
+                glm::vec2(bot_right_uv.x, top_left_uv.y)});
+
+            vbo.addVertex(TextRenderer::Vertex{glm::vec2(top_left_pos.x, bot_right_pos.y),
+                glm::vec2(top_left_uv.x, bot_right_uv.y)});
+            vbo.addVertex(TextRenderer::Vertex{glm::vec2(bot_right_pos.x, top_left_pos.y),
+                glm::vec2(bot_right_uv.x, top_left_uv.y)});
+            vbo.addVertex(TextRenderer::Vertex{bot_right_pos, bot_right_uv});
+        }
+
+        cur_x += size;
+        ++cur;
+    }
+
+    if (vbo.getNumVertices() == 0)
+    {
+        return;
+    }
+
+    vbo.flush();
+
+    tr.shader_->bind();
+
+    assert(tr.shader_->getUniformLocation("uTexture") == tr.texture_loc_);
+
+    tr.font_->bind(tr.texture_loc_);
+    tr.vao_->bind();
+    GL_CHECKED(glDisable(GL_CULL_FACE));
+    GL_CHECKED(glDisable(GL_DEPTH_TEST));
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, tr.vbo_->getNumVertices()));
+    eng.stat.addRenderedIndices(tr.vbo_->getNumVertices());
 }
 
 void Renderer::init_environment()
@@ -260,6 +348,36 @@ void Renderer::init_sprite()
 
     assert(sr.texture_loc_ != -1);
     assert(sr.transform_loc_ != -1);
+}
+
+void Renderer::init_text()
+{
+    TextRenderer &tr = text_renderer_;
+
+    tr.font_ = eng.texture_manager->create("default_font");
+    tr.font_->load("base/default_font_20x32.png", Texture::Format::RGBA, Texture::Wrap::ClampToEdge,
+        Texture::Filter::Nearest, Texture::Filter::Nearest, false);
+
+    tr.vao_ = makeU<VertexArrayObject>();
+    tr.vbo_ = makeU<VertexBufferObject<TextRenderer::Vertex>>();
+
+    tr.vao_->bind();
+    tr.vao_->addAttributeFloat(2);
+    tr.vao_->addAttributeFloat(2);
+    tr.vbo_->bind();
+    tr.vao_->flush();
+
+    tr.vbo_->flush();
+
+    tr.shader_source_ = makeU<ShaderSource>();
+    tr.shader_source_->setFile("base/text.shader");
+
+    tr.shader_ = makeU<Shader>();
+    tr.shader_->setSource(tr.shader_source_.get());
+    tr.shader_->recompile();
+    tr.texture_loc_ = tr.shader_->getUniformLocation("uTexture");
+
+    assert(tr.texture_loc_ != -1);
 }
 
 void Renderer::use_material(Material *material)

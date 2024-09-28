@@ -24,7 +24,9 @@ public:
     void clearBuffers();
     void renderWorld(Camera *camera, Light *light);
 
-    void renderTexture(Texture *texture, glm::vec2 pos, glm::vec2 size);
+    void renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size);
+
+    void renderText2D(const char *text, glm::vec2 pos, float size);
 
     Texture *getWhiteTexture() const { return base_.white_; }
     Texture *getBlackTexture() const { return base_.black_; }
@@ -36,6 +38,7 @@ public:
 private:
     void init_environment();
     void init_sprite();
+    void init_text();
 
     void use_material(Material *material);
 
@@ -73,6 +76,29 @@ private:
         int texture_loc_ = -1;
         int transform_loc_ = -1;
     } sprite_renderer_;
+
+    struct TextRenderer
+    {
+        struct Vertex
+        {
+            Vertex(const glm::vec2 &pos, const glm::vec2 &uv)
+                : pos(pos)
+                , uv(uv)
+            {}
+            glm::vec2 pos;
+            glm::vec2 uv;
+        };
+
+        UPtr<VertexBufferObject<Vertex>> vbo_;
+        UPtr<VertexArrayObject> vao_;
+
+        UPtr<ShaderSource> shader_source_;
+        UPtr<Shader> shader_;
+
+        int texture_loc_ = -1;
+
+        Texture *font_{};
+    } text_renderer_;
 
     struct
     {

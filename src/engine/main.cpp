@@ -298,8 +298,10 @@ public:
                 texture = eng.renderer->getBlackTexture();
             }
 
-            eng.renderer->renderTexture(texture, eng.window->getNormalizedCursorPos(),
-                glm::vec2{0.2, 0.2});
+            // eng.renderer->renderTexture2D(texture, eng.window->getNormalizedCursorPos(),
+                // glm::vec2{0.2, 0.2});
+
+            eng.renderer->renderText2D("SoMe text!!!{}", eng.window->getNormalizedCursorPos(), 0.2);
 
             eng.gui->render();
             eng.window->swap();
@@ -312,7 +314,8 @@ private:
     {
         Random::init();
         eng.engine_ = this;
-        eng.proxy = new SystemProxy(); eng.input = new Input();
+        eng.proxy = new SystemProxy();
+        eng.input = new Input();
         eng.time = new Time();
         eng.fs = new FileSystem();
         eng.texture_manager = new TextureManager();
