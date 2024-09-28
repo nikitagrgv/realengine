@@ -299,9 +299,10 @@ public:
             }
 
             // eng.renderer->renderTexture2D(texture, eng.window->getNormalizedCursorPos(),
-                // glm::vec2{0.2, 0.2});
+            // glm::vec2{0.2, 0.2});
 
-            eng.renderer->renderText2D("S!oMe text!!!{}", eng.window->getNormalizedCursorPos(), 0.2);
+            eng.renderer->renderText2D("S!oMe jext!!!{}", eng.window->getNormalizedCursorPos(),
+                eng.window->getSize(), 32);
 
             eng.gui->render();
             eng.window->swap();

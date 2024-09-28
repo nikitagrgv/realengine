@@ -147,7 +147,8 @@ void Renderer::renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size)
     eng.stat.addRenderedIndices(sr.vbo_->getNumVertices());
 }
 
-void Renderer::renderText2D(const char *text, glm::vec2 pos, float height)
+void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_size,
+    float height_px)
 {
     TextRenderer &tr = text_renderer_;
 
@@ -165,6 +166,13 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, float height)
 
     const glm::vec2 step_uv_size = step_uv_pixels_size / atlas_size;
     const glm::vec2 char_uv_size = step_uv_size - char_margin_total;
+
+    const float width_px = height_px * char_uv_size.x / char_uv_size.y;
+    const float height = height_px / viewport_size.y;
+    const float width = width_px / viewport_size.x;
+    // const float height = height_px / viewport_size.y * 2;
+    // const float width = height;
+    // const float width = char_uv_size.x / char_uv_size.y * height;
 
     constexpr int chars_in_row = 12;
 
@@ -206,7 +214,7 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, float height)
             const glm::vec2 top_left_pos = mat * glm::vec3{cur_x, cur_y, 1};
             const glm::vec2 bot_right_pos = top_left_pos
                 + glm::vec2{
-                    mat * glm::vec3{height, height, 0}
+                    mat * glm::vec3{width, height, 0}
             };
 
             vbo.addVertex(TextRenderer::Vertex{top_left_pos, top_left_uv});
@@ -222,7 +230,7 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, float height)
             vbo.addVertex(TextRenderer::Vertex{bot_right_pos, bot_right_uv});
         }
 
-        cur_x += height;
+        cur_x += width;
         ++cur;
     }
 
