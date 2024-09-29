@@ -89,8 +89,8 @@ void Editor::render()
 
 void Editor::render_main()
 {
-    ImGui::SetNextWindowSize(ImVec2(180, 120), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(217, 129), ImGuiCond_FirstUseEver);
     ImGui::Begin("Editor");
 
     constexpr int OFFSET = 110;
@@ -119,8 +119,8 @@ void Editor::render_world()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(351, 789), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(583, 232), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Nodes", &nodes_window_))
     {
@@ -214,8 +214,8 @@ void Editor::render_materials()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 122), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(376, 546), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Materials", &materials_window_))
     {
@@ -531,8 +531,8 @@ void Editor::render_textures()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 703), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(350, 313), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Textures", &texture_window_))
     {
@@ -590,8 +590,8 @@ void Editor::render_shaders()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(1636, 744), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(280, 131), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Shaders", &shaders_window_))
     {
@@ -658,8 +658,8 @@ void Editor::render_meshes()
         return;
     }
 
-    ImGui::SetNextWindowSize(ImVec2(380, 340), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowPos(ImVec2(0, 550), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(1636, 871), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(278, 141), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Meshes", &meshes_window_))
     {
