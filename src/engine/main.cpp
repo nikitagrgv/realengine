@@ -300,7 +300,7 @@ public:
             const char* texture_name = eng.texture_manager->getName(texture);
 
             eng.renderer->renderTexture2D(texture, eng.window->getNormalizedCursorPos(),
-            eng.window->mapToNormalized(glm::vec2{100, 100}));
+            eng.window->mapToNormalized(texture->getSize()));
 
             eng.renderer->renderText2D(texture_name, eng.window->getNormalizedCursorPos(),
                 eng.window->getSize(), 25, Renderer::TextPivot::BottomLeft);

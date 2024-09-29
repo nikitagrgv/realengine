@@ -2,6 +2,8 @@
 
 #include "Base.h"
 
+#include "glm/vec2.hpp"
+
 
 class Image;
 class Texture
@@ -70,6 +72,8 @@ public:
     bool isLoaded() const { return id_ != 0; }
 
     void *getID() const { return (void *)(size_t)id_; }
+
+    glm::ivec2 getSize() const { return glm::ivec2(width_, height_); }
 
     int getWidth() const { return width_; }
     int getHeight() const { return height_; }

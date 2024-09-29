@@ -158,7 +158,7 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
     constexpr int char_margin_pixels_top{4};
     constexpr int char_margin_pixels_bottom{3};
 
-    const glm::vec2 atlas_size{tr.font_->getWidth(), tr.font_->getHeight()};
+    const glm::vec2 atlas_size = glm::ivec2(tr.font_->getSize());
 
     const glm::vec2 char_margin_top_left{0, char_margin_pixels_top / atlas_size.y};
     const glm::vec2 char_margin_bottom_right{0, char_margin_pixels_bottom / atlas_size.y};

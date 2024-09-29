@@ -120,7 +120,7 @@ void Editor::render_world()
     }
 
     ImGui::SetNextWindowPos(ImVec2(351, 789), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(583, 232), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(583, 313), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Nodes", &nodes_window_))
     {
@@ -214,7 +214,7 @@ void Editor::render_materials()
         return;
     }
 
-    ImGui::SetNextWindowPos(ImVec2(0, 122), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(0, 130), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(376, 546), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Materials", &materials_window_))
