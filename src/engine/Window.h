@@ -25,6 +25,9 @@ public:
 
     glm::vec2 getNormalizedCursorPos() const;
 
+    glm::vec2 mapToNormalized(glm::vec2 pixel_pos) const;
+    glm::vec2 mapToNormalized(glm::ivec2 pixel_pos) const;
+
     void setMouseGrabbed(bool grab);
     bool isMouseGrabbed() const;
 

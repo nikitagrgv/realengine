@@ -90,6 +90,16 @@ glm::vec2 Window::getNormalizedCursorPos() const
     return getCursorPos() / glm::vec2(getSize());
 }
 
+glm::vec2 Window::mapToNormalized(glm::vec2 pixel_pos) const
+{
+    return pixel_pos / glm::vec2(getSize());
+}
+
+glm::vec2 Window::mapToNormalized(glm::ivec2 pixel_pos) const
+{
+    return mapToNormalized(glm::vec2(pixel_pos));
+}
+
 void Window::setMouseGrabbed(bool grab)
 {
     const int mode = grab ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;

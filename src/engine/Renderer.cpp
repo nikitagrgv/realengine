@@ -135,7 +135,7 @@ void Renderer::renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size)
 
     glm::mat3 mat;
     mat[0] = glm::vec3{2 * size.x, 0, 0};
-    mat[1] = glm::vec3{0, -2 * size.x, 0};
+    mat[1] = glm::vec3{0, -2 * size.y, 0};
     mat[2] = glm::vec3{-1 + 2 * pos.x, 1 - 2 * pos.y, 1};
     sr.shader_->setUniformMat3(sr.transform_loc_, mat);
 
