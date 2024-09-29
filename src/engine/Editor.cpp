@@ -119,7 +119,7 @@ void Editor::render_world()
         return;
     }
 
-    ImGui::SetNextWindowPos(ImVec2(351, 789), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(351, 703), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(583, 313), ImGuiCond_FirstUseEver);
 
     if (!ImGui::Begin("Nodes", &nodes_window_))
