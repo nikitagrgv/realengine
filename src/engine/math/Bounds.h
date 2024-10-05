@@ -19,6 +19,10 @@ public:
 
     glm::vec3 getCenter() const { return (min + max) * 0.5f; }
     glm::vec3 getSize() const { return max - min; }
+    glm::vec3 getHalfSize() const
+    {
+        return glm::vec3{(max.x - min.x) * 0.5f, (max.y - min.y) * 0.5f, (max.z - min.z) * 0.5f};
+    }
 
     void expand(glm::vec3 point)
     {
@@ -58,16 +62,16 @@ public:
 
     BoundBox transformed(const glm::mat4 &mat) const
     {
-        glm::vec3 new_center = mat * glm::vec4(getCenter(), 1.0f);
-        glm::vec3 old_edge = getSize() * 0.5f;
-        // clang-format off
-        glm::vec3 new_edge = glm::vec3(
-            glm::abs(mat[0][0]) * old_edge.x + glm::abs(mat[0][1]) * old_edge.y + glm::abs(mat[0][2]) * old_edge.z,
-            glm::abs(mat[1][0]) * old_edge.x + glm::abs(mat[1][1]) * old_edge.y + glm::abs(mat[1][2]) * old_edge.z,
-            glm::abs(mat[2][0]) * old_edge.x + glm::abs(mat[2][1]) * old_edge.y + glm::abs(mat[2][2]) * old_edge.z
-        );
-        // clang-format on
-
+        glm::mat3 abs_mat;
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
+                abs_mat[i][j] = glm::abs(mat[i][j]);
+            }
+        }
+        const glm::vec3 new_center = mat * glm::vec4(getCenter(), 1.0f);
+        const glm::vec3 new_edge = abs_mat * getHalfSize();
         return BoundBox(new_center - new_edge, new_center + new_edge);
     }
 
