@@ -62,6 +62,7 @@ public:
 
     BoundBox transformed(const glm::mat4 &mat) const
     {
+        // TODO: Optimize
         glm::mat3 abs_mat;
         for (int i = 0; i < 3; ++i)
         {
