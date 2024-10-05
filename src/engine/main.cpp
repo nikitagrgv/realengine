@@ -291,43 +291,6 @@ public:
 
             eng.renderer->renderWorld(&camera_, &light);
             eng.visualizer->render(camera_.getViewProj());
-
-            Texture *texture = edg.editor_->getSelectedTexture();
-            if (!texture)
-            {
-                texture = eng.renderer->getBlackTexture();
-            }
-            std::string texture_name = eng.texture_manager->getName(texture);
-
-            constexpr int min_size = 64;
-            constexpr int max_size = 512;
-            const glm::ivec2 orig_pixel_size = texture->getSize();
-            glm::ivec2 pixel_size = orig_pixel_size;
-            while (pixel_size.x < min_size || pixel_size.y < min_size)
-            {
-                pixel_size *= 2;
-            }
-            while (pixel_size.x > max_size || pixel_size.y > max_size)
-            {
-                pixel_size /= 2;
-            }
-
-            if (pixel_size != orig_pixel_size)
-            {
-                texture_name.append(" (");
-                texture_name.append(std::to_string(pixel_size.x));
-                texture_name.append("x");
-                texture_name.append(std::to_string(pixel_size.y));
-                texture_name.append(")");
-            }
-
-            eng.renderer->renderTexture2D(texture, eng.window->getNormalizedCursorPos(),
-                eng.window->mapToNormalized(pixel_size));
-
-
-            eng.renderer->renderText2D(texture_name.c_str(), eng.window->getNormalizedCursorPos(),
-                eng.window->getSize(), 25, Renderer::TextPivot::BottomLeft);
-
             eng.gui->render();
             eng.window->swap();
             eng.stat.finishFrame();
