@@ -1,10 +1,12 @@
 #pragma once
 #include "Node.h"
+#include "Ray.h"
 
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
+struct Intersection;
 class Node;
 
 
@@ -30,6 +32,8 @@ public:
 
     bool hasNodeIndex(int index) const;
     bool hasNodeId(int id) const;
+
+    Intersection getIntersection(Ray ray);
 
 private:
     std::vector<std::unique_ptr<Node>> nodes_;

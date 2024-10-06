@@ -26,6 +26,7 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/Image.h
         ${CMAKE_CURRENT_SOURCE_DIR}/IndexBufferObject.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/IndexBufferObject.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Intersection.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Light.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Light.h
         ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp

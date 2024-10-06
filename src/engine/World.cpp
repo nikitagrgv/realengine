@@ -1,5 +1,6 @@
 #include "World.h"
 
+#include "Intersection.h"
 #include "Random.h"
 
 #include <NodeMesh.h>
@@ -114,4 +115,15 @@ bool World::hasNodeIndex(int index) const
 bool World::hasNodeId(int id) const
 {
     return index_by_id_.find(id) != index_by_id_.end();
+}
+
+Intersection World::getIntersection(Ray ray)
+{
+    Intersection intersection;
+    intersection.valid = false;
+
+
+
+
+    return intersection;
 }
