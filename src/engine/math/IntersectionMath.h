@@ -2,16 +2,21 @@
 
 #include "Bounds.h"
 #include "Intersection.h"
+#include "Math.h"
 
 namespace math
 {
 
-inline void getDirectionIntersection(const BoundBox &bb, const glm::vec3 &origin,
-    const glm::vec3 &direction, SimpleIntersection &intersection)
+// Direction must be normalized
+inline void getDirectionIntersectionUnsafe(const BoundBox &bb, const glm::vec3 &origin,
+    const glm::vec3 &dir_n, SimpleIntersection &intersection)
 {
     const glm::vec3 lb = bb.getMin();
     const glm::vec3 rt = bb.getMax();
-    const glm::vec3 dir_n = glm::normalize(direction);
+
+    assert(math::isEquals(math::length2(dir_n), 1));
+
+    // TODO: FIX INTERSECTION INSIDE BB!
 
     glm::vec3 dirfrac;
     dirfrac.x = 1.0f / dir_n.x;
@@ -46,6 +51,13 @@ inline void getDirectionIntersection(const BoundBox &bb, const glm::vec3 &origin
 
     intersection.distance = tmin;
     intersection.valid = true;
+}
+
+inline void getDirectionIntersection(const BoundBox &bb, const glm::vec3 &origin,
+    const glm::vec3 &direction, SimpleIntersection &intersection)
+{
+    const glm::vec3 dir_n = glm::normalize(direction);
+    getDirectionIntersectionUnsafe(bb, origin, dir_n, intersection);
 }
 
 

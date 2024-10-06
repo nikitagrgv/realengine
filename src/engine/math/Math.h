@@ -12,6 +12,11 @@
 namespace math
 {
 
+inline bool isEquals(float a, float b, float epsilon = 0.00001f)
+{
+    return abs(a - b) < epsilon;
+}
+
 inline float fastInvSqrt(float val)
 {
     union Conv

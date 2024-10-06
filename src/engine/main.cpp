@@ -23,7 +23,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "ShaderManager.h"
-#include "SimpleIntersection.h"
+#include "Intersection.h"
 #include "SystemProxy.h"
 #include "Texture.h"
 #include "TextureManager.h"
