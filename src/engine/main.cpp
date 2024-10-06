@@ -299,7 +299,7 @@ public:
                 eng.world->getDirectionIntersection(ray.begin, dir_n, intersection);
                 if (intersection.isValid())
                 {
-
+                    edg.editor_->setSelectedNode(intersection.node);
                 }
             }
 

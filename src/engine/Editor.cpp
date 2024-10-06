@@ -43,6 +43,24 @@ Texture *Editor::getSelectedTexture() const
     return nullptr;
 }
 
+Node *Editor::getSelectedNode() const
+{
+    if (eng.world->hasNodeIndex(selected_node_))
+    {
+        return eng.world->getNodeByIndex(selected_node_);
+    }
+    return nullptr;
+}
+
+void Editor::setSelectedNode(Node *node)
+{
+    if (node == nullptr)
+    {
+        selected_node_ = -1;
+    }
+    selected_node_ = eng.world->getNodeIndex(node);
+}
+
 void Editor::render()
 {
     for (auto &it : widgets_data_)

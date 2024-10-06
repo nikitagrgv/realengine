@@ -11,6 +11,7 @@
 
 class Material;
 class NodeMesh;
+class Node;
 class Texture;
 
 class Editor
@@ -19,6 +20,9 @@ public:
     Editor();
 
     Texture *getSelectedTexture() const;
+
+    Node *getSelectedNode() const;
+    void setSelectedNode(Node *node);
 
 private:
     void render();

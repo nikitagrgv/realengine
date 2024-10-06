@@ -31,6 +31,7 @@ int World::getNodeIndexById(int id)
 
 int World::getNodeIndex(Node *node)
 {
+    assert(node);
     return getNodeIndexById(node->getId());
 }
 
