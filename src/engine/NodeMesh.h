@@ -6,14 +6,15 @@
 class Material;
 class Mesh;
 
-class NodeMesh : public Node
+class NodeMesh final : public Node
 {
 public:
     static Type getTypeStatic() { return Type::Mesh; }
 
     explicit NodeMesh(int id);
 
-    Mesh *getMesh() const { return mesh_; }
+    const Mesh *getMesh() const { return mesh_; }
+    Mesh *takeMesh();
     void setMesh(Mesh *mesh);
 
     Material *getMaterial() const { return material_; }

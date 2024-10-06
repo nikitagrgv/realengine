@@ -6,28 +6,32 @@ NodeMesh::NodeMesh(int id)
     : Node(id, getTypeStatic())
 {}
 
+Mesh *NodeMesh::takeMesh()
+{
+    auto mesh = mesh_;
+    setMesh(nullptr);
+    return mesh;
+}
+
 void NodeMesh::setMesh(Mesh *mesh)
 {
+    if (mesh == mesh_)
+    {
+        return;
+    }
     mesh_ = mesh;
     update_bounds();
 }
 
 void NodeMesh::update_bounds()
 {
-    bound_box_.min = glm::vec3{0.0f};
-    bound_box_.max = glm::vec3{0.0f};
-
-    if (!mesh_)
+    if (mesh_)
     {
-        update_global_bound_box();
-        return;
+        bound_box_ = mesh_->getBoundBox();
     }
-
-    for (int i = 0, count = mesh_->getNumIndices(); i < count; ++i)
+    else
     {
-        const int vertex = mesh_->getIndex(i);
-        bound_box_.expand(mesh_->getVertexPos(vertex));
+        bound_box_.clear();
     }
-
     update_global_bound_box();
 }

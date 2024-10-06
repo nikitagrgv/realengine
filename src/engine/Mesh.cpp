@@ -70,3 +70,14 @@ void Mesh::bind()
 {
     vao_.bind();
 }
+
+void Mesh::update_bounds()
+{
+    bound_box_.min = glm::vec3{0.0f};
+    bound_box_.max = glm::vec3{0.0f};
+    for (int i = 0, count = getNumIndices(); i < count; ++i)
+    {
+        const int vertex = getIndex(i);
+        bound_box_.expand(getVertexPos(vertex));
+    }
+}

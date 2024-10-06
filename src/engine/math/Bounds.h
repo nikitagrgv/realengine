@@ -79,6 +79,12 @@ public:
         return BoundBox(new_center - new_edge, new_center + new_edge);
     }
 
+    void clear()
+    {
+        min = glm::vec3{0.0f};
+        max = glm::vec3{0.0f};
+    }
+
 public:
     glm::vec3 min{0.0f};
     float alignment_padding_1{0.0f};

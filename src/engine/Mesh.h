@@ -3,11 +3,12 @@
 #include "IndexBufferObject.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
+#include "math/Bounds.h"
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 
-class Mesh
+class Mesh final
 {
 public:
     REMOVE_COPY_MOVE_CLASS(Mesh);
@@ -57,6 +58,8 @@ public:
 
     void clearIndices();
 
+    math::BoundBox getBoundBox() const { return bound_box_; }
+
     // Mesh
     void clear();
 
@@ -64,7 +67,10 @@ public:
 
     void bind();
 
-protected:
+private:
+    void update_bounds();
+
+private:
     struct Vertex
     {
         glm::vec3 pos{0.0f};
@@ -74,4 +80,5 @@ protected:
     VertexBufferObject<Vertex> vbo_;
     VertexArrayObject vao_;
     IndexBufferObject ebo_;
+    math::BoundBox bound_box_;
 };
