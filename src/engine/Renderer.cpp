@@ -78,7 +78,7 @@ void Renderer::renderWorld(Camera *camera, Light *light)
 
         if (auto node = n->cast<NodeMesh>())
         {
-            Mesh *mesh = node->getMesh();
+            const Mesh *mesh = node->getMesh();
             Material *mat = node->getMaterial();
             Shader *shader = mat->getShader();
 

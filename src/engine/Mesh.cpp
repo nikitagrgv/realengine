@@ -66,7 +66,7 @@ void Mesh::flush(bool dynamic)
     ebo_.flush(dynamic);
 }
 
-void Mesh::bind()
+void Mesh::bind() const
 {
     vao_.bind();
 }

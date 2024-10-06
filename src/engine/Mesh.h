@@ -65,7 +65,7 @@ public:
 
     void flush(bool dynamic = false);
 
-    void bind();
+    void bind() const;
 
 private:
     void update_bounds();

@@ -26,19 +26,19 @@ public:
     T *get(int index) const;
     T *get(const char *name) const;
 
-    int getIndex(T *obj) const;
+    int getIndex(const T *obj) const;
     int getIndex(const char *name) const;
 
     const char *getName(int index) const;
-    const char *getName(T *obj) const;
+    const char *getName(const T *obj) const;
 
     bool contains(int index) const;
     bool contains(const char *name) const;
-    bool contains(T *obj) const;
+    bool contains(const T *obj) const;
 
     void remove(int index);
     void remove(const char *name);
-    void remove(T *obj);
+    void remove(const T *obj);
 
 protected:
     std::string generate_or_check_name(const char *name);
@@ -101,9 +101,10 @@ inline T *AbstractManager<T>::get(const char *name) const
 }
 
 template<typename T>
-inline int AbstractManager<T>::getIndex(T *obj) const
+inline int AbstractManager<T>::getIndex(const T *obj) const
 {
-    const auto it = by_ptr.find(obj);
+    T *ptr = const_cast<T *>(obj); // TODO: shit?
+    const auto it = by_ptr.find(ptr);
     if (it == by_ptr.end())
     {
         return -1;
@@ -129,7 +130,7 @@ inline const char *AbstractManager<T>::getName(int index) const
 }
 
 template<typename T>
-inline const char *AbstractManager<T>::getName(T *obj) const
+inline const char *AbstractManager<T>::getName(const T *obj) const
 {
     const int index = getIndex(obj);
     return index == -1 ? nullptr : getName(index);
@@ -148,7 +149,7 @@ bool AbstractManager<T>::contains(const char *name) const
 }
 
 template<class T>
-bool AbstractManager<T>::contains(T *obj) const
+bool AbstractManager<T>::contains(const T *obj) const
 {
     return by_ptr.find(obj) != by_ptr.end();
 }
@@ -165,7 +166,7 @@ inline void AbstractManager<T>::remove(const char *name)
 }
 
 template<typename T>
-inline void AbstractManager<T>::remove(T *obj)
+inline void AbstractManager<T>::remove(const T *obj)
 {
     const int index = getIndex(obj);
     if (index == -1)

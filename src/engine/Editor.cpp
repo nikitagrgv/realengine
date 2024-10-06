@@ -817,7 +817,7 @@ void Editor::render_node(NodeMesh *node)
 {
     ImGui::SeparatorText("NodeMesh");
 
-    Mesh *mesh = node->getMesh();
+    const Mesh *mesh = node->getMesh();
     Material *material = node->getMaterial();
 
     ImGui::AlignTextToFramePadding();
