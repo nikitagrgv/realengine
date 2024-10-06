@@ -23,6 +23,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "ShaderManager.h"
+#include "SimpleIntersection.h"
 #include "SystemProxy.h"
 #include "Texture.h"
 #include "TextureManager.h"
@@ -293,7 +294,14 @@ public:
             if (eng.input->isButtonPressed(Button::BUTTON_LEFT))
             {
                 Ray ray = camera_.getNearFarRay(eng.window->getNormalizedCursorPos());
-                rays.push_back(ray);
+                glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
+                SimpleIntersection intersection;
+                eng.world->getDirectionIntersection(ray.begin, dir_n, intersection);
+                if (intersection.isValid())
+                {
+                    glm::vec3 intersection_end = ray.begin + dir_n * intersection.distance;
+                    rays.emplace_back(ray.begin, intersection_end);
+                }
             }
 
             for (const Ray &r : rays)

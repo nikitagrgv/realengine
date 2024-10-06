@@ -1,12 +1,12 @@
 #pragma once
+
 #include "Node.h"
-#include "Ray.h"
 
 #include <memory>
 #include <unordered_map>
 #include <vector>
 
-struct Intersection;
+struct SimpleIntersection;
 class Node;
 
 
@@ -33,7 +33,8 @@ public:
     bool hasNodeIndex(int index) const;
     bool hasNodeId(int id) const;
 
-    Intersection getIntersection(Ray ray);
+    void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+        SimpleIntersection &intersection) const;
 
 private:
     std::vector<std::unique_ptr<Node>> nodes_;

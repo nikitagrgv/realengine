@@ -17,6 +17,9 @@ public:
         assert(min.x <= max.x && min.y <= max.y && min.z <= max.z);
     }
 
+    const glm::vec3 &getMin() const { return min; }
+    const glm::vec3 &getMax() const { return max; }
+
     glm::vec3 getCenter() const { return (min + max) * 0.5f; }
     glm::vec3 getSize() const { return max - min; }
     glm::vec3 getHalfSize() const

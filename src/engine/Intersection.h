@@ -4,9 +4,27 @@
 
 class Node;
 
-struct Intersection
+struct SimpleIntersection
 {
+public:
+    bool isCloserThan(const SimpleIntersection &other) const
+    {
+        if (!valid)
+        {
+            return false;
+        }
+        if (!other.valid)
+        {
+            return true;
+        }
+        return distance < other.distance;
+    }
+
+    bool isValid() const { return valid; }
+
+    void clear() { valid = false; }
+
+public:
     bool valid{false};
-    Node *node{};
-    glm::vec3 point{0.0f};
+    float distance{false};
 };

@@ -2,6 +2,7 @@
 
 #include "Intersection.h"
 #include "Random.h"
+#include "math/IntersectionMath.h"
 
 #include <NodeMesh.h>
 
@@ -117,13 +118,30 @@ bool World::hasNodeId(int id) const
     return index_by_id_.find(id) != index_by_id_.end();
 }
 
-Intersection World::getIntersection(Ray ray)
+void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+    SimpleIntersection &intersection) const
 {
-    Intersection intersection;
-    intersection.valid = false;
+    if (nodes_.empty())
+    {
+        intersection.clear();
+        return;
+    }
 
+    Node *first = nodes_[0].get();
 
+    SimpleIntersection nearest_intersection;
+    math::getDirectionIntersection(first->getGlobalBoundBox(), origin, direction,
+        nearest_intersection);
+    for (auto &nptr : nodes_)
+    {
+        Node *node = nptr.get();
 
-
-    return intersection;
+        SimpleIntersection ni;
+        math::getDirectionIntersection(node->getGlobalBoundBox(), origin, direction, ni);
+        if (ni.isCloserThan(nearest_intersection))
+        {
+            nearest_intersection = ni;
+        }
+    }
+    intersection = nearest_intersection;
 }
