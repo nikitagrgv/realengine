@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <vector>
 
+
+struct SimpleNodeIntersection;
 struct SimpleIntersection;
 class Node;
 
@@ -35,6 +37,8 @@ public:
 
     void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
         SimpleIntersection &intersection) const;
+    void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+        SimpleNodeIntersection &intersection) const;
 
 private:
     std::vector<std::unique_ptr<Node>> nodes_;

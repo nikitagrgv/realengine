@@ -62,6 +62,7 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/Texture.h
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureManager.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/UnsafeTag.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexArrayObject.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexArrayObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VertexBufferObject.cpp

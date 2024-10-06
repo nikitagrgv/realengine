@@ -121,13 +121,21 @@ bool World::hasNodeId(int id) const
 void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
     SimpleIntersection &intersection) const
 {
+    SimpleNodeIntersection ni;
+    getDirectionIntersection(origin, direction, ni);
+    intersection = ni.toSimpleIntersection();
+}
+
+void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+    SimpleNodeIntersection &intersection) const
+{
     if (nodes_.empty())
     {
         intersection.clear();
         return;
     }
 
-    SimpleIntersection nearest_intersection;
+    SimpleNodeIntersection nearest_intersection;
     for (auto &nptr : nodes_)
     {
         Node *node = nptr.get();
@@ -136,7 +144,7 @@ void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &d
         math::getDirectionIntersection(node->getGlobalBoundBox(), origin, direction, ni);
         if (ni.isCloserThan(nearest_intersection))
         {
-            nearest_intersection = ni;
+            nearest_intersection = SimpleNodeIntersection(node, ni.distance);
         }
     }
     intersection = nearest_intersection;

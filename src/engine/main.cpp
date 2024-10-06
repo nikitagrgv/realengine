@@ -295,12 +295,11 @@ public:
             {
                 Ray ray = camera_.getNearFarRay(eng.window->getNormalizedCursorPos());
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
-                SimpleIntersection intersection;
+                SimpleNodeIntersection intersection;
                 eng.world->getDirectionIntersection(ray.begin, dir_n, intersection);
                 if (intersection.isValid())
                 {
-                    glm::vec3 intersection_end = ray.begin + dir_n * intersection.distance;
-                    rays.emplace_back(ray.begin, intersection_end);
+
                 }
             }
 
