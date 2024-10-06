@@ -57,6 +57,7 @@ void Editor::setSelectedNode(Node *node)
     if (node == nullptr)
     {
         selected_node_ = -1;
+        return;
     }
     selected_node_ = eng.world->getNodeIndex(node);
 }
