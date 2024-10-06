@@ -1,4 +1,4 @@
-// clang-format off
+ // clang-format off
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -297,10 +297,7 @@ public:
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
                 SimpleNodeIntersection intersection;
                 eng.world->getDirectionIntersection(ray.begin, dir_n, intersection);
-                if (intersection.isValid())
-                {
-                    edg.editor_->setSelectedNode(intersection.node);
-                }
+                edg.editor_->setSelectedNode(intersection.node);
             }
 
             for (const Ray &r : rays)
