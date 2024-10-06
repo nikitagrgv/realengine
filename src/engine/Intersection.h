@@ -3,6 +3,7 @@
 #include <glm/vec3.hpp>
 
 class Node;
+struct SimpleNodeIntersection;
 
 struct SimpleIntersection
 {
