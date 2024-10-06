@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Ray.h"
+
 #include "glm/mat4x4.hpp"
 
 class Camera
@@ -11,13 +13,13 @@ public:
         : view_(view)
         , proj_(proj)
     {
-        update_viewproj();
+        update_cached();
     }
 
     explicit Camera(const glm::mat4 &proj)
         : proj_(proj)
     {
-        update_viewproj();
+        update_cached();
     }
 
     glm::mat4 getMVP(const glm::mat4 &model) const { return viewproj_ * model; }
@@ -28,7 +30,7 @@ public:
     void setProj(const glm::mat4 &proj)
     {
         proj_ = proj;
-        update_viewproj();
+        update_cached();
     }
 
     const glm::mat4 &getView() const { return view_; }
@@ -36,7 +38,7 @@ public:
     {
         view_ = view;
         transform_ = glm::inverse(view_);
-        update_viewproj();
+        update_cached();
     }
 
     const glm::mat4 &getTransform() const { return transform_; }
@@ -44,19 +46,22 @@ public:
     {
         transform_ = transform;
         view_ = glm::inverse(transform_);
-        update_viewproj();
+        update_cached();
     }
 
     glm::vec3 getPosition() const { return transform_[3]; }
 
     const glm::mat4 &getViewProj() const { return viewproj_; }
 
+    Ray getNearFarRay(glm::vec2 normalized_mouse_pos) const;
+
 private:
-    void update_viewproj();
+    void update_cached();
 
 private:
     glm::mat4 transform_{1.0f};
     glm::mat4 view_{1.0f};
     glm::mat4 proj_{1.0f};
     glm::mat4 viewproj_{1.0f};
+    glm::mat4 iviewproj_{1.0f};
 };

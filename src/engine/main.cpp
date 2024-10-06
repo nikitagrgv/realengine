@@ -19,6 +19,7 @@
 #include "MeshLoader.h"
 #include "MeshManager.h"
 #include "Random.h"
+#include "Ray.h"
 #include "Renderer.h"
 #include "Shader.h"
 #include "ShaderManager.h"
@@ -42,6 +43,7 @@
 #include "glm/mat4x4.hpp"
 #include <iostream>
 #include <vector>
+
 
 const unsigned int DEFAULT_WIDTH = 1;
 const unsigned int DEFAULT_HEIGHT = 1;
@@ -242,6 +244,8 @@ public:
             ImGui::ShowDemoWindow(nullptr);
         });
 
+        std::vector<Ray> rays;
+
         while (!exit_)
         {
             eng.time->update();
@@ -285,6 +289,17 @@ public:
             node_light->setTransform(glm::translate(glm::mat4{1.0f}, light.pos)
                 * glm::scale(glm::mat4{1.0f}, glm::vec3{0.08f}));
             light_cube_material->setParameterVec3("uColor", light.color);
+
+            if (eng.input->isButtonPressed(Button::BUTTON_LEFT))
+            {
+                Ray ray = camera_.getNearFarRay(eng.window->getNormalizedCursorPos());
+                rays.push_back(ray);
+            }
+
+            for (const Ray &r : rays)
+            {
+                eng.visualizer->addLine(r.begin, r.end, glm::vec4{1, 1, 1, 1});
+            }
 
             ///////////////////////////////////////////////////////////
             eng.renderer->clearBuffers();
