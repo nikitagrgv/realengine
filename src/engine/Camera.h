@@ -53,7 +53,7 @@ public:
 
     const glm::mat4 &getViewProj() const { return viewproj_; }
 
-    Ray getNearFarRay(glm::vec2 normalized_mouse_pos) const;
+    Ray getNearFarRay(glm::vec2 normalized_screen_pos) const;
 
 private:
     void update_cached();
