@@ -64,6 +64,7 @@ void Mesh::flush(bool dynamic)
 {
     vbo_.flush(dynamic);
     ebo_.flush(dynamic);
+    update_bounds();
 }
 
 void Mesh::bind() const
