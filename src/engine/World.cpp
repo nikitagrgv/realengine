@@ -136,13 +136,22 @@ void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &d
         return;
     }
 
+    glm::vec3 dir_n = glm::normalize(direction);
+
     SimpleNodeIntersection nearest_intersection;
     for (auto &nptr : nodes_)
     {
         Node *node = nptr.get();
 
         SimpleIntersection ni;
-        math::getDirectionBoundBoxIntersection(origin, direction, node->getGlobalBoundBox(), ni);
+
+        math::getDirectionBoundBoxIntersectionUnsafe(origin, dir_n, node->getGlobalBoundBox(), ni);
+        if (!ni.isCloserThan(nearest_intersection))
+        {
+            continue;
+        }
+
+        node->getDirectionIntersectionUnsafe(origin, dir_n, ni);
         if (ni.isCloserThan(nearest_intersection))
         {
             nearest_intersection = SimpleNodeIntersection(node, ni.distance);

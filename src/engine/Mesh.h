@@ -67,6 +67,10 @@ public:
     void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
         SimpleIntersection &out_intersection);
 
+    // Direction must be normalized
+    void getDirectionIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
+        SimpleIntersection &out_intersection);
+
     // Mesh
     void clear();
 

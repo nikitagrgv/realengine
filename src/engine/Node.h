@@ -6,6 +6,8 @@
 #include <glm/mat4x4.hpp>
 #include <string>
 
+struct SimpleIntersection;
+
 class Node
 {
 public:
@@ -39,14 +41,24 @@ public:
     const glm::mat4 &getTransform() const { return transform_; }
     void setTransform(const glm::mat4 &transform);
 
+    const glm::mat4 &getITransform() const { return itransform_; }
+
     const math::BoundBox &getBoundBox() const { return bound_box_; }
     const math::BoundBox &getGlobalBoundBox() const { return global_bound_box_; }
 
     bool isEnabled() const { return enabled_; }
     void setEnabled(bool enabled) { enabled_ = enabled; }
 
+    virtual void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+        SimpleIntersection &out_intersection);
+
+    // Direction must be normalized
+    virtual void getDirectionIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
+        SimpleIntersection &out_intersection)
+        = 0;
+
 protected:
-    void update_global_bound_box();
+    void update_caches();
 
 protected:
     math::BoundBox bound_box_;
@@ -57,6 +69,7 @@ private:
     const Type type_;
     std::string name_;
     glm::mat4 transform_{1.0f};
+    glm::mat4 itransform_{1.0f};
 
     math::BoundBox global_bound_box_;
 };

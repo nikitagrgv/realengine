@@ -28,6 +28,14 @@ public:
         return distance < other.distance;
     }
 
+    void takeCloser(const SimpleIntersection &other)
+    {
+        if (other.isCloserThan(*this))
+        {
+            *this = other;
+        }
+    }
+
     bool isCloserThan(const SimpleNodeIntersection &other) const;
 
     bool isValid() const { return valid; }

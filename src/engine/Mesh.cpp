@@ -2,6 +2,7 @@
 
 #include "Intersection.h"
 #include "math/IntersectionMath.h"
+#include "math/Math.h"
 
 Mesh::Mesh()
 {
@@ -60,6 +61,15 @@ void Mesh::clearIndices()
 void Mesh::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
     SimpleIntersection &out_intersection)
 {
+    const glm::vec3 dir_n = glm::normalize(direction);
+    getDirectionIntersectionUnsafe(origin, dir_n, out_intersection);
+}
+
+void Mesh::getDirectionIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
+    SimpleIntersection &out_intersection)
+{
+    assert(math::isEquals(math::length2(dir_n), 1));
+
     SimpleIntersection intersection;
 
     const int num_indices = ebo_.getNumIndices();
@@ -69,8 +79,6 @@ void Mesh::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &di
         out_intersection = intersection;
         return;
     }
-
-    const glm::vec3 dir_n = glm::normalize(direction);
 
     assert(num_indices % 3 == 0);
     for (int i = 0; i < num_indices; i += 3)
@@ -84,10 +92,7 @@ void Mesh::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &di
 
         SimpleIntersection si;
         math::getDirectionTriangleIntersectionUnsafe(origin, dir_n, p0, p1, p2, si);
-        if (si.isCloserThan(intersection))
-        {
-            intersection = si;
-        }
+        intersection.takeCloser(si);
     }
 
     out_intersection = intersection;
