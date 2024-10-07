@@ -273,10 +273,10 @@ public:
             light.pos.y = cos(1 + anim_time * 1.2561) * 1.5f + 1.3f;
             light.pos.z = sin(7 + anim_time * 1.125) * 1.5f + 0.5f;
 
-            node_deformed_cube->setTransform(
-                glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
-                    glm::vec3(1.0f, 0.0f, 0.0f))
-                * glm::scale(glm::mat4{1.0f}, glm::vec3{0.5f}));
+            // node_deformed_cube->setTransform(
+            //     glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),
+            //         glm::vec3(1.0f, 0.0f, 0.0f))
+            //     * glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f}));
 
             node_crate->setTransform(glm::translate(glm::mat4{1.0f}, {2, 0, 2})
                 * glm::rotate(glm::mat4{1.0f}, float(0.25 * eng.time->getTime()),

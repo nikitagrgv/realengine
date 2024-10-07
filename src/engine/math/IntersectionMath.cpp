@@ -72,10 +72,16 @@ void math::getDirectionBoundBoxIntersectionUnsafe(const glm::vec3 &origin, const
 {
     assert(math::isEquals(math::length2(dir_n), 1));
 
+    if (bb.contains(origin))
+    {
+        // TODO: FIX?
+        out_intersection.distance = 0;
+        out_intersection.valid = true;
+        return;
+    }
+
     const glm::vec3 lb = bb.getMin();
     const glm::vec3 rt = bb.getMax();
-
-    // TODO: FIX INTERSECTION INSIDE BB!
 
     glm::vec3 dirfrac;
     dirfrac.x = 1.0f / dir_n.x;
