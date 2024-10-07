@@ -142,6 +142,10 @@ void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &d
     for (auto &nptr : nodes_)
     {
         Node *node = nptr.get();
+        if (!node->isEnabled())
+        {
+            continue;
+        }
 
         SimpleIntersection ni;
 
