@@ -8,6 +8,9 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 
+
+struct SimpleIntersection;
+
 class Mesh final
 {
 public:
@@ -58,7 +61,11 @@ public:
 
     void clearIndices();
 
+    // Intersections and like that
     math::BoundBox getBoundBox() const { return bound_box_; }
+
+    void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+        SimpleIntersection &out_intersection);
 
     // Mesh
     void clear();

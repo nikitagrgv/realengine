@@ -4,21 +4,25 @@
 #include "Math.h"
 
 void math::getDirectionTriangleIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
-    const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, SimpleIntersection &intersection)
+    const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2,
+    SimpleIntersection &out_intersection)
 {
     const glm::vec3 dir_n = glm::normalize(direction);
-    getDirectionTriangleIntersectionUnsafe(origin, dir_n, a, b, c, intersection);
+    getDirectionTriangleIntersectionUnsafe(origin, dir_n, p0, p1, p2, out_intersection);
 }
 
 void math::getDirectionTriangleIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
-    const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c, SimpleIntersection &intersection)
+    const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2,
+    SimpleIntersection &out_intersection)
 {
-    intersection.clear();
+    assert(math::isEquals(math::length2(dir_n), 1));
+
+    out_intersection.clear();
 
     constexpr float epsilon = std::numeric_limits<float>::epsilon();
 
-    const glm::vec3 edge1 = b - a;
-    const glm::vec3 edge2 = c - a;
+    const glm::vec3 edge1 = p1 - p0;
+    const glm::vec3 edge2 = p2 - p0;
     const glm::vec3 ray_cross_e2 = cross(dir_n, edge2);
     const float det = dot(edge1, ray_cross_e2);
 
@@ -28,7 +32,7 @@ void math::getDirectionTriangleIntersectionUnsafe(const glm::vec3 &origin, const
     }
 
     const float inv_det = 1.0f / det;
-    const glm::vec3 s = origin - a;
+    const glm::vec3 s = origin - p0;
     const float u = inv_det * dot(s, ray_cross_e2);
 
     if (u < 0 || u > 1)
@@ -52,24 +56,24 @@ void math::getDirectionTriangleIntersectionUnsafe(const glm::vec3 &origin, const
         // This means that there is a line intersection but not a ray intersection.
         return;
     }
-    intersection.valid = true;
-    intersection.distance = t;
+    out_intersection.valid = true;
+    out_intersection.distance = t;
 }
 
 void math::getDirectionBoundBoxIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
-    const BoundBox &bb, SimpleIntersection &intersection)
+    const BoundBox &bb, SimpleIntersection &out_intersection)
 {
     const glm::vec3 dir_n = glm::normalize(direction);
-    getDirectionBoundBoxIntersectionUnsafe(origin, dir_n, bb, intersection);
+    getDirectionBoundBoxIntersectionUnsafe(origin, dir_n, bb, out_intersection);
 }
 
 void math::getDirectionBoundBoxIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
-    const BoundBox &bb, SimpleIntersection &intersection)
+    const BoundBox &bb, SimpleIntersection &out_intersection)
 {
+    assert(math::isEquals(math::length2(dir_n), 1));
+
     const glm::vec3 lb = bb.getMin();
     const glm::vec3 rt = bb.getMax();
-
-    assert(math::isEquals(math::length2(dir_n), 1));
 
     // TODO: FIX INTERSECTION INSIDE BB!
 
@@ -93,17 +97,17 @@ void math::getDirectionBoundBoxIntersectionUnsafe(const glm::vec3 &origin, const
     // line is intersecting AABB, but the whole AABB is behind us
     if (tmax < 0)
     {
-        intersection.clear();
+        out_intersection.clear();
         return;
     }
 
     // ray doesn't intersect AABB
     if (tmin > tmax)
     {
-        intersection.clear();
+        out_intersection.clear();
         return;
     }
 
-    intersection.distance = tmin;
-    intersection.valid = true;
+    out_intersection.distance = tmin;
+    out_intersection.valid = true;
 }

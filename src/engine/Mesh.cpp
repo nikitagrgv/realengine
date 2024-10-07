@@ -1,5 +1,8 @@
 #include "Mesh.h"
 
+#include "Intersection.h"
+#include "math/IntersectionMath.h"
+
 Mesh::Mesh()
 {
     vao_.bind();
@@ -52,6 +55,42 @@ int Mesh::getNumIndices() const
 void Mesh::clearIndices()
 {
     ebo_.clear();
+}
+
+void Mesh::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+    SimpleIntersection &out_intersection)
+{
+    SimpleIntersection intersection;
+
+    const int num_indices = ebo_.getNumIndices();
+
+    if (num_indices == 0)
+    {
+        out_intersection = intersection;
+        return;
+    }
+
+    const glm::vec3 dir_n = glm::normalize(direction);
+
+    assert(num_indices % 3 == 0);
+    for (int i = 0; i < num_indices; i += 3)
+    {
+        const int i0 = ebo_.getIndex(i);
+        const int i1 = ebo_.getIndex(i + 1);
+        const int i2 = ebo_.getIndex(i + 2);
+        const glm::vec3 p0 = vbo_.getVertex(i0).pos;
+        const glm::vec3 p1 = vbo_.getVertex(i1).pos;
+        const glm::vec3 p2 = vbo_.getVertex(i2).pos;
+
+        SimpleIntersection si;
+        math::getDirectionTriangleIntersectionUnsafe(origin, dir_n, p0, p1, p2, si);
+        if (si.isCloserThan(intersection))
+        {
+            intersection = si;
+        }
+    }
+
+    out_intersection = intersection;
 }
 
 void Mesh::clear()
