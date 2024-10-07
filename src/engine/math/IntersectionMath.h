@@ -2,63 +2,27 @@
 
 #include "Bounds.h"
 #include "Intersection.h"
-#include "Math.h"
 
 namespace math
 {
 
+
+void getDirectionTriangleIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+    const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c,
+    SimpleIntersection &intersection);
+
 // Direction must be normalized
-inline void getDirectionIntersectionUnsafe(const BoundBox &bb, const glm::vec3 &origin,
-    const glm::vec3 &dir_n, SimpleIntersection &intersection)
-{
-    const glm::vec3 lb = bb.getMin();
-    const glm::vec3 rt = bb.getMax();
+void getDirectionTriangleIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
+    const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c,
+    SimpleIntersection &intersection);
 
-    assert(math::isEquals(math::length2(dir_n), 1));
 
-    // TODO: FIX INTERSECTION INSIDE BB!
+void getDirectionBoundBoxIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
+    const BoundBox &bb, SimpleIntersection &intersection);
 
-    glm::vec3 dirfrac;
-    dirfrac.x = 1.0f / dir_n.x;
-    dirfrac.y = 1.0f / dir_n.y;
-    dirfrac.z = 1.0f / dir_n.z;
-
-    float t1 = (lb.x - origin.x) * dirfrac.x;
-    float t2 = (rt.x - origin.x) * dirfrac.x;
-    float t3 = (lb.y - origin.y) * dirfrac.y;
-    float t4 = (rt.y - origin.y) * dirfrac.y;
-    float t5 = (lb.z - origin.z) * dirfrac.z;
-    float t6 = (rt.z - origin.z) * dirfrac.z;
-
-    using glm::min;
-    using glm::max;
-    float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
-    float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
-
-    // line is intersecting AABB, but the whole AABB is behind us
-    if (tmax < 0)
-    {
-        intersection.clear();
-        return;
-    }
-
-    // ray doesn't intersect AABB
-    if (tmin > tmax)
-    {
-        intersection.clear();
-        return;
-    }
-
-    intersection.distance = tmin;
-    intersection.valid = true;
-}
-
-inline void getDirectionIntersection(const BoundBox &bb, const glm::vec3 &origin,
-    const glm::vec3 &direction, SimpleIntersection &intersection)
-{
-    const glm::vec3 dir_n = glm::normalize(direction);
-    getDirectionIntersectionUnsafe(bb, origin, dir_n, intersection);
-}
+// Direction must be normalized
+void getDirectionBoundBoxIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
+    const BoundBox &bb, SimpleIntersection &intersection);
 
 
 } // namespace math
