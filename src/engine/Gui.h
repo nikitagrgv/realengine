@@ -10,6 +10,8 @@ public:
 
     void render();
 
+    bool isWantCaptureMouse() const;
+
 private:
     Signal<> on_render_;
 };

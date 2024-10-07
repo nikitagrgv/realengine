@@ -34,3 +34,8 @@ void Gui::render()
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
+bool Gui::isWantCaptureMouse() const
+{
+    return ImGui::GetIO().WantCaptureMouse;
+}
