@@ -44,6 +44,10 @@ void NodeMesh::getDirectionIntersectionUnsafe(const glm::vec3 &origin, const glm
     const glm::vec3 loc_direction = getITransform() * glm::vec4(dir_n, 0.0f);
     const glm::vec3 loc_dir_n = glm::normalize(loc_direction);
     mesh_->getDirectionIntersectionUnsafe(loc_origin, loc_dir_n, out_intersection);
+
+    const glm::vec3 glob_point = getTransform() * glm::vec4(out_intersection.getPoint(), 1.0f);
+    const float distance = glm::length(glob_point - origin);
+    out_intersection.set(distance, glob_point);
 }
 
 void NodeMesh::update_bounds()

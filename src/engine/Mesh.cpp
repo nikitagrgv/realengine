@@ -59,14 +59,14 @@ void Mesh::clearIndices()
 }
 
 void Mesh::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
-    SimpleIntersection &out_intersection)
+    SimpleIntersection &out_intersection) const
 {
     const glm::vec3 dir_n = glm::normalize(direction);
     getDirectionIntersectionUnsafe(origin, dir_n, out_intersection);
 }
 
 void Mesh::getDirectionIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
-    SimpleIntersection &out_intersection)
+    SimpleIntersection &out_intersection) const
 {
     assert(math::isEquals(math::length2(dir_n), 1));
 

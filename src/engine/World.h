@@ -15,6 +15,8 @@ class Node;
 class World
 {
 public:
+    Node *findNodeByName(const char *name) const;
+
     Node *getNodeByIndex(int index);
     Node *getNodeById(int id);
 

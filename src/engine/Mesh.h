@@ -65,11 +65,11 @@ public:
     math::BoundBox getBoundBox() const { return bound_box_; }
 
     void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
-        SimpleIntersection &out_intersection);
+        SimpleIntersection &out_intersection) const;
 
     // Direction must be normalized
     void getDirectionIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
-        SimpleIntersection &out_intersection);
+        SimpleIntersection &out_intersection) const;
 
     // Mesh
     void clear();

@@ -8,6 +8,18 @@
 
 #include <cassert>
 
+Node *World::findNodeByName(const char *name) const
+{
+    for (const std::unique_ptr<Node> &n : nodes_)
+    {
+        if (n->getName() == name)
+        {
+            return n.get();
+        }
+    }
+    return nullptr;
+}
+
 Node *World::getNodeByIndex(int index)
 {
     return nodes_[index].get();
@@ -158,7 +170,7 @@ void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &d
         node->getDirectionIntersectionUnsafe(origin, dir_n, ni);
         if (ni.isCloserThan(nearest_intersection))
         {
-            nearest_intersection = SimpleNodeIntersection(node, ni.distance);
+            nearest_intersection = SimpleNodeIntersection(node, ni.getDistance(), ni.getPoint());
         }
     }
     intersection = nearest_intersection;

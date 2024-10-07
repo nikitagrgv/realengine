@@ -56,8 +56,9 @@ void math::getDirectionTriangleIntersectionUnsafe(const glm::vec3 &origin, const
         // This means that there is a line intersection but not a ray intersection.
         return;
     }
-    out_intersection.valid = true;
-    out_intersection.distance = t;
+
+    const glm::vec3 point = origin + dir_n * t;
+    out_intersection.set(t, point);
 }
 
 void math::getDirectionBoundBoxIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
@@ -75,8 +76,7 @@ void math::getDirectionBoundBoxIntersectionUnsafe(const glm::vec3 &origin, const
     if (bb.contains(origin))
     {
         // TODO: FIX?
-        out_intersection.distance = 0;
-        out_intersection.valid = true;
+        out_intersection.set(0, origin);
         return;
     }
 
@@ -114,6 +114,6 @@ void math::getDirectionBoundBoxIntersectionUnsafe(const glm::vec3 &origin, const
         return;
     }
 
-    out_intersection.distance = tmin;
-    out_intersection.valid = true;
+    const glm::vec3 point = origin + dir_n * tmin;
+    out_intersection.set(tmin, point);
 }
