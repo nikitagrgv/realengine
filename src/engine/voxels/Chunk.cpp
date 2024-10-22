@@ -6,6 +6,7 @@
 #include "EngineGlobals.h"
 #include "VertexArrayObject.h"
 #include "VoxelEngine.h"
+#include "profiler/ScopedTimer.h"
 
 Chunk::Chunk(glm::ivec3 position)
 {
@@ -34,6 +35,8 @@ void Chunk::flush()
         return;
     }
     dirty_ = false;
+
+    ScopedTimer timer("Flush chunk");
 
     vbo_->clear();
 

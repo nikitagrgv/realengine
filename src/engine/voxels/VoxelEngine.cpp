@@ -16,6 +16,7 @@
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
 #include "math/Math.h"
+#include "profiler/ScopedTimer.h"
 
 #include "glm/ext/matrix_transform.hpp"
 
@@ -175,6 +176,8 @@ void VoxelEngine::register_blocks()
 
 UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
 {
+    ScopedTimer timer("Generate chunk");
+
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
     chunk->visitWriteGlobal([](int x, int y, int z, BlockInfo &block) {

@@ -47,8 +47,8 @@
 #include <vector>
 
 
-const unsigned int DEFAULT_WIDTH = 1;
-const unsigned int DEFAULT_HEIGHT = 1;
+const unsigned int DEFAULT_WIDTH = 1600;
+const unsigned int DEFAULT_HEIGHT = 900;
 
 class Engine
 {
