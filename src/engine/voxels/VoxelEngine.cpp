@@ -107,12 +107,12 @@ void VoxelEngine::generate_chunk()
         const BlockDescription &desc = registry_->getBlock(block.id);
         assert(desc.cached.valid);
 
-        gen_top(min, max, desc);
-        gen_bottom(min, max, desc);
-        gen_front(min, max, desc);
-        gen_back(min, max, desc);
-        gen_left(min, max, desc);
-        gen_right(min, max, desc);
+        gen_face_py(min, max, desc);
+        gen_face_ny(min, max, desc);
+        gen_face_pz(min, max, desc);
+        gen_face_nz(min, max, desc);
+        gen_face_px(min, max, desc);
+        gen_face_nx(min, max, desc);
     };
 
     BlockInfo block;
@@ -124,9 +124,8 @@ void VoxelEngine::generate_chunk()
     vbo_->flush();
 }
 
-void VoxelEngine::gen_top(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
+void VoxelEngine::gen_face_py(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
 {
-    // Top / +Y
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_py;
     Vertex v;
 
@@ -157,10 +156,9 @@ void VoxelEngine::gen_top(const glm::vec3 &min, const glm::vec3 &max, const Bloc
     vbo_->addVertex(v);
 }
 
-void VoxelEngine::gen_bottom(const glm::vec3 &min, const glm::vec3 &max,
+void VoxelEngine::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc)
 {
-    // Top / +Y
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_ny;
     Vertex v;
 
@@ -192,16 +190,45 @@ void VoxelEngine::gen_bottom(const glm::vec3 &min, const glm::vec3 &max,
     vbo_->addVertex(v);
 }
 
-void VoxelEngine::gen_front(const glm::vec3 &min, const glm::vec3 &max,
+void VoxelEngine::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc)
+{
+    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_pz;
+    Vertex v;
+
+    // tr 1
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, max.y, max.z};
+    v.uv_ = coords.bottom_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    // tr 2
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, min.z};
+    v.uv_ = coords.top_right;
+    vbo_->addVertex(v);
+}
+
+void VoxelEngine::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
 {}
 
-void VoxelEngine::gen_back(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
+void VoxelEngine::gen_face_px(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
 {}
 
-void VoxelEngine::gen_left(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
-{}
-
-void VoxelEngine::gen_right(const glm::vec3 &min, const glm::vec3 &max,
+void VoxelEngine::gen_face_nx(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc)
 {}
