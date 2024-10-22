@@ -22,25 +22,15 @@ ScopedTimer::~ScopedTimer()
     {
         duration *= 1000.0;
         m = "ms";
-        if (duration < 1)
-        {
-            duration *= 1000.0;
-            m = "us";
-            if (duration < 1)
-            {
-                duration *= 1000.0;
-                m = "ns";
-            }
-        }
     }
 
     if (name_)
     {
-        printf("Timer (%s) = %.1f%s\n", name_, duration, m);
+        printf("Timer (%s) = %.3f%s\n", name_, duration, m);
     }
     else
     {
-        printf("Timer = %.1f%s\n", duration, m);
+        printf("Timer = %.3f%s\n", duration, m);
     }
     fflush(stdout);
 }
