@@ -17,6 +17,7 @@ class Window;
 class Input;
 class SystemProxy;
 class Gui;
+class VoxelEngine;
 
 struct EngineGlobals
 {
@@ -34,6 +35,7 @@ struct EngineGlobals
     Input *input{};
     SystemProxy *proxy{};
     Gui *gui{};
+    VoxelEngine *vox{};
 
     Statistics stat{};
 };
