@@ -141,10 +141,26 @@ void Editor::render_world()
     ImGui::SetNextWindowPos(ImVec2(351, 703), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(583, 313), ImGuiCond_FirstUseEver);
 
-    if (!ImGui::Begin("Nodes", &nodes_window_))
+    if (!ImGui::Begin("Nodes", &nodes_window_, ImGuiWindowFlags_MenuBar))
     {
         ImGui::End();
         return;
+    }
+
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("Nodes"))
+        {
+            if (ImGui::MenuItem("Disable All"))
+            {
+                for (int i = 0, count = eng.world->getNumNodes(); i < count; ++i)
+                {
+                    eng.world->getNodeByIndex(i)->setEnabled(false);
+                }
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
     }
 
     // Left
