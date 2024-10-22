@@ -63,10 +63,17 @@ void VoxelEngine::update(const glm::vec3 &position)
     };
 
     const glm::ivec3 chunk_pos = pos_to_chunk(position);
-    if (!has_chunk(chunk_pos))
+    constexpr int RADIUS = 4;
+    for (int z = chunk_pos.z - RADIUS, z_end = chunk_pos.z + RADIUS; z <= z_end; ++z)
     {
-        UPtr<Chunk> new_chunk = generate_chunk(chunk_pos);
-        chunks_.push_back(std::move(new_chunk));
+        for (int x = chunk_pos.x - RADIUS, x_end = chunk_pos.x + RADIUS; x <= x_end; ++x)
+        {
+            if (!has_chunk(glm::ivec3{x, 0, z}))
+            {
+                UPtr<Chunk> new_chunk = generate_chunk(glm::ivec3{x, 0, z});
+                chunks_.push_back(std::move(new_chunk));
+            }
+        }
     }
 }
 
