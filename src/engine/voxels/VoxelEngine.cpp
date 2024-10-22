@@ -224,7 +224,36 @@ void VoxelEngine::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max,
 }
 
 void VoxelEngine::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
-{}
+{
+    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_nz;
+    Vertex v;
+
+    // tr 1
+    v.pos_ = glm::vec3{min.x, max.y, max.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, min.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, min.y, max.z};
+    v.uv_ = coords.bottom_left;
+    vbo_->addVertex(v);
+
+    // tr 2
+    v.pos_ = glm::vec3{min.x, max.y, max.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, max.z};
+    v.uv_ = coords.top_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, min.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+}
 
 void VoxelEngine::gen_face_px(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
 {}
