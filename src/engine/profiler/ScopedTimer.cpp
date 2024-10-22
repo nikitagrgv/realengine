@@ -26,6 +26,11 @@ ScopedTimer::~ScopedTimer()
         {
             duration *= 1000.0;
             m = "us";
+            if (duration < 1)
+            {
+                duration *= 1000.0;
+                m = "ns";
+            }
         }
     }
 
