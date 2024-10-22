@@ -6,12 +6,12 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec2 aUV;
 
-uniform mat4 uViewProj;
+uniform mat4 uModelViewProj;
 
 void main()
 {
     vec4 glob_pos = vec4(aPos, 1.0f);
-    gl_Position = uViewProj * glob_pos;
+    gl_Position = uModelViewProj * glob_pos;
     ioUV = aUV;
 }
 

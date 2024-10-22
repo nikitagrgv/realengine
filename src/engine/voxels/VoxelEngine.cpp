@@ -15,6 +15,8 @@
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
 
+#include "glm/ext/matrix_transform.hpp"
+
 VoxelEngine::VoxelEngine() = default;
 
 VoxelEngine::~VoxelEngine() = default;
@@ -81,7 +83,10 @@ void VoxelEngine::render(Camera *camera)
 
     assert(!shader_->isDirty());
     shader_->bind();
-    shader_->setUniformMat4("uViewProj", camera->getViewProj());
+
+    // TODO# CACHE
+    const int model_view_proj_loc = shader_->getUniformLocation("uModelViewProj");
+    assert(model_view_proj_loc != -1);
 
     // TODO# CACHE
     const int atlas_loc = shader_->getUniformLocation("atlas");
@@ -95,6 +100,15 @@ void VoxelEngine::render(Camera *camera)
     {
         chunk->flush();
         chunk->vao_->bind();
+
+        glm::vec3 glob_position{0.0f};
+        glob_position.x = chunk->position_.x * Chunk::CHUNK_WIDTH;
+        glob_position.y = 0.0f;
+        glob_position.z = chunk->position_.y * Chunk::CHUNK_WIDTH;
+
+        auto value = camera->getViewProj() * glm::translate(glm::mat4{1.0f}, glob_position);
+        shader_->setUniformMat4(model_view_proj_loc, value);
+
         GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->vbo_->getNumVertices()));
         eng.stat.addRenderedIndices(chunk->vbo_->getNumVertices());
     }
