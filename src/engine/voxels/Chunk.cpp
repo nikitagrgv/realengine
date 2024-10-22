@@ -57,7 +57,7 @@ void Chunk::flush()
     };
 
     visitRead([&](int x, int y, int z, BlockInfo block) {
-        if (block.id == BasicBlocks::AIR)
+        if (block.id == 0)
         {
             return;
         }
