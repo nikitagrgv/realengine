@@ -11,6 +11,11 @@
     #define REALENGINE_EXPORT
 #endif
 
+// TODO: for different compilers
+#if 1
+    #define REALENGINE_INLINE __forceinline
+#endif
+
 #ifdef REALENGINE_LIBRARY
     #define REALENGINE_API REALENGINE_EXPORT
 #else

@@ -12,6 +12,10 @@ enum class BlockType
 
 struct BlockDescription
 {
+public:
+    bool isValid() const { return id != -1; }
+
+public:
     std::string name{"None"};
     int id{-1};
     BlockType type{BlockType::SOLID};
@@ -19,16 +23,24 @@ struct BlockDescription
 
     union
     {
-        int texture_indexes[6];
+        int texture_indexes[6]{0, 0, 0, 0, 0, 0};
         struct
         {
-            int texture_index_px{0};
-            int texture_index_nx{0};
-            int texture_index_py{0};
-            int texture_index_ny{0};
-            int texture_index_pz{0};
-            int texture_index_nz{0};
+            int texture_index_px;
+            int texture_index_nx;
+            int texture_index_py;
+            int texture_index_ny;
+            int texture_index_pz;
+            int texture_index_nz;
         };
+    };
+
+    struct TexCoords
+    {
+        glm::vec2 bottom_left;
+        glm::vec2 bottom_right;
+        glm::vec2 top_left;
+        glm::vec2 top_right;
     };
 
     struct Cached
@@ -36,15 +48,15 @@ struct BlockDescription
         bool valid{false};
         union
         {
-            glm::vec2 texture_coords[6];
+            TexCoords texture_coords[6];
             struct
             {
-                glm::vec2 texture_coord_px;
-                glm::vec2 texture_coord_nx;
-                glm::vec2 texture_coord_py;
-                glm::vec2 texture_coord_ny;
-                glm::vec2 texture_coord_pz;
-                glm::vec2 texture_coord_nz;
+                TexCoords texture_coord_px;
+                TexCoords texture_coord_nx;
+                TexCoords texture_coord_py;
+                TexCoords texture_coord_ny;
+                TexCoords texture_coord_pz;
+                TexCoords texture_coord_nz;
             };
         };
     } cached;
