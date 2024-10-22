@@ -26,10 +26,10 @@ void BlocksRegistry::flush()
         const float column_f = float(column);
         const float row_f = float(row);
         BlockDescription::TexCoords tc;
-        tc.bottom_left = glm::vec2(column_f * elem_size.x, row_f * elem_size.y);
-        tc.bottom_right = glm::vec2(column_f * elem_size.x, (row_f + 1) * elem_size.y);
-        tc.top_left = glm::vec2((column_f + 1) * elem_size.x, row_f * elem_size.y);
-        tc.top_right = glm::vec2((column_f + 1) * elem_size.x, (row_f + 1) * elem_size.y);
+        tc.bottom_left = glm::vec2(column_f * elem_size.x, row_f * elem_size.y) / atlas_size;
+        tc.bottom_right = glm::vec2(column_f * elem_size.x, (row_f + 1) * elem_size.y) / atlas_size;
+        tc.top_left = glm::vec2((column_f + 1) * elem_size.x, row_f * elem_size.y) / atlas_size;
+        tc.top_right = glm::vec2((column_f + 1) * elem_size.x, (row_f + 1) * elem_size.y) / atlas_size;
         return tc;
     };
 

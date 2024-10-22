@@ -385,7 +385,7 @@ void Renderer::init_text()
 
     tr.font_ = eng.texture_manager->create("default_font");
     tr.font_->load("base/default_font_20x32.png", Texture::Format::RGBA, Texture::Wrap::ClampToEdge,
-        Texture::Filter::Nearest, Texture::Filter::Nearest, false);
+        Texture::Filter::Nearest, Texture::Filter::Nearest, Texture::FlipMode::DontFlip);
 
     tr.vao_ = makeU<VertexArrayObject>();
     tr.vbo_ = makeU<VertexBufferObject<TextRenderer::Vertex>>();

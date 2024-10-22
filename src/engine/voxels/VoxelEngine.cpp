@@ -23,7 +23,7 @@ void VoxelEngine::init()
 
     Texture *atlas = eng.texture_manager->create("atlas");
     atlas->load("vox/atlas.png", Texture::Format::RGBA, Texture::Wrap::ClampToEdge,
-        Texture::Filter::Nearest, Texture::Filter::Nearest, false);
+        Texture::Filter::Nearest, Texture::Filter::Nearest, Texture::FlipMode::FlipY);
 
     registry_->setAtlas(atlas, glm::ivec2(8, 8));
     register_blocks();

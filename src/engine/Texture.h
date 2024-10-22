@@ -37,6 +37,12 @@ public:
         LinearMipmapLinear,
     };
 
+    enum class FlipMode
+    {
+        DontFlip,
+        FlipY
+    };
+
     REMOVE_COPY_MOVE_CLASS(Texture);
 
     Texture();
@@ -52,7 +58,8 @@ public:
     ~Texture();
 
     void load(const char *filename, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
-        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear, bool flip_y = true);
+        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear,
+        FlipMode flip_mode = FlipMode::FlipY);
     void load(const Image &image, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
         Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
     void load(void *data, int width, int height, Format src_format,
@@ -61,7 +68,7 @@ public:
 
     void loadCubemap(const char **filenames, Format target_format = Format::RGBA,
         Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
-        Filter mag_filter = Filter::Linear, bool flip_y = true);
+        Filter mag_filter = Filter::Linear, FlipMode flip_mode = FlipMode::FlipY);
     void loadCubemap(const Image *images, Format target_format = Format::RGBA,
         Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
         Filter mag_filter = Filter::Linear);

@@ -74,7 +74,7 @@ public:
             "skybox/back.jpg"    //
         };
         cubemap_texture->loadCubemap(filenames, Texture::Format::RGB, Texture::Wrap::ClampToEdge,
-            Texture::Filter::Linear, Texture::Filter::Linear, false);
+            Texture::Filter::Linear, Texture::Filter::Linear, Texture::FlipMode::DontFlip);
 
         eng.renderer->setSkyboxTexture(cubemap_texture);
 

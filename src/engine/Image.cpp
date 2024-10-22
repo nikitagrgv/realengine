@@ -24,9 +24,9 @@ int Image::getNumChannels(Format format)
 
 Image::Image() = default;
 
-Image::Image(const char *path, bool flip_y)
+Image::Image(const char *path, FlipMode flip_mode)
 {
-    load(path, flip_y);
+    load(path, flip_mode);
 }
 
 Image::Image(int width, int height, Format format)
@@ -64,11 +64,11 @@ Image &Image::operator=(Image &&other) noexcept
     return *this;
 }
 
-void Image::load(const char *path, bool flip_y)
+void Image::load(const char *path, FlipMode flip_mode)
 {
     clear();
 
-    stbi_set_flip_vertically_on_load(flip_y);
+    stbi_set_flip_vertically_on_load((int)flip_mode & (int)FlipMode::FlipY);
     std::string abs_path = eng.fs->toAbsolutePath(path);
 
     unsigned char *stbi_data = stbi_load(abs_path.c_str(), &width_, &height_, &num_ch_, 0);

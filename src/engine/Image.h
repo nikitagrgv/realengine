@@ -16,12 +16,18 @@ public:
         R,
     };
 
+    enum class FlipMode
+    {
+        DontFlip = 0,
+        FlipY = 1,
+    };
+
     static int getNumChannels(Format format);
 
     REMOVE_COPY_CLASS(Image);
 
     Image();
-    explicit Image(const char *path, bool flip_y = true);
+    explicit Image(const char *path, FlipMode flip_mode = FlipMode::FlipY);
     Image(int width, int height, Format format);
 
     ~Image();
@@ -29,7 +35,7 @@ public:
     Image(Image &&other) noexcept;
     Image &operator=(Image &&other) noexcept;
 
-    void load(const char *path, bool flip_y = true);
+    void load(const char *path, FlipMode flip_mode = FlipMode::FlipY);
     void create(int width, int height, Format format);
 
     bool isLoaded() const { return data_ != nullptr; }

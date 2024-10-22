@@ -54,6 +54,16 @@ Texture::Format image_format_to_texture_format(Image::Format format)
     }
 }
 
+Image::FlipMode texture_flip_mode_to_image_flip_mode(Texture::FlipMode mode)
+{
+    switch (mode)
+    {
+    case Texture::FlipMode::DontFlip: return Image::FlipMode::DontFlip;
+    case Texture::FlipMode::FlipY: return Image::FlipMode::FlipY;
+    default: assert(0); return Image::FlipMode::DontFlip;
+    }
+}
+
 } // namespace
 
 Texture::Texture() = default;
@@ -82,10 +92,10 @@ Texture::~Texture()
 }
 
 void Texture::load(const char *filename, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter, bool flip_y)
+    Filter mag_filter, FlipMode flip_mode)
 {
     clear();
-    Image image(filename, flip_y);
+    Image image(filename, texture_flip_mode_to_image_flip_mode(flip_mode));
     if (!image.isLoaded())
     {
         std::cout << "Failed to load image" << std::endl;
@@ -169,14 +179,14 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
 }
 
 void Texture::loadCubemap(const char **filenames, Format target_format, Wrap wrap,
-    Filter min_filter, Filter mag_filter, bool flip_y)
+    Filter min_filter, Filter mag_filter, FlipMode flip_mode)
 {
     clear();
     Image images[6];
     for (int i = 0; i < 6; ++i)
     {
         Image &image = images[i];
-        image.load(filenames[i], flip_y);
+        image.load(filenames[i], texture_flip_mode_to_image_flip_mode(flip_mode));
         if (!image.isLoaded())
         {
             std::cout << "Failed to load image" << std::endl;
