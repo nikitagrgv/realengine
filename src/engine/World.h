@@ -42,6 +42,8 @@ public:
     void getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
         SimpleNodeIntersection &intersection) const;
 
+    void disableAll();
+
 private:
     std::vector<std::unique_ptr<Node>> nodes_;
     std::unordered_map<int, int> index_by_id_;

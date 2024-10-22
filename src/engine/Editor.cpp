@@ -1,4 +1,4 @@
-#include "Editor.h"
+ #include "Editor.h"
 
 #include "EngineGlobals.h"
 #include "Gui.h"
@@ -153,10 +153,7 @@ void Editor::render_world()
         {
             if (ImGui::MenuItem("Disable All"))
             {
-                for (int i = 0, count = eng.world->getNumNodes(); i < count; ++i)
-                {
-                    eng.world->getNodeByIndex(i)->setEnabled(false);
-                }
+                eng.world->disableAll();
             }
             ImGui::EndMenu();
         }

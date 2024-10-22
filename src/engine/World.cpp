@@ -175,3 +175,12 @@ void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &d
     }
     intersection = nearest_intersection;
 }
+
+void World::disableAll()
+{
+    for (auto &nptr : nodes_)
+    {
+        Node *node = nptr.get();
+        node->setEnabled(false);
+    }
+}

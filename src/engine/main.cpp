@@ -1,4 +1,4 @@
- // clang-format off
+// clang-format off
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -47,7 +47,7 @@
 #include <vector>
 
 
- const unsigned int DEFAULT_WIDTH = 1;
+const unsigned int DEFAULT_WIDTH = 1;
 const unsigned int DEFAULT_HEIGHT = 1;
 
 class Engine
@@ -307,8 +307,10 @@ public:
                 edg.editor_->setSelectedNode(intersection.getNode());
 
                 // TODO# FIX INTERSECTION!!!!!!!
-                // rays.push_back(RayColor{{ray.begin, ray.begin + dir_n * intersection.getDistance()}, glm::vec4{1,1,1,1}});
-                // rays.push_back(RayColor{{ray.begin, intersection.getPoint()}, glm::vec4{1,0,0,1}});
+                // rays.push_back(RayColor{{ray.begin, ray.begin + dir_n *
+                // intersection.getDistance()}, glm::vec4{1,1,1,1}});
+                // rays.push_back(RayColor{{ray.begin, intersection.getPoint()},
+                // glm::vec4{1,0,0,1}});
             }
 
             for (const auto &r : rays)
@@ -390,6 +392,11 @@ private:
         if (eng.input->isKeyDown(Key::KEY_ESCAPE))
         {
             exit_ = true;
+        }
+
+        if (eng.input->isKeyPressed(Key::KEY_F3))
+        {
+            eng.world->disableAll();
         }
 
         const bool right_btn = eng.input->isButtonDown(Button::BUTTON_RIGHT);
