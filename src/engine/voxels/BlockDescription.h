@@ -13,6 +13,13 @@ enum class BlockType
 struct BlockDescription
 {
 public:
+    REMOVE_COPY_CLASS(BlockDescription);
+
+    BlockDescription(BlockDescription &&other) noexcept = default;
+    BlockDescription &operator=(BlockDescription &&other) noexcept = default;
+
+    BlockDescription() = default;
+
     bool isValid() const { return id != -1; }
 
 public:

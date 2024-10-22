@@ -21,7 +21,7 @@ public:
         return blocks_[old_size];
     }
 
-    void addBlock(const BlockDescription &block)
+    void addBlock(BlockDescription block)
     {
         assert(block.isValid());
         if (block.id > blocks_.size())
@@ -29,7 +29,7 @@ public:
             blocks_.resize(block.id + 1);
         }
         assert(!blocks_[block.id].isValid());
-        blocks_[block.id] = block;
+        blocks_[block.id] = std::move(block);
     }
 
     REALENGINE_INLINE const BlockDescription &getBlock(int id) const { return blocks_[id]; }

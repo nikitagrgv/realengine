@@ -38,19 +38,19 @@ void Chunk::flush()
 
     BlocksRegistry *registry = eng.vox->getRegistry();
 
-    auto generate_block = [&](BlockInfo block, const glm::vec3 &pos) {
-        const glm::vec3 min = pos;
-        const glm::vec3 max = min + glm::vec3(1, 1, 1);
-
+    const auto is_air_or_outside = [&](int x, int y, int z) {
+        if (!isInsideChunk(x, y, z))
+        {
+            return true;
+        }
+        const BlockInfo block = getBlock(x, y, z);
         const BlockDescription &desc = registry->getBlock(block.id);
-        assert(desc.cached.valid);
-
-        gen_face_py(min, max, desc);
-        gen_face_ny(min, max, desc);
-        gen_face_pz(min, max, desc);
-        gen_face_nz(min, max, desc);
-        gen_face_px(min, max, desc);
-        gen_face_nx(min, max, desc);
+        if (desc.type == BlockType::AIR)
+        {
+            return true;
+        }
+        // TODO# check transparent
+        return false;
     };
 
     visitRead([&](int x, int y, int z, BlockInfo block) {
@@ -58,7 +58,37 @@ void Chunk::flush()
         {
             return;
         }
-        generate_block(block, glm::vec3{x, y, z});
+
+        const glm::vec3 min = glm::vec3{x, y, z};
+        const glm::vec3 max = min + glm::vec3(1, 1, 1);
+
+        const BlockDescription &desc = registry->getBlock(block.id);
+        assert(desc.cached.valid);
+
+        if (is_air_or_outside(x + 1, y, z))
+        {
+            gen_face_px(min, max, desc);
+        }
+        if (is_air_or_outside(x - 1, y, z))
+        {
+            gen_face_nx(min, max, desc);
+        }
+        if (is_air_or_outside(x, y + 1, z))
+        {
+            gen_face_py(min, max, desc);
+        }
+        if (is_air_or_outside(x, y - 1, z))
+        {
+            gen_face_ny(min, max, desc);
+        }
+        if (is_air_or_outside(x, y, z + 1))
+        {
+            gen_face_pz(min, max, desc);
+        }
+        if (is_air_or_outside(x, y, z - 1))
+        {
+            gen_face_nz(min, max, desc);
+        }
     });
 
     vbo_->flush();

@@ -105,19 +105,27 @@ public:
         }
     }
 
+    static REALENGINE_INLINE bool isInsideChunk(int x, int y, int z)
+    {
+        return x >= 0 && x < CHUNK_WIDTH && y >= 0 && y < CHUNK_HEIGHT && z >= 0 && z < CHUNK_WIDTH;
+    }
+
     REALENGINE_INLINE const BlockInfo &getBlock(int x, int y, int z) const
     {
+        assert(isInsideChunk(x, y, z));
         return blocks_[getBlockIndex(x, y, z)];
     }
 
     REALENGINE_INLINE void setBlock(int x, int y, int z, const BlockInfo &block)
     {
+        assert(isInsideChunk(x, y, z));
         dirty_ = true; // TODO# REMOVE?
         blocks_[getBlockIndex(x, y, z)] = block;
     }
 
     static REALENGINE_INLINE int getBlockIndex(int x, int y, int z)
     {
+        assert(isInsideChunk(x, y, z));
         return x + CHUNK_WIDTH * z + CHUNK_WIDTH2 * y;
     }
 
