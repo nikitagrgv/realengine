@@ -15,7 +15,7 @@ struct Chunk
 {
 public:
     static constexpr int CHUNK_WIDTH = 32;
-    static constexpr int CHUNK_HEIGHT = 128;
+    static constexpr int CHUNK_HEIGHT = 256;
 
     static constexpr int CHUNK_WIDTH2 = CHUNK_WIDTH * CHUNK_WIDTH;
     static constexpr int NUM_BLOCKS = CHUNK_WIDTH2 * CHUNK_HEIGHT;
