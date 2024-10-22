@@ -160,5 +160,9 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec2 pos)
 {
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
+    chunk->setBlock(0, 2, 0, {BasicBlocks::GRASS});
+    chunk->setBlock(0, 1, 0, {BasicBlocks::DIRT});
+    chunk->setBlock(0, 0, 0, {BasicBlocks::DIRT});
+
     return chunk;
 }
