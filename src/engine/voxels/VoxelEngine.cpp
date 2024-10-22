@@ -25,7 +25,7 @@ void VoxelEngine::init()
     atlas->load("vox/atlas.png", Texture::Format::RGBA, Texture::Wrap::ClampToEdge,
         Texture::Filter::Nearest, Texture::Filter::Nearest, Texture::FlipMode::FlipY);
 
-    registry_->setAtlas(atlas, glm::ivec2(8, 8));
+    registry_->setAtlas(atlas, glm::ivec2(16, 16));
     register_blocks();
     registry_->flush();
 
@@ -100,39 +100,6 @@ void VoxelEngine::generate_chunk()
 {
     vbo_->clear();
 
-    auto gen_top = [&](const BlockInfo &block, const glm::vec3 &min, const glm::vec3 &max,
-                       const BlockDescription &desc) {
-        // Top / +Y
-        const BlockDescription::TexCoords &coords = desc.cached.texture_coord_py;
-        Vertex v;
-
-        // tr 1
-        v.pos_ = glm::vec3{min.x, max.y, min.z};
-        v.uv_ = coords.top_left;
-        vbo_->addVertex(v);
-
-        v.pos_ = glm::vec3{min.x, max.y, max.z};
-        v.uv_ = coords.bottom_left;
-        vbo_->addVertex(v);
-
-        v.pos_ = glm::vec3{max.x, max.y, max.z};
-        v.uv_ = coords.bottom_right;
-        vbo_->addVertex(v);
-
-        // tr 2
-        v.pos_ = glm::vec3{min.x, max.y, min.z};
-        v.uv_ = coords.top_left;
-        vbo_->addVertex(v);
-
-        v.pos_ = glm::vec3{max.x, max.y, max.z};
-        v.uv_ = coords.bottom_right;
-        vbo_->addVertex(v);
-
-        v.pos_ = glm::vec3{max.x, max.y, min.z};
-        v.uv_ = coords.bottom_left;
-        vbo_->addVertex(v);
-    };
-
     auto generate_block = [&](const BlockInfo &block) {
         const glm::vec3 min = block.position;
         const glm::vec3 max = min + glm::vec3(1, 1, 1);
@@ -140,7 +107,8 @@ void VoxelEngine::generate_chunk()
         const BlockDescription &desc = registry_->getBlock(block.id);
         assert(desc.cached.valid);
 
-        gen_top(block, min, max, desc);
+        gen_top(min, max, desc);
+        gen_bottom(min, max, desc);
     };
 
     BlockInfo block;
@@ -150,4 +118,72 @@ void VoxelEngine::generate_chunk()
     generate_block(block);
 
     vbo_->flush();
+}
+
+void VoxelEngine::gen_top(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
+{
+    // Top / +Y
+    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_py;
+    Vertex v;
+
+    // tr 1
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, max.y, max.z};
+    v.uv_ = coords.bottom_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    // tr 2
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, min.z};
+    v.uv_ = coords.top_right;
+    vbo_->addVertex(v);
+}
+
+void VoxelEngine::gen_bottom(const glm::vec3 &min, const glm::vec3 &max,
+    const BlockDescription &desc)
+{
+    // Top / +Y
+    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_ny;
+    Vertex v;
+
+    // tr 1
+    v.pos_ = glm::vec3{min.x, min.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, min.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, min.y, max.z};
+    v.uv_ = coords.bottom_left;
+    vbo_->addVertex(v);
+
+
+    // tr 2
+    v.pos_ = glm::vec3{min.x, min.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, min.y, min.z};
+    v.uv_ = coords.top_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, min.y, max.z};
+    v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
 }

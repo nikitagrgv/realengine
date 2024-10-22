@@ -7,6 +7,7 @@
 #include "glm/vec3.hpp"
 
 
+struct BlockDescription;
 class Camera;
 class ShaderSource;
 class Shader;
@@ -30,6 +31,9 @@ private:
 
     // TODO#
     void generate_chunk();
+
+    void gen_top(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
+    void gen_bottom(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
 
 private:
     // TODO# TEMP

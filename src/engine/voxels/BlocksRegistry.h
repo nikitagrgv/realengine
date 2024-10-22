@@ -34,14 +34,9 @@ public:
 
     REALENGINE_INLINE const BlockDescription &getBlock(int id) const { return blocks_[id]; }
 
-    void setAtlas(Texture *texture, glm::ivec2 num_atlas_blocks)
-    {
-        atlas_ = texture;
-        num_atlas_blocks_ = num_atlas_blocks;
-    }
+    void setAtlas(Texture *texture, glm::ivec2 block_size);
 
     REALENGINE_INLINE Texture *getAtlas() const { return atlas_; }
-    REALENGINE_INLINE glm::ivec2 getNumAtlasBlocks() const { return num_atlas_blocks_; }
 
     void flush();
 
@@ -50,6 +45,9 @@ private:
 
 private:
     Texture *atlas_{};
+    glm::vec2 atlas_size_{-1, -1};
+    glm::vec2 block_size_{-1, -1};
     glm::ivec2 num_atlas_blocks_{-1, -1};
+    glm::vec2 factor_{-1, -1};
     std::vector<BlockDescription> blocks_;
 };

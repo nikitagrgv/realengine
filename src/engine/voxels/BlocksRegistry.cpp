@@ -4,6 +4,15 @@
 
 BlocksRegistry::BlocksRegistry() {}
 
+void BlocksRegistry::setAtlas(Texture *texture, glm::ivec2 block_size)
+{
+    atlas_ = texture;
+    atlas_size_ = atlas_->getSize();
+    block_size_ = block_size;
+    num_atlas_blocks_ = atlas_->getSize() / block_size;
+    factor_ = glm::vec2{1.0f, 1.0f} / atlas_size_;
+}
+
 void BlocksRegistry::flush()
 {
     invalidate();
@@ -17,19 +26,14 @@ void BlocksRegistry::flush()
         return;
     }
 
-    const glm::vec2 atlas_size = (glm::vec2)atlas_->getSize();
-    const glm::vec2 elem_size = atlas_size / (glm::vec2)num_atlas_blocks_;
-
     auto get_texture_coords = [&](int index) -> BlockDescription::TexCoords {
-        const int column = index / num_atlas_blocks_.x;
-        const int row = index % num_atlas_blocks_.x;
-        const float column_f = float(column);
-        const float row_f = float(row);
+        const float col = float(index % num_atlas_blocks_.x);
+        const float row = float(index / num_atlas_blocks_.x);
         BlockDescription::TexCoords tc;
-        tc.bottom_left = glm::vec2(column_f * elem_size.x, row_f * elem_size.y) / atlas_size;
-        tc.bottom_right = glm::vec2(column_f * elem_size.x, (row_f + 1) * elem_size.y) / atlas_size;
-        tc.top_left = glm::vec2((column_f + 1) * elem_size.x, row_f * elem_size.y) / atlas_size;
-        tc.top_right = glm::vec2((column_f + 1) * elem_size.x, (row_f + 1) * elem_size.y) / atlas_size;
+        tc.bottom_left = glm::vec2(col * block_size_.x, row * block_size_.y) * factor_;
+        tc.bottom_right = glm::vec2((col + 1) * block_size_.x, row * block_size_.y) * factor_;
+        tc.top_left = glm::vec2(col * block_size_.x, (row + 1) * block_size_.y) * factor_;
+        tc.top_right = glm::vec2((col + 1) * block_size_.x, (row + 1) * block_size_.y) * factor_;
         return tc;
     };
 
