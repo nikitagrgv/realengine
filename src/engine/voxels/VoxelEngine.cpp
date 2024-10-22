@@ -1,7 +1,7 @@
 #include "VoxelEngine.h"
 
 // clang-format off
-#include "glad/glad.h"
+#include <glad/glad.h>
 // clang-format on
 
 #include "BasicBlocks.h"
@@ -18,7 +18,16 @@
 #include "math/Math.h"
 #include "profiler/ScopedTimer.h"
 
-#include "glm/ext/matrix_transform.hpp"
+#include <PerlinNoise.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
+struct VoxelEngine::Perlin
+{
+    explicit Perlin(unsigned int seed)
+        : p(seed)
+    {}
+    siv::PerlinNoise p{};
+};
 
 VoxelEngine::VoxelEngine() = default;
 
@@ -26,6 +35,8 @@ VoxelEngine::~VoxelEngine() = default;
 
 void VoxelEngine::init()
 {
+    perlin_ = makeU<Perlin>(seed_);
+
     registry_ = makeU<BlocksRegistry>();
     register_blocks();
 
@@ -130,6 +141,12 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
     }
 }
 
+void VoxelEngine::setSeed(unsigned int seed)
+{
+    seed_ = seed;
+    perlin_ = makeU<Perlin>(seed_);
+}
+
 void VoxelEngine::register_blocks()
 {
     BlocksRegistry &reg = *registry_;
@@ -178,20 +195,17 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
 {
     ScopedTimer timer("Generate chunk");
 
+    assert(perlin_);
+    const siv::PerlinNoise &perlin = perlin_->p;
+
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
-    chunk->visitWriteGlobal([](int x, int y, int z, BlockInfo &block) {
-        const float xx = (float)x / 17.f;
-        const float zz = (float)z / 17.f;
-        const float s = std::sin(xx) * std::sin(zz);
-        const int bound = int((s + 1) * 20);
-        if (y < bound)
+    chunk->visitWriteGlobal([&](int x, int y, int z, BlockInfo &block) {
+        glm::vec3 norm_pos = glm::vec3{x, y, z} * 0.001f;
+        const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 3);
+        if (noise > 0.5f)
         {
             block = BlockInfo(BasicBlocks::DIRT);
-        }
-        else if (y == bound)
-        {
-            block = BlockInfo(BasicBlocks::GRASS);
         }
     });
 

@@ -32,12 +32,19 @@ public:
 
     BlocksRegistry *getRegistry() const { return registry_.get(); }
 
+    unsigned int getSeed() const { return seed_; }
+    void setSeed(unsigned int seed);
+
 private:
     void register_blocks();
 
     UPtr<Chunk> generate_chunk(glm::vec3 pos);
 
 private:
+    unsigned int seed_{0};
+    struct Perlin;
+    UPtr<Perlin> perlin_;
+
     std::vector<UPtr<Chunk>> chunks_;
 
     // TODO# TEMP

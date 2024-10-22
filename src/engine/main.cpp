@@ -257,6 +257,8 @@ public:
         global_light.dir = glm::normalize(glm::vec3(-1, -1, -2));
         eng.renderer->setGlobalLight(global_light);
 
+        eng.vox->setSeed(123132);
+
         while (!exit_)
         {
             eng.time->update();
