@@ -12,6 +12,15 @@ class BlocksRegistry
 public:
     BlocksRegistry();
 
+    BlockDescription &addBlock()
+    {
+        BlockDescription block;
+        const int old_size = blocks_.size();
+        block.id = old_size;
+        blocks_.push_back(std::move(block));
+        return blocks_[old_size];
+    }
+
     void addBlock(const BlockDescription &block)
     {
         assert(block.isValid());

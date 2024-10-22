@@ -35,6 +35,8 @@ public:
         };
     };
 
+    /////////////////////////////////////////////////////////
+
     struct TexCoords
     {
         glm::vec2 bottom_left;
