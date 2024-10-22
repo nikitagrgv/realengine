@@ -201,8 +201,8 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
     chunk->visitWriteGlobal([&](int x, int y, int z, BlockInfo &block) {
-        glm::vec3 norm_pos = glm::vec3{x, y, z} * 0.001f;
-        const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 3);
+        glm::vec3 norm_pos = glm::vec3{x, y, z} * 0.007f;
+        const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 4);
         if (noise > 0.5f)
         {
             block = BlockInfo(BasicBlocks::DIRT);
