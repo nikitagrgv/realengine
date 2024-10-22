@@ -100,6 +100,8 @@ void Chunk::gen_face_py(const glm::vec3 &min, const glm::vec3 &max, const BlockD
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_py;
     Vertex v;
 
+    v.norm_ = glm::vec3{0, 1, 0};
+
     // tr 1
     v.pos_ = glm::vec3{min.x, max.y, min.z};
     v.uv_ = coords.top_left;
@@ -131,6 +133,8 @@ void Chunk::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max, const BlockD
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_ny;
     Vertex v;
+
+    v.norm_ = glm::vec3{0, -1, 0};
 
     // tr 1
     v.pos_ = glm::vec3{min.x, min.y, min.z};
@@ -165,6 +169,8 @@ void Chunk::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max, const BlockD
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_pz;
     Vertex v;
 
+    v.norm_ = glm::vec3{0, 0, 1};
+
     // tr 1
     v.pos_ = glm::vec3{min.x, max.y, max.z};
     v.uv_ = coords.top_left;
@@ -196,6 +202,8 @@ void Chunk::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max, const BlockD
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_nz;
     Vertex v;
+
+    v.norm_ = glm::vec3{0, 0, -1};
 
     // tr 1
     v.pos_ = glm::vec3{min.x, max.y, min.z};
@@ -229,6 +237,8 @@ void Chunk::gen_face_px(const glm::vec3 &min, const glm::vec3 &max, const BlockD
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_px;
     Vertex v;
 
+    v.norm_ = glm::vec3{1, 0, 0};
+
     // tr 1
     v.pos_ = glm::vec3{max.x, max.y, max.z};
     v.uv_ = coords.top_left;
@@ -260,6 +270,8 @@ void Chunk::gen_face_nx(const glm::vec3 &min, const glm::vec3 &max, const BlockD
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_nx;
     Vertex v;
+
+    v.norm_ = glm::vec3{-1, 0, 0};
 
     // tr 1
     v.pos_ = glm::vec3{min.x, max.y, max.z};
