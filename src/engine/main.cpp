@@ -463,7 +463,7 @@ private:
         int height = window->getHeight();
         width = std::max(1, width);
         height = std::max(1, height);
-        camera_.setPerspective(60.0f, (float)width / (float)height, 0.1f, 1000.0f);
+        camera_.setPerspective(75.0f, (float)width / (float)height, 0.1f, 1000.0f);
     }
 
 private:
