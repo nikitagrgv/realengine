@@ -1,6 +1,7 @@
 target_sources(realengine
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/BlockDescription.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/BlockInfo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/BlocksRegistry.h
         ${CMAKE_CURRENT_SOURCE_DIR}/BlocksRegistry.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.cpp

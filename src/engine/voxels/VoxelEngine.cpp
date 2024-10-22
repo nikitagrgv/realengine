@@ -4,9 +4,14 @@
 #include "glad/glad.h"
 // clang-format on
 
+#include "BlockInfo.h"
 #include "BlocksRegistry.h"
+#include "Camera.h"
 #include "EngineGlobals.h"
+#include "Shader.h"
+#include "ShaderSource.h"
 #include "TextureManager.h"
+#include "VertexArrayObject.h"
 
 VoxelEngine::VoxelEngine() = default;
 
@@ -23,9 +28,30 @@ void VoxelEngine::init()
     registry_->setAtlas(atlas, glm::ivec2(8, 8));
     register_blocks();
     registry_->flush();
+
+    // shader
+    shader_source_ = makeU<ShaderSource>();
+    shader_source_->setFile("vox/vox.shader");
+
+    shader_ = makeU<Shader>();
+    shader_->setSource(shader_source_.get());
+    shader_->recompile();
+
+    // TODO#
+    vao_ = makeU<VertexArrayObject>();
+    vbo_ = makeU<VertexBufferObject<Vertex>>();
+
+    vao_->bind();
+    vao_->addAttributeFloat(3); // pos
+    vao_->addAttributeFloat(2); // uv
+    vbo_->bind();
+    vao_->flush();
+    vbo_->flush();
+
+    generate_chunk();
 }
 
-void VoxelEngine::render()
+void VoxelEngine::render(Camera *camera)
 {
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -37,7 +63,21 @@ void VoxelEngine::render()
 
     GL_CHECKED(glEnable(GL_CULL_FACE));
 
+    assert(!shader_->isDirty());
+    shader_->bind();
+    shader_->setUniformMat4("uViewProj", camera->getViewProj());
 
+    // TODO# CACHE
+    const int atlas_loc = shader_->getUniformLocation("atlas");
+    assert(atlas_loc != -1);
+    constexpr int atlas_index = 0;
+    registry_->getAtlas()->bind(atlas_index);
+    shader_->setUniformInt(atlas_loc, atlas_index);
+
+    // TODO#
+    vao_->bind();
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, vbo_->getNumVertices()));
+    eng.stat.addRenderedIndices(vbo_->getNumVertices());
 }
 
 void VoxelEngine::register_blocks()
@@ -54,4 +94,21 @@ void VoxelEngine::register_blocks()
     grass.texture_index_ny = 2;
     grass.texture_index_pz = 1;
     grass.texture_index_nz = 1;
+}
+
+void VoxelEngine::generate_chunk()
+{
+    vbo_->clear();
+
+    auto generate_block = [](const BlockInfo &block) {
+
+    };
+
+    BlockInfo block;
+    block.id = 0;
+    block.position = glm::ivec3(0, 0, 0);
+
+    generate_block(block);
+
+    vbo_->flush();
 }
