@@ -1,8 +1,12 @@
 #pragma once
 
-#include "glm/vec3.hpp"
-
 struct BlockInfo
 {
-    int id{-1};
+    BlockInfo() = default;
+
+    explicit BlockInfo(int id)
+        : id(id)
+    {}
+
+    int id{0};
 };

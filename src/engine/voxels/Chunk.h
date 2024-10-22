@@ -5,6 +5,7 @@
 #include "VertexBufferObject.h"
 
 #include "glm/vec2.hpp"
+#include "glm/vec3.hpp"
 
 struct BlockDescription;
 class VertexArrayObject;
@@ -35,6 +36,26 @@ public:
                     ++block_index;
                     assert(block_index == getBlockIndex(x, y, z));
                     const BlockInfo &b = blocks_[block_index];
+                    func(x, y, z, b);
+                }
+            }
+        }
+    }
+
+    template<typename F>
+    void visitWrite(F &&func)
+    {
+        dirty_ = true;
+        int block_index = -1;
+        for (int y = 0; y < CHUNK_HEIGHT; ++y)
+        {
+            for (int z = 0; z < CHUNK_WIDTH; ++z)
+            {
+                for (int x = 0; x < CHUNK_WIDTH; ++x)
+                {
+                    ++block_index;
+                    assert(block_index == getBlockIndex(x, y, z));
+                    BlockInfo &b = blocks_[block_index];
                     func(x, y, z, b);
                 }
             }

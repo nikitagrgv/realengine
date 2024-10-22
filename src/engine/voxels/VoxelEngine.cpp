@@ -45,8 +45,8 @@ void VoxelEngine::init()
 void VoxelEngine::update(const glm::vec3 &position)
 {
     const auto pos_to_chunk = [](const glm::vec3 pos) {
-        const auto x = pos.x / Chunk::CHUNK_WIDTH;
-        const auto z = pos.z / Chunk::CHUNK_WIDTH;
+        const auto x = std::floor(pos.x / Chunk::CHUNK_WIDTH);
+        const auto z = std::floor(pos.z / Chunk::CHUNK_WIDTH);
         return glm::ivec2{x, z};
     };
 
@@ -154,17 +154,24 @@ void VoxelEngine::register_blocks()
         b.texture_index_pz = 1;
         b.texture_index_nz = 1;
     }
+
+    assert(BasicBlocks::AIR == 0);
 }
 
 UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec2 pos)
 {
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
-
-
-    chunk->setBlock(0, 2, 0, {BasicBlocks::GRASS});
-    chunk->setBlock(0, 1, 0, {BasicBlocks::DIRT});
-    chunk->setBlock(0, 0, 0, {BasicBlocks::DIRT});
+    chunk->visitWrite([](int x, int y, int z, BlockInfo &block) {
+        if (y < 5)
+        {
+            block = BlockInfo(BasicBlocks::DIRT);
+        }
+        else if (y == 5)
+        {
+            block = BlockInfo(BasicBlocks::GRASS);
+        }
+    });
 
     return chunk;
 }

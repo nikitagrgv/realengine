@@ -268,7 +268,7 @@ public:
             }
 
             const auto add_axis = [](const glm::vec3 &axis) {
-                eng.visualizer->addLine(glm::vec3{0, 0, 0}, axis, glm::vec4{axis, 1.0f});
+                eng.visualizer->addLine(glm::vec3{0, 0, 0}, axis*15.0f, glm::vec4{axis, 1.0f});
             };
             add_axis(glm::vec3{1, 0, 0});
             add_axis(glm::vec3{0, 1, 0});
@@ -467,7 +467,7 @@ private:
     }
 
 private:
-    glm::vec3 camera_pos_{0.0f, 0.0f, 3.0f};
+    glm::vec3 camera_pos_{20.0f, 20.0f, 20.0f};
     float pitch_{0.0f};
     float yaw_{0.0f};
 
