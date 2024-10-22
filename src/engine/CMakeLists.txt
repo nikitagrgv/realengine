@@ -19,6 +19,7 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/Editor.h
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/EngineGlobals.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/GlobalLight.h
         ${CMAKE_CURRENT_SOURCE_DIR}/EditorGlobals.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/EditorGlobals.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Gui.cpp

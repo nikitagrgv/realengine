@@ -68,7 +68,7 @@ void Mesh::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &di
 void Mesh::getDirectionIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
     SimpleIntersection &out_intersection) const
 {
-    assert(math::isEquals(math::length2(dir_n), 1));
+    assert(math::isNormalized(dir_n));
 
     SimpleIntersection intersection;
 

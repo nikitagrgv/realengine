@@ -6,6 +6,8 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 
+
+struct GlobalLight;
 struct Chunk;
 struct BlockDescription;
 class Camera;
@@ -26,7 +28,7 @@ public:
     void init();
 
     void update(const glm::vec3 &position);
-    void render(Camera *camera);
+    void render(Camera *camera, GlobalLight *light);
 
     BlocksRegistry *getRegistry() const { return registry_.get(); }
 

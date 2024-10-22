@@ -60,7 +60,7 @@ void Renderer::renderWorld(Camera *camera, Light *light)
 
     render_environment(camera);
 
-    eng.vox->render(camera);
+    eng.vox->render(camera, &global_light_);
 
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));

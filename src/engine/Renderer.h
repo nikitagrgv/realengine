@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GlobalLight.h"
 #include "ShaderSource.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
@@ -31,7 +32,8 @@ public:
         TopLeft,
         BottomLeft
     };
-    void renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_size, float height_px, TextPivot pivot);
+    void renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_size, float height_px,
+        TextPivot pivot);
 
     Texture *getWhiteTexture() const { return base_.white_; }
     Texture *getBlackTexture() const { return base_.black_; }
@@ -39,6 +41,9 @@ public:
 
     Texture *getSkyboxTexture() const { return env_.skybox_; }
     void setSkyboxTexture(Texture *skybox) { env_.skybox_ = skybox; }
+
+    GlobalLight getGlobalLight() const { return global_light_; }
+    void setGlobalLight(GlobalLight global_light) { global_light_ = global_light; }
 
 private:
     void init_environment();
@@ -111,4 +116,6 @@ private:
         Texture *black_{};
         Texture *normal_default_{};
     } base_;
+
+    GlobalLight global_light_{};
 };

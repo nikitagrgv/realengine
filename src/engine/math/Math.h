@@ -45,6 +45,11 @@ inline float length2(const glm::vec4 &v)
     return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 }
 
+inline bool isNormalized(const glm::vec3 &vec)
+{
+    return math::isEquals(math::length2(vec), 1);
+}
+
 inline float fastInvLength(glm::vec2 v)
 {
     return fastInvSqrt(length2(v));
@@ -128,7 +133,8 @@ inline void decompose(const glm::mat4 &m, glm::vec3 &pos, glm::vec3 &scale, glm:
     }
 }
 
-inline void decomposeDegrees(const glm::mat4 &m, glm::vec3 &pos, glm::vec3 &scale, glm::vec3 &angles)
+inline void decomposeDegrees(const glm::mat4 &m, glm::vec3 &pos, glm::vec3 &scale,
+    glm::vec3 &angles)
 {
     glm::vec3 angles_rad;
     decompose(m, pos, scale, angles_rad);
@@ -179,7 +185,8 @@ inline glm::mat4 compose(const glm::vec3 &pos, const glm::vec3 &scale, const glm
     return v;
 }
 
-inline glm::mat4 composeDegrees(const glm::vec3 &pos, const glm::vec3 &scale, const glm::vec3 &angles)
+inline glm::mat4 composeDegrees(const glm::vec3 &pos, const glm::vec3 &scale,
+    const glm::vec3 &angles)
 {
     glm::vec3 angles_rad = glm::radians(angles);
     return compose(pos, scale, angles_rad);

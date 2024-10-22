@@ -253,6 +253,10 @@ public:
         };
         std::vector<RayColor> rays;
 
+        GlobalLight global_light;
+        global_light.dir = glm::normalize(glm::vec3(1, -1, 2));
+        eng.renderer->setGlobalLight(global_light);
+
         while (!exit_)
         {
             eng.time->update();
@@ -268,7 +272,7 @@ public:
             }
 
             const auto add_axis = [](const glm::vec3 &axis) {
-                eng.visualizer->addLine(glm::vec3{0, 0, 0}, axis*15.0f, glm::vec4{axis, 1.0f});
+                eng.visualizer->addLine(glm::vec3{0, 0, 0}, axis * 15.0f, glm::vec4{axis, 1.0f});
             };
             add_axis(glm::vec3{1, 0, 0});
             add_axis(glm::vec3{0, 1, 0});

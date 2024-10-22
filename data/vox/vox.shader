@@ -22,6 +22,11 @@ void main()
 #fragment
 out vec4 FragColor;
 
+struct Light {
+    vec3 dir;
+};
+uniform Light uLight;
+
 uniform sampler2D atlas;
 
 void main()

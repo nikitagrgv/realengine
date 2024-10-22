@@ -10,10 +10,12 @@
 #include "Camera.h"
 #include "Chunk.h"
 #include "EngineGlobals.h"
+#include "GlobalLight.h"
 #include "Shader.h"
 #include "ShaderSource.h"
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
+#include "math/Math.h"
 
 #include "glm/ext/matrix_transform.hpp"
 
@@ -77,7 +79,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     }
 }
 
-void VoxelEngine::render(Camera *camera)
+void VoxelEngine::render(Camera *camera, GlobalLight *light)
 {
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -91,6 +93,11 @@ void VoxelEngine::render(Camera *camera)
 
     assert(!shader_->isDirty());
     shader_->bind();
+
+    // TODO# CACHE
+    assert(math::isNormalized(light->dir));
+    assert(shader_->getUniformLocation("uLight.dir") != -1);
+    shader_->setUniformVec3("uLight.dir", light->dir);
 
     // TODO# CACHE
     const int model_view_proj_loc = shader_->getUniformLocation("uModelViewProj");

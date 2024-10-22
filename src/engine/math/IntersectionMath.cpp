@@ -15,7 +15,7 @@ void math::getDirectionTriangleIntersectionUnsafe(const glm::vec3 &origin, const
     const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2,
     SimpleIntersection &out_intersection)
 {
-    assert(math::isEquals(math::length2(dir_n), 1));
+    assert(math::isNormalized(dir_n));
 
     out_intersection.clear();
 
@@ -71,7 +71,7 @@ void math::getDirectionBoundBoxIntersection(const glm::vec3 &origin, const glm::
 void math::getDirectionBoundBoxIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
     const BoundBox &bb, SimpleIntersection &out_intersection)
 {
-    assert(math::isEquals(math::length2(dir_n), 1));
+    assert(math::isNormalized(dir_n));
 
     if (bb.contains(origin))
     {
