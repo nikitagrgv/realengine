@@ -1,6 +1,9 @@
 #pragma once
 
+class VoxelEngine
+{
+public:
+    void init();
 
-class VoxelEngine {
-
+private:
 };

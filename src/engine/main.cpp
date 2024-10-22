@@ -12,6 +12,7 @@
 #include "EngineGlobals.h"
 #include "Gui.h"
 #include "Image.h"
+#include "Intersection.h"
 #include "Light.h"
 #include "Material.h"
 #include "MaterialManager.h"
@@ -23,7 +24,6 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "ShaderManager.h"
-#include "Intersection.h"
 #include "SystemProxy.h"
 #include "Texture.h"
 #include "TextureManager.h"
@@ -35,6 +35,7 @@
 #include "fs/FileSystem.h"
 #include "input/Input.h"
 #include "time/Time.h"
+#include "voxels/VoxelEngine.h"
 
 #include <NodeMesh.h>
 
@@ -46,7 +47,7 @@
 #include <vector>
 
 
-const unsigned int DEFAULT_WIDTH = 1;
+ const unsigned int DEFAULT_WIDTH = 1;
 const unsigned int DEFAULT_HEIGHT = 1;
 
 class Engine
@@ -340,6 +341,7 @@ private:
         eng.material_manager = new MaterialManager();
         eng.renderer = new Renderer();
         eng.world = new World();
+        eng.vox = new VoxelEngine();
 
         eng.window = eng.proxy->createWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "RealEngine");
 
@@ -349,6 +351,7 @@ private:
 
         // Post initialization
         eng.renderer->init();
+        eng.vox->init();
 
         // Editor
         edg.editor_ = new Editor();
@@ -367,6 +370,7 @@ private:
 
         // Engine
         delete_and_null(eng.visualizer);
+        delete_and_null(eng.vox);
         delete_and_null(eng.world);
         delete_and_null(eng.renderer);
         delete_and_null(eng.material_manager);
