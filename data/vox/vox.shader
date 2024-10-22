@@ -33,13 +33,13 @@ uniform sampler2D atlas;
 
 void main()
 {
-    vec3 dir_to_light = uLight.dir;
     vec3 norm = normalize(ioNormal);
 
     vec4 albedo_color = texture(atlas, ioUV);
 
     vec4 ambient = vec4(albedo_color.xyz * 0.1, albedo_color.w);
 
+    vec3 dir_to_light = -uLight.dir;
     float diff = max(dot(norm, dir_to_light), 0.0);
     vec4 diffuse = 0.7 * diff * albedo_color;
     FragColor = ambient + diffuse;
