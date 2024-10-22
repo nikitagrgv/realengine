@@ -43,7 +43,4 @@ void main()
     float diff = max(dot(norm, dir_to_light), 0.0);
     vec4 diffuse = 0.7 * diff * albedo_color;
     FragColor = ambient + diffuse;
-
-//    FragColor = FragColor * 0.00000000001;
-//    FragColor = FragColor + vec4(norm*0.5 + abs(norm*0.5), 1);
 }
