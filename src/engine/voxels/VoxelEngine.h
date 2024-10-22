@@ -33,7 +33,7 @@ public:
 private:
     void register_blocks();
 
-    UPtr<Chunk> generate_chunk(glm::vec2 pos);
+    UPtr<Chunk> generate_chunk(glm::vec3 pos);
 
 private:
     std::vector<UPtr<Chunk>> chunks_;

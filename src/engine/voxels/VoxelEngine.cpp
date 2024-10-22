@@ -46,14 +46,15 @@ void VoxelEngine::update(const glm::vec3 &position)
 {
     const auto pos_to_chunk = [](const glm::vec3 pos) {
         const auto x = std::floor(pos.x / Chunk::CHUNK_WIDTH);
+        const auto y = 0;
         const auto z = std::floor(pos.z / Chunk::CHUNK_WIDTH);
-        return glm::ivec2{x, z};
+        return glm::ivec3{x, y, z};
     };
 
-    const auto has_chunk = [&](glm::ivec2 pos) {
+    const auto has_chunk = [&](glm::ivec3 pos) {
         for (const UPtr<Chunk> &c : chunks_)
         {
-            if (c->position_ == pos)
+            if (c->position_.x == pos.x && c->position_.z == pos.z)
             {
                 return true;
             }
@@ -61,7 +62,7 @@ void VoxelEngine::update(const glm::vec3 &position)
         return false;
     };
 
-    const glm::ivec2 chunk_pos = pos_to_chunk(position);
+    const glm::ivec3 chunk_pos = pos_to_chunk(position);
     if (!has_chunk(chunk_pos))
     {
         UPtr<Chunk> new_chunk = generate_chunk(chunk_pos);
@@ -104,7 +105,7 @@ void VoxelEngine::render(Camera *camera)
         glm::vec3 glob_position{0.0f};
         glob_position.x = chunk->position_.x * Chunk::CHUNK_WIDTH;
         glob_position.y = 0.0f;
-        glob_position.z = chunk->position_.y * Chunk::CHUNK_WIDTH;
+        glob_position.z = chunk->position_.z * Chunk::CHUNK_WIDTH;
 
         auto value = camera->getViewProj() * glm::translate(glm::mat4{1.0f}, glob_position);
         shader_->setUniformMat4(model_view_proj_loc, value);
@@ -158,7 +159,7 @@ void VoxelEngine::register_blocks()
     assert(BasicBlocks::AIR == 0);
 }
 
-UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec2 pos)
+UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
 {
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 

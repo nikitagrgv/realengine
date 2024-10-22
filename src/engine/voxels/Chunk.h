@@ -21,10 +21,10 @@ public:
     static constexpr int NUM_BLOCKS = CHUNK_WIDTH2 * CHUNK_HEIGHT;
 
 public:
-    explicit Chunk(glm::ivec2 position);
+    explicit Chunk(glm::ivec3 position);
 
     template<typename F>
-    void visitRead(F &&func) const
+    REALENGINE_INLINE void visitRead(F &&func) const
     {
         int block_index = -1;
         for (int y = 0; y < CHUNK_HEIGHT; ++y)
@@ -34,7 +34,6 @@ public:
                 for (int x = 0; x < CHUNK_WIDTH; ++x)
                 {
                     ++block_index;
-                    assert(block_index == getBlockIndex(x, y, z));
                     const BlockInfo &b = blocks_[block_index];
                     func(x, y, z, b);
                 }
@@ -43,7 +42,7 @@ public:
     }
 
     template<typename F>
-    void visitWrite(F &&func)
+    REALENGINE_INLINE void visitWrite(F &&func)
     {
         dirty_ = true;
         int block_index = -1;
@@ -54,7 +53,51 @@ public:
                 for (int x = 0; x < CHUNK_WIDTH; ++x)
                 {
                     ++block_index;
-                    assert(block_index == getBlockIndex(x, y, z));
+                    BlockInfo &b = blocks_[block_index];
+                    func(x, y, z, b);
+                }
+            }
+        }
+    }
+
+    template<typename F>
+    REALENGINE_INLINE void visitReadGlobal(F &&func) const
+    {
+        int block_index = -1;
+        const auto x_begin = position_.x * CHUNK_WIDTH;
+        const auto x_end = x_begin + CHUNK_WIDTH;
+        const auto z_begin = position_.z * CHUNK_WIDTH;
+        const auto z_end = z_begin + CHUNK_WIDTH;
+        for (int y = 0; y < CHUNK_HEIGHT; ++y)
+        {
+            for (int z = z_begin; z < z_end; ++z)
+            {
+                for (int x = x_begin; x < x_end; ++x)
+                {
+                    ++block_index;
+                    const BlockInfo &b = blocks_[block_index];
+                    func(x, y, z, b);
+                }
+            }
+        }
+    }
+
+    template<typename F>
+    REALENGINE_INLINE void visitWriteGlobal(F &&func)
+    {
+        dirty_ = true;
+        int block_index = -1;
+        const auto x_begin = position_.x * CHUNK_WIDTH;
+        const auto x_end = x_begin + CHUNK_WIDTH;
+        const auto z_begin = position_.z * CHUNK_WIDTH;
+        const auto z_end = z_begin + CHUNK_WIDTH;
+        for (int y = 0; y < CHUNK_HEIGHT; ++y)
+        {
+            for (int z = z_begin; z < z_end; ++z)
+            {
+                for (int x = x_begin; x < x_end; ++x)
+                {
+                    ++block_index;
                     BlockInfo &b = blocks_[block_index];
                     func(x, y, z, b);
                 }
@@ -78,6 +121,14 @@ public:
         return x + CHUNK_WIDTH * z + CHUNK_WIDTH2 * y;
     }
 
+    REALENGINE_INLINE glm::ivec3 getBlockGlobalPosition(glm::ivec3 local_pos) const
+    {
+        glm::ivec3 pos = local_pos;
+        pos.x += position_.x * CHUNK_WIDTH;
+        pos.z += position_.z * CHUNK_WIDTH;
+        return pos;
+    }
+
     void flush();
 
 private:
@@ -91,7 +142,7 @@ private:
 public:
     bool dirty_{true};
 
-    glm::ivec2 position_{0, 0};
+    glm::ivec3 position_{0, 0, 0};
 
     struct Vertex
     {

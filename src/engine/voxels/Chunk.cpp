@@ -7,7 +7,7 @@
 #include "VertexArrayObject.h"
 #include "VoxelEngine.h"
 
-Chunk::Chunk(glm::ivec2 position)
+Chunk::Chunk(glm::ivec3 position)
 {
     position_ = position;
     for (BlockInfo &b : blocks_)
