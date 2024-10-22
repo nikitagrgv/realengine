@@ -100,8 +100,47 @@ void VoxelEngine::generate_chunk()
 {
     vbo_->clear();
 
-    auto generate_block = [](const BlockInfo &block) {
+    auto gen_top = [&](const BlockInfo &block, const glm::vec3 &min, const glm::vec3 &max,
+                       const BlockDescription &desc) {
+        // Top / +Y
+        const BlockDescription::TexCoords &coords = desc.cached.texture_coord_py;
+        Vertex v;
 
+        // tr 1
+        v.pos_ = glm::vec3{min.x, max.y, min.z};
+        v.uv_ = coords.top_left;
+        vbo_->addVertex(v);
+
+        v.pos_ = glm::vec3{min.x, max.y, max.z};
+        v.uv_ = coords.bottom_left;
+        vbo_->addVertex(v);
+
+        v.pos_ = glm::vec3{max.x, max.y, max.z};
+        v.uv_ = coords.bottom_right;
+        vbo_->addVertex(v);
+
+        // tr 2
+        v.pos_ = glm::vec3{min.x, max.y, min.z};
+        v.uv_ = coords.top_left;
+        vbo_->addVertex(v);
+
+        v.pos_ = glm::vec3{max.x, max.y, max.z};
+        v.uv_ = coords.bottom_right;
+        vbo_->addVertex(v);
+
+        v.pos_ = glm::vec3{max.x, max.y, min.z};
+        v.uv_ = coords.bottom_left;
+        vbo_->addVertex(v);
+    };
+
+    auto generate_block = [&](const BlockInfo &block) {
+        const glm::vec3 min = block.position;
+        const glm::vec3 max = min + glm::vec3(1, 1, 1);
+
+        const BlockDescription &desc = registry_->getBlock(block.id);
+        assert(desc.cached.valid);
+
+        gen_top(block, min, max, desc);
     };
 
     BlockInfo block;

@@ -45,6 +45,7 @@ void BlocksRegistry::flush()
             assert(index != -1);
             const BlockDescription::TexCoords tex_coords = get_texture_coords(index);
             block.cached.texture_coords[i] = tex_coords;
+            block.cached.valid = true;
         }
     }
 }
