@@ -48,8 +48,7 @@ void Chunk::flush()
             return true;
         }
         const BlockInfo block = getBlock(x, y, z);
-        const BlockDescription &desc = registry->getBlock(block.id);
-        if (desc.type == BlockType::AIR)
+        if (block.id == 0)
         {
             return true;
         }
