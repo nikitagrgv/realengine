@@ -1,5 +1,9 @@
 #include "VoxelEngine.h"
 
+// clang-format off
+#include "glad/glad.h"
+// clang-format on
+
 #include "BlocksRegistry.h"
 #include "EngineGlobals.h"
 #include "TextureManager.h"
@@ -21,6 +25,21 @@ void VoxelEngine::init()
     registry_->flush();
 }
 
+void VoxelEngine::render()
+{
+    GL_CHECKED(glEnable(GL_BLEND));
+    GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
+
+    GL_CHECKED(glEnable(GL_DEPTH_TEST));
+    GL_CHECKED(glDepthMask(GL_TRUE));
+
+    GL_CHECKED(glCullFace(GL_BACK));
+
+    GL_CHECKED(glEnable(GL_CULL_FACE));
+
+
+}
+
 void VoxelEngine::register_blocks()
 {
     BlocksRegistry &reg = *registry_;
@@ -35,6 +54,4 @@ void VoxelEngine::register_blocks()
     grass.texture_index_ny = 2;
     grass.texture_index_pz = 1;
     grass.texture_index_nz = 1;
-
-
 }

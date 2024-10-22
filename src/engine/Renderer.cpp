@@ -18,6 +18,7 @@
 #include "TextureManager.h"
 #include "Window.h"
 #include "World.h"
+#include "voxels/VoxelEngine.h"
 
 #include <NodeMesh.h>
 
@@ -58,6 +59,8 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     GL_CHECKED(glViewport(0, 0, eng.window->getWidth(), eng.window->getHeight()));
 
     render_environment(camera);
+
+    eng.vox->render();
 
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));

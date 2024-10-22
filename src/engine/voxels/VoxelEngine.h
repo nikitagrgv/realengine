@@ -14,6 +14,8 @@ public:
 
     void init();
 
+    void render();
+
 private:
     void register_blocks();
 
