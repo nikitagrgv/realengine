@@ -55,10 +55,6 @@ void BlocksRegistry::invalidate()
     {
         BlockDescription &block = blocks_[i];
         assert(block.id == i);
-        for (auto &coords : block.cached.texture_coords)
-        {
-            coords = glm::vec2(0);
-        }
         block.cached.valid = false;
     }
 }
