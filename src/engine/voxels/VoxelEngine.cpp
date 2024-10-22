@@ -163,12 +163,16 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
 {
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
-    chunk->visitWrite([](int x, int y, int z, BlockInfo &block) {
-        if (y < 5)
+    chunk->visitWriteGlobal([](int x, int y, int z, BlockInfo &block) {
+        const float xx = (float)x / 14.f;
+        const float zz = (float)z / 14.f;
+        const float s = std::sin(xx + zz);
+        const int bound = int((s + 1.2) * 6);
+        if (y < bound)
         {
             block = BlockInfo(BasicBlocks::DIRT);
         }
-        else if (y == 5)
+        else if (y == bound)
         {
             block = BlockInfo(BasicBlocks::GRASS);
         }
