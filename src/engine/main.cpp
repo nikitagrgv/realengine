@@ -306,8 +306,9 @@ public:
                 eng.world->getDirectionIntersection(ray.begin, dir_n, intersection);
                 edg.editor_->setSelectedNode(intersection.getNode());
 
-                rays.push_back(RayColor{{ray.begin, ray.begin + dir_n * intersection.getDistance()}, glm::vec4{1,1,1,1}});
-                rays.push_back(RayColor{{ray.begin, intersection.getPoint()}, glm::vec4{1,0,0,1}});
+                // TODO# FIX INTERSECTION!!!!!!!
+                // rays.push_back(RayColor{{ray.begin, ray.begin + dir_n * intersection.getDistance()}, glm::vec4{1,1,1,1}});
+                // rays.push_back(RayColor{{ray.begin, intersection.getPoint()}, glm::vec4{1,0,0,1}});
             }
 
             for (const auto &r : rays)
