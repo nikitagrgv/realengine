@@ -54,6 +54,9 @@ void Renderer::renderWorld(Camera *camera, Light *light)
 {
     assert(camera);
 
+    eng.window->bind();
+    GL_CHECKED(glViewport(0, 0, eng.window->getWidth(), eng.window->getHeight()));
+
     render_environment(camera);
 
     GL_CHECKED(glEnable(GL_BLEND));
@@ -63,9 +66,6 @@ void Renderer::renderWorld(Camera *camera, Light *light)
     GL_CHECKED(glDepthMask(GL_TRUE));
 
     GL_CHECKED(glCullFace(GL_BACK));
-
-    eng.window->bind();
-    GL_CHECKED(glViewport(0, 0, eng.window->getWidth(), eng.window->getHeight()));
 
     for (int i = 0, count = eng.world->getNumNodes(); i < count; ++i)
     {
