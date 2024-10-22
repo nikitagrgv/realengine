@@ -97,17 +97,6 @@ void VoxelEngine::register_blocks()
     }
     {
         BlockDescription &b = reg.addBlock();
-        b.name = "Grass";
-        b.type = BlockType::SOLID;
-        b.texture_index_px = 1;
-        b.texture_index_nx = 1;
-        b.texture_index_py = 0;
-        b.texture_index_ny = 2;
-        b.texture_index_pz = 1;
-        b.texture_index_nz = 1;
-    }
-    {
-        BlockDescription &b = reg.addBlock();
         b.name = "Dirt";
         b.type = BlockType::SOLID;
         b.texture_index_px = 2;
@@ -116,6 +105,17 @@ void VoxelEngine::register_blocks()
         b.texture_index_ny = 2;
         b.texture_index_pz = 2;
         b.texture_index_nz = 2;
+    }
+    {
+        BlockDescription &b = reg.addBlock();
+        b.name = "Grass";
+        b.type = BlockType::SOLID;
+        b.texture_index_px = 1;
+        b.texture_index_nx = 1;
+        b.texture_index_py = 0;
+        b.texture_index_ny = 2;
+        b.texture_index_pz = 1;
+        b.texture_index_nz = 1;
     }
 }
 
@@ -139,7 +139,7 @@ void VoxelEngine::generate_chunk()
     };
 
     BlockInfo block;
-    block.id = 1;
+    block.id = 2;
     block.position = glm::ivec3(0, 0, 0);
 
     generate_block(block);
