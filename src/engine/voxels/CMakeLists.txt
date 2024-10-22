@@ -1,5 +1,7 @@
 target_sources(realengine
         PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/BasicBlocks.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/BasicBlocks.h
         ${CMAKE_CURRENT_SOURCE_DIR}/BlockDescription.h
         ${CMAKE_CURRENT_SOURCE_DIR}/BlockInfo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/BlocksRegistry.cpp

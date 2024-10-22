@@ -319,6 +319,8 @@ public:
             }
 
             ///////////////////////////////////////////////////////////
+            edg.editor_->setPlayerPositionInfo(camera_.getPosition());
+
 
             eng.vox->update(camera_.getPosition());
 

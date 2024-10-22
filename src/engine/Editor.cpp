@@ -1,4 +1,4 @@
- #include "Editor.h"
+#include "Editor.h"
 
 #include "EngineGlobals.h"
 #include "Gui.h"
@@ -781,6 +781,7 @@ void Editor::render_info()
 
         ImGui::Text("Frame: %d", eng.time->getFrame());
         ImGui::Text("FPS: %.1f", fps_);
+        ImGui::Text("Player Pos: %.1f %.1f %.1f", player_pos_.x, player_pos_.y, player_pos_.z);
         ImGui::Text("Mouse: %5.0f,%5.0f", mpos.x, mpos.y);
         ImGui::SeparatorText("Frame");
         ImGui::Text("Rendered Indices: %llu", eng.stat.getNumRenderedIndicesInFrame());

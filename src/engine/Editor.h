@@ -24,6 +24,8 @@ public:
     Node *getSelectedNode() const;
     void setSelectedNode(Node *node);
 
+    void setPlayerPositionInfo(glm::vec3 pos) { player_pos_ = pos; }
+
 private:
     void render();
 
@@ -52,6 +54,8 @@ private:
     bool render_editor(glm::mat4 &v);
 
 private:
+    glm::vec3 player_pos_{};
+
     bool hide_all_{false};
 
     // World
