@@ -84,16 +84,39 @@ void VoxelEngine::register_blocks()
 {
     BlocksRegistry &reg = *registry_;
 
-    // Grass
-    BlockDescription &grass = reg.addBlock();
-    grass.name = "Grass";
-    grass.type = BlockType::SOLID;
-    grass.texture_index_px = 1;
-    grass.texture_index_nx = 1;
-    grass.texture_index_py = 0;
-    grass.texture_index_ny = 2;
-    grass.texture_index_pz = 1;
-    grass.texture_index_nz = 1;
+    {
+        BlockDescription &b = reg.addBlock();
+        b.name = "Air";
+        b.type = BlockType::AIR;
+        b.texture_index_px = 0;
+        b.texture_index_nx = 0;
+        b.texture_index_py = 0;
+        b.texture_index_ny = 0;
+        b.texture_index_pz = 0;
+        b.texture_index_nz = 0;
+    }
+    {
+        BlockDescription &b = reg.addBlock();
+        b.name = "Grass";
+        b.type = BlockType::SOLID;
+        b.texture_index_px = 1;
+        b.texture_index_nx = 1;
+        b.texture_index_py = 0;
+        b.texture_index_ny = 2;
+        b.texture_index_pz = 1;
+        b.texture_index_nz = 1;
+    }
+    {
+        BlockDescription &b = reg.addBlock();
+        b.name = "Dirt";
+        b.type = BlockType::SOLID;
+        b.texture_index_px = 2;
+        b.texture_index_nx = 2;
+        b.texture_index_py = 2;
+        b.texture_index_ny = 2;
+        b.texture_index_pz = 2;
+        b.texture_index_nz = 2;
+    }
 }
 
 void VoxelEngine::generate_chunk()
@@ -116,7 +139,7 @@ void VoxelEngine::generate_chunk()
     };
 
     BlockInfo block;
-    block.id = 0;
+    block.id = 1;
     block.position = glm::ivec3(0, 0, 0);
 
     generate_block(block);
@@ -165,29 +188,29 @@ void VoxelEngine::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
 
     // tr 1
     v.pos_ = glm::vec3{min.x, min.y, min.z};
-    v.uv_ = coords.top_left;
+    v.uv_ = coords.top_right;
     vbo_->addVertex(v);
 
     v.pos_ = glm::vec3{max.x, min.y, max.z};
-    v.uv_ = coords.bottom_right;
+    v.uv_ = coords.bottom_left;
     vbo_->addVertex(v);
 
     v.pos_ = glm::vec3{min.x, min.y, max.z};
-    v.uv_ = coords.bottom_left;
+    v.uv_ = coords.bottom_right;
     vbo_->addVertex(v);
 
 
     // tr 2
     v.pos_ = glm::vec3{min.x, min.y, min.z};
-    v.uv_ = coords.top_left;
-    vbo_->addVertex(v);
-
-    v.pos_ = glm::vec3{max.x, min.y, min.z};
     v.uv_ = coords.top_right;
     vbo_->addVertex(v);
 
+    v.pos_ = glm::vec3{max.x, min.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
     v.pos_ = glm::vec3{max.x, min.y, max.z};
-    v.uv_ = coords.bottom_right;
+    v.uv_ = coords.bottom_left;
     vbo_->addVertex(v);
 }
 
@@ -232,28 +255,28 @@ void VoxelEngine::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max,
 
     // tr 1
     v.pos_ = glm::vec3{min.x, max.y, min.z};
-    v.uv_ = coords.top_left;
-    vbo_->addVertex(v);
-
-    v.pos_ = glm::vec3{max.x, min.y, min.z};
-    v.uv_ = coords.bottom_right;
-    vbo_->addVertex(v);
-
-    v.pos_ = glm::vec3{min.x, min.y, min.z};
-    v.uv_ = coords.bottom_left;
-    vbo_->addVertex(v);
-
-    // tr 2
-    v.pos_ = glm::vec3{min.x, max.y, min.z};
-    v.uv_ = coords.top_left;
-    vbo_->addVertex(v);
-
-    v.pos_ = glm::vec3{max.x, max.y, min.z};
     v.uv_ = coords.top_right;
     vbo_->addVertex(v);
 
     v.pos_ = glm::vec3{max.x, min.y, min.z};
+    v.uv_ = coords.bottom_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, min.y, min.z};
     v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    // tr 2
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
+    v.uv_ = coords.top_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, max.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{max.x, min.y, min.z};
+    v.uv_ = coords.bottom_left;
     vbo_->addVertex(v);
 }
 
@@ -298,27 +321,27 @@ void VoxelEngine::gen_face_nx(const glm::vec3 &min, const glm::vec3 &max,
 
     // tr 1
     v.pos_ = glm::vec3{min.x, max.y, max.z};
-    v.uv_ = coords.top_left;
-    vbo_->addVertex(v);
-
-    v.pos_ = glm::vec3{min.x, min.y, min.z};
-    v.uv_ = coords.bottom_right;
-    vbo_->addVertex(v);
-
-    v.pos_ = glm::vec3{min.x, min.y, max.z};
-    v.uv_ = coords.bottom_left;
-    vbo_->addVertex(v);
-
-    // tr 2
-    v.pos_ = glm::vec3{min.x, max.y, max.z};
-    v.uv_ = coords.top_left;
-    vbo_->addVertex(v);
-
-    v.pos_ = glm::vec3{min.x, max.y, min.z};
     v.uv_ = coords.top_right;
     vbo_->addVertex(v);
 
     v.pos_ = glm::vec3{min.x, min.y, min.z};
+    v.uv_ = coords.bottom_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, min.y, max.z};
     v.uv_ = coords.bottom_right;
+    vbo_->addVertex(v);
+
+    // tr 2
+    v.pos_ = glm::vec3{min.x, max.y, max.z};
+    v.uv_ = coords.top_right;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
+    v.uv_ = coords.top_left;
+    vbo_->addVertex(v);
+
+    v.pos_ = glm::vec3{min.x, min.y, min.z};
+    v.uv_ = coords.bottom_left;
     vbo_->addVertex(v);
 }
