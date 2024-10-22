@@ -51,6 +51,11 @@ void VoxelEngine::init()
     generate_chunk();
 }
 
+void VoxelEngine::update(const glm::vec3 &position)
+{
+    
+}
+
 void VoxelEngine::render(Camera *camera)
 {
     GL_CHECKED(glEnable(GL_BLEND));

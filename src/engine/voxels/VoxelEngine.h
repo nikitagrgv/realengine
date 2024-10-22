@@ -24,6 +24,7 @@ public:
 
     void init();
 
+    void update(const glm::vec3 &position);
     void render(Camera *camera);
 
 private:

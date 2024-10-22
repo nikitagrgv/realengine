@@ -319,6 +319,10 @@ public:
             }
 
             ///////////////////////////////////////////////////////////
+
+            eng.vox->update(camera_.getPosition());
+
+            ///////////////////////////////////////////////////////////
             eng.renderer->clearBuffers();
 
             eng.renderer->renderWorld(&camera_, &light);
