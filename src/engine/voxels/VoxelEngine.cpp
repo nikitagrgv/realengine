@@ -174,7 +174,7 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
         const float xx = (float)x / 17.f;
         const float zz = (float)z / 17.f;
         const float s = std::sin(xx) * std::sin(zz);
-        const int bound = int((s + 1) * 9);
+        const int bound = int((s + 1) * 20);
         if (y < bound)
         {
             block = BlockInfo(BasicBlocks::DIRT);
