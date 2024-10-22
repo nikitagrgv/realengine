@@ -22,6 +22,25 @@ public:
 public:
     explicit Chunk(glm::ivec2 position);
 
+    template<typename F>
+    void visitRead(F &&func) const
+    {
+        int block_index = -1;
+        for (int y = 0; y < CHUNK_HEIGHT; ++y)
+        {
+            for (int z = 0; z < CHUNK_WIDTH; ++z)
+            {
+                for (int x = 0; x < CHUNK_WIDTH; ++x)
+                {
+                    ++block_index;
+                    assert(block_index == getBlockIndex(x, y, z));
+                    const BlockInfo &b = blocks_[block_index];
+                    func(x, y, z, b);
+                }
+            }
+        }
+    }
+
     REALENGINE_INLINE const BlockInfo &getBlock(int x, int y, int z) const
     {
         return blocks_[getBlockIndex(x, y, z)];

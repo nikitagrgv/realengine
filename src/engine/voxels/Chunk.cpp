@@ -53,34 +53,13 @@ void Chunk::flush()
         gen_face_nx(min, max, desc);
     };
 
-
-    int block_index = -1;
-    for (int y = 0; y < CHUNK_HEIGHT; ++y)
-    {
-        for (int z = 0; z < CHUNK_WIDTH; ++z)
+    visitRead([&](int x, int y, int z, BlockInfo block) {
+        if (block.id == BasicBlocks::AIR)
         {
-            for (int x = 0; x < CHUNK_WIDTH; ++x)
-            {
-                ++block_index;
-                assert(block_index == getBlockIndex(x, y, z));
-                const BlockInfo &block = blocks_[block_index];
-                if (block.id == BasicBlocks::AIR)
-                {
-                    continue;
-                }
-                generate_block(block, glm::vec3{x, y, z});
-            }
+            return;
         }
-    }
-
-    for (const BlockInfo &b : blocks_)
-    {
-        if (b.id == BasicBlocks::AIR)
-        {
-            continue;
-        }
-        generate_block(b, glm::vec3{0, 0, 0});
-    }
+        generate_block(block, glm::vec3{x, y, z});
+    });
 
     vbo_->flush();
 }

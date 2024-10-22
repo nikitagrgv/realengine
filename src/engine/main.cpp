@@ -408,7 +408,7 @@ private:
         const bool right_btn = eng.input->isButtonDown(Button::BUTTON_RIGHT);
         eng.input->setMouseGrabbed(right_btn);
 
-        float speed = 2.0f;
+        float speed = 10.0f;
         if (eng.input->isKeyDown(Key::KEY_LEFT_SHIFT))
         {
             speed *= 2;

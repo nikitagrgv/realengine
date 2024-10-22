@@ -44,9 +44,9 @@ void VoxelEngine::init()
 
 void VoxelEngine::update(const glm::vec3 &position)
 {
-    const auto pos_to_chunk = [](const glm::vec2 pos_xz) {
-        const auto x = pos_xz[0] / Chunk::CHUNK_WIDTH;
-        const auto z = pos_xz[1] / Chunk::CHUNK_WIDTH;
+    const auto pos_to_chunk = [](const glm::vec3 pos) {
+        const auto x = pos.x / Chunk::CHUNK_WIDTH;
+        const auto z = pos.z / Chunk::CHUNK_WIDTH;
         return glm::ivec2{x, z};
     };
 
@@ -159,6 +159,8 @@ void VoxelEngine::register_blocks()
 UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec2 pos)
 {
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
+
+
 
     chunk->setBlock(0, 2, 0, {BasicBlocks::GRASS});
     chunk->setBlock(0, 1, 0, {BasicBlocks::DIRT});
