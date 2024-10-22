@@ -229,28 +229,28 @@ void VoxelEngine::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max, const 
     Vertex v;
 
     // tr 1
-    v.pos_ = glm::vec3{min.x, max.y, max.z};
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
     v.uv_ = coords.top_left;
     vbo_->addVertex(v);
 
-    v.pos_ = glm::vec3{max.x, min.y, max.z};
+    v.pos_ = glm::vec3{max.x, min.y, min.z};
     v.uv_ = coords.bottom_right;
     vbo_->addVertex(v);
 
-    v.pos_ = glm::vec3{min.x, min.y, max.z};
+    v.pos_ = glm::vec3{min.x, min.y, min.z};
     v.uv_ = coords.bottom_left;
     vbo_->addVertex(v);
 
     // tr 2
-    v.pos_ = glm::vec3{min.x, max.y, max.z};
+    v.pos_ = glm::vec3{min.x, max.y, min.z};
     v.uv_ = coords.top_left;
     vbo_->addVertex(v);
 
-    v.pos_ = glm::vec3{max.x, max.y, max.z};
+    v.pos_ = glm::vec3{max.x, max.y, min.z};
     v.uv_ = coords.top_right;
     vbo_->addVertex(v);
 
-    v.pos_ = glm::vec3{max.x, min.y, max.z};
+    v.pos_ = glm::vec3{max.x, min.y, min.z};
     v.uv_ = coords.bottom_right;
     vbo_->addVertex(v);
 }
