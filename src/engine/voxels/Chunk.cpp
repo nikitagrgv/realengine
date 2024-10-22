@@ -20,6 +20,7 @@ Chunk::Chunk(glm::ivec3 position)
 
     vao_->bind();
     vao_->addAttributeFloat(3); // pos
+    vao_->addAttributeFloat(3); // norm
     vao_->addAttributeFloat(2); // uv
     vbo_->bind();
     vao_->flush();

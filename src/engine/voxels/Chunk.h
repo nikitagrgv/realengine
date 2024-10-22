@@ -155,6 +155,7 @@ public:
     struct Vertex
     {
         glm::vec3 pos_;
+        glm::vec3 norm_;
         glm::vec2 uv_;
     };
     UPtr<VertexArrayObject> vao_;
