@@ -34,6 +34,10 @@ private:
 
     void gen_top(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
     void gen_bottom(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
+    void gen_front(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
+    void gen_back(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
+    void gen_left(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
+    void gen_right(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
 
 private:
     // TODO# TEMP

@@ -109,6 +109,10 @@ void VoxelEngine::generate_chunk()
 
         gen_top(min, max, desc);
         gen_bottom(min, max, desc);
+        gen_front(min, max, desc);
+        gen_back(min, max, desc);
+        gen_left(min, max, desc);
+        gen_right(min, max, desc);
     };
 
     BlockInfo block;
@@ -187,3 +191,17 @@ void VoxelEngine::gen_bottom(const glm::vec3 &min, const glm::vec3 &max,
     v.uv_ = coords.bottom_right;
     vbo_->addVertex(v);
 }
+
+void VoxelEngine::gen_front(const glm::vec3 &min, const glm::vec3 &max,
+    const BlockDescription &desc)
+{}
+
+void VoxelEngine::gen_back(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
+{}
+
+void VoxelEngine::gen_left(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
+{}
+
+void VoxelEngine::gen_right(const glm::vec3 &min, const glm::vec3 &max,
+    const BlockDescription &desc)
+{}
