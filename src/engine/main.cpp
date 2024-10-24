@@ -411,10 +411,23 @@ private:
             eng.world->disableAll();
         }
 
+        if (eng.input->isButtonDown(Button::BUTTON_RIGHT))
+        {
+            const int wheel = eng.input->getWheel();
+            if (wheel > 0)
+            {
+                camera_speed_ *= 1.1;
+            }
+            else if (wheel < 0)
+            {
+                camera_speed_ /= 1.1;
+            }
+        }
+
         const bool right_btn = eng.input->isButtonDown(Button::BUTTON_RIGHT);
         eng.input->setMouseGrabbed(right_btn);
 
-        float speed = 10.0f;
+        float speed = camera_speed_;
         if (eng.input->isKeyDown(Key::KEY_LEFT_SHIFT))
         {
             speed *= 2;
@@ -478,6 +491,7 @@ private:
     float yaw_{0.0f};
 
     Camera camera_;
+    float camera_speed_{10.f};
 
     bool exit_{false};
 };

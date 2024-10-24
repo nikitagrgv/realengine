@@ -176,7 +176,7 @@ void Window::cursor_move_callback(double xpos, double ypos)
 
 void Window::scroll_callback(double xoffset, double yoffset)
 {
-    EventPtr event = std::make_unique<MouseWheelEvent>((int)xoffset, (int)yoffset);
+    EventPtr event = std::make_unique<MouseWheelEvent>((int)yoffset, (int)xoffset);
     eng.input->addEvent(std::move(event));
 }
 
