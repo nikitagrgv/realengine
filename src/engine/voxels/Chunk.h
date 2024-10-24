@@ -137,6 +137,9 @@ public:
         return pos;
     }
 
+    int getBlocksOffsetX() const { return position_.x * CHUNK_WIDTH; }
+    int getBlocksOffsetZ() const { return position_.z * CHUNK_WIDTH; }
+
     void flush();
 
 private:
