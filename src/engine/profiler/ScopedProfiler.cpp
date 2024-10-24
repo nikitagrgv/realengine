@@ -51,4 +51,5 @@ ScopedProfiler::ScopedProfiler(const char *name)
 ScopedProfiler::~ScopedProfiler()
 {
     const uint64_t end = get_time_usec();
+    todo
 }
