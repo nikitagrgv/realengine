@@ -234,9 +234,24 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
         }
     }
 
+    glm::vec3 offset;
+    offset.x = chunk->getBlocksOffsetX();
+    offset.y = 0;
+    offset.z = chunk->getBlocksOffsetZ();
     chunk->visitWrite([&](int x, int y, int z, BlockInfo &block) {
         const int cur_height = height_map[z][x];
         const int diff = y - cur_height;
+
+        if (diff <= 0)
+        {
+            glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
+            const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 4);
+            if (noise > 0.8f)
+            {
+                block = BlockInfo(BasicBlocks::AIR);
+                return;
+            }
+        }
 
         if (diff > 0)
         {
@@ -254,13 +269,6 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
         {
             block = BlockInfo(BasicBlocks::STONE);
         }
-
-        // glm::vec3 norm_pos = glm::vec3{x, y, z} * 0.07f;
-        // const auto noise = perlin.noise3D_01(norm_pos.x, norm_pos.y, norm_pos.z);
-        // if (noise > 0.7f)
-        // {
-        // block = BlockInfo(BasicBlocks::DIRT);
-        // }
     });
 
     return chunk;
