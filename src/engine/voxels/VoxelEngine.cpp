@@ -21,12 +21,11 @@
 #include <PerlinNoise.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-struct VoxelEngine::Perlin
+struct VoxelEngine::Perlin : siv::PerlinNoise
 {
-    explicit Perlin(unsigned int seed)
-        : p(seed)
+    explicit Perlin(seed_type seed)
+        : siv::PerlinNoise(seed)
     {}
-    siv::PerlinNoise p{};
 };
 
 VoxelEngine::VoxelEngine() = default;
@@ -196,7 +195,7 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
     ScopedTimer timer("Generate chunk");
 
     assert(perlin_);
-    const siv::PerlinNoise &perlin = perlin_->p;
+    const siv::PerlinNoise &perlin = *perlin_;
 
     UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
