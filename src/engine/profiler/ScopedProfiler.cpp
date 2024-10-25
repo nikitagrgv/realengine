@@ -95,7 +95,7 @@ void Profiler::leaveFunction()
 
 void Profiler::beginFrame()
 {
-    enterFunction("Total Frame", get_perf_counter());
+    enterFunction("Frame Total", get_perf_counter());
 }
 
 void Profiler::endFrame()
