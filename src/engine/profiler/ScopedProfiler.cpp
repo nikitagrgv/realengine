@@ -228,7 +228,7 @@ void dump_svg()
     const double half_block_height = block_height / 2;
 
     const double total_width = 5000;
-    const double total_height = (double)max_depth * block_height;
+    const double total_height = (double)(max_depth + 1) * block_height;
 
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
         const double start_ms = (double)start * 1000.0 / (double)PERF_FREQ;
@@ -236,7 +236,7 @@ void dump_svg()
         const double duration_ms = (double)((end - start) * 1000.0) / (double)PERF_FREQ;
 
         const double x = total_width * start_ms / total_duration_ms;
-        const double y = total_height * depth / max_depth;
+        const double y = block_height * depth;
         const double width = total_width * duration_ms / total_duration_ms;
         const double half_width = width / 2;
 
