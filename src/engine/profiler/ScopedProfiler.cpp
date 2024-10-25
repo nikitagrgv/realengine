@@ -166,6 +166,8 @@ void dump_svg()
 
     std::ofstream out(DUMP_PATH);
 
+    int max_depth = 0;
+
     struct Block
     {
         const char *name;
@@ -182,6 +184,10 @@ void dump_svg()
             block.name = name;
             block.start = time;
             block.depth = stack.size();
+            if (block.depth > max_depth)
+            {
+                max_depth = block.depth;
+            }
             stack.push_back(block);
         }
         else
