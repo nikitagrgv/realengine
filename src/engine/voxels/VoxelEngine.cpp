@@ -95,6 +95,8 @@ void VoxelEngine::update(const glm::vec3 &position)
 
 void VoxelEngine::render(Camera *camera, GlobalLight *light)
 {
+    SCOPED_PROFILER;
+
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
@@ -207,6 +209,8 @@ void VoxelEngine::register_blocks()
 
 UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
 {
+    SCOPED_PROFILER;
+
     ScopedTimer timer("Generate chunk");
 
     assert(perlin_);

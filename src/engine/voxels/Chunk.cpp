@@ -6,6 +6,7 @@
 #include "EngineGlobals.h"
 #include "VertexArrayObject.h"
 #include "VoxelEngine.h"
+#include "profiler/ScopedProfiler.h"
 #include "profiler/ScopedTimer.h"
 
 Chunk::Chunk(glm::ivec3 position)
@@ -30,6 +31,8 @@ Chunk::Chunk(glm::ivec3 position)
 
 void Chunk::flush()
 {
+    SCOPED_PROFILER;
+
     if (!dirty_)
     {
         return;
