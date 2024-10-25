@@ -115,6 +115,7 @@ bool Window::isMouseGrabbed() const
 
 void Window::bind()
 {
+    SCOPED_PROFILER;
     glfwMakeContextCurrent(window_);
 }
 

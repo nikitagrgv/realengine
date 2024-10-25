@@ -465,6 +465,8 @@ void Renderer::use_material(Material *material)
 
 void Renderer::render_environment(Camera *camera)
 {
+    SCOPED_PROFILER;
+
     Shader *shader = env_.material_->getShader();
     if (shader->isDirty())
     {
