@@ -225,6 +225,7 @@ void dump_svg()
     const double total_height = 500;
 
     const double block_height = total_height / max_depth;
+    const int font_size = (int)(block_height * 0.4);
 
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
         const double start_ms = start * 1000 / PERF_FREQ;
@@ -241,8 +242,8 @@ void dump_svg()
         out << TEMP_BUFFER << "\n";
 
         sprintf(TEMP_BUFFER,
-            R"!( <text x="%lf" y="%lf" font-family="Arial" font-size="%lf" fill="black">%s</text>)!",
-            x, y, block_height - 1, name);
+            R"!( <text x="%lf" y="%lf" font-family="Arial" font-size="%dpx" fill="black" dominant-baseline="middle" text-anchor="middle">%s</text>)!",
+            (x + width) / 2.0, (y + block_height) / 2.0, font_size, name);
         out << TEMP_BUFFER << "\n";
     };
 
