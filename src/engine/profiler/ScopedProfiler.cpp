@@ -14,29 +14,10 @@
 namespace
 {
 
-uint64_t get_perf_counter()
-{
-#ifdef _WIN32
-    LARGE_INTEGER val;
-    QueryPerformanceCounter(&val);
-    return val.QuadPart;
-#else
-    static_assert(0, "Not implemented");
-    return 0;
-#endif
-}
+uint64_t get_perf_counter();
+uint64_t get_perf_frequency();
 
-uint64_t get_perf_frequency()
-{
-#ifdef _WIN32
-    LARGE_INTEGER val;
-    QueryPerformanceFrequency(&val);
-    return val.QuadPart;
-#else
-    static_assert(0, "Not implemented");
-    return 0;
-#endif
-}
+void dump_svg();
 
 } // namespace
 
@@ -67,6 +48,9 @@ struct ProbeInfo
     const char *name; // valid - enterFunction, nullptr - leaveFunction
     uint64_t time;
 };
+
+bool DUMP_REQUESTED{false};
+std::string DUMP_PATH{};
 
 uint64_t PERF_FREQ{};
 
@@ -111,12 +95,17 @@ void Profiler::leaveFunction()
 
 void Profiler::beginFrame()
 {
-    enterFunction("BEGIN FRAME", get_perf_counter());
+    enterFunction("Total Frame", get_perf_counter());
 }
 
 void Profiler::endFrame()
 {
     leaveFunction(get_perf_counter());
+
+    if (DUMP_REQUESTED)
+    {
+        dump_svg();
+    }
 
     ++CUR_RECORDED_FRAMES;
     if (CUR_RECORDED_FRAMES > HALF_MAX_RECORDED_FRAMES)
@@ -129,9 +118,44 @@ void Profiler::endFrame()
     }
 }
 
-char TEMP_BUFFER[2048];
 void Profiler::dumpSVG(const char *path)
 {
+    DUMP_PATH = path;
+    DUMP_REQUESTED = true;
+}
+
+namespace
+{
+
+uint64_t get_perf_counter()
+{
+#ifdef _WIN32
+    LARGE_INTEGER val;
+    QueryPerformanceCounter(&val);
+    return val.QuadPart;
+#else
+    static_assert(0, "Not implemented");
+    return 0;
+#endif
+}
+
+uint64_t get_perf_frequency()
+{
+#ifdef _WIN32
+    LARGE_INTEGER val;
+    QueryPerformanceFrequency(&val);
+    return val.QuadPart;
+#else
+    static_assert(0, "Not implemented");
+    return 0;
+#endif
+}
+
+char TEMP_BUFFER[2048];
+void dump_svg()
+{
+    DUMP_REQUESTED = false;
+
     if (OLD_PROBES.empty() && PROBES.empty())
     {
         return;
@@ -139,7 +163,7 @@ void Profiler::dumpSVG(const char *path)
 
     const uint64_t begin_time = !OLD_PROBES.empty() ? OLD_PROBES[0].time : PROBES[0].time;
 
-    std::ofstream out(path);
+    std::ofstream out(DUMP_PATH);
 
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
         while (depth)
@@ -176,6 +200,13 @@ void Profiler::dumpSVG(const char *path)
         }
     };
 
+    const int total_width = 100;
+    const int total_height = 100;
+    sprintf(TEMP_BUFFER,
+        R"!(<svg width="100%%" height="100%%" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">)!",
+        total_width, total_height);
+    out << TEMP_BUFFER << "\n";
+
     for (const auto &probe : OLD_PROBES)
     {
         add_probe(probe.name, probe.time);
@@ -185,12 +216,7 @@ void Profiler::dumpSVG(const char *path)
         add_probe(probe.name, probe.time);
     }
 
-    const int total_width = 100;
-    const int total_height = 100;
-    sprintf(TEMP_BUFFER,
-        R"!(<svg width="100%%" height="100%%" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">)!",
-        total_width, total_height);
-    out << TEMP_BUFFER << "\n";
-
     out << "</svg>\n";
 }
+
+} // namespace
