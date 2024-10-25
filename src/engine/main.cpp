@@ -1,4 +1,4 @@
-// clang-format off
+ // clang-format off
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -349,7 +349,7 @@ public:
 private:
     void init()
     {
-        Profiler::setMaxRecordedFrames(500);
+        Profiler::setMaxRecordedFrames(20);
         Profiler::init();
 
         Random::init();
