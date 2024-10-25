@@ -79,7 +79,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     };
 
     const glm::ivec3 chunk_pos = pos_to_chunk(position);
-    constexpr int RADIUS = 8;
+    constexpr int RADIUS = 2;
     for (int z = chunk_pos.z - RADIUS, z_end = chunk_pos.z + RADIUS; z <= z_end; ++z)
     {
         for (int x = chunk_pos.x - RADIUS, x_end = chunk_pos.x + RADIUS; x <= x_end; ++x)
