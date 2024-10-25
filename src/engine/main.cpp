@@ -262,7 +262,7 @@ public:
 
         while (!exit_)
         {
-            Profiler::enterFunction("main loop");
+            Profiler::beginFrame();
 
             eng.time->update();
 
@@ -342,7 +342,6 @@ public:
             eng.window->swap();
             eng.stat.finishFrame();
 
-            Profiler::leaveFunction();
             Profiler::endFrame();
         }
     }

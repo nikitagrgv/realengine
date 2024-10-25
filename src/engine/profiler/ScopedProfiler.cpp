@@ -109,8 +109,15 @@ void Profiler::leaveFunction()
     leaveFunction(get_perf_counter());
 }
 
+void Profiler::beginFrame()
+{
+    enterFunction("BEGIN FRAME", get_perf_counter());
+}
+
 void Profiler::endFrame()
 {
+    leaveFunction(get_perf_counter());
+
     ++CUR_RECORDED_FRAMES;
     if (CUR_RECORDED_FRAMES > HALF_MAX_RECORDED_FRAMES)
     {

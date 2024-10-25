@@ -24,6 +24,7 @@ public:
     static void enterFunction(const char *name);
     static void leaveFunction();
 
+    static void beginFrame();
     static void endFrame();
 
     static void dumpSVG(const char *path);
