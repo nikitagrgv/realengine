@@ -9,6 +9,7 @@
 #include "events/InputEvents.h"
 #include "input/Input.h"
 #include "input/InputUtils.h"
+#include "profiler/ScopedProfiler.h"
 
 #include <cassert>
 #include <iostream>
@@ -119,6 +120,7 @@ void Window::bind()
 
 void Window::swap()
 {
+    SCOPED_PROFILER;
     glfwSwapBuffers(window_);
 }
 

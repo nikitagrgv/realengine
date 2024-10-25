@@ -16,6 +16,7 @@
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
 #include "math/Math.h"
+#include "profiler/ScopedProfiler.h"
 #include "profiler/ScopedTimer.h"
 
 #include <PerlinNoise.hpp>
@@ -57,6 +58,8 @@ void VoxelEngine::init()
 
 void VoxelEngine::update(const glm::vec3 &position)
 {
+    SCOPED_PROFILER;
+
     const auto pos_to_chunk = [](const glm::vec3 pos) {
         const auto x = std::floor(pos.x / Chunk::CHUNK_WIDTH);
         const auto y = 0;

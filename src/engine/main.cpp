@@ -34,6 +34,7 @@
 #include "World.h"
 #include "fs/FileSystem.h"
 #include "input/Input.h"
+#include "profiler/ScopedProfiler.h"
 #include "time/Time.h"
 #include "voxels/VoxelEngine.h"
 
@@ -261,6 +262,8 @@ public:
 
         while (!exit_)
         {
+            Profiler::enterFunction("main loop");
+
             eng.time->update();
 
             glfwPollEvents();
@@ -338,12 +341,18 @@ public:
             eng.gui->render();
             eng.window->swap();
             eng.stat.finishFrame();
+
+            Profiler::leaveFunction();
+            Profiler::endFrame();
         }
     }
 
 private:
     void init()
     {
+        Profiler::setMaxRecordedFrames(500);
+        Profiler::init();
+
         Random::init();
         eng.engine_ = this;
         eng.proxy = new SystemProxy();
@@ -404,6 +413,11 @@ private:
         if (eng.input->isKeyDown(Key::KEY_ESCAPE))
         {
             exit_ = true;
+        }
+
+        if (eng.input->isKeyPressed(Key::KEY_F12))
+        {
+            Profiler::dumpSVG("PROFILER.SVG");
         }
 
         if (eng.input->isKeyPressed(Key::KEY_F3))

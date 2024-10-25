@@ -18,6 +18,7 @@
 #include "TextureManager.h"
 #include "Window.h"
 #include "World.h"
+#include "profiler/ScopedProfiler.h"
 #include "voxels/VoxelEngine.h"
 
 #include <NodeMesh.h>
@@ -53,6 +54,8 @@ void Renderer::clearBuffers()
 
 void Renderer::renderWorld(Camera *camera, Light *light)
 {
+    SCOPED_PROFILER;
+
     assert(camera);
 
     eng.window->bind();

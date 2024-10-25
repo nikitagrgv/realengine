@@ -7,6 +7,7 @@
 #include "EngineGlobals.h"
 #include "Window.h"
 #include "events/InputEvents.h"
+#include "profiler/ScopedProfiler.h"
 
 #include <cassert>
 #include <iostream>
@@ -84,6 +85,8 @@ Input::~Input() {}
 
 void Input::update()
 {
+    SCOPED_PROFILER;
+
     const glm::vec2 new_pos = eng.window->getCursorPos();
     mouse_delta_ = new_pos - mouse_pos_;
     mouse_pos_ = new_pos;

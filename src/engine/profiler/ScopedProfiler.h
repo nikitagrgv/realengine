@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base.h"
+
 #include <cstdint>
 
 class ScopedProfiler
@@ -7,7 +9,24 @@ class ScopedProfiler
 public:
     explicit ScopedProfiler(const char *name);
     ~ScopedProfiler();
-
-private:
-    uint64_t start_;
 };
+
+class Profiler
+{
+public:
+    static void init();
+
+    static void setMaxRecordedFrames(int frames);
+
+    static void enterFunction(const char *name, uint64_t time);
+    static void leaveFunction(uint64_t time);
+
+    static void enterFunction(const char *name);
+    static void leaveFunction();
+
+    static void endFrame();
+
+    static void dumpSVG(const char *path);
+};
+
+#define SCOPED_PROFILER ScopedProfiler REALENGINE_CONCATENATE(_profiler_, __LINE__)(__FUNCTION__)

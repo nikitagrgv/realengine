@@ -6,6 +6,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "profiler/ScopedProfiler.h"
 // clang-format on
 
 Gui::Gui()
@@ -24,6 +25,8 @@ Gui::Gui()
 
 void Gui::render()
 {
+    SCOPED_PROFILER;
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();

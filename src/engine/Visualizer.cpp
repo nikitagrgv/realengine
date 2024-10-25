@@ -2,6 +2,7 @@
 
 // clang-format off
 #include "Mesh.h"
+#include "profiler/ScopedProfiler.h"
 
 
 #include <NodeMesh.h>
@@ -130,6 +131,8 @@ void Visualizer::addNormals(const Mesh *mesh, const glm::mat4 &transform)
 
 void Visualizer::render(const glm::mat4 &viewproj)
 {
+    SCOPED_PROFILER;
+
     shader.bind();
     shader.setUniformMat4("uViewProj", viewproj);
 
