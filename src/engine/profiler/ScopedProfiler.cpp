@@ -2,6 +2,7 @@
 
 #include <immintrin.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <fstream>
@@ -165,29 +166,22 @@ void dump_svg()
 
     std::ofstream out(DUMP_PATH);
 
-    const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
-        while (depth)
-        {
-            --depth;
-            out << " ";
-        }
-        sprintf(TEMP_BUFFER, "%s , %lld - %lld\n", name, start - begin_time, end - begin_time);
-        out << TEMP_BUFFER;
-    };
-
     struct Block
     {
         const char *name;
         uint64_t start;
         uint64_t end;
+        int depth;
     };
     std::vector<Block> stack;
+    std::vector<Block> final_blocks;
     const auto add_probe = [&](const char *name, uint64_t time) {
         if (name)
         {
             Block block;
             block.name = name;
             block.start = time;
+            block.depth = stack.size();
             stack.push_back(block);
         }
         else
@@ -195,9 +189,38 @@ void dump_svg()
             assert(!stack.empty());
             Block &block = stack.back();
             block.end = time;
-            print_block(block.name, block.start, block.end, stack.size() - 1);
+            final_blocks.push_back(block);
             stack.pop_back();
         }
+    };
+
+    for (const auto &probe : OLD_PROBES)
+    {
+        add_probe(probe.name, probe.time);
+    }
+    for (const auto &probe : PROBES)
+    {
+        add_probe(probe.name, probe.time);
+    }
+
+    // TODO: stupid but i don't care
+    std::sort(final_blocks.begin(), final_blocks.end(), [](const Block &a, const Block &b) {
+        if (a.start == b.start)
+        {
+            return a.depth < b.depth;
+        }
+        return a.start < b.start;
+    });
+
+    const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
+        while (depth)
+        {
+            --depth;
+            out << " ";
+        }
+        sprintf(TEMP_BUFFER, "%s %lld - %lld = %lld\n", name, start - begin_time, end - begin_time,
+            end - start);
+        out << TEMP_BUFFER;
     };
 
     const int total_width = 100;
@@ -207,13 +230,9 @@ void dump_svg()
         total_width, total_height);
     out << TEMP_BUFFER << "\n";
 
-    for (const auto &probe : OLD_PROBES)
+    for (const auto &block : final_blocks)
     {
-        add_probe(probe.name, probe.time);
-    }
-    for (const auto &probe : PROBES)
-    {
-        add_probe(probe.name, probe.time);
+        print_block(block.name, block.start, block.end, block.depth);
     }
 
     out << "</svg>\n";

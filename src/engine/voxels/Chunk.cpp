@@ -31,13 +31,13 @@ Chunk::Chunk(glm::ivec3 position)
 
 void Chunk::flush()
 {
-    SCOPED_PROFILER;
-
     if (!dirty_)
     {
         return;
     }
     dirty_ = false;
+
+    SCOPED_PROFILER;
 
     ScopedTimer timer("Flush chunk");
 
