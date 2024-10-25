@@ -129,32 +129,34 @@ void Profiler::endFrame()
     }
 }
 
+char TEMP_BUFFER[2048];
 void Profiler::dumpSVG(const char *path)
 {
     std::ofstream out(path);
-    out << "<svg width=\"100%\" height=\"100%\" viewBox=\"0 0 100 100\" "
-           "xmlns=\"http://www.w3.org/2000/svg\">\n";
+
+    const auto add_block = [](const char *name, uint64_t start, uint64_t end) {
+
+    };
+
+    const auto add_probe = [&](const char *name, uint64_t time) {
+
+    };
+
     for (const auto &probe : OLD_PROBES)
     {
-        if (probe.name)
-        {
-            out << "\t<rect x=\"0\" y=\"0\" width=\"100\" height=\"100\" fill=\"red\"/>\n";
-        }
-        else
-        {
-            out << "\t<rect x=\"0\" y=\"0\" width=\"100\" height=\"100\" fill=\"blue\"/>\n";
-        }
+        add_probe(probe.name, probe.time);
     }
     for (const auto &probe : PROBES)
     {
-        if (probe.name)
-        {
-            out << "\t<rect x=\"0\" y=\"0\" width=\"100\" height=\"100\" fill=\"red\"/>\n";
-        }
-        else
-        {
-            out << "\t<rect x=\"0\" y=\"0\" width=\"100\" height=\"100\" fill=\"blue\"/>\n";
-        }
+        add_probe(probe.name, probe.time);
     }
+
+    const int total_width = 100;
+    const int total_height = 100;
+    sprintf(TEMP_BUFFER,
+        R"!(<svg width="100%%" height="100%%" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">)!",
+        total_width, total_height);
+    out << TEMP_BUFFER << "\n";
+
     out << "</svg>\n";
 }
