@@ -162,7 +162,8 @@ void dump_svg()
         return;
     }
 
-    const uint64_t begin_time = !OLD_PROBES.empty() ? OLD_PROBES[0].time : PROBES[0].time;
+    const uint64_t start_time = !OLD_PROBES.empty() ? OLD_PROBES[0].time : PROBES[0].time;
+    const uint64_t end_time = !PROBES.empty() ? PROBES.back().time : OLD_PROBES.back().time;
 
     std::ofstream out(DUMP_PATH);
 
@@ -170,10 +171,10 @@ void dump_svg()
 
     struct Block
     {
-        const char *name;
-        uint64_t start;
-        uint64_t end;
-        int depth;
+        const char *name = nullptr;
+        uint64_t start = 0;
+        uint64_t end = 0;
+        int depth = -1;
     };
     std::vector<Block> stack;
     std::vector<Block> final_blocks;
@@ -182,7 +183,7 @@ void dump_svg()
         {
             Block block;
             block.name = name;
-            block.start = time;
+            block.start = time - start_time;
             block.depth = stack.size();
             if (block.depth > max_depth)
             {
@@ -194,7 +195,7 @@ void dump_svg()
         {
             assert(!stack.empty());
             Block &block = stack.back();
-            block.end = time;
+            block.end = time - start_time;
             final_blocks.push_back(block);
             stack.pop_back();
         }
@@ -218,21 +219,30 @@ void dump_svg()
         return a.start < b.start;
     });
 
+    const double total_duration_ms = (end_time - start_time) * 1000 / PERF_FREQ;
+
+    const double total_width = 5000;
+    const double total_height = 500;
+
+    const double block_height = total_height / max_depth;
+
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
-        while (depth)
-        {
-            --depth;
-            out << " ";
-        }
-        sprintf(TEMP_BUFFER, "%s %lld - %lld = %lld\n", name, start - begin_time, end - begin_time,
-            end - start);
-        out << TEMP_BUFFER;
+        const double start_ms = start * 1000 / PERF_FREQ;
+        const double end_ms = end * 1000 / PERF_FREQ;
+        const double duration_ms = (end - start) * 1000 / PERF_FREQ;
+
+        const double x = total_width * start_ms / total_duration_ms;
+        const double y = total_height * depth / max_depth;
+        const double width = total_width * duration_ms / total_duration_ms;
+
+        sprintf(TEMP_BUFFER,
+            R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:1"/>)!",
+            x, y, width, block_height);
+        out << TEMP_BUFFER << "\n";
     };
 
-    const int total_width = 100;
-    const int total_height = 100;
     sprintf(TEMP_BUFFER,
-        R"!(<svg width="100%%" height="100%%" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">)!",
+        R"!(<svg width="100%%" height="100%%" viewBox="0 0 %lld %lld" xmlns="http://www.w3.org/2000/svg">)!",
         total_width, total_height);
     out << TEMP_BUFFER << "\n";
 
