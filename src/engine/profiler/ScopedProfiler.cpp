@@ -132,14 +132,48 @@ void Profiler::endFrame()
 char TEMP_BUFFER[2048];
 void Profiler::dumpSVG(const char *path)
 {
+    if (OLD_PROBES.empty() && PROBES.empty())
+    {
+        return;
+    }
+
+    const uint64_t begin_time = !OLD_PROBES.empty() ? OLD_PROBES[0].time : PROBES[0].time;
+
     std::ofstream out(path);
 
-    const auto add_block = [](const char *name, uint64_t start, uint64_t end) {
-
+    const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
+        while (depth)
+        {
+            --depth;
+            out << " ";
+        }
+        sprintf(TEMP_BUFFER, "%s , %lld - %lld\n", name, start - begin_time, end - begin_time);
+        out << TEMP_BUFFER;
     };
 
+    struct Block
+    {
+        const char *name;
+        uint64_t start;
+        uint64_t end;
+    };
+    std::vector<Block> stack;
     const auto add_probe = [&](const char *name, uint64_t time) {
-
+        if (name)
+        {
+            Block block;
+            block.name = name;
+            block.start = time;
+            stack.push_back(block);
+        }
+        else
+        {
+            assert(!stack.empty());
+            Block &block = stack.back();
+            block.end = time;
+            print_block(block.name, block.start, block.end, stack.size() - 1);
+            stack.pop_back();
+        }
     };
 
     for (const auto &probe : OLD_PROBES)
