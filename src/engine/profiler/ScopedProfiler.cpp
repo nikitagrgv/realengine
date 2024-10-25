@@ -12,6 +12,9 @@
     #include <Windows.h>
 #endif
 
+#undef min
+#undef max
+
 namespace
 {
 
@@ -221,12 +224,11 @@ void dump_svg()
 
     const double total_duration_ms = (end_time - start_time) * 1000 / PERF_FREQ;
 
-    const double total_width = 5000;
-    const double total_height = 500;
-
-    const double block_height = total_height / max_depth;
+    const double block_height = 50.0;
     const double half_block_height = block_height / 2;
-    const int font_size = (int)(block_height * 0.4);
+
+    const double total_width = 5000;
+    const double total_height = (double)max_depth * block_height;
 
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
         const double start_ms = start * 1000 / PERF_FREQ;
@@ -239,12 +241,18 @@ void dump_svg()
         const double half_width = width / 2;
 
         sprintf(TEMP_BUFFER,
-            R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:1"/>)!",
+            R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:1">)!",
             x, y, width, block_height);
         out << TEMP_BUFFER << "\n";
 
+        sprintf(TEMP_BUFFER, R"!(  <title>%s (%.2f ms)</title>)!", name, duration_ms);
+        out << TEMP_BUFFER << "\n";
+
+        out << "</rect>\n";
+
+        const double font_size = std::min(width * 0.1, block_height - 1);
         sprintf(TEMP_BUFFER,
-            R"!( <text x="%lf" y="%lf" font-family="Arial" font-size="%dpx" fill="black" dominant-baseline="middle" text-anchor="middle">%s</text>)!",
+            R"!( <text x="%lf" y="%lf" font-family="Arial" font-size="%lfpx" fill="black" dominant-baseline="middle" text-anchor="middle">%s</text>)!",
             x + half_width, y + half_block_height, font_size, name);
         out << TEMP_BUFFER << "\n";
     };
