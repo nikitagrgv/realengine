@@ -239,10 +239,14 @@ void dump_svg()
             R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:1"/>)!",
             x, y, width, block_height);
         out << TEMP_BUFFER << "\n";
+
+        sprintf(TEMP_BUFFER,
+            R"!( <text x="%lf" y="%lf" font-family="Arial" font-size="%lf" fill="black">%s</text>)!",
+            x, y, block_height - 1, name);
+        out << TEMP_BUFFER << "\n";
     };
 
-    sprintf(TEMP_BUFFER,
-        R"!(<svg width="100%%" height="100%%" viewBox="0 0 %lf %lf" xmlns="http://www.w3.org/2000/svg">)!",
+    sprintf(TEMP_BUFFER, R"!(<svg viewBox="0 0 %lf %lf" xmlns="http://www.w3.org/2000/svg">)!",
         total_width, total_height);
     out << TEMP_BUFFER << "\n";
 
