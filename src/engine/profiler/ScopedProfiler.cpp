@@ -231,9 +231,9 @@ void dump_svg()
     const double total_height = (double)max_depth * block_height;
 
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
-        const double start_ms = start * 1000 / PERF_FREQ;
-        const double end_ms = end * 1000 / PERF_FREQ;
-        const double duration_ms = (end - start) * 1000 / PERF_FREQ;
+        const double start_ms = (double)start * 1000.0 / (double)PERF_FREQ;
+        const double end_ms = (double)end * 1000.0 / (double)PERF_FREQ;
+        const double duration_ms = (double)((end - start) * 1000.0) / (double)PERF_FREQ;
 
         const double x = total_width * start_ms / total_duration_ms;
         const double y = total_height * depth / max_depth;
@@ -245,7 +245,7 @@ void dump_svg()
             x, y, width, block_height);
         out << TEMP_BUFFER << "\n";
 
-        sprintf(TEMP_BUFFER, R"!(  <title>%s (%.2f ms)</title>)!", name, duration_ms);
+        sprintf(TEMP_BUFFER, R"!(  <title>%s (%.3f ms)</title>)!", name, duration_ms);
         out << TEMP_BUFFER << "\n";
 
         out << "</rect>\n";
