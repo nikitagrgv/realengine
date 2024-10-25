@@ -70,7 +70,7 @@ struct ProbeInfo
 
 uint64_t PERF_FREQ{};
 
-int HALF_MAX_RECORDED_FRAMES{};
+int HALF_MAX_RECORDED_FRAMES{100};
 int CUR_RECORDED_FRAMES{};
 
 std::vector<ProbeInfo> OLD_PROBES;
