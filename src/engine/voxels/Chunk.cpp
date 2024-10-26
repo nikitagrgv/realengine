@@ -26,7 +26,7 @@ Chunk::Chunk(glm::ivec3 position)
     vao_->addAttributeFloat(2); // uv
     vbo_->bind();
     vao_->flush();
-    vbo_->flush();
+    vbo_->flush(true);
 }
 
 void Chunk::flush()
@@ -97,7 +97,7 @@ void Chunk::flush()
         }
     });
 
-    vbo_->flush();
+    vbo_->flush(true);
 }
 
 void Chunk::gen_face_py(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
