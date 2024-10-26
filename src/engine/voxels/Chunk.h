@@ -7,6 +7,7 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 
+struct ChunkMesh;
 struct BlockDescription;
 class VertexArrayObject;
 
@@ -22,88 +23,21 @@ public:
 
 public:
     explicit Chunk(glm::ivec3 position);
+    ~Chunk();
+
+    REMOVE_COPY_MOVE_CLASS(Chunk);
 
     template<typename F>
-    REALENGINE_INLINE void visitRead(F &&func) const
-    {
-        int block_index = -1;
-        for (int y = 0; y < CHUNK_HEIGHT; ++y)
-        {
-            for (int z = 0; z < CHUNK_WIDTH; ++z)
-            {
-                for (int x = 0; x < CHUNK_WIDTH; ++x)
-                {
-                    ++block_index;
-                    const BlockInfo &b = blocks_[block_index];
-                    func(x, y, z, b);
-                }
-            }
-        }
-    }
+    REALENGINE_INLINE void visitRead(F &&func) const;
 
     template<typename F>
-    REALENGINE_INLINE void visitWrite(F &&func)
-    {
-        dirty_ = true;
-        int block_index = -1;
-        for (int y = 0; y < CHUNK_HEIGHT; ++y)
-        {
-            for (int z = 0; z < CHUNK_WIDTH; ++z)
-            {
-                for (int x = 0; x < CHUNK_WIDTH; ++x)
-                {
-                    ++block_index;
-                    BlockInfo &b = blocks_[block_index];
-                    func(x, y, z, b);
-                }
-            }
-        }
-    }
+    REALENGINE_INLINE void visitWrite(F &&func);
 
     template<typename F>
-    REALENGINE_INLINE void visitReadGlobal(F &&func) const
-    {
-        int block_index = -1;
-        const auto x_begin = position_.x * CHUNK_WIDTH;
-        const auto x_end = x_begin + CHUNK_WIDTH;
-        const auto z_begin = position_.z * CHUNK_WIDTH;
-        const auto z_end = z_begin + CHUNK_WIDTH;
-        for (int y = 0; y < CHUNK_HEIGHT; ++y)
-        {
-            for (int z = z_begin; z < z_end; ++z)
-            {
-                for (int x = x_begin; x < x_end; ++x)
-                {
-                    ++block_index;
-                    const BlockInfo &b = blocks_[block_index];
-                    func(x, y, z, b);
-                }
-            }
-        }
-    }
+    REALENGINE_INLINE void visitReadGlobal(F &&func) const;
 
     template<typename F>
-    REALENGINE_INLINE void visitWriteGlobal(F &&func)
-    {
-        dirty_ = true;
-        int block_index = -1;
-        const auto x_begin = position_.x * CHUNK_WIDTH;
-        const auto x_end = x_begin + CHUNK_WIDTH;
-        const auto z_begin = position_.z * CHUNK_WIDTH;
-        const auto z_end = z_begin + CHUNK_WIDTH;
-        for (int y = 0; y < CHUNK_HEIGHT; ++y)
-        {
-            for (int z = z_begin; z < z_end; ++z)
-            {
-                for (int x = x_begin; x < x_end; ++x)
-                {
-                    ++block_index;
-                    BlockInfo &b = blocks_[block_index];
-                    func(x, y, z, b);
-                }
-            }
-        }
-    }
+    REALENGINE_INLINE void visitWriteGlobal(F &&func);
 
     static REALENGINE_INLINE bool isInsideChunk(int x, int y, int z)
     {
@@ -119,7 +53,6 @@ public:
     REALENGINE_INLINE void setBlock(int x, int y, int z, const BlockInfo &block)
     {
         assert(isInsideChunk(x, y, z));
-        dirty_ = true; // TODO# REMOVE?
         blocks_[getBlockIndex(x, y, z)] = block;
     }
 
@@ -140,29 +73,95 @@ public:
     int getBlocksOffsetX() const { return position_.x * CHUNK_WIDTH; }
     int getBlocksOffsetZ() const { return position_.z * CHUNK_WIDTH; }
 
-    void flush();
-
-private:
-    void gen_face_py(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
-    void gen_face_ny(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
-    void gen_face_pz(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
-    void gen_face_nz(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
-    void gen_face_px(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
-    void gen_face_nx(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc);
-
 public:
-    bool dirty_{true};
-
+    BlockInfo blocks_[NUM_BLOCKS];
     glm::ivec3 position_{0, 0, 0};
 
-    struct Vertex
-    {
-        glm::vec3 pos_;
-        glm::vec3 norm_;
-        glm::vec2 uv_;
-    };
-    UPtr<VertexArrayObject> vao_;
-    UPtr<VertexBufferObject<Vertex>> vbo_;
-
-    BlockInfo blocks_[NUM_BLOCKS];
+    // TODO: rename this class to ChunkData and move this fields to Chunk
+    bool need_rebuild_mesh_{true};
+    UPtr<ChunkMesh> mesh_; // could be null
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename F>
+void Chunk::visitRead(F &&func) const
+{
+    int block_index = -1;
+    for (int y = 0; y < CHUNK_HEIGHT; ++y)
+    {
+        for (int z = 0; z < CHUNK_WIDTH; ++z)
+        {
+            for (int x = 0; x < CHUNK_WIDTH; ++x)
+            {
+                ++block_index;
+                const BlockInfo &b = blocks_[block_index];
+                func(x, y, z, b);
+            }
+        }
+    }
+}
+
+template<typename F>
+void Chunk::visitWrite(F &&func)
+{
+    need_rebuild_mesh_ = true;
+    int block_index = -1;
+    for (int y = 0; y < CHUNK_HEIGHT; ++y)
+    {
+        for (int z = 0; z < CHUNK_WIDTH; ++z)
+        {
+            for (int x = 0; x < CHUNK_WIDTH; ++x)
+            {
+                ++block_index;
+                BlockInfo &b = blocks_[block_index];
+                func(x, y, z, b);
+            }
+        }
+    }
+}
+
+template<typename F>
+void Chunk::visitReadGlobal(F &&func) const
+{
+    int block_index = -1;
+    const auto x_begin = position_.x * CHUNK_WIDTH;
+    const auto x_end = x_begin + CHUNK_WIDTH;
+    const auto z_begin = position_.z * CHUNK_WIDTH;
+    const auto z_end = z_begin + CHUNK_WIDTH;
+    for (int y = 0; y < CHUNK_HEIGHT; ++y)
+    {
+        for (int z = z_begin; z < z_end; ++z)
+        {
+            for (int x = x_begin; x < x_end; ++x)
+            {
+                ++block_index;
+                const BlockInfo &b = blocks_[block_index];
+                func(x, y, z, b);
+            }
+        }
+    }
+}
+
+template<typename F>
+void Chunk::visitWriteGlobal(F &&func)
+{
+    need_rebuild_mesh_ = true;
+    int block_index = -1;
+    const auto x_begin = position_.x * CHUNK_WIDTH;
+    const auto x_end = x_begin + CHUNK_WIDTH;
+    const auto z_begin = position_.z * CHUNK_WIDTH;
+    const auto z_end = z_begin + CHUNK_WIDTH;
+    for (int y = 0; y < CHUNK_HEIGHT; ++y)
+    {
+        for (int z = z_begin; z < z_end; ++z)
+        {
+            for (int x = x_begin; x < x_end; ++x)
+            {
+                ++block_index;
+                BlockInfo &b = blocks_[block_index];
+                func(x, y, z, b);
+            }
+        }
+    }
+}

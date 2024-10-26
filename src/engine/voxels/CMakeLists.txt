@@ -8,6 +8,10 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/BlocksRegistry.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Chunk.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Chunk.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMesh.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMesh.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMeshGenerator.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMeshGenerator.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.h
 )

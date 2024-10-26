@@ -9,6 +9,8 @@
 #include "BlocksRegistry.h"
 #include "Camera.h"
 #include "Chunk.h"
+#include "ChunkMesh.h"
+#include "ChunkMeshGenerator.h"
 #include "EngineGlobals.h"
 #include "GlobalLight.h"
 #include "Shader.h"
@@ -87,6 +89,7 @@ void VoxelEngine::update(const glm::vec3 &position)
             if (!has_chunk(glm::ivec3{x, 0, z}))
             {
                 UPtr<Chunk> new_chunk = generate_chunk(glm::ivec3{x, 0, z});
+                new_chunk->mesh_ = makeU<ChunkMesh>(); // TODO! REMOVE
                 chunks_.push_back(std::move(new_chunk));
             }
         }
@@ -129,8 +132,19 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
     // TODO# culling, sort by distance (nearest first)
     for (const UPtr<Chunk> &chunk : chunks_)
     {
-        chunk->flush();
-        chunk->vao_->bind();
+        if (!chunk->mesh_)
+        {
+            continue;
+        }
+
+        if (chunk->need_rebuild_mesh_)
+        {
+            ChunkMeshGenerator generator;
+            generator.rebuildMesh(*chunk, *chunk->mesh_);
+            chunk->need_rebuild_mesh_ = false;
+        }
+
+        chunk->mesh_->bind();
 
         glm::vec3 glob_position{0.0f};
         glob_position.x = chunk->position_.x * Chunk::CHUNK_WIDTH;
@@ -140,8 +154,8 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
         auto value = camera->getViewProj() * glm::translate(glm::mat4{1.0f}, glob_position);
         shader_->setUniformMat4(model_view_proj_loc, value);
 
-        GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->vbo_->getNumVertices()));
-        eng.stat.addRenderedIndices(chunk->vbo_->getNumVertices());
+        GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->mesh_->getNumVertices()));
+        eng.stat.addRenderedIndices(chunk->mesh_->getNumVertices());
     }
 }
 
