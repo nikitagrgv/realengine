@@ -36,6 +36,7 @@ public:
     void setSeed(unsigned int seed);
 
     int getNumRenderChunks() const;
+    uint64_t getNumRenderVertices() const;
 
 private:
     void register_blocks();

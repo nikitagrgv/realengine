@@ -179,6 +179,19 @@ int VoxelEngine::getNumRenderChunks() const
     return ret;
 }
 
+uint64_t VoxelEngine::getNumRenderVertices() const
+{
+    uint64_t ret = 0;
+    for (const UPtr<Chunk> &chunk : chunks_)
+    {
+        if (chunk->mesh_)
+        {
+            ret += chunk->mesh_->getNumVertices();
+        }
+    }
+    return ret;
+}
+
 void VoxelEngine::register_blocks()
 {
     BlocksRegistry &reg = *registry_;

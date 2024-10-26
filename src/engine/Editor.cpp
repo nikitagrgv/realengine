@@ -792,6 +792,7 @@ void Editor::render_info()
         ImGui::Text("Compiled Shaders: %llu", eng.stat.getNumCompiledShadersTotal());
         ImGui::SeparatorText("Voxel Engine");
         ImGui::Text("Render chunks: %d", eng.vox->getNumRenderChunks());
+        ImGui::Text("Render vertices: %llu", eng.vox->getNumRenderVertices());
         ImGui::Separator();
     }
     ImGui::End();
