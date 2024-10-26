@@ -16,7 +16,7 @@ struct Chunk
 {
 public:
     static constexpr int CHUNK_WIDTH = 32;
-    static constexpr int CHUNK_HEIGHT = 256;
+    static constexpr int CHUNK_HEIGHT = 400;
 
     static constexpr int CHUNK_WIDTH2 = CHUNK_WIDTH * CHUNK_WIDTH;
     static constexpr int NUM_BLOCKS = CHUNK_WIDTH2 * CHUNK_HEIGHT;
@@ -24,6 +24,8 @@ public:
 public:
     explicit Chunk(glm::ivec3 position);
     ~Chunk();
+
+    void clear();
 
     REMOVE_COPY_MOVE_CLASS(Chunk);
 

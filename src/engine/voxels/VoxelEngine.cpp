@@ -88,20 +88,24 @@ void VoxelEngine::update(const glm::vec3 &position)
         ScopedProfiler p("Unload chunks");
 
         // Unload whole chunks outside radius
+
         // TODO# save in file or compress
-        const int old_size = chunks_.size();
-        Alg::removeIf(chunks_, [&](const UPtr<Chunk> &chunk) {
-            const bool remove = is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
-            // TODO: shitty?
-            if (remove)
+
+        for (UPtr<Chunk> &chunk : chunks_)
+        {
+            const bool outside = is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
+            if (outside)
             {
                 const auto it = chunk_index_by_pos_.find(
                     glm::ivec2(chunk->position_.x, chunk->position_.z));
                 assert(it != chunk_index_by_pos_.end());
                 chunk_index_by_pos_.erase(it);
+                release_chunk(std::move(chunk));
             }
-            return remove;
-        });
+        }
+
+        const int old_size = chunks_.size();
+        Alg::removeIf(chunks_, [&](const UPtr<Chunk> &chunk) { return chunk == nullptr; });
         if (old_size != chunks_.size())
         {
             chunks_dirty = true;
@@ -141,7 +145,7 @@ void VoxelEngine::update(const glm::vec3 &position)
                 {
                     continue;
                 }
-                UPtr<Chunk> new_chunk = makeU<Chunk>(glm::ivec3{x, 0, z});
+                UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
                 chunks_to_generate_.push_back(new_chunk.get());
                 chunks_.push_back(std::move(new_chunk));
                 chunks_dirty = true;
@@ -383,6 +387,27 @@ void VoxelEngine::release_mesh(UPtr<ChunkMesh> mesh)
     assert(mesh);
     meshes_pool_.push_back(std::move(mesh));
 }
+
+UPtr<Chunk> VoxelEngine::get_chunk_cached(const glm::ivec3 &pos)
+{
+    if (chunks_pool_.empty())
+    {
+        return makeU<Chunk>(pos);
+    }
+    UPtr<Chunk> chunk = std::move(chunks_pool_.back());
+    chunks_pool_.pop_back();
+    assert(chunk);
+    chunk->clear();
+    chunk->position_ = pos;
+    return chunk;
+}
+
+void VoxelEngine::release_chunk(UPtr<Chunk> chunk)
+{
+    assert(chunk);
+    chunks_pool_.push_back(std::move(chunk));
+}
+
 
 void VoxelEngine::generate_chunk(Chunk &chunk)
 {

@@ -48,6 +48,9 @@ private:
     UPtr<ChunkMesh> get_mesh_cached();
     void release_mesh(UPtr<ChunkMesh> mesh);
 
+    UPtr<Chunk> get_chunk_cached(const glm::ivec3 &pos);
+    void release_chunk(UPtr<Chunk> chunk);
+
     void generate_chunk(Chunk &chunk);
 
     glm::ivec3 pos_to_chunk_pos(const glm::vec3 &pos) const;
@@ -71,6 +74,7 @@ private:
     UPtr<Perlin> perlin_;
 
     std::vector<UPtr<ChunkMesh>> meshes_pool_;
+    std::vector<UPtr<Chunk>> chunks_pool_;
 
     std::vector<UPtr<Chunk>> chunks_;
     std::unordered_map<glm::ivec2, int> chunk_index_by_pos_;

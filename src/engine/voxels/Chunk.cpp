@@ -5,10 +5,15 @@
 Chunk::Chunk(glm::ivec3 position)
 {
     position_ = position;
+    clear();
+}
+
+Chunk::~Chunk() = default;
+
+void Chunk::clear()
+{
     for (BlockInfo &b : blocks_)
     {
         b.id = 0;
     }
 }
-
-Chunk::~Chunk() = default;
