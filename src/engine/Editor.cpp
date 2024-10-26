@@ -17,6 +17,7 @@
 #include "voxels/VoxelEngine.h"
 
 #include "glm/gtc/type_ptr.hpp"
+#include <fstream>
 
 namespace
 {
@@ -28,11 +29,19 @@ constexpr ImVec4 HIGHLIGHT_COLOR_OTHER{1, 0.6, 0.6, 1};
 constexpr float SPEED = 0.1f;
 constexpr const char *FORMAT = "%.3f";
 
+const char *CONFIG_PATH = "editor.cfg";
+
 } // namespace
 
 Editor::Editor()
 {
+    load_configs();
     eng.gui->getSignalOnRender().connect(ctx_, [this] { render(); });
+}
+
+Editor::~Editor()
+{
+    save_configs();
 }
 
 Texture *Editor::getSelectedTexture() const
@@ -61,6 +70,37 @@ void Editor::setSelectedNode(Node *node)
         return;
     }
     selected_node_ = eng.world->getNodeIndex(node);
+}
+
+void Editor::load_configs()
+{
+    std::ifstream file(CONFIG_PATH);
+    if (!file.is_open())
+    {
+        return;
+    }
+
+    file >> nodes_window_;
+    file >> shaders_window_;
+    file >> texture_window_;
+    file >> materials_window_;
+    file >> meshes_window_;
+    file >> info_window_;
+}
+
+void Editor::save_configs()
+{
+    std::ofstream file(CONFIG_PATH);
+
+    file << nodes_window_;
+    file << shaders_window_;
+    file << texture_window_;
+    file << materials_window_;
+    file << meshes_window_;
+    file << info_window_;
+
+    file.flush();
+    file.close();
 }
 
 void Editor::render()

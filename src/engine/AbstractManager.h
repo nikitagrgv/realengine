@@ -7,11 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-class T
-{
-    std::unique_ptr<int> g;
-};
-
 template<class T>
 class AbstractManager
 {

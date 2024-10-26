@@ -1,4 +1,4 @@
- // clang-format off
+// clang-format off
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -327,6 +327,9 @@ public:
                 eng.visualizer->addLine(r.ray.begin, r.ray.end, r.color);
             }
 
+            if (eng.input->isKeyPressed(Key::KEY_F))
+            {}
+
             ///////////////////////////////////////////////////////////
             edg.editor_->setPlayerPositionInfo(camera_.getPosition());
 
@@ -344,6 +347,8 @@ public:
 
             Profiler::endFrame();
         }
+
+        shutdown();
     }
 
 private:

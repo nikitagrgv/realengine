@@ -1,8 +1,19 @@
 #include "MaterialManager.h"
 
+#include "utils/Algos.h"
+
 MaterialManager::MaterialManager()
     : AbstractManager<Material>("mat_")
 {}
+
+MaterialManager::~MaterialManager()
+{
+    // TODO# SHIT
+    while (!objects_.empty())
+    {
+        Alg::removeIf(objects_, [](const Object &mat) { return mat.obj->getNumChildren() == 0; });
+    }
+}
 
 Material *MaterialManager::clone(Material *m, const char *name)
 {

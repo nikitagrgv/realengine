@@ -18,6 +18,7 @@ class Editor
 {
 public:
     Editor();
+    ~Editor();
 
     Texture *getSelectedTexture() const;
 
@@ -27,6 +28,9 @@ public:
     void setPlayerPositionInfo(glm::vec3 pos) { player_pos_ = pos; }
 
 private:
+    void load_configs();
+    void save_configs();
+
     void render();
 
     void render_main();
