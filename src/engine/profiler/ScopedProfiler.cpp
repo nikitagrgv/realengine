@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <vector>
 
 #ifdef _WIN32
@@ -115,6 +116,15 @@ void Profiler::endFrame()
     if (CUR_RECORDED_FRAMES > HALF_MAX_RECORDED_FRAMES)
     {
         CUR_RECORDED_FRAMES = 0;
+
+        const int size = PROBES.size();
+        const int capacity = PROBES.capacity();
+        if (capacity < size * 2)
+        {
+            std::cout << "EXPAND" << std::endl;
+            PROBES.reserve(size * 3);
+            OLD_PROBES.reserve(size * 3);
+        }
 
         // don't use std::move! otherwise a deallocation will happen
         std::swap(OLD_PROBES, PROBES);
