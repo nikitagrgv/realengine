@@ -55,7 +55,9 @@ private:
     Chunk *get_chunk_at_pos(int x, int z) const;
     REALENGINE_INLINE bool has_chunk_at_pos(int x, int z) const
     {
-        return get_chunk_at_pos(x, z) != nullptr;
+        const glm::ivec2 pos = glm::ivec2{x, z};
+        const auto it = chunk_index_by_pos_.find(pos);
+        return it != chunk_index_by_pos_.end();
     }
     bool has_all_neighbours(Chunk *chunk) const;
     NeighbourChunks get_neighbour_chunks(Chunk *chunk) const;
@@ -72,6 +74,8 @@ private:
 
     std::vector<UPtr<Chunk>> chunks_;
     std::unordered_map<glm::ivec2, int> chunk_index_by_pos_;
+
+    std::vector<Chunk *> chunks_to_generate_;
 
     // TODO# TEMP
     UPtr<ShaderSource> shader_source_;
