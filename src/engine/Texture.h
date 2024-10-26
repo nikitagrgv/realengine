@@ -35,6 +35,7 @@ public:
         Linear,
         LinearMipmapNearest,
         LinearMipmapLinear,
+        NearestMipmapNearest,
     };
 
     enum class FlipMode

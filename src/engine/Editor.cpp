@@ -14,6 +14,7 @@
 #include "input/Input.h"
 #include "math/Math.h"
 #include "time/Time.h"
+#include "voxels/VoxelEngine.h"
 
 #include "glm/gtc/type_ptr.hpp"
 
@@ -789,6 +790,8 @@ void Editor::render_info()
         ImGui::SeparatorText("Total");
         ImGui::Text("Rendered Indices: %llu", eng.stat.getNumRenderedIndicesTotal());
         ImGui::Text("Compiled Shaders: %llu", eng.stat.getNumCompiledShadersTotal());
+        ImGui::SeparatorText("Voxel Engine");
+        ImGui::Text("Render chunks: %d", eng.vox->getNumRenderChunks());
         ImGui::Separator();
     }
     ImGui::End();

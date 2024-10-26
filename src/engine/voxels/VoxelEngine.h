@@ -35,6 +35,8 @@ public:
     unsigned int getSeed() const { return seed_; }
     void setSeed(unsigned int seed);
 
+    int getNumRenderChunks() const;
+
 private:
     void register_blocks();
 

@@ -43,6 +43,7 @@ void VoxelEngine::init()
     register_blocks();
 
     Texture *atlas = eng.texture_manager->create("atlas");
+    // TODO# generate mip maps! but custom
     atlas->load("vox/atlas.png", Texture::Format::RGBA, Texture::Wrap::ClampToEdge,
         Texture::Filter::Nearest, Texture::Filter::Nearest, Texture::FlipMode::FlipY);
 
@@ -163,6 +164,19 @@ void VoxelEngine::setSeed(unsigned int seed)
 {
     seed_ = seed;
     perlin_ = makeU<Perlin>(seed_);
+}
+
+int VoxelEngine::getNumRenderChunks() const
+{
+    int ret = 0;
+    for (const UPtr<Chunk> &chunk : chunks_)
+    {
+        if (chunk->mesh_)
+        {
+            ++ret;
+        }
+    }
+    return ret;
 }
 
 void VoxelEngine::register_blocks()

@@ -39,6 +39,7 @@ bool filter_to_gl_filter(Texture::Filter filter, int &gl_filter)
     case Texture::Filter::Linear: gl_filter = GL_LINEAR; break;
     case Texture::Filter::LinearMipmapNearest: gl_filter = GL_LINEAR_MIPMAP_NEAREST; break;
     case Texture::Filter::LinearMipmapLinear: gl_filter = GL_LINEAR_MIPMAP_LINEAR; break;
+    case Texture::Filter::NearestMipmapNearest: gl_filter = GL_NEAREST_MIPMAP_NEAREST; break;
     default: return false;
     }
     return true;
@@ -166,8 +167,13 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
     GL_CHECKED(glBindTexture(GL_TEXTURE_2D, id_));
     GL_CHECKED(glTexImage2D(GL_TEXTURE_2D, 0, gl_dst_format, width, height, 0, gl_src_format,
         GL_UNSIGNED_BYTE, data));
-    if (gl_min_filter == GL_LINEAR_MIPMAP_LINEAR || gl_min_filter == GL_LINEAR_MIPMAP_NEAREST
-        || gl_mag_filter == GL_LINEAR_MIPMAP_LINEAR || gl_mag_filter == GL_LINEAR_MIPMAP_NEAREST)
+
+    const auto is_mipmap_type = [](int gl_filter) {
+        return gl_filter == GL_NEAREST_MIPMAP_NEAREST || gl_filter == GL_LINEAR_MIPMAP_NEAREST
+            || gl_filter == GL_NEAREST_MIPMAP_LINEAR || gl_filter == GL_LINEAR_MIPMAP_LINEAR;
+    };
+
+    if (is_mipmap_type(gl_min_filter) || is_mipmap_type(gl_mag_filter))
     {
         GL_CHECKED(glGenerateMipmap(GL_TEXTURE_2D));
     }
