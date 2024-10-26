@@ -121,7 +121,6 @@ void Profiler::endFrame()
         const int capacity = PROBES.capacity();
         if (capacity < size * 2)
         {
-            std::cout << "EXPAND" << std::endl;
             PROBES.reserve(size * 3);
             OLD_PROBES.reserve(size * 3);
         }
