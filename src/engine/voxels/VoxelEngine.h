@@ -3,9 +3,11 @@
 #include "Base.h"
 #include "Common.h"
 #include "VertexBufferObject.h"
+#include "utils/Hashers.h"
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
+#include <unordered_map>
 
 
 struct ChunkMesh;
@@ -46,7 +48,7 @@ private:
     UPtr<ChunkMesh> get_mesh_cached();
     void release_mesh(UPtr<ChunkMesh> mesh);
 
-    UPtr<Chunk> generate_chunk(glm::vec3 pos);
+    void generate_chunk(Chunk &chunk);
 
     glm::ivec3 pos_to_chunk_pos(const glm::vec3 &pos) const;
 
@@ -57,6 +59,9 @@ private:
     }
     bool has_all_neighbours(Chunk *chunk) const;
     NeighbourChunks get_neighbour_chunks(Chunk *chunk) const;
+    NeighbourChunks get_neighbour_chunks_lazy(Chunk *chunk) const;
+
+    void refresh_chunk_index_by_pos();
 
 private:
     unsigned int seed_{0};
@@ -66,6 +71,7 @@ private:
     std::vector<UPtr<ChunkMesh>> meshes_pool_;
 
     std::vector<UPtr<Chunk>> chunks_;
+    std::unordered_map<glm::ivec2, int> chunk_index_by_pos_;
 
     // TODO# TEMP
     UPtr<ShaderSource> shader_source_;

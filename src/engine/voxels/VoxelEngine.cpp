@@ -82,14 +82,21 @@ void VoxelEngine::update(const glm::vec3 &position)
         return max_radius > radius;
     };
 
+    bool chunks_dirty = false;
+
     {
         ScopedProfiler p("Unload chunks");
 
         // Unload whole chunks outside radius
         // TODO# save in file or compress
+        const int old_size = chunks_.size();
         Alg::removeIf(chunks_, [&](const UPtr<Chunk> &chunk) {
             return is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
         });
+        if (old_size != chunks_.size())
+        {
+            chunks_dirty = true;
+        }
     }
 
     {
@@ -109,10 +116,12 @@ void VoxelEngine::update(const glm::vec3 &position)
         }
     }
 
-    {
-        ScopedProfiler p("Generate chunks");
+    static std::vector<Chunk *> chunks_to_generate;
+    chunks_to_generate.clear();
 
-        // Generate chunks in radius
+    {
+        ScopedProfiler p("Init new chunks");
+
         for (int z = base_chunk_pos.z - RADIUS_SPAWN_CHUNK,
                  z_end = base_chunk_pos.z + RADIUS_SPAWN_CHUNK;
              z <= z_end; ++z)
@@ -125,10 +134,27 @@ void VoxelEngine::update(const glm::vec3 &position)
                 {
                     continue;
                 }
-                UPtr<Chunk> new_chunk = generate_chunk(glm::ivec3{x, 0, z});
+                UPtr<Chunk> new_chunk = makeU<Chunk>(glm::ivec3{x, 0, z});
+                chunks_to_generate.push_back(new_chunk.get());
                 chunks_.push_back(std::move(new_chunk));
+                chunks_dirty = true;
             }
         }
+    }
+
+    if (chunks_dirty)
+    {
+        refresh_chunk_index_by_pos();
+    }
+
+    {
+        ScopedProfiler p("Generate new chunks");
+
+        for (Chunk *chunk : chunks_to_generate)
+        {
+            generate_chunk(*chunk);
+        }
+        chunks_to_generate.clear();
     }
 
     {
@@ -137,10 +163,9 @@ void VoxelEngine::update(const glm::vec3 &position)
         // Generate/unload meshes for chunks according to neighbours chunks
         for (const UPtr<Chunk> &chunk : chunks_)
         {
-            NeighbourChunks neighbours = get_neighbour_chunks(chunk.get());
-            const bool has_all_neighbours = neighbours.hasAll();
+            NeighbourChunks neighbours = get_neighbour_chunks_lazy(chunk.get());
 
-            if (!has_all_neighbours)
+            if (!neighbours.hasAll())
             {
                 if (chunk->mesh_)
                 {
@@ -352,14 +377,12 @@ void VoxelEngine::release_mesh(UPtr<ChunkMesh> mesh)
     meshes_pool_.push_back(std::move(mesh));
 }
 
-UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
+void VoxelEngine::generate_chunk(Chunk &chunk)
 {
     SCOPED_PROFILER;
 
     assert(perlin_);
     const siv::PerlinNoise &perlin = *perlin_;
-
-    UPtr<Chunk> chunk = makeU<Chunk>(pos);
 
     int height_map[Chunk::CHUNK_WIDTH][Chunk::CHUNK_WIDTH];
 
@@ -369,8 +392,8 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
     constexpr int HEIGHT_DIFF = MAX - MIN;
     static_assert(MIN < MAX);
 
-    const int offset_x = chunk->getBlocksOffsetX();
-    const int offset_z = chunk->getBlocksOffsetZ();
+    const int offset_x = chunk.getBlocksOffsetX();
+    const int offset_z = chunk.getBlocksOffsetZ();
 
     for (int z = 0; z < Chunk::CHUNK_WIDTH; ++z)
     {
@@ -385,10 +408,10 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
     }
 
     glm::vec3 offset;
-    offset.x = chunk->getBlocksOffsetX();
+    offset.x = chunk.getBlocksOffsetX();
     offset.y = 0;
-    offset.z = chunk->getBlocksOffsetZ();
-    chunk->visitWrite([&](int x, int y, int z, BlockInfo &block) {
+    offset.z = chunk.getBlocksOffsetZ();
+    chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
         const int cur_height = height_map[z][x];
         const int diff = y - cur_height;
 
@@ -420,8 +443,6 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
             block = BlockInfo(BasicBlocks::STONE);
         }
     });
-
-    return chunk;
 }
 
 glm::ivec3 VoxelEngine::pos_to_chunk_pos(const glm::vec3 &pos) const
@@ -434,15 +455,13 @@ glm::ivec3 VoxelEngine::pos_to_chunk_pos(const glm::vec3 &pos) const
 
 Chunk *VoxelEngine::get_chunk_at_pos(int x, int z) const
 {
-    // TODO# hash map (or not? check perf)
-    for (const UPtr<Chunk> &c : chunks_)
+    const glm::ivec2 pos = glm::ivec2{x, z};
+    const auto it = chunk_index_by_pos_.find(pos);
+    if (it == chunk_index_by_pos_.end())
     {
-        if (c->position_.x == x && c->position_.z == z)
-        {
-            return c.get();
-        }
+        return nullptr;
     }
-    return nullptr;
+    return chunks_[it->second].get();
 }
 
 bool VoxelEngine::has_all_neighbours(Chunk *chunk) const
@@ -469,4 +488,46 @@ NeighbourChunks VoxelEngine::get_neighbour_chunks(Chunk *chunk) const
     chunks.nz = get_chunk_at_pos(x, z - 1);
 
     return chunks;
+}
+
+NeighbourChunks VoxelEngine::get_neighbour_chunks_lazy(Chunk *chunk) const
+{
+    assert(chunk);
+    const glm::ivec3 pos = chunk->position_;
+    const int x = pos.x;
+    const int z = pos.z;
+
+    NeighbourChunks chunks;
+    chunks.px = get_chunk_at_pos(x + 1, z);
+    if (!chunks.px)
+    {
+        return chunks;
+    }
+    chunks.nx = get_chunk_at_pos(x - 1, z);
+    if (!chunks.nx)
+    {
+        return chunks;
+    }
+    chunks.pz = get_chunk_at_pos(x, z + 1);
+    if (!chunks.pz)
+    {
+        return chunks;
+    }
+    chunks.nz = get_chunk_at_pos(x, z - 1);
+
+    return chunks;
+}
+
+void VoxelEngine::refresh_chunk_index_by_pos()
+{
+    SCOPED_PROFILER;
+
+    chunk_index_by_pos_.clear();
+    chunk_index_by_pos_.reserve(chunks_.size());
+    for (int i = 0, count = chunks_.size(); i < count; ++i)
+    {
+        const UPtr<Chunk> &c = chunks_[i];
+        const glm::ivec2 pos = glm::ivec2{c->position_.x, c->position_.z};
+        chunk_index_by_pos_[pos] = i;
+    }
 }
