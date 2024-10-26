@@ -328,7 +328,7 @@ public:
                 eng.visualizer->addLine(r.ray.begin, r.ray.end, r.color);
             }
 
-            if (eng.input->isKeyPressed(Key::KEY_F))
+            if (eng.input->isKeyDown(Key::KEY_F))
             {
                 constexpr int EXPLOSION_SIZE = 5;
                 Chunk *chunk = eng.vox->getChunkAtPosition(camera_.getPosition());
