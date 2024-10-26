@@ -330,7 +330,7 @@ public:
 
             if (eng.input->isKeyDown(Key::KEY_F))
             {
-                constexpr int EXPLOSION_SIZE = 5;
+                constexpr int EXPLOSION_SIZE = 15;
                 Chunk *chunk = eng.vox->getChunkAtPosition(camera_.getPosition());
                 if (chunk)
                 {
