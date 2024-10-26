@@ -14,6 +14,7 @@ public:
 
     void bind() const { vao.bind(); }
     int getNumVertices() const { return vbo.getNumVertices(); }
+    void clear() { vbo.clear(); }
 
 public:
     struct Vertex

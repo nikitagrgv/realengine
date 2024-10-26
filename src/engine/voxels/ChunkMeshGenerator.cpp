@@ -10,7 +10,7 @@
 
 void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh)
 {
-    assert(chunk.dirty_);
+    assert(chunk.need_rebuild_mesh_);
 
     SCOPED_PROFILER;
 

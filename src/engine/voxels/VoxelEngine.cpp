@@ -11,6 +11,7 @@
 #include "Chunk.h"
 #include "ChunkMesh.h"
 #include "ChunkMeshGenerator.h"
+#include "Common.h"
 #include "EngineGlobals.h"
 #include "GlobalLight.h"
 #include "Shader.h"
@@ -20,6 +21,7 @@
 #include "math/Math.h"
 #include "profiler/ScopedProfiler.h"
 #include "profiler/ScopedTimer.h"
+#include "utils/Algos.h"
 
 #include <PerlinNoise.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -63,38 +65,112 @@ void VoxelEngine::update(const glm::vec3 &position)
 {
     SCOPED_PROFILER;
 
-    const auto pos_to_chunk = [](const glm::vec3 pos) {
-        const auto x = std::floor(pos.x / Chunk::CHUNK_WIDTH);
-        const auto y = 0;
-        const auto z = std::floor(pos.z / Chunk::CHUNK_WIDTH);
-        return glm::ivec3{x, y, z};
+    const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
+
+    constexpr int RADIUS_SPAWN_CHUNK = 3;
+    constexpr int RADIUS_UNLOAD_MESH = 4;
+    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 5;
+
+    static_assert(RADIUS_UNLOAD_WHOLE_CHUNK > RADIUS_UNLOAD_MESH
+            && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
+        "Invalid radiuses");
+
+    const auto is_outside_radius = [&](const Chunk &chunk, int radius) {
+        const glm::ivec3 pos = chunk.position_;
+        const int max_radius = std::max(std::abs(base_chunk_pos.z - pos.z),
+            std::abs(base_chunk_pos.x - pos.x));
+        return max_radius > radius;
     };
 
-    const auto has_chunk = [&](glm::ivec3 pos) {
-        for (const UPtr<Chunk> &c : chunks_)
-        {
-            if (c->position_.x == pos.x && c->position_.z == pos.z)
-            {
-                return true;
-            }
-        }
-        return false;
-    };
+    // Unload whole chunks outside radius
+    // TODO# save in file or compress
+    Alg::removeIf(chunks_, [&](const UPtr<Chunk> &chunk) {
+        return is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
+    });
 
-    const glm::ivec3 chunk_pos = pos_to_chunk(position);
-    constexpr int RADIUS = 2;
-    for (int z = chunk_pos.z - RADIUS, z_end = chunk_pos.z + RADIUS; z <= z_end; ++z)
+    // Unload meshes outside radius
+    for (const UPtr<Chunk> &chunk : chunks_)
     {
-        for (int x = chunk_pos.x - RADIUS, x_end = chunk_pos.x + RADIUS; x <= x_end; ++x)
+        if (!chunk->mesh_)
         {
-            if (!has_chunk(glm::ivec3{x, 0, z}))
-            {
-                UPtr<Chunk> new_chunk = generate_chunk(glm::ivec3{x, 0, z});
-                new_chunk->mesh_ = makeU<ChunkMesh>(); // TODO! REMOVE
-                chunks_.push_back(std::move(new_chunk));
-            }
+            continue;
+        }
+        if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+        {
+            release_mesh(std::move(chunk->mesh_));
         }
     }
+
+    // Generate chunks in radius
+    for (int z = base_chunk_pos.z - RADIUS_SPAWN_CHUNK,
+             z_end = base_chunk_pos.z + RADIUS_SPAWN_CHUNK;
+         z <= z_end; ++z)
+    {
+        for (int x = base_chunk_pos.x - RADIUS_SPAWN_CHUNK,
+                 x_end = base_chunk_pos.x + RADIUS_SPAWN_CHUNK;
+             x <= x_end; ++x)
+        {
+            if (has_chunk_at_pos(x, z))
+            {
+                continue;
+            }
+            UPtr<Chunk> new_chunk = generate_chunk(glm::ivec3{x, 0, z});
+            chunks_.push_back(std::move(new_chunk));
+        }
+    }
+
+    // Generate/unload meshes for chunks according to neighbours chunks
+    for (const UPtr<Chunk> &chunk : chunks_)
+    {
+        NeighbourChunks neighbours = get_neighbour_chunks(chunk.get());
+        const bool has_all_neighbours = neighbours.hasAll();
+
+        if (!has_all_neighbours)
+        {
+            if (chunk->mesh_)
+            {
+                release_mesh(std::move(chunk->mesh_));
+            }
+            continue;
+        }
+
+        // TODO: remove this check
+        if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+        {
+            continue;
+        }
+
+        if (!chunk->mesh_)
+        {
+            chunk->mesh_ = get_mesh_cached();
+            chunk->need_rebuild_mesh_ = true;
+        }
+
+        if (chunk->need_rebuild_mesh_)
+        {
+            ChunkMeshGenerator generator;
+            generator.rebuildMesh(*chunk, *chunk->mesh_);
+            chunk->need_rebuild_mesh_ = false;
+        }
+    }
+
+#ifndef NDEBUG
+    for (const UPtr<Chunk> &chunk : chunks_)
+    {
+        if (is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK))
+        {
+            assert(0);
+        }
+        if (!chunk->mesh_)
+        {
+            continue;
+        }
+        if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+        {
+            assert(0);
+        }
+    }
+#endif
 }
 
 void VoxelEngine::render(Camera *camera, GlobalLight *light)
@@ -136,13 +212,6 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
         if (!chunk->mesh_)
         {
             continue;
-        }
-
-        if (chunk->need_rebuild_mesh_)
-        {
-            ChunkMeshGenerator generator;
-            generator.rebuildMesh(*chunk, *chunk->mesh_);
-            chunk->need_rebuild_mesh_ = false;
         }
 
         chunk->mesh_->bind();
@@ -248,6 +317,25 @@ void VoxelEngine::register_blocks()
     assert(BasicBlocks::AIR == 0);
 }
 
+UPtr<ChunkMesh> VoxelEngine::get_mesh_cached()
+{
+    if (meshes_pool_.empty())
+    {
+        return makeU<ChunkMesh>();
+    }
+    UPtr<ChunkMesh> mesh = std::move(meshes_pool_.back());
+    meshes_pool_.pop_back();
+    assert(mesh);
+    mesh->clear();
+    return mesh;
+}
+
+void VoxelEngine::release_mesh(UPtr<ChunkMesh> mesh)
+{
+    assert(mesh);
+    meshes_pool_.push_back(std::move(mesh));
+}
+
 UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
 {
     SCOPED_PROFILER;
@@ -318,4 +406,51 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
     });
 
     return chunk;
+}
+
+glm::ivec3 VoxelEngine::pos_to_chunk_pos(const glm::vec3 &pos) const
+{
+    const auto x = std::floor(pos.x / Chunk::CHUNK_WIDTH);
+    const auto y = 0;
+    const auto z = std::floor(pos.z / Chunk::CHUNK_WIDTH);
+    return glm::ivec3{x, y, z};
+}
+
+Chunk *VoxelEngine::get_chunk_at_pos(int x, int z) const
+{
+    // TODO# hash map (or not? check perf)
+    for (const UPtr<Chunk> &c : chunks_)
+    {
+        if (c->position_.x == x && c->position_.z == z)
+        {
+            return c.get();
+        }
+    }
+    return nullptr;
+}
+
+bool VoxelEngine::has_all_neighbours(Chunk *chunk) const
+{
+    assert(chunk);
+    const glm::ivec3 pos = chunk->position_;
+    const int x = pos.x;
+    const int z = pos.z;
+    return has_chunk_at_pos(x + 1, z) && has_chunk_at_pos(x - 1, z) && has_chunk_at_pos(x, z + 1)
+        && has_chunk_at_pos(x, z - 1);
+}
+
+NeighbourChunks VoxelEngine::get_neighbour_chunks(Chunk *chunk) const
+{
+    assert(chunk);
+    const glm::ivec3 pos = chunk->position_;
+    const int x = pos.x;
+    const int z = pos.z;
+
+    NeighbourChunks chunks;
+    chunks.px = get_chunk_at_pos(x + 1, z);
+    chunks.nx = get_chunk_at_pos(x - 1, z);
+    chunks.pz = get_chunk_at_pos(x, z + 1);
+    chunks.nz = get_chunk_at_pos(x, z - 1);
+
+    return chunks;
 }

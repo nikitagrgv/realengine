@@ -6,6 +6,7 @@ add_subdirectory(math)
 add_subdirectory(profiler)
 add_subdirectory(signals)
 add_subdirectory(time)
+add_subdirectory(utils)
 add_subdirectory(voxels)
 
 target_sources(realengine
