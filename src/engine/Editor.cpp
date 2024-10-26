@@ -80,24 +80,36 @@ void Editor::load_configs()
         return;
     }
 
-    file >> nodes_window_;
-    file >> shaders_window_;
-    file >> texture_window_;
-    file >> materials_window_;
-    file >> meshes_window_;
-    file >> info_window_;
+    // TODO# wtf fix shit << bool
+    const auto read = [&](bool &val) {
+        std::string s;
+        file >> s;
+        val = s == "1";
+    };
+
+    read(nodes_window_);
+    read(shaders_window_);
+    read(texture_window_);
+    read(materials_window_);
+    read(meshes_window_);
+    read(info_window_);
 }
 
 void Editor::save_configs()
 {
     std::ofstream file(CONFIG_PATH);
 
-    file << nodes_window_;
-    file << shaders_window_;
-    file << texture_window_;
-    file << materials_window_;
-    file << meshes_window_;
-    file << info_window_;
+    const auto write = [&](bool val) {
+        const char *v = val ? "1" : "0";
+        file << v << std::endl;
+    };
+
+    write(nodes_window_);
+    write(shaders_window_);
+    write(texture_window_);
+    write(materials_window_);
+    write(meshes_window_);
+    write(info_window_);
 
     file.flush();
     file.close();
