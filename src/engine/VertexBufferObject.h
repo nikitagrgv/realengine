@@ -19,7 +19,7 @@ template<typename V>
 class VertexBufferObject : protected VertexBufferObjectHelper
 {
 public:
-    REMOVE_COPY_CLASS(VertexBufferObject);
+    REMOVE_COPY_MOVE_CLASS(VertexBufferObject);
 
     static void unbind() { unbindBuffer(); }
 
@@ -31,23 +31,6 @@ public:
         {
             destroyBuffer(vbo_);
         }
-    }
-
-    VertexBufferObject(VertexBufferObject &&other) noexcept { *this = std::move(other); }
-
-    VertexBufferObject &operator=(VertexBufferObject &&other) noexcept
-    {
-        if (this != &other)
-        {
-            if (vbo_ != 0)
-            {
-                destroyBuffer(vbo_);
-            }
-            vbo_ = other.vbo_;
-            other.vbo_ = 0;
-            vertices_ = std::move(other.vertices_);
-        }
-        return *this;
     }
 
     int addVertex(const V &v)

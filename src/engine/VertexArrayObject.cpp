@@ -23,26 +23,6 @@ VertexArrayObject::~VertexArrayObject()
     }
 }
 
-VertexArrayObject::VertexArrayObject(VertexArrayObject &&other) noexcept
-{
-    *this = std::move(other);
-}
-
-VertexArrayObject &VertexArrayObject::operator=(VertexArrayObject &&other) noexcept
-{
-    if (this != &other)
-    {
-        if (vao_ != 0)
-        {
-            GL_CHECKED(glDeleteVertexArrays(1, &vao_));
-        }
-        vao_ = other.vao_;
-        other.vao_ = 0;
-        attributes_ = std::move(other.attributes_);
-    }
-    return *this;
-}
-
 void VertexArrayObject::addAttributeFloat(int count)
 {
     Attribute attr;

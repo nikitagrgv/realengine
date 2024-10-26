@@ -7,17 +7,13 @@
 class IndexBufferObject
 {
 public:
-    REMOVE_COPY_CLASS(IndexBufferObject);
+    REMOVE_COPY_MOVE_CLASS(IndexBufferObject);
 
     static void unbind();
 
     IndexBufferObject();
 
     ~IndexBufferObject();
-
-    IndexBufferObject(IndexBufferObject &&other) noexcept;
-
-    IndexBufferObject &operator=(IndexBufferObject &&other) noexcept;
 
     void addIndices(int num_indices);
 

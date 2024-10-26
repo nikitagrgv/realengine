@@ -22,26 +22,6 @@ IndexBufferObject::~IndexBufferObject()
     GL_CHECKED(glDeleteBuffers(1, &ebo_));
 }
 
-IndexBufferObject::IndexBufferObject(IndexBufferObject &&other) noexcept
-{
-    *this = std::move(other);
-}
-
-IndexBufferObject &IndexBufferObject::operator=(IndexBufferObject &&other) noexcept
-{
-    if (this != &other)
-    {
-        if (ebo_ != 0)
-        {
-            GL_CHECKED(glDeleteBuffers(1, &ebo_));
-        }
-        ebo_ = other.ebo_;
-        other.ebo_ = 0;
-        indices_ = std::move(other.indices_);
-    }
-    return *this;
-}
-
 void IndexBufferObject::addIndices(int num_indices)
 {
     indices_.resize(indices_.size() + num_indices, 0);

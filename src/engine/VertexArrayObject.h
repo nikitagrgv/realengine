@@ -7,16 +7,12 @@
 class VertexArrayObject
 {
 public:
-    REMOVE_COPY_CLASS(VertexArrayObject);
+    REMOVE_COPY_MOVE_CLASS(VertexArrayObject);
 
     static void unbind();
 
     VertexArrayObject();
     ~VertexArrayObject();
-
-    VertexArrayObject(VertexArrayObject &&other) noexcept;
-
-    VertexArrayObject &operator=(VertexArrayObject &&other) noexcept;
 
     void addAttributeFloat(int count);
 
