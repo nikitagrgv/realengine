@@ -68,8 +68,8 @@ void VoxelEngine::update(const glm::vec3 &position)
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
     constexpr int RADIUS_SPAWN_CHUNK = 3;
-    constexpr int RADIUS_UNLOAD_MESH = 6;
-    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 8;
+    constexpr int RADIUS_UNLOAD_MESH = 116;
+    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 118;
 
     static_assert(RADIUS_UNLOAD_WHOLE_CHUNK > RADIUS_UNLOAD_MESH
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
@@ -149,7 +149,7 @@ void VoxelEngine::update(const glm::vec3 &position)
         if (chunk->need_rebuild_mesh_)
         {
             ChunkMeshGenerator generator;
-            generator.rebuildMesh(*chunk, *chunk->mesh_);
+            generator.rebuildMesh(*chunk, *chunk->mesh_, neighbours);
             chunk->need_rebuild_mesh_ = false;
         }
     }

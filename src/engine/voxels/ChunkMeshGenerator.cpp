@@ -8,7 +8,8 @@
 #include "VoxelEngine.h"
 #include "profiler/ScopedProfiler.h"
 
-void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh)
+void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
+    const NeighbourChunks &neighbours)
 {
     assert(chunk.need_rebuild_mesh_);
 
@@ -18,18 +19,42 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh)
 
     BlocksRegistry *registry = eng.vox->getRegistry();
 
-    const auto is_air_or_outside = [&](int x, int y, int z) {
-        if (!Chunk::isInsideChunk(x, y, z))
+    const auto is_air = [&](int x, int y, int z) {
+        if (y < 0)
+        {
+            return false;
+        }
+        if (y >= Chunk::CHUNK_HEIGHT)
         {
             return true;
         }
-        const BlockInfo block = chunk.getBlock(x, y, z);
-        if (block.id == 0)
-        {
-            return true;
-        }
+
         // TODO# check transparent
-        return false;
+
+        if (x < 0)
+        {
+            const BlockInfo block = neighbours.nx->getBlock(Chunk::CHUNK_WIDTH - 1, y, z);
+            return block.id == 0;
+        }
+        if (x >= Chunk::CHUNK_WIDTH)
+        {
+            const BlockInfo block = neighbours.px->getBlock(0, y, z);
+            return block.id == 0;
+        }
+
+        if (z < 0)
+        {
+            const BlockInfo block = neighbours.nz->getBlock(x, y, Chunk::CHUNK_WIDTH - 1);
+            return block.id == 0;
+        }
+        if (z >= Chunk::CHUNK_WIDTH)
+        {
+            const BlockInfo block = neighbours.pz->getBlock(x, y, 0);
+            return block.id == 0;
+        }
+
+        const BlockInfo block = chunk.getBlock(x, y, z);
+        return block.id == 0;
     };
 
     chunk.visitRead([&](int x, int y, int z, BlockInfo block) {
@@ -44,27 +69,27 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh)
         const BlockDescription &desc = registry->getBlock(block.id);
         assert(desc.cached.valid);
 
-        if (is_air_or_outside(x + 1, y, z))
+        if (is_air(x + 1, y, z))
         {
             gen_face_px(min, max, desc, mesh);
         }
-        if (is_air_or_outside(x - 1, y, z))
+        if (is_air(x - 1, y, z))
         {
             gen_face_nx(min, max, desc, mesh);
         }
-        if (is_air_or_outside(x, y + 1, z))
+        if (is_air(x, y + 1, z))
         {
             gen_face_py(min, max, desc, mesh);
         }
-        if (is_air_or_outside(x, y - 1, z))
+        if (is_air(x, y - 1, z))
         {
             gen_face_ny(min, max, desc, mesh);
         }
-        if (is_air_or_outside(x, y, z + 1))
+        if (is_air(x, y, z + 1))
         {
             gen_face_pz(min, max, desc, mesh);
         }
-        if (is_air_or_outside(x, y, z - 1))
+        if (is_air(x, y, z - 1))
         {
             gen_face_nz(min, max, desc, mesh);
         }
