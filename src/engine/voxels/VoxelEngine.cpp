@@ -211,8 +211,6 @@ UPtr<Chunk> VoxelEngine::generate_chunk(glm::vec3 pos)
 {
     SCOPED_PROFILER;
 
-    ScopedTimer timer("Generate chunk");
-
     assert(perlin_);
     const siv::PerlinNoise &perlin = *perlin_;
 

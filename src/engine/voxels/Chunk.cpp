@@ -39,8 +39,6 @@ void Chunk::flush()
 
     SCOPED_PROFILER;
 
-    ScopedTimer timer("Flush chunk");
-
     vbo_->clear();
 
     BlocksRegistry *registry = eng.vox->getRegistry();
@@ -97,7 +95,10 @@ void Chunk::flush()
         }
     });
 
-    vbo_->flush(true);
+    {
+        ScopedProfiler p("flush vbo");
+        vbo_->flush(true);
+    }
 }
 
 void Chunk::gen_face_py(const glm::vec3 &min, const glm::vec3 &max, const BlockDescription &desc)
