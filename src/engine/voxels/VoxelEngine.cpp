@@ -82,75 +82,91 @@ void VoxelEngine::update(const glm::vec3 &position)
         return max_radius > radius;
     };
 
-    // Unload whole chunks outside radius
-    // TODO# save in file or compress
-    Alg::removeIf(chunks_, [&](const UPtr<Chunk> &chunk) {
-        return is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
-    });
-
-    // Unload meshes outside radius
-    for (const UPtr<Chunk> &chunk : chunks_)
     {
-        if (!chunk->mesh_)
-        {
-            continue;
-        }
-        if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
-        {
-            release_mesh(std::move(chunk->mesh_));
-        }
+        ScopedProfiler p("Unload chunks");
+
+        // Unload whole chunks outside radius
+        // TODO# save in file or compress
+        Alg::removeIf(chunks_, [&](const UPtr<Chunk> &chunk) {
+            return is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
+        });
     }
 
-    // Generate chunks in radius
-    for (int z = base_chunk_pos.z - RADIUS_SPAWN_CHUNK,
-             z_end = base_chunk_pos.z + RADIUS_SPAWN_CHUNK;
-         z <= z_end; ++z)
     {
-        for (int x = base_chunk_pos.x - RADIUS_SPAWN_CHUNK,
-                 x_end = base_chunk_pos.x + RADIUS_SPAWN_CHUNK;
-             x <= x_end; ++x)
+        ScopedProfiler p("Unload meshes");
+
+        // Unload meshes outside radius
+        for (const UPtr<Chunk> &chunk : chunks_)
         {
-            if (has_chunk_at_pos(x, z))
+            if (!chunk->mesh_)
             {
                 continue;
             }
-            UPtr<Chunk> new_chunk = generate_chunk(glm::ivec3{x, 0, z});
-            chunks_.push_back(std::move(new_chunk));
-        }
-    }
-
-    // Generate/unload meshes for chunks according to neighbours chunks
-    for (const UPtr<Chunk> &chunk : chunks_)
-    {
-        NeighbourChunks neighbours = get_neighbour_chunks(chunk.get());
-        const bool has_all_neighbours = neighbours.hasAll();
-
-        if (!has_all_neighbours)
-        {
-            if (chunk->mesh_)
+            if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
             {
                 release_mesh(std::move(chunk->mesh_));
             }
-            continue;
         }
+    }
 
-        // TODO: remove this check
-        if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+    {
+        ScopedProfiler p("Generate chunks");
+
+        // Generate chunks in radius
+        for (int z = base_chunk_pos.z - RADIUS_SPAWN_CHUNK,
+                 z_end = base_chunk_pos.z + RADIUS_SPAWN_CHUNK;
+             z <= z_end; ++z)
         {
-            continue;
+            for (int x = base_chunk_pos.x - RADIUS_SPAWN_CHUNK,
+                     x_end = base_chunk_pos.x + RADIUS_SPAWN_CHUNK;
+                 x <= x_end; ++x)
+            {
+                if (has_chunk_at_pos(x, z))
+                {
+                    continue;
+                }
+                UPtr<Chunk> new_chunk = generate_chunk(glm::ivec3{x, 0, z});
+                chunks_.push_back(std::move(new_chunk));
+            }
         }
+    }
 
-        if (!chunk->mesh_)
-        {
-            chunk->mesh_ = get_mesh_cached();
-            chunk->need_rebuild_mesh_ = true;
-        }
+    {
+        ScopedProfiler p("Generate/unload meshes");
 
-        if (chunk->need_rebuild_mesh_)
+        // Generate/unload meshes for chunks according to neighbours chunks
+        for (const UPtr<Chunk> &chunk : chunks_)
         {
-            ChunkMeshGenerator generator;
-            generator.rebuildMesh(*chunk, *chunk->mesh_, neighbours);
-            chunk->need_rebuild_mesh_ = false;
+            NeighbourChunks neighbours = get_neighbour_chunks(chunk.get());
+            const bool has_all_neighbours = neighbours.hasAll();
+
+            if (!has_all_neighbours)
+            {
+                if (chunk->mesh_)
+                {
+                    release_mesh(std::move(chunk->mesh_));
+                }
+                continue;
+            }
+
+            // TODO: remove this check
+            if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+            {
+                continue;
+            }
+
+            if (!chunk->mesh_)
+            {
+                chunk->mesh_ = get_mesh_cached();
+                chunk->need_rebuild_mesh_ = true;
+            }
+
+            if (chunk->need_rebuild_mesh_)
+            {
+                ChunkMeshGenerator generator;
+                generator.rebuildMesh(*chunk, *chunk->mesh_, neighbours);
+                chunk->need_rebuild_mesh_ = false;
+            }
         }
     }
 
