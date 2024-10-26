@@ -348,6 +348,7 @@ public:
                                     + glm::abs(off_z);
                                 if (distance <= EXPLOSION_SIZE)
                                 {
+                                    todo fix out of arr
                                     chunk->setBlock(pos.x, pos.y, pos.z, BlockInfo{0});
                                 }
                             }
