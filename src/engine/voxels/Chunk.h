@@ -72,6 +72,19 @@ public:
         return pos;
     }
 
+    REALENGINE_INLINE glm::ivec3 getBlockLocalPosition(glm::ivec3 global_pos) const
+    {
+        glm::ivec3 pos = global_pos;
+        pos.x -= position_.x * CHUNK_WIDTH;
+        pos.z -= position_.z * CHUNK_WIDTH;
+        return pos;
+    }
+
+    REALENGINE_INLINE glm::ivec3 getBlockLocalPosition(glm::vec3 global_pos) const
+    {
+        return getBlockLocalPosition(glm::ivec3{global_pos});
+    }
+
     int getBlocksOffsetX() const { return position_.x * CHUNK_WIDTH; }
     int getBlocksOffsetZ() const { return position_.z * CHUNK_WIDTH; }
 

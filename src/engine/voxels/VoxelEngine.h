@@ -42,6 +42,8 @@ public:
     int getNumRenderChunks() const;
     uint64_t getNumRenderVertices() const;
 
+    Chunk *getChunkAtPosition(const glm::vec3 &position);
+
 private:
     void register_blocks();
 

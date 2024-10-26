@@ -313,6 +313,12 @@ uint64_t VoxelEngine::getNumRenderVertices() const
     return ret;
 }
 
+Chunk *VoxelEngine::getChunkAtPosition(const glm::vec3 &position)
+{
+    const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
+    return get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
+}
+
 void VoxelEngine::register_blocks()
 {
     BlocksRegistry &reg = *registry_;

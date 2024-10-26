@@ -36,6 +36,7 @@
 #include "input/Input.h"
 #include "profiler/ScopedProfiler.h"
 #include "time/Time.h"
+#include "voxels/Chunk.h"
 #include "voxels/VoxelEngine.h"
 
 #include <NodeMesh.h>
@@ -328,7 +329,32 @@ public:
             }
 
             if (eng.input->isKeyPressed(Key::KEY_F))
-            {}
+            {
+                constexpr int EXPLOSION_SIZE = 5;
+                Chunk *chunk = eng.vox->getChunkAtPosition(camera_.getPosition());
+                if (chunk)
+                {
+                    chunk->need_rebuild_mesh_ = true;
+                    const glm::ivec3 block_pos = chunk->getBlockLocalPosition(
+                        camera_.getPosition());
+                    for (int off_y = -EXPLOSION_SIZE; off_y <= EXPLOSION_SIZE; ++off_y)
+                    {
+                        for (int off_z = -EXPLOSION_SIZE; off_z <= EXPLOSION_SIZE; ++off_z)
+                        {
+                            for (int off_x = -EXPLOSION_SIZE; off_x <= EXPLOSION_SIZE; ++off_x)
+                            {
+                                const glm::ivec3 pos = block_pos + glm::ivec3{off_x, off_y, off_z};
+                                const int distance = glm::abs(off_x) + glm::abs(off_y)
+                                    + glm::abs(off_z);
+                                if (distance <= EXPLOSION_SIZE)
+                                {
+                                    chunk->setBlock(pos.x, pos.y, pos.z, BlockInfo{0});
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             ///////////////////////////////////////////////////////////
             edg.editor_->setPlayerPositionInfo(camera_.getPosition());
