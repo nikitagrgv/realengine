@@ -70,9 +70,9 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
-    constexpr int RADIUS_SPAWN_CHUNK = 1 * 2;
-    constexpr int RADIUS_UNLOAD_MESH = 2 * 2;
-    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 3 * 2;
+    constexpr int RADIUS_SPAWN_CHUNK = 6 * 2;
+    constexpr int RADIUS_UNLOAD_MESH = 9 * 2;
+    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 11 * 2;
 
     static_assert(RADIUS_UNLOAD_WHOLE_CHUNK > RADIUS_UNLOAD_MESH
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
@@ -169,18 +169,22 @@ void VoxelEngine::update(const glm::vec3 &position)
         // TODO# CHECK OUTSIDE RADIUS
 
         ScopedProfiler p("Add generated chunks");
-        if (!generated_chunks_.empty())
+        for (UPtr<Chunk> &chunk : generated_chunks_)
         {
-            chunks_dirty = true;
-            for (UPtr<Chunk> &chunk : generated_chunks_)
+            assert(chunk);
+
+            if (is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK))
             {
-                assert(chunk);
-                assert(Alg::noneOf(chunks_,
-                    [&](const UPtr<Chunk> &c) { return c->position_ == chunk->position_; }));
-                chunks_.push_back(std::move(chunk));
+                release_chunk(std::move(chunk));
+                continue;
             }
-            generated_chunks_.clear();
+
+            assert(Alg::noneOf(chunks_,
+                [&](const UPtr<Chunk> &c) { return c->position_ == chunk->position_; }));
+            chunks_.push_back(std::move(chunk));
+            chunks_dirty = true;
         }
+        generated_chunks_.clear();
     }
 
     if (chunks_dirty)
