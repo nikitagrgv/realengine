@@ -71,8 +71,8 @@ void VoxelEngine::update(const glm::vec3 &position)
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
     constexpr int RADIUS_SPAWN_CHUNK = 6 * 2;
-    constexpr int RADIUS_UNLOAD_MESH = 9 * 2;
-    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 11 * 2;
+    constexpr int RADIUS_UNLOAD_MESH = 12 * 2;
+    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 15 * 2;
 
     static_assert(RADIUS_UNLOAD_WHOLE_CHUNK > RADIUS_UNLOAD_MESH
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
@@ -545,7 +545,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     int height_map[Chunk::CHUNK_WIDTH][Chunk::CHUNK_WIDTH];
 
-    constexpr float FACTOR = 0.007f;
+    constexpr float FACTOR = 0.002f;
     constexpr int MIN = 10;
     constexpr int MAX = Chunk::CHUNK_HEIGHT - 120;
     constexpr int HEIGHT_DIFF = MAX - MIN;
@@ -560,7 +560,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         {
             const float z_n = (float)(z + offset_z) * FACTOR;
             const float x_n = (float)(x + offset_x) * FACTOR;
-            const float height_norm = perlin.octave2D_01(z_n, x_n, 5, 0.4);
+            const float height_norm = perlin.octave2D_01(z_n, x_n, 8, 0.5);
             const int height = (int)(height_norm * (float)HEIGHT_DIFF + (float)MIN);
             height_map[z][x] = height;
         }
@@ -577,7 +577,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         if (diff <= 0)
         {
             glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
-            const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 4);
+            const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 14);
             if (noise > 0.8f)
             {
                 block = BlockInfo(BasicBlocks::AIR);
