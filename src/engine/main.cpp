@@ -529,7 +529,7 @@ private:
     }
 
 private:
-    glm::vec3 camera_pos_{20.0f, 20.0f, 20.0f};
+    glm::vec3 camera_pos_{20.0f, 130.0f, 20.0f};
     float pitch_{0.0f};
     float yaw_{0.0f};
 

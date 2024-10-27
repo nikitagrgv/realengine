@@ -67,9 +67,9 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
-    constexpr int RADIUS_SPAWN_CHUNK = 8 * 2;
-    constexpr int RADIUS_UNLOAD_MESH = 16 * 2;
-    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 26 * 2;
+    constexpr int RADIUS_SPAWN_CHUNK = 1 * 2;
+    constexpr int RADIUS_UNLOAD_MESH = 2 * 2;
+    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 3 * 2;
 
     static_assert(RADIUS_UNLOAD_WHOLE_CHUNK > RADIUS_UNLOAD_MESH
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
