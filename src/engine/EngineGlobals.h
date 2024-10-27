@@ -18,6 +18,7 @@ class Input;
 class SystemProxy;
 class Gui;
 class VoxelEngine;
+class JobQueue;
 
 struct EngineGlobals
 {
@@ -36,6 +37,7 @@ struct EngineGlobals
     SystemProxy *proxy{};
     Gui *gui{};
     VoxelEngine *vox{};
+    JobQueue *queue{};
 
     Statistics stat{};
 };

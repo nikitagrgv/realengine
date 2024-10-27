@@ -1,7 +1,13 @@
 target_sources(realengine
         PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/Job.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Job.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/JobQueue.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/JobQueue.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Thread.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Thread.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Threads.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Threads.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/WorkerThread.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/WorkerThread.h
 )

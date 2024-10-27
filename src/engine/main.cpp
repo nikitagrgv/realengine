@@ -35,6 +35,7 @@
 #include "fs/FileSystem.h"
 #include "input/Input.h"
 #include "profiler/ScopedProfiler.h"
+#include "threads/JobQueue.h"
 #include "threads/Thread.h"
 #include "threads/Threads.h"
 #include "time/Time.h"
@@ -59,23 +60,6 @@ class Engine
 public:
     void exec()
     {
-        struct MyThread : Thread
-        {
-            void execute() override
-            {
-                while (true)
-                {
-                    if (needExit())
-                    {
-                        return;
-                    }
-                    Threads::sleepMs(1000);
-                    std::cout << "thread" << std::endl;
-                }
-            }
-        };
-        MyThread thread{};
-
         Context ctx;
 
         init();
@@ -403,6 +387,7 @@ private:
 
         Random::init();
         eng.engine_ = this;
+        eng.queue = new JobQueue();
         eng.proxy = new SystemProxy();
         eng.input = new Input();
         eng.time = new Time();
@@ -453,6 +438,7 @@ private:
         delete_and_null(eng.time);
         delete_and_null(eng.input);
         delete_and_null(eng.proxy);
+        delete_and_null(eng.queue);
         Threads::shutdown();
         eng.engine_ = nullptr;
     }
