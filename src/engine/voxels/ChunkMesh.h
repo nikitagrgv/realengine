@@ -24,7 +24,7 @@ public:
     REALENGINE_INLINE void clear() { vbo.clear(); }
     REALENGINE_INLINE void flush() { vbo.flush(true); }
     REALENGINE_INLINE int addVertex(const Vertex &v) { return vbo.addVertex(v); }
-    REALENGINE_INLINE void addRaw(const char *data, int size_bytes)
+    REALENGINE_INLINE void addRaw(const void *data, int size_bytes)
     {
         vbo.addRaw(data, size_bytes);
     }
