@@ -574,7 +574,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         const int cur_height = height_map[z][x];
         const int diff = y - cur_height;
 
-        if (false && diff <= 0)
+        if (diff <= 0)
         {
             glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
             const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 4);
