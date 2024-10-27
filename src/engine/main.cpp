@@ -332,7 +332,8 @@ public:
             {
                 ScopedProfiler p("Explosion");
 
-                const glm::ivec3 center_pos = camera_.getPosition();
+                const glm::ivec3 center_pos = VoxelEngine::toBlockPosition(camera_.getPosition());
+
                 constexpr int EXPLOSION_SIZE = 30;
                 for (int off_y = -EXPLOSION_SIZE; off_y <= EXPLOSION_SIZE; ++off_y)
                 {

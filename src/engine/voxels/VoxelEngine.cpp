@@ -313,15 +313,12 @@ uint64_t VoxelEngine::getNumRenderVertices() const
     return ret;
 }
 
-Chunk *VoxelEngine::getChunkAtPosition(const glm::vec3 &position)
-{
-    const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
-    return get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
-}
-
 bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block)
 {
-    Chunk *chunk = getChunkAtPosition(position);
+    const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
+
+    Chunk *chunk = get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
+
     if (!chunk)
     {
         return false;
@@ -338,6 +335,40 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
 
     chunk->setBlock(loc_pos.x, loc_pos.y, loc_pos.z, block);
     chunk->need_rebuild_mesh_ = true;
+
+    if (loc_pos.x == 0)
+    {
+        Chunk *c = get_chunk_at_pos(chunk_pos.x - 1, chunk_pos.z);
+        if (c)
+        {
+            c->need_rebuild_mesh_ = true;
+        }
+    }
+    if (loc_pos.x == Chunk::CHUNK_WIDTH - 1)
+    {
+        Chunk *c = get_chunk_at_pos(chunk_pos.x + 1, chunk_pos.z);
+        if (c)
+        {
+            c->need_rebuild_mesh_ = true;
+        }
+    }
+    if (loc_pos.z == 0)
+    {
+        Chunk *c = get_chunk_at_pos(chunk_pos.x, chunk_pos.z - 1);
+        if (c)
+        {
+            c->need_rebuild_mesh_ = true;
+        }
+    }
+    if (loc_pos.z == Chunk::CHUNK_WIDTH - 1)
+    {
+        Chunk *c = get_chunk_at_pos(chunk_pos.x, chunk_pos.z + 1);
+        if (c)
+        {
+            c->need_rebuild_mesh_ = true;
+        }
+    }
+
     return true;
 }
 
@@ -468,9 +499,9 @@ void VoxelEngine::generate_chunk(Chunk &chunk)
     }
 
     glm::vec3 offset;
-    offset.x = chunk.getBlocksOffsetX();
+    offset.x = offset_x;
     offset.y = 0;
-    offset.z = chunk.getBlocksOffsetZ();
+    offset.z = offset_z;
     chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
         const int cur_height = height_map[z][x];
         const int diff = y - cur_height;
@@ -503,14 +534,6 @@ void VoxelEngine::generate_chunk(Chunk &chunk)
             block = BlockInfo(BasicBlocks::STONE);
         }
     });
-}
-
-glm::ivec3 VoxelEngine::pos_to_chunk_pos(const glm::vec3 &pos) const
-{
-    const auto x = std::floor(pos.x / Chunk::CHUNK_WIDTH);
-    const auto y = 0;
-    const auto z = std::floor(pos.z / Chunk::CHUNK_WIDTH);
-    return glm::ivec3{x, y, z};
 }
 
 Chunk *VoxelEngine::get_chunk_at_pos(int x, int z) const

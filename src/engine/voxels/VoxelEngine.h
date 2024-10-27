@@ -2,8 +2,10 @@
 
 #include "Base.h"
 #include "BlockInfo.h"
+#include "Chunk.h"
 #include "Common.h"
 #include "VertexBufferObject.h"
+#include "math/Math.h"
 #include "utils/Hashers.h"
 
 #include "glm/vec2.hpp"
@@ -12,7 +14,6 @@
 
 struct ChunkMesh;
 struct GlobalLight;
-struct Chunk;
 struct NeighbourChunks;
 struct BlockDescription;
 class Camera;
@@ -42,7 +43,29 @@ public:
     int getNumRenderChunks() const;
     uint64_t getNumRenderVertices() const;
 
-    Chunk *getChunkAtPosition(const glm::vec3 &position);
+    static REALENGINE_INLINE glm::ivec3 toBlockPosition(const glm::vec3 &position)
+    {
+        // dont care about y < 0 flooring. but consider case eg -0.1 mustn't be rounded to 0
+        return {(int)std::floor(position.x), int(position.y + 1) - 1, (int)std::floor(position.z)};
+    }
+
+    Chunk *getChunkAtPosition(const glm::ivec3 &position)
+    {
+        const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
+        return get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
+    }
+
+    REALENGINE_INLINE Chunk *getChunkAtPosition(const glm::vec3 &position)
+    {
+        const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
+        return get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
+    }
+
+    REALENGINE_INLINE bool setBlockAtPosition(const glm::vec3 &position, BlockInfo block)
+    {
+        const glm::ivec3 block_pos = toBlockPosition(position);
+        return setBlockAtPosition(block_pos, block);
+    }
 
     bool setBlockAtPosition(const glm::ivec3 &position, BlockInfo block);
 
@@ -57,7 +80,21 @@ private:
 
     void generate_chunk(Chunk &chunk);
 
-    glm::ivec3 pos_to_chunk_pos(const glm::vec3 &pos) const;
+    static REALENGINE_INLINE glm::ivec3 pos_to_chunk_pos(const glm::vec3 &pos)
+    {
+        const auto x = math::floorToCell(std::floor(pos.x), Chunk::CHUNK_WIDTH);
+        const auto y = 0;
+        const auto z = math::floorToCell(std::floor(pos.z), Chunk::CHUNK_WIDTH);
+        return glm::ivec3{x, y, z};
+    }
+
+    static REALENGINE_INLINE glm::ivec3 pos_to_chunk_pos(const glm::ivec3 &pos)
+    {
+        const auto x = math::floorToCell(pos.x, Chunk::CHUNK_WIDTH);
+        const auto y = 0;
+        const auto z = math::floorToCell(pos.z, Chunk::CHUNK_WIDTH);
+        return glm::ivec3{x, y, z};
+    }
 
     Chunk *get_chunk_at_pos(int x, int z) const;
     REALENGINE_INLINE bool has_chunk_at_pos(int x, int z) const

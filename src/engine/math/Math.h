@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Base.h"
+
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/scalar_common.hpp"
 #include "glm/gtc/constants.hpp"
@@ -12,12 +14,19 @@
 namespace math
 {
 
-inline bool isEquals(float a, float b, float epsilon = 0.00001f)
+REALENGINE_INLINE constexpr int floorToCell(int value, int cell_size)
+{
+    int res = value / cell_size;
+    res -= (value < 0) * ((value % cell_size) != 0);
+    return res;
+}
+
+REALENGINE_INLINE bool isEquals(float a, float b, float epsilon = 0.00001f)
 {
     return abs(a - b) < epsilon;
 }
 
-inline float fastInvSqrt(float val)
+REALENGINE_INLINE float fastInvSqrt(float val)
 {
     union Conv
     {
@@ -30,42 +39,42 @@ inline float fastInvSqrt(float val)
     return conv.f;
 }
 
-inline float length2(glm::vec2 v)
+REALENGINE_INLINE float length2(glm::vec2 v)
 {
     return v.x * v.x + v.y * v.y;
 }
 
-inline float length2(glm::vec3 v)
+REALENGINE_INLINE float length2(glm::vec3 v)
 {
     return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
-inline float length2(const glm::vec4 &v)
+REALENGINE_INLINE float length2(const glm::vec4 &v)
 {
     return v.x * v.x + v.y * v.y + v.z * v.z + v.w * v.w;
 }
 
-inline bool isNormalized(const glm::vec3 &vec)
+REALENGINE_INLINE bool isNormalized(const glm::vec3 &vec)
 {
     return math::isEquals(math::length2(vec), 1);
 }
 
-inline float fastInvLength(glm::vec2 v)
+REALENGINE_INLINE float fastInvLength(glm::vec2 v)
 {
     return fastInvSqrt(length2(v));
 }
 
-inline float fastInvLength(glm::vec3 v)
+REALENGINE_INLINE float fastInvLength(glm::vec3 v)
 {
     return fastInvSqrt(length2(v));
 }
 
-inline float fastInvLength(const glm::vec4 &v)
+REALENGINE_INLINE float fastInvLength(const glm::vec4 &v)
 {
     return fastInvSqrt(length2(v));
 }
 
-inline glm::vec3 maxByComponens(const glm::vec3 &a, const glm::vec3 &b)
+REALENGINE_INLINE glm::vec3 maxByComponens(const glm::vec3 &a, const glm::vec3 &b)
 {
     glm::vec3 ret;
     ret.x = glm::max(a.x, b.x);
@@ -74,7 +83,7 @@ inline glm::vec3 maxByComponens(const glm::vec3 &a, const glm::vec3 &b)
     return ret;
 }
 
-inline glm::vec3 minByComponens(const glm::vec3 &a, const glm::vec3 &b)
+REALENGINE_INLINE glm::vec3 minByComponens(const glm::vec3 &a, const glm::vec3 &b)
 {
     glm::vec3 ret;
     ret.x = glm::min(a.x, b.x);
@@ -133,7 +142,7 @@ inline void decompose(const glm::mat4 &m, glm::vec3 &pos, glm::vec3 &scale, glm:
     }
 }
 
-inline void decomposeDegrees(const glm::mat4 &m, glm::vec3 &pos, glm::vec3 &scale,
+REALENGINE_INLINE void decomposeDegrees(const glm::mat4 &m, glm::vec3 &pos, glm::vec3 &scale,
     glm::vec3 &angles)
 {
     glm::vec3 angles_rad;
@@ -185,7 +194,7 @@ inline glm::mat4 compose(const glm::vec3 &pos, const glm::vec3 &scale, const glm
     return v;
 }
 
-inline glm::mat4 composeDegrees(const glm::vec3 &pos, const glm::vec3 &scale,
+REALENGINE_INLINE glm::mat4 composeDegrees(const glm::vec3 &pos, const glm::vec3 &scale,
     const glm::vec3 &angles)
 {
     glm::vec3 angles_rad = glm::radians(angles);
