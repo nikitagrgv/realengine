@@ -15,7 +15,7 @@ class VertexArrayObject;
 struct Chunk
 {
 public:
-    static constexpr int CHUNK_WIDTH = 32;
+    static constexpr int CHUNK_WIDTH = 16;
     static constexpr int CHUNK_HEIGHT = 400;
 
     static constexpr int CHUNK_WIDTH2 = CHUNK_WIDTH * CHUNK_WIDTH;
@@ -44,6 +44,12 @@ public:
     static REALENGINE_INLINE bool isInsideChunk(int x, int y, int z)
     {
         return x >= 0 && x < CHUNK_WIDTH && y >= 0 && y < CHUNK_HEIGHT && z >= 0 && z < CHUNK_WIDTH;
+    }
+
+    REALENGINE_INLINE BlockInfo &getBlockRef(int x, int y, int z)
+    {
+        assert(isInsideChunk(x, y, z));
+        return blocks_[getBlockIndex(x, y, z)];
     }
 
     REALENGINE_INLINE const BlockInfo &getBlock(int x, int y, int z) const

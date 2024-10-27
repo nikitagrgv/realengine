@@ -67,9 +67,9 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
-    constexpr int RADIUS_SPAWN_CHUNK = 3;
-    constexpr int RADIUS_UNLOAD_MESH = 5;
-    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 20;
+    constexpr int RADIUS_SPAWN_CHUNK = 8 * 2;
+    constexpr int RADIUS_UNLOAD_MESH = 16 * 2;
+    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 26 * 2;
 
     static_assert(RADIUS_UNLOAD_WHOLE_CHUNK > RADIUS_UNLOAD_MESH
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
@@ -333,7 +333,13 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
         return false;
     }
 
-    chunk->setBlock(loc_pos.x, loc_pos.y, loc_pos.z, block);
+    BlockInfo &b = chunk->getBlockRef(loc_pos.x, loc_pos.y, loc_pos.z);
+    if (b == block)
+    {
+        return true;
+    }
+
+    b = block;
     chunk->need_rebuild_mesh_ = true;
 
     if (loc_pos.x == 0)
