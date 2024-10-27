@@ -105,208 +105,209 @@ void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc, ChunkMesh &mesh)
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_py;
-    ChunkMesh::Vertex v;
 
-    v.norm = glm::vec3{0, 1, 0};
+    ChunkMesh::Vertex vs[6];
 
     // tr 1
-    v.pos = glm::vec3{min.x, max.y, min.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[0].pos = glm::vec3{min.x, max.y, min.z};
+    vs[0].norm = glm::vec3{0, 1, 0};
+    vs[0].uv = coords.top_left;
 
-    v.pos = glm::vec3{min.x, max.y, max.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[1].pos = glm::vec3{min.x, max.y, max.z};
+    vs[1].norm = glm::vec3{0, 1, 0};
+    vs[1].uv = coords.bottom_left;
 
-    v.pos = glm::vec3{max.x, max.y, max.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[2].pos = glm::vec3{max.x, max.y, max.z};
+    vs[2].norm = glm::vec3{0, 1, 0};
+    vs[2].uv = coords.bottom_right;
 
     // tr 2
-    v.pos = glm::vec3{min.x, max.y, min.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[3].pos = glm::vec3{min.x, max.y, min.z};
+    vs[3].norm = glm::vec3{0, 1, 0};
+    vs[3].uv = coords.top_left;
 
-    v.pos = glm::vec3{max.x, max.y, max.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[4].pos = glm::vec3{max.x, max.y, max.z};
+    vs[4].norm = glm::vec3{0, 1, 0};
+    vs[4].uv = coords.bottom_right;
 
-    v.pos = glm::vec3{max.x, max.y, min.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[5].pos = glm::vec3{max.x, max.y, min.z};
+    vs[5].norm = glm::vec3{0, 1, 0};
+    vs[5].uv = coords.top_right;
+
+    mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
 }
 
 void ChunkMeshGenerator::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc, ChunkMesh &mesh)
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_ny;
-    ChunkMesh::Vertex v;
-
-    v.norm = glm::vec3{0, -1, 0};
+    ChunkMesh::Vertex vs[6];
 
     // tr 1
-    v.pos = glm::vec3{min.x, min.y, min.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[0].pos = glm::vec3{min.x, min.y, min.z};
+    vs[0].norm = glm::vec3{0, -1, 0};
+    vs[0].uv = coords.top_right;
 
-    v.pos = glm::vec3{max.x, min.y, max.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[1].pos = glm::vec3{max.x, min.y, max.z};
+    vs[1].norm = glm::vec3{0, -1, 0};
+    vs[1].uv = coords.bottom_left;
 
-    v.pos = glm::vec3{min.x, min.y, max.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[2].pos = glm::vec3{min.x, min.y, max.z};
+    vs[2].norm = glm::vec3{0, -1, 0};
+    vs[2].uv = coords.bottom_right;
 
     // tr 2
-    v.pos = glm::vec3{min.x, min.y, min.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[3].pos = glm::vec3{min.x, min.y, min.z};
+    vs[3].norm = glm::vec3{0, -1, 0};
+    vs[3].uv = coords.top_right;
 
-    v.pos = glm::vec3{max.x, min.y, min.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[4].pos = glm::vec3{max.x, min.y, min.z};
+    vs[4].norm = glm::vec3{0, -1, 0};
+    vs[4].uv = coords.top_left;
 
-    v.pos = glm::vec3{max.x, min.y, max.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[5].pos = glm::vec3{max.x, min.y, max.z};
+    vs[5].norm = glm::vec3{0, -1, 0};
+    vs[5].uv = coords.bottom_left;
+
+    mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
 }
 
 void ChunkMeshGenerator::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc, ChunkMesh &mesh)
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_pz;
-    ChunkMesh::Vertex v;
-
-    v.norm = glm::vec3{0, 0, 1};
+    ChunkMesh::Vertex vs[6];
 
     // tr 1
-    v.pos = glm::vec3{min.x, max.y, max.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[0].pos = glm::vec3{min.x, max.y, max.z};
+    vs[0].norm = glm::vec3{0, 0, 1};
+    vs[0].uv = coords.top_left;
 
-    v.pos = glm::vec3{min.x, min.y, max.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[1].pos = glm::vec3{min.x, min.y, max.z};
+    vs[1].norm = glm::vec3{0, 0, 1};
+    vs[1].uv = coords.bottom_left;
 
-    v.pos = glm::vec3{max.x, min.y, max.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[2].pos = glm::vec3{max.x, min.y, max.z};
+    vs[2].norm = glm::vec3{0, 0, 1};
+    vs[2].uv = coords.bottom_right;
 
     // tr 2
-    v.pos = glm::vec3{min.x, max.y, max.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[3].pos = glm::vec3{min.x, max.y, max.z};
+    vs[3].norm = glm::vec3{0, 0, 1};
+    vs[3].uv = coords.top_left;
 
-    v.pos = glm::vec3{max.x, min.y, max.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[4].pos = glm::vec3{max.x, min.y, max.z};
+    vs[4].norm = glm::vec3{0, 0, 1};
+    vs[4].uv = coords.bottom_right;
 
-    v.pos = glm::vec3{max.x, max.y, max.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[5].pos = glm::vec3{max.x, max.y, max.z};
+    vs[5].norm = glm::vec3{0, 0, 1};
+    vs[5].uv = coords.top_right;
+
+    mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
 }
 
 void ChunkMeshGenerator::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc, ChunkMesh &mesh)
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_nz;
-    ChunkMesh::Vertex v;
-
-    v.norm = glm::vec3{0, 0, -1};
+    ChunkMesh::Vertex vs[6];
 
     // tr 1
-    v.pos = glm::vec3{min.x, max.y, min.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[0].pos = glm::vec3{min.x, max.y, min.z};
+    vs[0].norm = glm::vec3{0, 0, -1};
+    vs[0].uv = coords.top_right;
 
-    v.pos = glm::vec3{max.x, min.y, min.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[1].pos = glm::vec3{max.x, min.y, min.z};
+    vs[1].norm = glm::vec3{0, 0, -1};
+    vs[1].uv = coords.bottom_left;
 
-    v.pos = glm::vec3{min.x, min.y, min.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[2].pos = glm::vec3{min.x, min.y, min.z};
+    vs[2].norm = glm::vec3{0, 0, -1};
+    vs[2].uv = coords.bottom_right;
 
     // tr 2
-    v.pos = glm::vec3{min.x, max.y, min.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[3].pos = glm::vec3{min.x, max.y, min.z};
+    vs[3].norm = glm::vec3{0, 0, -1};
+    vs[3].uv = coords.top_right;
 
-    v.pos = glm::vec3{max.x, max.y, min.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[4].pos = glm::vec3{max.x, max.y, min.z};
+    vs[4].norm = glm::vec3{0, 0, -1};
+    vs[4].uv = coords.top_left;
 
-    v.pos = glm::vec3{max.x, min.y, min.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[5].pos = glm::vec3{max.x, min.y, min.z};
+    vs[5].norm = glm::vec3{0, 0, -1};
+    vs[5].uv = coords.bottom_left;
+
+    mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
 }
 
 void ChunkMeshGenerator::gen_face_px(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc, ChunkMesh &mesh)
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_px;
-    ChunkMesh::Vertex v;
-
-    v.norm = glm::vec3{1, 0, 0};
+    ChunkMesh::Vertex vs[6];
 
     // tr 1
-    v.pos = glm::vec3{max.x, max.y, max.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[0].pos = glm::vec3{max.x, max.y, max.z};
+    vs[0].norm = glm::vec3{1, 0, 0};
+    vs[0].uv = coords.top_left;
 
-    v.pos = glm::vec3{max.x, min.y, max.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[1].pos = glm::vec3{max.x, min.y, max.z};
+    vs[1].norm = glm::vec3{1, 0, 0};
+    vs[1].uv = coords.bottom_left;
 
-    v.pos = glm::vec3{max.x, min.y, min.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[2].pos = glm::vec3{max.x, min.y, min.z};
+    vs[2].norm = glm::vec3{1, 0, 0};
+    vs[2].uv = coords.bottom_right;
 
     // tr 2
-    v.pos = glm::vec3{max.x, max.y, max.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[3].pos = glm::vec3{max.x, max.y, max.z};
+    vs[3].norm = glm::vec3{1, 0, 0};
+    vs[3].uv = coords.top_left;
 
-    v.pos = glm::vec3{max.x, min.y, min.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[4].pos = glm::vec3{max.x, min.y, min.z};
+    vs[4].norm = glm::vec3{1, 0, 0};
+    vs[4].uv = coords.bottom_right;
 
-    v.pos = glm::vec3{max.x, max.y, min.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[5].pos = glm::vec3{max.x, max.y, min.z};
+    vs[5].norm = glm::vec3{1, 0, 0};
+    vs[5].uv = coords.top_right;
+
+    mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
 }
 
 void ChunkMeshGenerator::gen_face_nx(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription &desc, ChunkMesh &mesh)
 {
     const BlockDescription::TexCoords &coords = desc.cached.texture_coord_nx;
-    ChunkMesh::Vertex v;
-
-    v.norm = glm::vec3{-1, 0, 0};
+    ChunkMesh::Vertex vs[6];
 
     // tr 1
-    v.pos = glm::vec3{min.x, max.y, max.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[0].pos = glm::vec3{min.x, max.y, max.z};
+    vs[0].norm = glm::vec3{-1, 0, 0};
+    vs[0].uv = coords.top_right;
 
-    v.pos = glm::vec3{min.x, min.y, min.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[1].pos = glm::vec3{min.x, min.y, min.z};
+    vs[1].norm = glm::vec3{-1, 0, 0};
+    vs[1].uv = coords.bottom_left;
 
-    v.pos = glm::vec3{min.x, min.y, max.z};
-    v.uv = coords.bottom_right;
-    mesh.addVertex(v);
+    vs[2].pos = glm::vec3{min.x, min.y, max.z};
+    vs[2].norm = glm::vec3{-1, 0, 0};
+    vs[2].uv = coords.bottom_right;
 
     // tr 2
-    v.pos = glm::vec3{min.x, max.y, max.z};
-    v.uv = coords.top_right;
-    mesh.addVertex(v);
+    vs[3].pos = glm::vec3{min.x, max.y, max.z};
+    vs[3].norm = glm::vec3{-1, 0, 0};
+    vs[3].uv = coords.top_right;
 
-    v.pos = glm::vec3{min.x, max.y, min.z};
-    v.uv = coords.top_left;
-    mesh.addVertex(v);
+    vs[4].pos = glm::vec3{min.x, max.y, min.z};
+    vs[4].norm = glm::vec3{-1, 0, 0};
+    vs[4].uv = coords.top_left;
 
-    v.pos = glm::vec3{min.x, min.y, min.z};
-    v.uv = coords.bottom_left;
-    mesh.addVertex(v);
+    vs[5].pos = glm::vec3{min.x, min.y, min.z};
+    vs[5].norm = glm::vec3{-1, 0, 0};
+    vs[5].uv = coords.bottom_left;
+
+    mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
 }
