@@ -157,7 +157,6 @@ void ChunkMeshGenerator::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
     v.uv = coords.bottom_right;
     mesh.addVertex(v);
 
-
     // tr 2
     v.pos = glm::vec3{min.x, min.y, min.z};
     v.uv = coords.top_right;
