@@ -15,7 +15,7 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
 
     SCOPED_PROFILER;
 
-    mesh.vbo.clear();
+    mesh.clear();
 
     BlocksRegistry *registry = eng.vox->getRegistry();
 
@@ -97,7 +97,7 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
 
     {
         ScopedProfiler p("flush vbo");
-        mesh.vbo.flush(true);
+        mesh.flush();
     }
 }
 
@@ -112,28 +112,28 @@ void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
     // tr 1
     v.pos = glm::vec3{min.x, max.y, min.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, max.y, max.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, max.y, max.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     // tr 2
     v.pos = glm::vec3{min.x, max.y, min.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, max.y, max.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, max.y, min.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 }
 
 void ChunkMeshGenerator::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
@@ -147,29 +147,29 @@ void ChunkMeshGenerator::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
     // tr 1
     v.pos = glm::vec3{min.x, min.y, min.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, max.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, min.y, max.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
 
     // tr 2
     v.pos = glm::vec3{min.x, min.y, min.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, min.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, max.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 }
 
 void ChunkMeshGenerator::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max,
@@ -183,28 +183,28 @@ void ChunkMeshGenerator::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max,
     // tr 1
     v.pos = glm::vec3{min.x, max.y, max.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, min.y, max.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, max.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     // tr 2
     v.pos = glm::vec3{min.x, max.y, max.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, max.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, max.y, max.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 }
 
 void ChunkMeshGenerator::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max,
@@ -218,28 +218,28 @@ void ChunkMeshGenerator::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max,
     // tr 1
     v.pos = glm::vec3{min.x, max.y, min.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, min.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, min.y, min.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     // tr 2
     v.pos = glm::vec3{min.x, max.y, min.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, max.y, min.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, min.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 }
 
 void ChunkMeshGenerator::gen_face_px(const glm::vec3 &min, const glm::vec3 &max,
@@ -253,28 +253,28 @@ void ChunkMeshGenerator::gen_face_px(const glm::vec3 &min, const glm::vec3 &max,
     // tr 1
     v.pos = glm::vec3{max.x, max.y, max.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, max.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, min.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     // tr 2
     v.pos = glm::vec3{max.x, max.y, max.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, min.y, min.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{max.x, max.y, min.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 }
 
 void ChunkMeshGenerator::gen_face_nx(const glm::vec3 &min, const glm::vec3 &max,
@@ -288,26 +288,26 @@ void ChunkMeshGenerator::gen_face_nx(const glm::vec3 &min, const glm::vec3 &max,
     // tr 1
     v.pos = glm::vec3{min.x, max.y, max.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, min.y, min.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, min.y, max.z};
     v.uv = coords.bottom_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     // tr 2
     v.pos = glm::vec3{min.x, max.y, max.z};
     v.uv = coords.top_right;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, max.y, min.z};
     v.uv = coords.top_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 
     v.pos = glm::vec3{min.x, min.y, min.z};
     v.uv = coords.bottom_left;
-    mesh.vbo.addVertex(v);
+    mesh.addVertex(v);
 }
