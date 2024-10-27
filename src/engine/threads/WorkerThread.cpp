@@ -5,6 +5,9 @@
 #include "JobQueue.h"
 #include "Threads.h"
 
+namespace tbb
+{
+
 void WorkerThread::execute()
 {
     while (true)
@@ -29,3 +32,5 @@ void WorkerThread::execute()
         eng.queue->addFinishedJob(std::move(job));
     }
 }
+
+} // namespace tbb

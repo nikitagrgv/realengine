@@ -13,6 +13,16 @@ void removeIf(T &container, const F &f)
     container.erase(new_end, end);
 }
 
+template<typename T, typename V>
+void removeOne(T &container, const V &value)
+{
+    const auto it = std::find(container.begin(), container.end(), value);
+    if (it != container.end())
+    {
+        container.erase(it);
+    }
+}
+
 template<typename T, typename F>
 int countIf(const T &container, const F &f)
 {
@@ -35,6 +45,13 @@ template<typename T, typename F>
 int noneOf(const T &container, const F &f)
 {
     return std::none_of(container.begin(), container.end(), f);
+}
+
+template<typename T, typename V>
+bool contains(const T &container, const V &value)
+{
+    const auto it = std::find(container.begin(), container.end(), value);
+    return it != container.end();
 }
 
 } // namespace Alg

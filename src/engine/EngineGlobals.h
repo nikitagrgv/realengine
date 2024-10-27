@@ -18,7 +18,11 @@ class Input;
 class SystemProxy;
 class Gui;
 class VoxelEngine;
+
+namespace tbb
+{
 class JobQueue;
+}
 
 struct EngineGlobals
 {
@@ -37,7 +41,7 @@ struct EngineGlobals
     SystemProxy *proxy{};
     Gui *gui{};
     VoxelEngine *vox{};
-    JobQueue *queue{};
+    tbb::JobQueue *queue{};
 
     Statistics stat{};
 };

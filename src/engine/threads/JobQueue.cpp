@@ -8,6 +8,9 @@
 #include <iostream>
 #include <thread>
 
+namespace tbb
+{
+
 JobQueue::JobQueue()
 {
     num_threads_ = std::thread::hardware_concurrency();
@@ -54,8 +57,8 @@ void JobQueue::finishJobsMainThread()
 
     std::queue<UPtr<Job>> taken_jobs;
     {
-        std::lock_guard<std::mutex> lock(jobs_mutex_);
-        std::swap(taken_jobs, jobs_);
+        std::lock_guard<std::mutex> lock(finished_mutex_);
+        std::swap(taken_jobs, finished_jobs_);
     }
 
     while (!taken_jobs.empty())
@@ -99,3 +102,5 @@ int JobQueue::getNumJobs()
     std::lock_guard<std::mutex> lock(jobs_mutex_);
     return jobs_.size();
 }
+
+} // namespace tbb

@@ -21,6 +21,9 @@
 #include "math/Math.h"
 #include "profiler/ScopedProfiler.h"
 #include "profiler/ScopedTimer.h"
+#include "threads/Job.h"
+#include "threads/JobQueue.h"
+#include "threads/Threads.h"
 #include "utils/Algos.h"
 
 #include <PerlinNoise.hpp>
@@ -145,11 +148,38 @@ void VoxelEngine::update(const glm::vec3 &position)
                 {
                     continue;
                 }
+                if (is_enqued_for_generation(x, z))
+                {
+                    continue;
+                }
+                // TODO# shitty
+                if (is_generated(x, z))
+                {
+                    continue;
+                }
+
                 UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
-                chunks_to_generate_.push_back(new_chunk.get());
-                chunks_.push_back(std::move(new_chunk));
-                chunks_dirty = true;
+                chunks_to_generate_.push_back(std::move(new_chunk));
             }
+        }
+    }
+
+    // TODO# move upper?
+    {
+        // TODO# CHECK OUTSIDE RADIUS
+
+        ScopedProfiler p("Add generated chunks");
+        if (!generated_chunks_.empty())
+        {
+            chunks_dirty = true;
+            for (UPtr<Chunk> &chunk : generated_chunks_)
+            {
+                assert(chunk);
+                assert(Alg::noneOf(chunks_,
+                    [&](const UPtr<Chunk> &c) { return c->position_ == chunk->position_; }));
+                chunks_.push_back(std::move(chunk));
+            }
+            generated_chunks_.clear();
         }
     }
 
@@ -159,11 +189,11 @@ void VoxelEngine::update(const glm::vec3 &position)
     }
 
     {
-        ScopedProfiler p("Generate new chunks");
+        ScopedProfiler p("Enqueue new chunks for generation");
 
-        for (Chunk *chunk : chunks_to_generate_)
+        for (UPtr<Chunk> &chunk : chunks_to_generate_)
         {
-            generate_chunk(*chunk);
+            queue_generate_chunk(std::move(chunk));
         }
         chunks_to_generate_.clear();
     }
@@ -474,10 +504,38 @@ void VoxelEngine::release_chunk(UPtr<Chunk> chunk)
 }
 
 
-void VoxelEngine::generate_chunk(Chunk &chunk)
+void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
 {
     SCOPED_PROFILER;
 
+    struct Job : tbb::Job
+    {
+    public:
+        explicit Job(UPtr<Chunk> chunk, VoxelEngine &v)
+            : v_(v)
+            , chunk_(std::move(chunk))
+        {
+            assert(chunk_);
+        }
+
+        void execute() override { v_.generate_chunk_threadsafe(*chunk_); }
+        void finishMainThread() override { v_.finish_generate_chunk(std::move(chunk_)); }
+
+    private:
+        VoxelEngine &v_;
+        UPtr<Chunk> chunk_;
+    };
+
+    const int x = chunk->position_.x;
+    const int z = chunk->position_.z;
+
+    assert(!is_enqued_for_generation(x, z));
+    enqueued_chunks_.emplace_back(x, z);
+    eng.queue->enqueueJob(makeU<Job>(std::move(chunk), *this));
+}
+
+void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
+{
     assert(perlin_);
     const siv::PerlinNoise &perlin = *perlin_;
 
@@ -540,6 +598,16 @@ void VoxelEngine::generate_chunk(Chunk &chunk)
             block = BlockInfo(BasicBlocks::STONE);
         }
     });
+}
+
+void VoxelEngine::finish_generate_chunk(UPtr<Chunk> chunk)
+{
+    const int x = chunk->position_.x;
+    const int z = chunk->position_.z;
+    assert(is_enqued_for_generation(x, z));
+    Alg::removeOne(enqueued_chunks_, glm::ivec2{x, z});
+    assert(!is_enqued_for_generation(x, z));
+    generated_chunks_.push_back(std::move(chunk));
 }
 
 Chunk *VoxelEngine::get_chunk_at_pos(int x, int z) const

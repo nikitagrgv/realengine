@@ -6,6 +6,7 @@
 #include "Common.h"
 #include "VertexBufferObject.h"
 #include "math/Math.h"
+#include "utils/Algos.h"
 #include "utils/Hashers.h"
 
 #include "glm/vec2.hpp"
@@ -78,7 +79,9 @@ private:
     UPtr<Chunk> get_chunk_cached(const glm::ivec3 &pos);
     void release_chunk(UPtr<Chunk> chunk);
 
-    void generate_chunk(Chunk &chunk);
+    void queue_generate_chunk(UPtr<Chunk> chunk);
+    void generate_chunk_threadsafe(Chunk &chunk) const;
+    void finish_generate_chunk(UPtr<Chunk> chunk);
 
     static REALENGINE_INLINE glm::ivec3 pos_to_chunk_pos(const glm::vec3 &pos)
     {
@@ -103,6 +106,19 @@ private:
         const auto it = chunk_index_by_pos_.find(pos);
         return it != chunk_index_by_pos_.end();
     }
+
+    REALENGINE_INLINE bool is_enqued_for_generation(int x, int z) const
+    {
+        const glm::ivec2 pos = glm::ivec2{x, z};
+        return Alg::contains(enqueued_chunks_, pos);
+    }
+
+    REALENGINE_INLINE bool is_generated(int x, int z) const
+    {
+        return Alg::anyOf(generated_chunks_,
+            [&](const UPtr<Chunk> &c) { return c->position_.x == x && c->position_.z == z; });
+    }
+
     bool has_all_neighbours(Chunk *chunk) const;
     NeighbourChunks get_neighbour_chunks(Chunk *chunk) const;
     NeighbourChunks get_neighbour_chunks_lazy(Chunk *chunk) const;
@@ -120,7 +136,11 @@ private:
     std::vector<UPtr<Chunk>> chunks_;
     std::unordered_map<glm::ivec2, int> chunk_index_by_pos_;
 
-    std::vector<Chunk *> chunks_to_generate_;
+    std::vector<glm::ivec2> enqueued_chunks_;
+
+    std::vector<UPtr<Chunk>> chunks_to_generate_;
+
+    std::vector<UPtr<Chunk>> generated_chunks_;
 
     // TODO# TEMP
     UPtr<ShaderSource> shader_source_;

@@ -390,7 +390,7 @@ private:
 
         Random::init();
         eng.engine_ = this;
-        eng.queue = new JobQueue();
+        eng.queue = new tbb::JobQueue();
         eng.proxy = new SystemProxy();
         eng.input = new Input();
         eng.time = new Time();

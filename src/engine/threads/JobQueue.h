@@ -7,8 +7,17 @@
 #include <mutex>
 #include <vector>
 
+namespace tbb
+{
+
 class Job;
 class WorkerThread;
+
+} // namespace tbb
+
+namespace tbb
+{
+
 
 class JobQueue
 {
@@ -39,3 +48,5 @@ private:
     std::mutex finished_mutex_;
     std::queue<UPtr<Job>> finished_jobs_;
 };
+
+} // namespace tbb
