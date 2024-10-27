@@ -22,3 +22,8 @@ uint64_t Threads::getCurrentThreadId()
 {
     return GetCurrentThreadId();
 }
+
+void Threads::sleepMs(uint64_t ms)
+{
+    Sleep(ms);
+}

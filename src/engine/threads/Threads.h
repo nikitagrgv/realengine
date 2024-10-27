@@ -12,6 +12,8 @@ public:
 
     static uint64_t getCurrentThreadId();
 
+    static void sleepMs(uint64_t ms);
+
 private:
     static uint64_t main_thread_;
 };
