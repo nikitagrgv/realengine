@@ -1,24 +1,24 @@
-#include "Thread.h"
+#include "Threads.h"
 
 #include <windows.h>
 
 #include <thread>
 
-uint64_t Thread::main_thread_ = 0;
+uint64_t Threads::main_thread_ = 0;
 
-void Thread::init()
+void Threads::init()
 {
     main_thread_ = getCurrentThreadId();
 }
 
-void Thread::shutdown() {}
+void Threads::shutdown() {}
 
-bool Thread::isMainThread()
+bool Threads::isMainThread()
 {
     return GetCurrentThreadId() == main_thread_;
 }
 
-uint64_t Thread::getCurrentThreadId()
+uint64_t Threads::getCurrentThreadId()
 {
     return GetCurrentThreadId();
 }

@@ -35,7 +35,7 @@
 #include "fs/FileSystem.h"
 #include "input/Input.h"
 #include "profiler/ScopedProfiler.h"
-#include "threads/Thread.h"
+#include "threads/Threads.h"
 #include "time/Time.h"
 #include "voxels/Chunk.h"
 #include "voxels/VoxelEngine.h"
@@ -378,7 +378,7 @@ public:
 private:
     void init()
     {
-        Thread::init();
+        Threads::init();
 
         Profiler::setMaxRecordedFrames(20);
         Profiler::init();
@@ -435,7 +435,7 @@ private:
         delete_and_null(eng.time);
         delete_and_null(eng.input);
         delete_and_null(eng.proxy);
-        Thread::shutdown();
+        Threads::shutdown();
         eng.engine_ = nullptr;
     }
 

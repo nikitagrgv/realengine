@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-class Thread
+class Threads
 {
 public:
     static void init();
