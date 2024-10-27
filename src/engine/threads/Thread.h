@@ -10,7 +10,7 @@ public:
     REMOVE_COPY_MOVE_CLASS(Thread);
 
     Thread();
-    ~Thread();
+    virtual ~Thread();
 
     void join();
 
