@@ -10,6 +10,6 @@ public:
 
     virtual void execute() = 0;
 
-    virtual void finish() {}
+    virtual void finishWorkerThread() {}
     virtual void finishMainThread() {}
 };

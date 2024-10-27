@@ -1,6 +1,95 @@
 #include "JobQueue.h"
 
-JobQueue::JobQueue() {}
+#include "Job.h"
+#include "Threads.h"
+#include "WorkerThread.h"
 
+#include <iostream>
+#include <thread>
 
-JobQueue::~JobQueue() {}
+JobQueue::JobQueue()
+{
+    int num_threads = std::thread::hardware_concurrency();
+    if (num_threads <= 0)
+    {
+        num_threads = 1;
+    }
+
+    for (int i = 0; i < num_threads; ++i)
+    {
+        threads_.push_back(makeU<WorkerThread>());
+    }
+
+    std::cout << "JobQueue: initialized with " << num_threads << " threads" << std::endl;
+}
+
+JobQueue::~JobQueue()
+{
+    threads_.clear();
+
+    std::queue<UPtr<Job>> taken_jobs;
+    {
+        std::lock_guard<std::mutex> lock(jobs_mutex_);
+        std::swap(taken_jobs, jobs_);
+    }
+
+    const int num_jobs = taken_jobs.size();
+    while (!taken_jobs.empty())
+    {
+        taken_jobs.pop();
+    }
+
+    std::cout << "JobQueue: unfinished jobs " << num_jobs << std::endl;
+}
+
+void JobQueue::finishJobsMainThread()
+{
+    assert(Threads::isMainThread());
+
+    std::queue<UPtr<Job>> taken_jobs;
+    {
+        std::lock_guard<std::mutex> lock(jobs_mutex_);
+        std::swap(taken_jobs, jobs_);
+    }
+
+    while (!taken_jobs.empty())
+    {
+        UPtr<Job> job = std::move(taken_jobs.front());
+        taken_jobs.pop();
+        job->finishMainThread();
+    }
+}
+
+void JobQueue::enqueueJob(UPtr<Job> job)
+{
+    {
+        std::lock_guard<std::mutex> lock(jobs_mutex_);
+        jobs_.push(std::move(job));
+    }
+}
+
+void JobQueue::addFinishedJob(UPtr<Job> job)
+{
+    std::lock_guard<std::mutex> lock(finished_mutex_);
+    finished_jobs_.push(std::move(job));
+}
+
+UPtr<Job> JobQueue::takeJob()
+{
+    UPtr<Job> job;
+    {
+        std::lock_guard<std::mutex> lock(jobs_mutex_);
+        if (!jobs_.empty())
+        {
+            job = std::move(jobs_.front());
+            jobs_.pop();
+        }
+    }
+    return job;
+}
+
+int JobQueue::getNumJobs()
+{
+    std::lock_guard<std::mutex> lock(jobs_mutex_);
+    return jobs_.size();
+}
