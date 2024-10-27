@@ -35,6 +35,7 @@
 #include "fs/FileSystem.h"
 #include "input/Input.h"
 #include "profiler/ScopedProfiler.h"
+#include "threads/Thread.h"
 #include "threads/Threads.h"
 #include "time/Time.h"
 #include "voxels/Chunk.h"
@@ -58,6 +59,23 @@ class Engine
 public:
     void exec()
     {
+        struct MyThread : Thread
+        {
+            void execute() override
+            {
+                while (true)
+                {
+                    if (needExit())
+                    {
+                        return;
+                    }
+                    Threads::sleepMs(1000);
+                    std::cout << "thread" << std::endl;
+                }
+            }
+        };
+        MyThread thread{};
+
         Context ctx;
 
         init();

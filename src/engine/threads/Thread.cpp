@@ -29,6 +29,7 @@ Thread::Thread()
 
 Thread::~Thread()
 {
+    exit();
     join();
 }
 
@@ -41,4 +42,14 @@ void Thread::join()
         handle_ = nullptr;
         id_ = 0;
     }
+}
+
+void Thread::exit()
+{
+    exit_.store(true);
+}
+
+bool Thread::needExit() const
+{
+    return exit_.load();
 }

@@ -2,6 +2,7 @@
 
 #include "Base.h"
 
+#include <atomic>
 #include <cstdint>
 
 class Thread
@@ -13,10 +14,14 @@ public:
     virtual ~Thread();
 
     void join();
+    void exit();
+
+    bool needExit() const;
 
     virtual void execute() = 0;
 
 private:
+    std::atomic<bool> exit_;
     void *handle_{};
     uint64_t id_{};
 };
