@@ -412,6 +412,9 @@ private:
 
         // Editor
         edg.editor_ = new Editor();
+
+        // Post initialization
+        eng.queue->runWorkers();
     }
 
     void shutdown()

@@ -20,6 +20,7 @@ void WorkerThread::execute()
         if (!job)
         {
             Threads::sleepMs(1);
+            continue;
         }
 
         job->execute();

@@ -18,6 +18,8 @@ public:
     JobQueue();
     ~JobQueue();
 
+    void runWorkers();
+
     void finishJobsMainThread();
 
     void enqueueJob(UPtr<Job> job);
@@ -28,6 +30,7 @@ public:
     int getNumJobs();
 
 private:
+    int num_threads_{};
     std::vector<UPtr<WorkerThread>> threads_;
 
     std::mutex jobs_mutex_;

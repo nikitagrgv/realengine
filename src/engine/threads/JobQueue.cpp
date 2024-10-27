@@ -9,18 +9,12 @@
 
 JobQueue::JobQueue()
 {
-    int num_threads = std::thread::hardware_concurrency();
-    if (num_threads <= 0)
+    num_threads_ = std::thread::hardware_concurrency();
+    if (num_threads_ <= 0)
     {
-        num_threads = 1;
+        num_threads_ = 1;
     }
-
-    for (int i = 0; i < num_threads; ++i)
-    {
-        threads_.push_back(makeU<WorkerThread>());
-    }
-
-    std::cout << "JobQueue: initialized with " << num_threads << " threads" << std::endl;
+    std::cout << "JobQueue: initialized with " << num_threads_ << " threads" << std::endl;
 }
 
 JobQueue::~JobQueue()
@@ -40,6 +34,15 @@ JobQueue::~JobQueue()
     }
 
     std::cout << "JobQueue: unfinished jobs " << num_jobs << std::endl;
+}
+
+void JobQueue::runWorkers()
+{
+    assert(threads_.empty());
+    for (int i = 0; i < num_threads_; ++i)
+    {
+        threads_.push_back(makeU<WorkerThread>());
+    }
 }
 
 void JobQueue::finishJobsMainThread()
