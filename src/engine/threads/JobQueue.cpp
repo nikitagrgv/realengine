@@ -3,6 +3,7 @@
 #include "Job.h"
 #include "Threads.h"
 #include "WorkerThread.h"
+#include "profiler/ScopedProfiler.h"
 
 #include <iostream>
 #include <thread>
@@ -48,6 +49,8 @@ void JobQueue::runWorkers()
 void JobQueue::finishJobsMainThread()
 {
     assert(Threads::isMainThread());
+
+    SCOPED_PROFILER;
 
     std::queue<UPtr<Job>> taken_jobs;
     {

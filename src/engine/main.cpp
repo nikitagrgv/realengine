@@ -357,12 +357,15 @@ public:
             }
 
             ///////////////////////////////////////////////////////////
+
+            eng.queue->finishJobsMainThread();
+
             edg.editor_->setPlayerPositionInfo(camera_.getPosition());
-
-
             eng.vox->update(camera_.getPosition());
 
             ///////////////////////////////////////////////////////////
+            eng.queue->finishJobsMainThread();
+
             eng.renderer->clearBuffers();
 
             eng.renderer->renderWorld(&camera_, &light);
