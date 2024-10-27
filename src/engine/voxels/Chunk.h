@@ -46,13 +46,25 @@ public:
         return x >= 0 && x < CHUNK_WIDTH && y >= 0 && y < CHUNK_HEIGHT && z >= 0 && z < CHUNK_WIDTH;
     }
 
+    REALENGINE_INLINE BlockInfo &getBlockRef(int index)
+    {
+        assert(index >= 0 && index < NUM_BLOCKS);
+        return blocks_[index];
+    }
+
+    REALENGINE_INLINE BlockInfo getBlock(int index) const
+    {
+        assert(index >= 0 && index < NUM_BLOCKS);
+        return blocks_[index];
+    }
+
     REALENGINE_INLINE BlockInfo &getBlockRef(int x, int y, int z)
     {
         assert(isInsideChunk(x, y, z));
         return blocks_[getBlockIndex(x, y, z)];
     }
 
-    REALENGINE_INLINE const BlockInfo &getBlock(int x, int y, int z) const
+    REALENGINE_INLINE BlockInfo getBlock(int x, int y, int z) const
     {
         assert(isInsideChunk(x, y, z));
         return blocks_[getBlockIndex(x, y, z)];
