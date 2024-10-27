@@ -319,6 +319,28 @@ Chunk *VoxelEngine::getChunkAtPosition(const glm::vec3 &position)
     return get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
 }
 
+bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block)
+{
+    Chunk *chunk = getChunkAtPosition(position);
+    if (!chunk)
+    {
+        return false;
+    }
+
+    const glm::ivec3 loc_pos = chunk->getBlockLocalPosition(position);
+    assert(loc_pos.x >= 0 && loc_pos.x < Chunk::CHUNK_WIDTH);
+    assert(loc_pos.z >= 0 && loc_pos.z < Chunk::CHUNK_WIDTH);
+
+    if (loc_pos.y < 0 || loc_pos.y >= Chunk::CHUNK_HEIGHT)
+    {
+        return false;
+    }
+
+    chunk->setBlock(loc_pos.x, loc_pos.y, loc_pos.z, block);
+    chunk->need_rebuild_mesh_ = true;
+    return true;
+}
+
 void VoxelEngine::register_blocks()
 {
     BlocksRegistry &reg = *registry_;

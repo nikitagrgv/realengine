@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Base.h"
+#include "BlockInfo.h"
 #include "Common.h"
 #include "VertexBufferObject.h"
 #include "utils/Hashers.h"
@@ -8,7 +9,6 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include <unordered_map>
-
 
 struct ChunkMesh;
 struct GlobalLight;
@@ -43,6 +43,8 @@ public:
     uint64_t getNumRenderVertices() const;
 
     Chunk *getChunkAtPosition(const glm::vec3 &position);
+
+    bool setBlockAtPosition(const glm::ivec3 &position, BlockInfo block);
 
 private:
     void register_blocks();

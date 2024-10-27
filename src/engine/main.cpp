@@ -330,27 +330,22 @@ public:
 
             if (eng.input->isKeyDown(Key::KEY_F))
             {
-                constexpr int EXPLOSION_SIZE = 15;
-                Chunk *chunk = eng.vox->getChunkAtPosition(camera_.getPosition());
-                if (chunk)
+                ScopedProfiler p("Explosion");
+
+                const glm::ivec3 center_pos = camera_.getPosition();
+                constexpr int EXPLOSION_SIZE = 30;
+                for (int off_y = -EXPLOSION_SIZE; off_y <= EXPLOSION_SIZE; ++off_y)
                 {
-                    chunk->need_rebuild_mesh_ = true;
-                    const glm::ivec3 block_pos = chunk->getBlockLocalPosition(
-                        camera_.getPosition());
-                    for (int off_y = -EXPLOSION_SIZE; off_y <= EXPLOSION_SIZE; ++off_y)
+                    for (int off_z = -EXPLOSION_SIZE; off_z <= EXPLOSION_SIZE; ++off_z)
                     {
-                        for (int off_z = -EXPLOSION_SIZE; off_z <= EXPLOSION_SIZE; ++off_z)
+                        for (int off_x = -EXPLOSION_SIZE; off_x <= EXPLOSION_SIZE; ++off_x)
                         {
-                            for (int off_x = -EXPLOSION_SIZE; off_x <= EXPLOSION_SIZE; ++off_x)
+                            const glm::ivec3 pos = center_pos + glm::ivec3{off_x, off_y, off_z};
+                            const int distance = glm::abs(off_x) + glm::abs(off_y)
+                                + glm::abs(off_z);
+                            if (distance <= EXPLOSION_SIZE)
                             {
-                                const glm::ivec3 pos = block_pos + glm::ivec3{off_x, off_y, off_z};
-                                const int distance = glm::abs(off_x) + glm::abs(off_y)
-                                    + glm::abs(off_z);
-                                if (distance <= EXPLOSION_SIZE)
-                                {
-                                    todo fix out of arr
-                                    chunk->setBlock(pos.x, pos.y, pos.z, BlockInfo{0});
-                                }
+                                eng.vox->setBlockAtPosition(pos, BlockInfo{0});
                             }
                         }
                     }

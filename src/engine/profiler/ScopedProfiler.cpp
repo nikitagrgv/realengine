@@ -249,9 +249,15 @@ void dump_svg()
         const double width = total_width * duration_ms / total_duration_ms;
         const double half_width = width / 2;
 
+        double stroke_width = 1.0f;
+        if (width <= 4)
+        {
+            stroke_width = width / 10.0f;
+        }
+
         sprintf(TEMP_BUFFER,
-            R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:1">)!",
-            x, y, width, block_height);
+            R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:%lf">)!",
+            x, y, width, block_height, stroke_width);
         out << TEMP_BUFFER << "\n";
 
         sprintf(TEMP_BUFFER, R"!(  <title>%s (%.3f ms)</title>)!", name, duration_ms);
