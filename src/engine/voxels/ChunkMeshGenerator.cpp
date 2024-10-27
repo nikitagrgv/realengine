@@ -7,6 +7,7 @@
 #include "EngineGlobals.h"
 #include "VoxelEngine.h"
 #include "profiler/ScopedProfiler.h"
+#include "profiler/ScopedTimer.h"
 
 void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     const NeighbourChunks &neighbours)
@@ -14,6 +15,8 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     assert(chunk.need_rebuild_mesh_);
 
     SCOPED_PROFILER;
+
+    ScopedTimer t("");
 
     mesh.clear();
 
@@ -57,43 +60,145 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
         return block.id == 0;
     };
 
-    chunk.visitRead([&](int x, int y, int z, BlockInfo block) {
-        if (block.id == 0)
-        {
-            return;
-        }
+    if (false)
+    {
+        bool disp = true;
 
-        const glm::vec3 min = glm::vec3{x, y, z};
-        const glm::vec3 max = min + glm::vec3(1, 1, 1);
+        for (int y = 0; y < Chunk::CHUNK_HEIGHT; ++y)
+        {
+            for (int z = 0; z < Chunk::CHUNK_WIDTH; ++z)
+            {
+                for (int x = disp; x < Chunk::CHUNK_WIDTH; x += 2)
+                {
+                    const int my_id = chunk.getBlock(x, y, z).id;
+                    const bool cur_air = my_id == 0;
 
-        const BlockDescription &desc = registry->getBlock(block.id);
-        assert(desc.cached.valid);
+                    const glm::vec3 my_min = glm::vec3{x, y, z};
+                    const glm::vec3 my_max = my_min + glm::vec3(1, 1, 1);
+                    const BlockDescription &my_desc = registry->getBlock(my_id);
 
-        if (is_air(x + 1, y, z))
-        {
-            gen_face_px(min, max, desc, mesh);
+                    const bool px_air = is_air(x + 1, y, z);
+                    if (!cur_air && px_air)
+                    {
+                        gen_face_px(my_min, my_max, my_desc, mesh);
+                    }
+                    if (x < Chunk::CHUNK_WIDTH - 1 && cur_air && !px_air)
+                    {
+                        constexpr glm::vec3 offset{1, 0, 0};
+                        const int id = chunk.getBlock(x + 1, y, z).id;
+                        const BlockDescription &desc = registry->getBlock(id);
+                        gen_face_nx(my_min + offset, my_max + offset, desc, mesh);
+                    }
+
+                    const bool nx_air = is_air(x - 1, y, z);
+                    if (!cur_air && nx_air)
+                    {
+                        gen_face_nx(my_min, my_max, my_desc, mesh);
+                    }
+                    if (x > 0 && cur_air && !nx_air)
+                    {
+                        constexpr glm::vec3 offset{-1, 0, 0};
+                        const int id = chunk.getBlock(x - 1, y, z).id;
+                        const BlockDescription &desc = registry->getBlock(id);
+                        gen_face_px(my_min + offset, my_max + offset, desc, mesh);
+                    }
+
+                    const bool py_air = is_air(x, y + 1, z);
+                    if (!cur_air && py_air)
+                    {
+                        gen_face_py(my_min, my_max, my_desc, mesh);
+                    }
+                    if (y < Chunk::CHUNK_HEIGHT - 1 && cur_air && !py_air)
+                    {
+                        constexpr glm::vec3 offset{0, 1, 0};
+                        const int id = chunk.getBlock(x, y + 1, z).id;
+                        const BlockDescription &desc = registry->getBlock(id);
+                        gen_face_ny(my_min + offset, my_max + offset, desc, mesh);
+                    }
+
+                    const bool ny_air = is_air(x, y - 1, z);
+                    if (!cur_air && ny_air)
+                    {
+                        gen_face_ny(my_min, my_max, my_desc, mesh);
+                    }
+                    if (y > 0 && cur_air && !ny_air)
+                    {
+                        constexpr glm::vec3 offset{0, -1, 0};
+                        const int id = chunk.getBlock(x, y - 1, z).id;
+                        const BlockDescription &desc = registry->getBlock(id);
+                        gen_face_py(my_min + offset, my_max + offset, desc, mesh);
+                    }
+
+                    const bool pz_air = is_air(x, y, z + 1);
+                    if (!cur_air && pz_air)
+                    {
+                        gen_face_pz(my_min, my_max, my_desc, mesh);
+                    }
+                    if (z < Chunk::CHUNK_WIDTH - 1 && cur_air && !pz_air)
+                    {
+                        constexpr glm::vec3 offset{0, 0, 1};
+                        const int id = chunk.getBlock(x, y, z + 1).id;
+                        const BlockDescription &desc = registry->getBlock(id);
+                        gen_face_nz(my_min + offset, my_max + offset, desc, mesh);
+                    }
+
+                    const bool nz_air = is_air(x, y, z - 1);
+                    if (!cur_air && nz_air)
+                    {
+                        gen_face_nz(my_min, my_max, my_desc, mesh);
+                    }
+                    if (z > 0 && cur_air && !nz_air)
+                    {
+                        constexpr glm::vec3 offset{0, 0, -1};
+                        const int id = chunk.getBlock(x, y, z - 1).id;
+                        const BlockDescription &desc = registry->getBlock(id);
+                        gen_face_pz(my_min + offset, my_max + offset, desc, mesh);
+                    }
+                }
+                disp = !disp;
+            }
+            disp = !disp;
         }
-        if (is_air(x - 1, y, z))
-        {
-            gen_face_nx(min, max, desc, mesh);
-        }
-        if (is_air(x, y + 1, z))
-        {
-            gen_face_py(min, max, desc, mesh);
-        }
-        if (is_air(x, y - 1, z))
-        {
-            gen_face_ny(min, max, desc, mesh);
-        }
-        if (is_air(x, y, z + 1))
-        {
-            gen_face_pz(min, max, desc, mesh);
-        }
-        if (is_air(x, y, z - 1))
-        {
-            gen_face_nz(min, max, desc, mesh);
-        }
-    });
+    }
+    {
+        chunk.visitRead([&](int x, int y, int z, BlockInfo block) {
+            if (block.id == 0)
+            {
+                return;
+            }
+
+            const glm::vec3 min = glm::vec3{x, y, z};
+            const glm::vec3 max = min + glm::vec3(1, 1, 1);
+
+            const BlockDescription &desc = registry->getBlock(block.id);
+            assert(desc.cached.valid);
+
+            if (is_air(x + 1, y, z))
+            {
+                gen_face_px(min, max, desc, mesh);
+            }
+            if (is_air(x - 1, y, z))
+            {
+                gen_face_nx(min, max, desc, mesh);
+            }
+            if (is_air(x, y + 1, z))
+            {
+                gen_face_py(min, max, desc, mesh);
+            }
+            if (is_air(x, y - 1, z))
+            {
+                gen_face_ny(min, max, desc, mesh);
+            }
+            if (is_air(x, y, z + 1))
+            {
+                gen_face_pz(min, max, desc, mesh);
+            }
+            if (is_air(x, y, z - 1))
+            {
+                gen_face_nz(min, max, desc, mesh);
+            }
+        });
+    }
 
     {
         ScopedProfiler p("flush vbo");
