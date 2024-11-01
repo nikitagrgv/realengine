@@ -51,8 +51,9 @@
         {label: 'Task 5', start: 870, duration: 250},
         // Add more tasks as needed
     ];
+
     let realPosToPixelPos = 1.0;
-    let offsetPx = 50.0;
+    let offsetPx = 0.0;
 
     let maxEnd = 0;
     profilerData.forEach(task => {
@@ -62,6 +63,10 @@
         }
     });
 
+    const docWidth = document.body.clientWidth;
+
+    offsetPx = 30.0;
+    realPosToPixelPos = (docWidth - offsetPx * 2) / maxEnd;
 
     const timeToString = x => {
         let prefix = "ms";
