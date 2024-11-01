@@ -545,7 +545,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     int height_map[Chunk::CHUNK_WIDTH][Chunk::CHUNK_WIDTH];
 
-    TODO# ADD FLATTNESS
+    // TODO!# ADD FLATTNESS
 
     constexpr float FACTOR = 0.002f;
     constexpr int MIN = 10;
