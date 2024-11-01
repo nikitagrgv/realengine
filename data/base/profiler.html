@@ -53,7 +53,7 @@
         // Add more tasks as needed
     ];
     let scale = 1.0;
-    let offsetPx = 0.0;
+    let offsetPx = 30.0;
 
 
 
@@ -65,8 +65,9 @@
         timeBox.className = 'time-box';
         timeBox.dataset.duration = task.duration;
         timeBox.dataset.start = task.start;
-        timeBox.style.width = `${task.duration}px`;
         timeBox.style.position = "absolute";
+        timeBox.style.left = `${offsetPx + task.start * scale}px`;
+        timeBox.style.width = `${task.duration * scale}px`;
         timeBox.textContent = `${task.label}`;
         container.appendChild(timeBox);
     });
@@ -75,6 +76,14 @@
     document.addEventListener('mousewheel', (event) => {
         const scaleSpeed = 1.2;
         const scaleFactor = event.deltaY < 0 ? scaleSpeed : 1 / scaleSpeed;
+
+        console.log(event.relatedTarget);
+        console.log("EVENT POS", event.pageX);
+
+        const mousePosPx = event.pageX - offsetPx;
+        console.log("pos px", mousePosPx);
+        const mousePosReal = mousePosPx / scale;
+        console.log("pos real", mousePosReal);
 
         scale = scale * scaleFactor;
 
