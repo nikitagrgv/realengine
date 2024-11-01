@@ -85,6 +85,7 @@
         timeBox.dataset.start = task.start;
         timeBox.dataset.depth = task.depth;
         timeBox.style.position = "absolute";
+        timeBox.style.top = `${45 * task.depth}px`;
         timeBox.style.left = `${offsetPx + task.start * realPosToPixelPos}px`;
         timeBox.style.width = `${task.duration * realPosToPixelPos}px`;
         timeBox.textContent = `${task.label} (${timeToString(task.duration)})`;
