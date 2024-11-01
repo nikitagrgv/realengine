@@ -28,6 +28,7 @@ public:
     static void endFrame();
 
     static void dumpSVG(const char *path);
+    static void dumpHTML(const char *path);
 };
 
 #define SCOPED_PROFILER ScopedProfiler REALENGINE_CONCATENATE(_profiler_, __LINE__)(__FUNCTION__)

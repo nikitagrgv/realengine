@@ -23,6 +23,7 @@ uint64_t get_perf_counter();
 uint64_t get_perf_frequency();
 
 void dump_svg();
+void dump_html();
 
 } // namespace
 
@@ -54,7 +55,15 @@ struct ProbeInfo
     uint64_t time;
 };
 
-bool DUMP_REQUESTED{false};
+
+enum class DumpType
+{
+    None,
+    SVG,
+    HTML,
+};
+
+DumpType REQUESTED_DUMP{DumpType::HTML};
 std::string DUMP_PATH{};
 
 uint64_t PERF_FREQ{};
@@ -107,9 +116,15 @@ void Profiler::endFrame()
 {
     leaveFunction(get_perf_counter());
 
-    if (DUMP_REQUESTED)
+    if (REQUESTED_DUMP == DumpType::SVG)
     {
         dump_svg();
+        REQUESTED_DUMP = DumpType::None;
+    }
+    else if (REQUESTED_DUMP == DumpType::HTML)
+    {
+        dump_html();
+        REQUESTED_DUMP = DumpType::None;
     }
 
     ++CUR_RECORDED_FRAMES;
@@ -134,7 +149,13 @@ void Profiler::endFrame()
 void Profiler::dumpSVG(const char *path)
 {
     DUMP_PATH = path;
-    DUMP_REQUESTED = true;
+    REQUESTED_DUMP = DumpType::SVG;
+}
+
+void Profiler::dumpHTML(const char *path)
+{
+    DUMP_PATH = path;
+    REQUESTED_DUMP = DumpType::HTML;
 }
 
 namespace
@@ -165,10 +186,9 @@ uint64_t get_perf_frequency()
 }
 
 char TEMP_BUFFER[2048];
+
 void dump_svg()
 {
-    DUMP_REQUESTED = false;
-
     if (OLD_PROBES.empty() && PROBES.empty())
     {
         return;
@@ -283,5 +303,123 @@ void dump_svg()
 
     out << "</svg>\n";
 }
+
+void dump_html()
+{
+    if (OLD_PROBES.empty() && PROBES.empty())
+    {
+        return;
+    }
+
+    const uint64_t start_time = !OLD_PROBES.empty() ? OLD_PROBES[0].time : PROBES[0].time;
+    const uint64_t end_time = !PROBES.empty() ? PROBES.back().time : OLD_PROBES.back().time;
+
+    std::ofstream out(DUMP_PATH);
+
+    int max_depth = 0;
+
+    struct Block
+    {
+        const char *name = nullptr;
+        uint64_t start = 0;
+        uint64_t end = 0;
+        int depth = -1;
+    };
+    std::vector<Block> stack;
+    std::vector<Block> final_blocks;
+    const auto add_probe = [&](const char *name, uint64_t time) {
+        if (name)
+        {
+            Block block;
+            block.name = name;
+            block.start = time - start_time;
+            block.depth = stack.size();
+            if (block.depth > max_depth)
+            {
+                max_depth = block.depth;
+            }
+            stack.push_back(block);
+        }
+        else
+        {
+            assert(!stack.empty());
+            Block &block = stack.back();
+            block.end = time - start_time;
+            final_blocks.push_back(block);
+            stack.pop_back();
+        }
+    };
+
+    for (const auto &probe : OLD_PROBES)
+    {
+        add_probe(probe.name, probe.time);
+    }
+    for (const auto &probe : PROBES)
+    {
+        add_probe(probe.name, probe.time);
+    }
+
+    // TODO: stupid but i don't care
+    std::sort(final_blocks.begin(), final_blocks.end(), [](const Block &a, const Block &b) {
+        if (a.start == b.start)
+        {
+            return a.depth < b.depth;
+        }
+        return a.start < b.start;
+    });
+
+    const double total_duration_ms = (end_time - start_time) * 1000 / PERF_FREQ;
+
+    const double block_height = 50.0;
+    const double half_block_height = block_height / 2;
+
+    const double total_width = 5000;
+    const double total_height = (double)(max_depth + 1) * block_height;
+
+    const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
+        const double start_ms = (double)start * 1000.0 / (double)PERF_FREQ;
+        const double end_ms = (double)end * 1000.0 / (double)PERF_FREQ;
+        const double duration_ms = (double)((end - start) * 1000.0) / (double)PERF_FREQ;
+
+        const double x = total_width * start_ms / total_duration_ms;
+        const double y = block_height * depth;
+        const double width = total_width * duration_ms / total_duration_ms;
+        const double half_width = width / 2;
+
+        double stroke_width = 1.0f;
+        if (width <= 4)
+        {
+            stroke_width = width / 10.0f;
+        }
+
+        sprintf(TEMP_BUFFER,
+            R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:%lf">)!",
+            x, y, width, block_height, stroke_width);
+        out << TEMP_BUFFER << "\n";
+
+        sprintf(TEMP_BUFFER, R"!(  <title>%s (%.3f ms)</title>)!", name, duration_ms);
+        out << TEMP_BUFFER << "\n";
+
+        out << "</rect>\n";
+
+        const double font_size = std::min(width * 0.1, block_height - 1);
+        sprintf(TEMP_BUFFER,
+            R"!( <text x="%lf" y="%lf" font-family="Arial" font-size="%lfpx" fill="black" dominant-baseline="middle" text-anchor="middle">%s</text>)!",
+            x + half_width, y + half_block_height, font_size, name);
+        out << TEMP_BUFFER << "\n";
+    };
+
+    sprintf(TEMP_BUFFER, R"!(<svg viewBox="0 0 %lf %lf" xmlns="http://www.w3.org/2000/svg">)!",
+        total_width, total_height);
+    out << TEMP_BUFFER << "\n";
+
+    for (const auto &block : final_blocks)
+    {
+        print_block(block.name, block.start, block.end, block.depth);
+    }
+
+    out << "</svg>\n";
+}
+
 
 } // namespace
