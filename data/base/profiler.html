@@ -18,7 +18,7 @@
             overflow-x: hidden;
             overflow-y: auto;
             white-space: nowrap;
-            padding: 0;
+            padding-top: 20px;
             background: #040d12;
             position: relative;
         }
@@ -27,14 +27,13 @@
             display: inline-block;
             height: 40px;
             background-color: #4caf50;
-            margin-right: 5px;
+            margin: 0;
             border-radius: 5px;
             color: #fff;
             text-align: center;
             line-height: 40px;
             font-size: 14px;
             overflow: hidden;
-            transition: width 0.1s ease;
         }
     </style>
 </head>
@@ -46,11 +45,11 @@
 <script>
     // Sample profiler data representing time deltas in milliseconds
     const profilerData = [
-        {label: 'Task 1', duration: 100},
-        {label: 'Task 2', duration: 200},
-        {label: 'Task 3', duration: 150},
-        {label: 'Task 4', duration: 300},
-        {label: 'Task 5', duration: 250},
+        {label: 'Task 1', start: 0, duration: 100},
+        {label: 'Task 2', start: 130, duration: 200},
+        {label: 'Task 3', start: 350, duration: 150},
+        {label: 'Task 4', start: 520, duration: 300},
+        {label: 'Task 5', start: 870, duration: 250},
         // Add more tasks as needed
     ];
     let curScroll = 1;
@@ -61,8 +60,10 @@
     profilerData.forEach(task => {
         const timeBox = document.createElement('div');
         timeBox.className = 'time-box';
-        timeBox.dataset.duration = task.duration; // Store original duration
-        timeBox.style.width = `${task.duration}px`; // Initial width
+        timeBox.dataset.duration = task.duration;
+        timeBox.dataset.start = task.start;
+        timeBox.style.width = `${task.duration}px`;
+        timeBox.style.position = "absolute";
         timeBox.textContent = `${task.label}`;
         container.appendChild(timeBox);
     });
@@ -81,9 +82,11 @@
 
         // Update width of each time box based on scroll
         document.querySelectorAll('.time-box').forEach(timeBox => {
-            const baseDuration = parseInt(timeBox.dataset.duration);
-            console.log('val = ' + baseDuration);
-            timeBox.style.width = `${baseDuration * curScroll}px`;
+            const start = parseInt(timeBox.dataset.start);
+            const duration = parseInt(timeBox.dataset.duration);
+            console.log('val = ' + duration);
+            timeBox.style.left = `${start * curScroll}px`;
+            timeBox.style.width = `${duration * curScroll}px`;
         });
     });
 </script>
