@@ -458,7 +458,7 @@ private:
 
         if (eng.input->isKeyPressed(Key::KEY_F11))
         {
-            const char *path = "PROFILER.HTML";
+            const char *path = "profiler.html";
             Profiler::dumpHTML(path);
             std::cout << "Profiler saved to " << path << std::endl;
         }

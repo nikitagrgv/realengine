@@ -382,8 +382,8 @@ void dump_html()
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
         const double start_ms = (double)start * 1000.0 / (double)PERF_FREQ;
         const double duration_ms = (double)((end - start) * 1000.0) / (double)PERF_FREQ;
-        sprintf(TEMP_BUFFER, "{label: '%s', start: %lf, duration: %lf},", name, start_ms,
-            duration_ms);
+        sprintf(TEMP_BUFFER, "{label: '%s', start: %lf, duration: %lf, depth: %d},", name, start_ms,
+            duration_ms, depth);
         out << TEMP_BUFFER << "\n";
     };
 
