@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrollable Profiler Diagram</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100vw;
+            height: 80px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 20px;
+            background: #040d12;
+            position: relative;
+        }
+
+        .time-box {
+            display: inline-block;
+            height: 40px;
+            background-color: #4caf50;
+            margin-right: 5px;
+            border-radius: 5px;
+            color: #fff;
+            text-align: center;
+            line-height: 40px;
+            font-size: 14px;
+            overflow: hidden;
+            transition: width 0.1s ease;
+        }
+    </style>
+</head>
+
+<body style="background-color: #040d12">
+
+<div class="container" id="diagramContainer"></div>
+
+<script>
+    // Sample profiler data representing time deltas in milliseconds
+    const profilerData = [
+        {label: 'Task 1', duration: 100},
+        {label: 'Task 2', duration: 200},
+        {label: 'Task 3', duration: 150},
+        {label: 'Task 4', duration: 300},
+        {label: 'Task 5', duration: 250},
+        // Add more tasks as needed
+    ];
+    let curScroll = 1;
+
+    const container = document.getElementById('diagramContainer');
+
+    // Populate the container with time boxes
+    profilerData.forEach(task => {
+        const timeBox = document.createElement('div');
+        timeBox.className = 'time-box';
+        timeBox.dataset.duration = task.duration; // Store original duration
+        timeBox.style.width = `${task.duration}px`; // Initial width
+        timeBox.textContent = `${task.label}`;
+        container.appendChild(timeBox);
+    });
+
+    // Adjust widths of rectangles on scroll
+    document.addEventListener('mousewheel', (event) => {
+        console.log('Is this working?');
+        const scrollAmount = container.scrollLeft;
+
+        scaleSpeed = 1.2;
+
+        if (event.deltaY < 0)
+            curScroll = curScroll * scaleSpeed;
+        else
+            curScroll = curScroll / scaleSpeed;
+
+        // Update width of each time box based on scroll
+        document.querySelectorAll('.time-box').forEach(timeBox => {
+            const baseDuration = parseInt(timeBox.dataset.duration);
+            console.log('val = ' + baseDuration);
+            timeBox.style.width = `${baseDuration * curScroll}px`;
+        });
+    });
+</script>
+
+</body>
+
+</html>
