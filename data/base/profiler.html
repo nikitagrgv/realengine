@@ -76,20 +76,14 @@
     document.addEventListener('mousewheel', (event) => {
         const scaleSpeed = 1.2;
         const scaleFactor = event.deltaY < 0 ? scaleSpeed : 1 / scaleSpeed;
+        const newScale = scale * scaleFactor;
 
         const mousePosPx = event.pageX - offsetPx;
         const mousePosReal = mousePosPx / scale;
 
-        const newScale = scale * scaleFactor;
-
-        const a = mousePosReal;
-        const b = a / scaleFactor;
-        const offsetDeltaReal = a - b;
-
-        const offsetDeltaPx = -offsetDeltaReal / scale;
-        offsetPx += offsetDeltaPx;
-
+        offsetPx += mousePosReal * scale - mousePosReal * newScale;
         scale = newScale;
+
         document.querySelectorAll('.time-box').forEach(timeBox => {
             const start = parseInt(timeBox.dataset.start);
             const duration = parseInt(timeBox.dataset.duration);
