@@ -1,5 +1,8 @@
 #include "ScopedProfiler.h"
 
+#include "EngineGlobals.h"
+#include "fs/FileSystem.h"
+
 #include <immintrin.h>
 
 #include <algorithm>
@@ -314,7 +317,7 @@ void dump_html()
     const uint64_t start_time = !OLD_PROBES.empty() ? OLD_PROBES[0].time : PROBES[0].time;
     const uint64_t end_time = !PROBES.empty() ? PROBES.back().time : OLD_PROBES.back().time;
 
-    std::ofstream out(DUMP_PATH);
+    std::ofstream out(DUMP_PATH, std::ios::binary);
 
     int max_depth = 0;
 
@@ -378,47 +381,33 @@ void dump_html()
 
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
         const double start_ms = (double)start * 1000.0 / (double)PERF_FREQ;
-        const double end_ms = (double)end * 1000.0 / (double)PERF_FREQ;
         const double duration_ms = (double)((end - start) * 1000.0) / (double)PERF_FREQ;
-
-        const double x = total_width * start_ms / total_duration_ms;
-        const double y = block_height * depth;
-        const double width = total_width * duration_ms / total_duration_ms;
-        const double half_width = width / 2;
-
-        double stroke_width = 1.0f;
-        if (width <= 4)
-        {
-            stroke_width = width / 10.0f;
-        }
-
-        sprintf(TEMP_BUFFER,
-            R"!( <rect x="%lf" y="%lf" width="%lf" height="%lf" style="fill:lightblue;stroke:black;stroke-width:%lf">)!",
-            x, y, width, block_height, stroke_width);
-        out << TEMP_BUFFER << "\n";
-
-        sprintf(TEMP_BUFFER, R"!(  <title>%s (%.3f ms)</title>)!", name, duration_ms);
-        out << TEMP_BUFFER << "\n";
-
-        out << "</rect>\n";
-
-        const double font_size = std::min(width * 0.1, block_height - 1);
-        sprintf(TEMP_BUFFER,
-            R"!( <text x="%lf" y="%lf" font-family="Arial" font-size="%lfpx" fill="black" dominant-baseline="middle" text-anchor="middle">%s</text>)!",
-            x + half_width, y + half_block_height, font_size, name);
+        sprintf(TEMP_BUFFER, "{label: '%s', start: %lf, duration: %lf},", name, start_ms,
+            duration_ms);
         out << TEMP_BUFFER << "\n";
     };
 
-    sprintf(TEMP_BUFFER, R"!(<svg viewBox="0 0 %lf %lf" xmlns="http://www.w3.org/2000/svg">)!",
-        total_width, total_height);
-    out << TEMP_BUFFER << "\n";
+    const std::string template_path = eng.fs->toAbsolutePath("base/profiler.html");
+    const std::string template_content = eng.fs->readFile(template_path.c_str());
+
+    const char *placelolder = "// $DATA_PLACEHOLDER$";
+    const size_t placeholder_index = template_content.find(placelolder);
+
+    if (placeholder_index == -1)
+    {
+        std::cout << "Invalid profilre HTML template" << std::endl;
+        return;
+    }
+    const size_t after_placeholder = placeholder_index + strlen(placelolder);
+    out.write(template_content.data(), placeholder_index);
 
     for (const auto &block : final_blocks)
     {
         print_block(block.name, block.start, block.end, block.depth);
     }
 
-    out << "</svg>\n";
+    out.write(template_content.data() + after_placeholder,
+        template_content.size() - after_placeholder);
 }
 
 

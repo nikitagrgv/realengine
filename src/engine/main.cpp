@@ -458,7 +458,7 @@ private:
 
         if (eng.input->isKeyPressed(Key::KEY_F11))
         {
-            const char *path = "PROFILER.SVG";
+            const char *path = "PROFILER.HTML";
             Profiler::dumpHTML(path);
             std::cout << "Profiler saved to " << path << std::endl;
         }

@@ -14,11 +14,10 @@
 
         .container {
             width: 100vw;
-            height: 80px;
+            height: 100vh;
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: hidden;
             white-space: nowrap;
-            padding-top: 20px;
             background: #040d12;
             position: relative;
         }
@@ -45,7 +44,9 @@
 <script>
     const profilerData = [
         // $DATA_PLACEHOLDER$
-        // {label: 'example', start: 123, duration: 456},
+        {label: 'example', start: 0, duration: 19, depth: 0},
+        {label: 'example', start: 10, duration: 19, depth: 1},
+        {label: 'example', start: 20, duration: 19, depth: 2},
     ];
 
     let realPosToPixelPos = 1.0;
@@ -82,6 +83,7 @@
         timeBox.className = 'time-box';
         timeBox.dataset.duration = task.duration;
         timeBox.dataset.start = task.start;
+        timeBox.dataset.depth = task.depth;
         timeBox.style.position = "absolute";
         timeBox.style.left = `${offsetPx + task.start * realPosToPixelPos}px`;
         timeBox.style.width = `${task.duration * realPosToPixelPos}px`;
@@ -104,6 +106,8 @@
         document.querySelectorAll('.time-box').forEach(timeBox => {
             const start = parseInt(timeBox.dataset.start);
             const duration = parseInt(timeBox.dataset.duration);
+            const depth = parseInt(timeBox.dataset.depth);
+            timeBox.style.top = `${45 * depth}px`;
             timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
             timeBox.style.width = `${duration * realPosToPixelPos}px`;
         });
