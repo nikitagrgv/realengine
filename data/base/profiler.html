@@ -53,7 +53,7 @@
         // Add more tasks as needed
     ];
     let scale = 1.0;
-    let offsetPx = 30.0;
+    let offsetPx = 50.0;
 
 
 
@@ -77,17 +77,19 @@
         const scaleSpeed = 1.2;
         const scaleFactor = event.deltaY < 0 ? scaleSpeed : 1 / scaleSpeed;
 
-        console.log(event.relatedTarget);
-        console.log("EVENT POS", event.pageX);
-
         const mousePosPx = event.pageX - offsetPx;
-        console.log("pos px", mousePosPx);
         const mousePosReal = mousePosPx / scale;
-        console.log("pos real", mousePosReal);
 
-        scale = scale * scaleFactor;
+        const newScale = scale * scaleFactor;
 
-        // Update width of each time box based on scroll
+        const a = mousePosReal;
+        const b = a / scaleFactor;
+        const offsetReal = a - b;
+
+        const offsetDeltaPx = -offsetReal / scale;
+        offsetPx += offsetDeltaPx;
+
+        scale = newScale;
         document.querySelectorAll('.time-box').forEach(timeBox => {
             const start = parseInt(timeBox.dataset.start);
             const duration = parseInt(timeBox.dataset.duration);
