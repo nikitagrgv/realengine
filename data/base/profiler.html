@@ -43,7 +43,6 @@
 <div class="container" id="diagramContainer"></div>
 
 <script>
-    // Sample profiler data representing time deltas in milliseconds
     const profilerData = [
         {label: 'Task 1', start: 0, duration: 100},
         {label: 'Task 2', start: 130, duration: 200},
@@ -52,10 +51,27 @@
         {label: 'Task 5', start: 870, duration: 250},
         // Add more tasks as needed
     ];
-    let scale = 1.0;
+    let realPosToPixelPos = 1.0;
     let offsetPx = 50.0;
 
+    let maxEnd = 0;
+    profilerData.forEach(task => {
+        let end = task.start + task.duration;
+        if (end > maxEnd) {
+            maxEnd = end
+        }
+    });
 
+
+    const timeToString = x => {
+        let prefix = "ms";
+        if (x > 1000) {
+            prefix = "sec";
+            x /= 1000;
+        }
+        const rounded = Math.round(x * 100) / 100;
+        return `${rounded}${prefix}`;
+    };
 
     const container = document.getElementById('diagramContainer');
 
@@ -66,9 +82,9 @@
         timeBox.dataset.duration = task.duration;
         timeBox.dataset.start = task.start;
         timeBox.style.position = "absolute";
-        timeBox.style.left = `${offsetPx + task.start * scale}px`;
-        timeBox.style.width = `${task.duration * scale}px`;
-        timeBox.textContent = `${task.label}`;
+        timeBox.style.left = `${offsetPx + task.start * realPosToPixelPos}px`;
+        timeBox.style.width = `${task.duration * realPosToPixelPos}px`;
+        timeBox.textContent = `${task.label} (${timeToString(task.duration)})`;
         container.appendChild(timeBox);
     });
 
@@ -76,19 +92,19 @@
     document.addEventListener('mousewheel', (event) => {
         const scaleSpeed = 1.2;
         const scaleFactor = event.deltaY < 0 ? scaleSpeed : 1 / scaleSpeed;
-        const newScale = scale * scaleFactor;
+        const newRealPosToPixelPos = realPosToPixelPos * scaleFactor;
 
         const mousePosPx = event.pageX - offsetPx;
-        const mousePosReal = mousePosPx / scale;
+        const mousePosReal = mousePosPx / realPosToPixelPos;
 
-        offsetPx += mousePosReal * scale - mousePosReal * newScale;
-        scale = newScale;
+        offsetPx += mousePosReal * realPosToPixelPos - mousePosReal * newRealPosToPixelPos;
+        realPosToPixelPos = newRealPosToPixelPos;
 
         document.querySelectorAll('.time-box').forEach(timeBox => {
             const start = parseInt(timeBox.dataset.start);
             const duration = parseInt(timeBox.dataset.duration);
-            timeBox.style.left = `${offsetPx + start * scale}px`;
-            timeBox.style.width = `${duration * scale}px`;
+            timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
+            timeBox.style.width = `${duration * realPosToPixelPos}px`;
         });
     });
 </script>
