@@ -53,6 +53,9 @@
         // Add more tasks as needed
     ];
     let scale = 1.0;
+    let offsetPx = 0.0;
+
+
 
     const container = document.getElementById('diagramContainer');
 
@@ -79,7 +82,7 @@
         document.querySelectorAll('.time-box').forEach(timeBox => {
             const start = parseInt(timeBox.dataset.start);
             const duration = parseInt(timeBox.dataset.duration);
-            timeBox.style.left = `${start * scale}px`;
+            timeBox.style.left = `${offsetPx + start * scale}px`;
             timeBox.style.width = `${duration * scale}px`;
         });
     });
