@@ -103,9 +103,9 @@
         realPosToPixelPos = newRealPosToPixelPos;
 
         document.querySelectorAll('.time-box').forEach(timeBox => {
-            const start = parseInt(timeBox.dataset.start);
-            const duration = parseInt(timeBox.dataset.duration);
-            const depth = parseInt(timeBox.dataset.depth);
+            const start = parseFloat(timeBox.dataset.start);
+            const duration = parseFloat(timeBox.dataset.duration);
+            const depth = parseFloat(timeBox.dataset.depth);
             timeBox.style.top = `${45 * depth}px`;
             timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
             timeBox.style.width = `${duration * realPosToPixelPos}px`;
