@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scrollable Profiler Diagram</title>
+    <title>Profiler Result</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,7 +52,7 @@
         {label: 'Task 5', start: 870, duration: 250},
         // Add more tasks as needed
     ];
-    let curScroll = 1;
+    let scale = 1.0;
 
     const container = document.getElementById('diagramContainer');
 
@@ -70,23 +70,19 @@
 
     // Adjust widths of rectangles on scroll
     document.addEventListener('mousewheel', (event) => {
-        console.log('Is this working?');
-        const scrollAmount = container.scrollLeft;
-
         scaleSpeed = 1.2;
 
         if (event.deltaY < 0)
-            curScroll = curScroll * scaleSpeed;
+            scale = scale * scaleSpeed;
         else
-            curScroll = curScroll / scaleSpeed;
+            scale = scale / scaleSpeed;
 
         // Update width of each time box based on scroll
         document.querySelectorAll('.time-box').forEach(timeBox => {
             const start = parseInt(timeBox.dataset.start);
             const duration = parseInt(timeBox.dataset.duration);
-            console.log('val = ' + duration);
-            timeBox.style.left = `${start * curScroll}px`;
-            timeBox.style.width = `${duration * curScroll}px`;
+            timeBox.style.left = `${start * scale}px`;
+            timeBox.style.width = `${duration * scale}px`;
         });
     });
 </script>
