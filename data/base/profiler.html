@@ -70,12 +70,10 @@
 
     // Adjust widths of rectangles on scroll
     document.addEventListener('mousewheel', (event) => {
-        scaleSpeed = 1.2;
+        const scaleSpeed = 1.2;
+        const scaleFactor = event.deltaY < 0 ? scaleSpeed : 1 / scaleSpeed;
 
-        if (event.deltaY < 0)
-            scale = scale * scaleSpeed;
-        else
-            scale = scale / scaleSpeed;
+        scale = scale * scaleFactor;
 
         // Update width of each time box based on scroll
         document.querySelectorAll('.time-box').forEach(timeBox => {
