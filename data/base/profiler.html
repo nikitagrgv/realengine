@@ -84,9 +84,9 @@
 
         const a = mousePosReal;
         const b = a / scaleFactor;
-        const offsetReal = a - b;
+        const offsetDeltaReal = a - b;
 
-        const offsetDeltaPx = -offsetReal / scale;
+        const offsetDeltaPx = -offsetDeltaReal / scale;
         offsetPx += offsetDeltaPx;
 
         scale = newScale;
