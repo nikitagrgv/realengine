@@ -21,8 +21,24 @@ JobQueue::JobQueue()
     std::cout << "JobQueue: initialized with " << num_threads_ << " threads" << std::endl;
 }
 
-JobQueue::~JobQueue()
+JobQueue::~JobQueue() {}
+
+void JobQueue::runWorkers()
 {
+    assert(threads_.empty());
+    for (int i = 0; i < num_threads_; ++i)
+    {
+        threads_.push_back(makeU<WorkerThread>());
+    }
+}
+
+void JobQueue::stopWorkers()
+{
+    for (const UPtr<WorkerThread> &thread : threads_)
+    {
+        thread->exit();
+    }
+    jobs_cv_.notify_all();
     threads_.clear();
 
     std::queue<UPtr<Job>> taken_jobs;
@@ -38,15 +54,6 @@ JobQueue::~JobQueue()
     }
 
     std::cout << "JobQueue: unfinished jobs " << num_jobs << std::endl;
-}
-
-void JobQueue::runWorkers()
-{
-    assert(threads_.empty());
-    for (int i = 0; i < num_threads_; ++i)
-    {
-        threads_.push_back(makeU<WorkerThread>());
-    }
 }
 
 void JobQueue::finishJobsMainThread()
@@ -75,6 +82,7 @@ void JobQueue::enqueueJob(UPtr<Job> job)
         std::lock_guard<std::mutex> lock(jobs_mutex_);
         jobs_.push(std::move(job));
     }
+    jobs_cv_.notify_one();
 }
 
 void JobQueue::addFinishedJob(UPtr<Job> job)
@@ -83,7 +91,30 @@ void JobQueue::addFinishedJob(UPtr<Job> job)
     finished_jobs_.push(std::move(job));
 }
 
-UPtr<Job> JobQueue::takeJob()
+UPtr<Job> JobQueue::takeJobWaiting(const WorkerThread &thread)
+{
+    UPtr<Job> job;
+    {
+        std::unique_lock lock(jobs_mutex_);
+        while (true)
+        {
+            jobs_cv_.wait(lock);
+            if (!jobs_.empty() || thread.needExit())
+            {
+                break;
+            }
+        }
+        assert(lock.owns_lock());
+        if (!jobs_.empty())
+        {
+            job = std::move(jobs_.front());
+            jobs_.pop();
+        }
+    }
+    return job;
+}
+
+UPtr<Job> JobQueue::tryTakeJob()
 {
     UPtr<Job> job;
     {

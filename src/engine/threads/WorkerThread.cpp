@@ -18,12 +18,9 @@ void WorkerThread::execute()
             break;
         }
 
-        // TODO# condition variable
-
-        UPtr<Job> job = eng.queue->takeJob();
+        UPtr<Job> job = eng.queue->takeJobWaiting(*this);
         if (!job)
         {
-            Threads::sleepMs(1);
             continue;
         }
 

@@ -28,6 +28,7 @@ public:
     ~JobQueue();
 
     void runWorkers();
+    void stopWorkers();
 
     void finishJobsMainThread();
 
@@ -35,7 +36,8 @@ public:
 
     void addFinishedJob(UPtr<Job> job);
 
-    UPtr<Job> takeJob();
+    UPtr<Job> takeJobWaiting(const WorkerThread &thread);
+    UPtr<Job> tryTakeJob();
     int getNumJobs();
 
 private:
@@ -44,6 +46,7 @@ private:
 
     std::mutex jobs_mutex_;
     std::queue<UPtr<Job>> jobs_;
+    std::condition_variable jobs_cv_;
 
     std::mutex finished_mutex_;
     std::queue<UPtr<Job>> finished_jobs_;

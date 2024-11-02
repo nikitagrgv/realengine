@@ -428,6 +428,9 @@ private:
             ptr = nullptr;
         };
 
+        // Pre shutdown
+        eng.queue->stopWorkers();
+
         // Editor
         delete_and_null(edg.editor_);
 
