@@ -72,6 +72,12 @@ void Editor::setSelectedNode(Node *node)
     selected_node_ = eng.world->getNodeIndex(node);
 }
 
+void Editor::addPopup(const char *message, float time_sec)
+{
+    const uint64_t time_start_ms = eng.time->getTimeUsec() / 1000;
+    popups_.emplace_back(message, time_sec, time_start_ms);
+}
+
 void Editor::load_configs()
 {
     std::ifstream file(CONFIG_PATH);
@@ -155,6 +161,7 @@ void Editor::render()
     render_shaders();
     render_meshes();
     render_info();
+    render_popup();
 
     visualize_selected_node();
 }
@@ -846,6 +853,51 @@ void Editor::render_info()
         ImGui::Text("Render chunks: %d", eng.vox->getNumRenderChunks());
         ImGui::Text("Render vertices: %llu", eng.vox->getNumRenderVertices());
         ImGui::Separator();
+    }
+    ImGui::End();
+}
+
+void Editor::render_popup()
+{
+    const uint64_t cur_time_ms = eng.time->getTimeUsec() / 1000;
+
+    // cleanup
+    Alg::removeIf(popups_, [&](const PopupInfo &popup) {
+        const uint64_t delta_ms = cur_time_ms - popup.create_time_ms;
+        const float delta_sec = (float)delta_ms / 1000.0f;
+        return delta_sec > popup.duration_sec;
+    });
+
+    if (popups_.empty())
+    {
+        return;
+    }
+
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration
+        | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings
+        | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    {
+        const float PAD = 10.0f;
+        const ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImVec2 work_pos = viewport->WorkPos; // Use work area to avoid menu-bar/task-bar, if any!
+        ImVec2 work_size = viewport->WorkSize;
+        ImVec2 window_pos, window_pos_pivot;
+        window_pos.x = work_pos.x + work_size.x - PAD;
+        window_pos.y = work_pos.y + work_size.y - PAD;
+        window_pos_pivot.x = 1.0f;
+        window_pos_pivot.y = 1.0f;
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        window_flags |= ImGuiWindowFlags_NoMove;
+    }
+    ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+    if (ImGui::Begin("Popup", &info_window_, window_flags))
+    {
+        for (int i = 0; i < popups_.size(); ++i)
+        {
+            ImGui::PushID(i);
+            ImGui::Text("%s", popups_[i].message.data());
+            ImGui::PopID();
+        }
     }
     ImGui::End();
 }

@@ -7,6 +7,8 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
+#include <string>
+#include <utility>
 
 
 class Material;
@@ -27,6 +29,23 @@ public:
 
     void setPlayerPositionInfo(glm::vec3 pos) { player_pos_ = pos; }
 
+    void addPopup(const char *message, float time_sec = 2.0f);
+
+private:
+    struct PopupInfo
+    {
+        PopupInfo() = default;
+        PopupInfo(std::string message, float time_sec, uint64_t time_start_ms)
+            : message(std::move(message))
+            , duration_sec(time_sec)
+            , create_time_ms(time_start_ms)
+        {}
+
+        std::string message;
+        float duration_sec{};
+        uint64_t create_time_ms{};
+    };
+
 private:
     void load_configs();
     void save_configs();
@@ -41,6 +60,7 @@ private:
     void render_shaders();
     void render_meshes();
     void render_info();
+    void render_popup();
 
     void render_texture_info(Texture *texture);
     void render_texture(Texture *texture, float width, float height);
@@ -98,6 +118,9 @@ private:
         bool initialized = false;
     };
     std::unordered_map<ImGuiID, Mat4WidgetData> widgets_data_;
+
+    // Popups
+    std::vector<PopupInfo> popups_;
 
     Context ctx_;
 };

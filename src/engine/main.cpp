@@ -460,7 +460,10 @@ private:
         {
             const char *path = "profiler.html";
             Profiler::dumpHTML(path);
-            std::cout << "Profiler saved to " << path << std::endl;
+            std::string message = "Profiler saved to ";
+            message += path;
+            std::cout << message << std::endl;
+            edg.editor_->addPopup(message.c_str());
         }
 
         if (eng.input->isKeyPressed(Key::KEY_F3))
