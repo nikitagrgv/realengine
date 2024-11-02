@@ -522,7 +522,10 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
             assert(chunk_);
         }
 
-        void execute() override { v_.generate_chunk_threadsafe(*chunk_); }
+        void execute() override
+        {
+            v_.generate_chunk_threadsafe(*chunk_);
+        }
         void finishMainThread() override { v_.finish_generate_chunk(std::move(chunk_)); }
 
     private:
@@ -540,6 +543,8 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
 
 void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 {
+    SCOPED_PROFILER;
+
     assert(perlin_);
     const siv::PerlinNoise &perlin = *perlin_;
 
