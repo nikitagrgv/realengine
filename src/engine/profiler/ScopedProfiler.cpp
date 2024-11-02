@@ -140,6 +140,8 @@ void Profiler::endFrame()
         REQUESTED_DUMP = DumpType::None;
     }
 
+    std::scoped_lock lock(probes_mutex); // TODO! SHIT
+
     ++CUR_RECORDED_FRAMES;
     if (CUR_RECORDED_FRAMES > HALF_MAX_RECORDED_FRAMES)
     {
@@ -202,6 +204,8 @@ char TEMP_BUFFER[2048];
 
 void dump_svg()
 {
+    std::scoped_lock lock(probes_mutex); // TODO! SHIT
+
     if (OLD_PROBES.empty() && PROBES.empty())
     {
         return;
@@ -319,6 +323,8 @@ void dump_svg()
 
 void dump_html()
 {
+    std::scoped_lock lock(probes_mutex); // TODO! SHIT
+
     if (OLD_PROBES.empty() && PROBES.empty())
     {
         return;
@@ -361,7 +367,7 @@ void dump_html()
         }
         else
         {
-            assert(!stack.empty());
+            assert(!thread_data.stack.empty());
             Block &block = thread_data.stack.back();
             block.end = time - start_time;
             thread_data.final_blocks.push_back(block);
