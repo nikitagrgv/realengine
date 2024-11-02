@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <vector>
 
 #ifdef _WIN32
@@ -74,6 +75,7 @@ uint64_t PERF_FREQ{};
 int HALF_MAX_RECORDED_FRAMES{100};
 int CUR_RECORDED_FRAMES{};
 
+std::mutex probes_mutex;
 std::vector<ProbeInfo> OLD_PROBES;
 std::vector<ProbeInfo> PROBES;
 
@@ -92,11 +94,13 @@ void Profiler::setMaxRecordedFrames(int frames)
 
 void Profiler::enterFunction(const char *name, uint64_t time)
 {
+    std::scoped_lock lock(probes_mutex);
     PROBES.emplace_back(name, time);
 }
 
 void Profiler::leaveFunction(uint64_t time)
 {
+    std::scoped_lock lock(probes_mutex);
     PROBES.emplace_back(nullptr, time);
 }
 
