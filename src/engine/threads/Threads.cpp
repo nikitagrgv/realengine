@@ -23,6 +23,11 @@ uint64_t Threads::getCurrentThreadId()
     return GetCurrentThreadId();
 }
 
+bool Threads::getMainThreadId()
+{
+    return main_thread_;
+}
+
 void Threads::sleepMs(uint64_t ms)
 {
     Sleep(ms);

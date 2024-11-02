@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+#include <unordered_map>
 #include <vector>
 
 #ifdef _WIN32
@@ -328,8 +329,6 @@ void dump_html()
 
     std::ofstream out(DUMP_PATH, std::ios::binary);
 
-    int max_depth = 0;
-
     struct Block
     {
         const char *name = nullptr;
@@ -337,48 +336,61 @@ void dump_html()
         uint64_t end = 0;
         int depth = -1;
     };
-    std::vector<Block> stack;
-    std::vector<Block> final_blocks;
-    const auto add_probe = [&](const char *name, uint64_t time) {
+
+    struct ThreadData
+    {
+        std::vector<Block> stack;
+        std::vector<Block> final_blocks;
+        int max_depth = 0;
+    };
+
+    std::unordered_map<uint64_t, ThreadData> thread_data_by_id;
+    const auto add_probe = [&](const char *name, uint64_t time, uint64_t thread_id) {
+        ThreadData &thread_data = thread_data_by_id[thread_id];
         if (name)
         {
             Block block;
             block.name = name;
             block.start = time - start_time;
-            block.depth = stack.size();
-            if (block.depth > max_depth)
+            block.depth = thread_data.stack.size();
+            if (block.depth > thread_data.max_depth)
             {
-                max_depth = block.depth;
+                thread_data.max_depth = block.depth;
             }
-            stack.push_back(block);
+            thread_data.stack.push_back(block);
         }
         else
         {
             assert(!stack.empty());
-            Block &block = stack.back();
+            Block &block = thread_data.stack.back();
             block.end = time - start_time;
-            final_blocks.push_back(block);
-            stack.pop_back();
+            thread_data.final_blocks.push_back(block);
+            thread_data.stack.pop_back();
         }
     };
 
     for (const auto &probe : OLD_PROBES)
     {
-        add_probe(probe.name, probe.time);
+        add_probe(probe.name, probe.time, probe.thread_id);
     }
     for (const auto &probe : PROBES)
     {
-        add_probe(probe.name, probe.time);
+        add_probe(probe.name, probe.time, probe.thread_id);
     }
 
     // TODO: stupid but i don't care
-    std::sort(final_blocks.begin(), final_blocks.end(), [](const Block &a, const Block &b) {
-        if (a.start == b.start)
-        {
-            return a.depth < b.depth;
-        }
-        return a.start < b.start;
-    });
+    for (auto &it : thread_data_by_id)
+    {
+        ThreadData &data = it.second;
+        std::sort(data.final_blocks.begin(), data.final_blocks.end(),
+            [](const Block &a, const Block &b) {
+                if (a.start == b.start)
+                {
+                    return a.depth < b.depth;
+                }
+                return a.start < b.start;
+            });
+    }
 
     const auto print_block = [&](const char *name, uint64_t start, uint64_t end, int depth) {
         const double start_ms = (double)start * 1000.0 / (double)PERF_FREQ;
@@ -402,9 +414,24 @@ void dump_html()
     const size_t after_placeholder = placeholder_index + strlen(placelolder);
     out.write(template_content.data(), placeholder_index);
 
-    for (const auto &block : final_blocks)
+    for (const Block &block : thread_data_by_id[Threads::getMainThreadId()].final_blocks)
     {
         print_block(block.name, block.start, block.end, block.depth);
+    }
+    int cur_depth = thread_data_by_id[Threads::getMainThreadId()].max_depth;
+
+    for (const auto &it : thread_data_by_id)
+    {
+        if (it.first == Threads::getMainThreadId())
+        {
+            continue;
+        }
+        const ThreadData &data = it.second;
+        for (const Block &block : data.final_blocks)
+        {
+            print_block(block.name, block.start, block.end, block.depth + cur_depth);
+        }
+        cur_depth += data.max_depth + 3;
     }
 
     out.write(template_content.data() + after_placeholder,
