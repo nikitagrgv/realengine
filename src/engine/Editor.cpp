@@ -13,6 +13,7 @@
 #include "World.h"
 #include "input/Input.h"
 #include "math/Math.h"
+#include "threads/JobQueue.h"
 #include "time/Time.h"
 #include "voxels/VoxelEngine.h"
 
@@ -852,6 +853,8 @@ void Editor::render_info()
         ImGui::SeparatorText("Voxel Engine");
         ImGui::Text("Render chunks: %d", eng.vox->getNumRenderChunks());
         ImGui::Text("Render vertices: %llu", eng.vox->getNumRenderVertices());
+        ImGui::SeparatorText("Threads");
+        ImGui::Text("Queued jobs: %d", eng.queue->getNumJobs());
         ImGui::Separator();
     }
     ImGui::End();
