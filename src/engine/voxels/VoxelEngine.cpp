@@ -78,6 +78,13 @@ void VoxelEngine::update(const glm::vec3 &position)
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
         "Invalid radiuses");
 
+    const auto get_distance = [&](const Chunk &chunk) {
+        const glm::ivec3 pos = chunk.position_;
+        const int max_radius = std::max(std::abs(base_chunk_pos.z - pos.z),
+            std::abs(base_chunk_pos.x - pos.x));
+        return max_radius;
+    };
+
     const auto is_outside_radius = [&](const Chunk &chunk, int radius) {
         const glm::ivec3 pos = chunk.position_;
         const int max_radius = std::max(std::abs(base_chunk_pos.z - pos.z),
@@ -222,6 +229,14 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     {
         ScopedProfiler p("Enqueue new chunks for generation");
+
+        {
+            ScopedProfiler p2("Sort by distance");
+            std::sort(chunks_to_generate_.begin(), chunks_to_generate_.end(),
+                [&](const UPtr<Chunk> &lhs, const UPtr<Chunk> &rhs) {
+                    return get_distance(*lhs) < get_distance(*rhs);
+                });
+        }
 
         for (UPtr<Chunk> &chunk : chunks_to_generate_)
         {
@@ -606,22 +621,15 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         for (int x = 0; x < Chunk::CHUNK_WIDTH; ++x)
         {
             constexpr float off_glob = 125512;
-            constexpr float off_min = -51512;
-            constexpr float off_max = -61333;
 
             const float z_n_glob = (float)(z + offset_z + off_glob) * FACTOR_GLOBAL;
             const float x_n_glob = (float)(x + offset_x + off_glob) * FACTOR_GLOBAL;
             const float persistence = perlin.octave2D_01(z_n_glob, x_n_glob, 5, 0.99);
 
-            const float z_n_minmax = (float)(z + offset_z + off_min) * FACTOR_MINMAX;
-            const float x_n_minmax = (float)(x + offset_x + off_max) * FACTOR_MINMAX;
-            const float min = MIN * perlin.octave2D_01(z_n_minmax, x_n_minmax, 5, 0.5);
-            const float diff = HEIGHT_DIFF * perlin.octave2D_01(z_n_minmax, x_n_minmax, 5, 0.5);
-
             const float z_n = (float)(z + offset_z) * FACTOR;
             const float x_n = (float)(x + offset_x) * FACTOR;
             const float height_norm = perlin.octave2D_01(z_n, x_n, 8, persistence);
-            const int height = (int)(height_norm * (float)diff + (float)min);
+            const int height = (int)(height_norm * (float)HEIGHT_DIFF + (float)MIN);
             height_map[z][x] = height;
         }
     }
