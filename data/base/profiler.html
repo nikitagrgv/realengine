@@ -69,7 +69,16 @@
             prefix = "sec";
             x /= 1000;
         }
-        const rounded = Math.round(x * 100) / 100;
+        let roundNum = 100;
+        if (x < 1)
+        {
+            roundNum = 1000;
+        }
+        if (x < 0.01)
+        {
+            roundNum = 100000;
+        }
+        const rounded = Math.round(x * roundNum) / roundNum;
         return `${rounded}${prefix}`;
     };
 
