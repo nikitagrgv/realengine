@@ -899,7 +899,7 @@ void Editor::render_popup()
             const uint64_t delta_ms = cur_time_ms - popup.create_time_ms;
             const float delta_sec = (float)delta_ms / 1000.0f;
             float f = delta_sec / popup.duration_sec;
-            f = std::sqrt(std::sqrt(f));
+            f = std::min(std::sqrt(f * 10), 1.0f);
 
             ImVec4 color{1, f, f, 1};
 

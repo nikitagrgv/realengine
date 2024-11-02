@@ -83,12 +83,22 @@
         timeBox.dataset.start = task.start;
         timeBox.dataset.depth = task.depth;
         timeBox.style.position = "absolute";
-        timeBox.style.top = `${45 * task.depth}px`;
-        timeBox.style.left = `${offsetPx + task.start * realPosToPixelPos}px`;
-        timeBox.style.width = `${task.duration * realPosToPixelPos}px`;
         timeBox.textContent = `${task.label} (${timeToString(task.duration)})`;
         container.appendChild(timeBox);
     });
+
+    const refresh = () => {
+        document.querySelectorAll('.time-box').forEach(timeBox => {
+            const start = parseFloat(timeBox.dataset.start);
+            const duration = parseFloat(timeBox.dataset.duration);
+            const depth = parseFloat(timeBox.dataset.depth);
+            timeBox.style.top = `${45 * depth}px`;
+            timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
+            timeBox.style.width = `${duration * realPosToPixelPos}px`;
+        });
+    };
+
+    refresh();
 
     // Adjust widths of rectangles on scroll
     document.addEventListener('mousewheel', (event) => {
@@ -102,14 +112,18 @@
         offsetPx += mousePosReal * realPosToPixelPos - mousePosReal * newRealPosToPixelPos;
         realPosToPixelPos = newRealPosToPixelPos;
 
-        document.querySelectorAll('.time-box').forEach(timeBox => {
-            const start = parseFloat(timeBox.dataset.start);
-            const duration = parseFloat(timeBox.dataset.duration);
-            const depth = parseFloat(timeBox.dataset.depth);
-            timeBox.style.top = `${45 * depth}px`;
-            timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
-            timeBox.style.width = `${duration * realPosToPixelPos}px`;
-        });
+        refresh();
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        const middle = event.buttons & 4;
+        if (!middle) {
+            return;
+        }
+        const delta = event.movementX;
+        offsetPx += delta;
+
+        refresh();
     });
 </script>
 
