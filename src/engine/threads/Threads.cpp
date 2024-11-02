@@ -23,7 +23,7 @@ uint64_t Threads::getCurrentThreadId()
     return GetCurrentThreadId();
 }
 
-bool Threads::getMainThreadId()
+uint64_t Threads::getMainThreadId()
 {
     return main_thread_;
 }
