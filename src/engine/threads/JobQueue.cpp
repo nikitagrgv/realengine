@@ -93,23 +93,32 @@ void JobQueue::addFinishedJob(UPtr<Job> job)
 
 UPtr<Job> JobQueue::takeJobWaiting(const WorkerThread &thread)
 {
-    UPtr<Job> job = tryTakeJob();
-    if (!job)
+    UPtr<Job> job;
     {
         std::unique_lock lock(jobs_mutex_);
-        while (true)
-        {
-            jobs_cv_.wait(lock);
-            if (!jobs_.empty() || thread.needExit())
-            {
-                break;
-            }
-        }
-        assert(lock.owns_lock());
+
         if (!jobs_.empty())
         {
             job = std::move(jobs_.front());
             jobs_.pop();
+        }
+
+        if (!job)
+        {
+            while (true)
+            {
+                jobs_cv_.wait(lock);
+                if (!jobs_.empty() || thread.needExit())
+                {
+                    break;
+                }
+            }
+            assert(lock.owns_lock());
+            if (!jobs_.empty())
+            {
+                job = std::move(jobs_.front());
+                jobs_.pop();
+            }
         }
     }
     return job;
