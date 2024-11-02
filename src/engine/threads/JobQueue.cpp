@@ -103,7 +103,7 @@ UPtr<Job> JobQueue::takeJobWaiting(const WorkerThread &thread)
             jobs_.pop();
         }
 
-        if (!job)
+        if (!job && !thread.needExit())
         {
             while (true)
             {
