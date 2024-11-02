@@ -367,7 +367,20 @@ void dump_html()
         }
         else
         {
-            assert(!thread_data.stack.empty());
+            if (thread_data.stack.empty())
+            {
+                // TODO!!!
+                Block block;
+                block.name = "???";
+                block.start = time - start_time;
+                block.depth = 0;
+                for (Block &data : thread_data.final_blocks)
+                {
+                    data.depth++;
+                }
+                thread_data.max_depth++;
+                thread_data.stack.push_back(block);
+            }
             Block &block = thread_data.stack.back();
             block.end = time - start_time;
             thread_data.final_blocks.push_back(block);
