@@ -24,6 +24,16 @@ void removeOne(T &container, const V &value)
 }
 
 template<typename T, typename F>
+void removeOneIf(T &container, const F &f)
+{
+    const auto it = std::find_if(container.begin(), container.end(), f);
+    if (it != container.end())
+    {
+        container.erase(it);
+    }
+}
+
+template<typename T, typename F>
 int countIf(const T &container, const F &f)
 {
     return std::count_if(container.begin(), container.end(), f);

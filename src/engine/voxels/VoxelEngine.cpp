@@ -522,10 +522,7 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
             assert(chunk_);
         }
 
-        void execute() override
-        {
-            v_.generate_chunk_threadsafe(*chunk_);
-        }
+        void execute() override { v_.generate_chunk_threadsafe(*chunk_); }
         void finishMainThread() override { v_.finish_generate_chunk(std::move(chunk_)); }
 
     private:
@@ -537,8 +534,9 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
     const int z = chunk->position_.z;
 
     assert(!is_enqued_for_generation(x, z));
-    enqueued_chunks_.emplace_back(x, z);
-    eng.queue->enqueueJob(makeU<Job>(std::move(chunk), *this));
+    UPtr<Job> job = makeU<Job>(std::move(chunk), *this);
+    enqueued_chunks_.emplace_back(x, z, job->getCancelToken());
+    eng.queue->enqueueJob(std::move(job));
 }
 
 void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
@@ -616,7 +614,8 @@ void VoxelEngine::finish_generate_chunk(UPtr<Chunk> chunk)
     const int x = chunk->position_.x;
     const int z = chunk->position_.z;
     assert(is_enqued_for_generation(x, z));
-    Alg::removeOne(enqueued_chunks_, glm::ivec2{x, z});
+    glm::ivec2 pos{x, z};
+    Alg::removeOneIf(enqueued_chunks_, [&](const EnqueuedChunk &c) { return c.pos == pos; });
     assert(!is_enqued_for_generation(x, z));
     generated_chunks_.push_back(std::move(chunk));
 }

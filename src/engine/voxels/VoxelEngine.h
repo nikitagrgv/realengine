@@ -6,12 +6,14 @@
 #include "Common.h"
 #include "VertexBufferObject.h"
 #include "math/Math.h"
+#include "threads/Job.h"
 #include "utils/Algos.h"
 #include "utils/Hashers.h"
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include <unordered_map>
+#include <utility>
 
 struct ChunkMesh;
 struct GlobalLight;
@@ -110,7 +112,7 @@ private:
     REALENGINE_INLINE bool is_enqued_for_generation(int x, int z) const
     {
         const glm::ivec2 pos = glm::ivec2{x, z};
-        return Alg::contains(enqueued_chunks_, pos);
+        return Alg::anyOf(enqueued_chunks_, [&](const EnqueuedChunk &c) { return c.pos == pos; });
     }
 
     REALENGINE_INLINE bool is_generated(int x, int z) const
@@ -136,7 +138,17 @@ private:
     std::vector<UPtr<Chunk>> chunks_;
     std::unordered_map<glm::ivec2, int> chunk_index_by_pos_;
 
-    std::vector<glm::ivec2> enqueued_chunks_;
+    struct EnqueuedChunk
+    {
+        EnqueuedChunk(int x, int z, tbb::CancelToken cancel_token)
+            : pos(x, z)
+            , cancel_token(std::move(cancel_token))
+        {}
+        glm::ivec2 pos;
+        tbb::CancelToken cancel_token;
+    };
+
+    std::vector<EnqueuedChunk> enqueued_chunks_;
 
     std::vector<UPtr<Chunk>> chunks_to_generate_;
 
