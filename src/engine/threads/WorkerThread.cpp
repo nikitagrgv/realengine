@@ -26,7 +26,7 @@ void WorkerThread::execute()
         }
 
         ScopedProfiler prof("WorkerThread::Execute job");
-        set_state(State::Working);
+        set_state(State::Busy);
         job->execute();
         job->finishWorkerThread();
 

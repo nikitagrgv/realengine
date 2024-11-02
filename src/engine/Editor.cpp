@@ -855,6 +855,8 @@ void Editor::render_info()
         ImGui::Text("Render vertices: %llu", eng.vox->getNumRenderVertices());
         ImGui::SeparatorText("Threads");
         ImGui::Text("Queued jobs: %d", eng.queue->getNumJobs());
+        ImGui::Text("Threads busy/all: %d/%d", eng.queue->getNumBusyThreads(),
+            eng.queue->getNumThreads());
         ImGui::Separator();
     }
     ImGui::End();

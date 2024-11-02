@@ -11,7 +11,7 @@ public:
     enum class State
     {
         Idle,
-        Working,
+        Busy,
     };
 
 public:

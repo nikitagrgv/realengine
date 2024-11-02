@@ -40,6 +40,9 @@ public:
     UPtr<Job> tryTakeJob();
     int getNumJobs();
 
+    int getNumThreads() const;
+    int getNumBusyThreads() const;
+
 private:
     int num_threads_{};
     std::vector<UPtr<WorkerThread>> threads_;

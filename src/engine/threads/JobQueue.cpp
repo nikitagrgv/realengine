@@ -144,4 +144,19 @@ int JobQueue::getNumJobs()
     return jobs_.size();
 }
 
+int JobQueue::getNumThreads() const
+{
+    return threads_.size();
+}
+
+int JobQueue::getNumBusyThreads() const
+{
+    int ret = 0;
+    for (const UPtr<WorkerThread> t : threads_)
+    {
+        ret += t->getState() == WorkerThread::State::Busy;
+    }
+    return ret;
+}
+
 } // namespace tbb
