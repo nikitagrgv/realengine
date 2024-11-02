@@ -4,6 +4,7 @@
 #include "Job.h"
 #include "JobQueue.h"
 #include "Threads.h"
+#include "profiler/ScopedProfiler.h"
 
 namespace tbb
 {
@@ -25,6 +26,8 @@ void WorkerThread::execute()
             Threads::sleepMs(1);
             continue;
         }
+
+        ScopedProfiler prof("WorkerThread::Execute job");
 
         job->execute();
         job->finishWorkerThread();

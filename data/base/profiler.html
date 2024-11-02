@@ -49,6 +49,7 @@
 
     let realPosToPixelPos = 1.0;
     let offsetPx = 0.0;
+    let offsetYPx = 0.0;
 
     let maxEnd = 0;
     profilerData.forEach(task => {
@@ -70,12 +71,10 @@
             x /= 1000;
         }
         let roundNum = 100;
-        if (x < 1)
-        {
+        if (x < 1) {
             roundNum = 1000;
         }
-        if (x < 0.01)
-        {
+        if (x < 0.01) {
             roundNum = 100000;
         }
         const rounded = Math.round(x * roundNum) / roundNum;
@@ -101,7 +100,7 @@
             const start = parseFloat(timeBox.dataset.start);
             const duration = parseFloat(timeBox.dataset.duration);
             const depth = parseFloat(timeBox.dataset.depth);
-            timeBox.style.top = `${45 * depth}px`;
+            timeBox.style.top = `${offsetYPx + 45 * depth}px`;
             timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
             timeBox.style.width = `${duration * realPosToPixelPos}px`;
         });
@@ -129,8 +128,12 @@
         if (!middle) {
             return;
         }
-        const delta = event.movementX;
-        offsetPx += delta;
+        offsetPx += event.movementX;
+        offsetYPx += event.movementY;
+
+        if (offsetYPx > 0) {
+            offsetYPx = 0;
+        }
 
         refresh();
     });
