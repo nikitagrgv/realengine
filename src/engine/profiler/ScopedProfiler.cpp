@@ -418,7 +418,7 @@ void dump_html()
     {
         print_block(block.name, block.start, block.end, block.depth);
     }
-    int cur_depth = thread_data_by_id[Threads::getMainThreadId()].max_depth;
+    int cur_depth = thread_data_by_id[Threads::getMainThreadId()].max_depth + 3;
 
     for (const auto &it : thread_data_by_id)
     {
