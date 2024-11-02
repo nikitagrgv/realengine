@@ -2,6 +2,7 @@
 
 #include "EngineGlobals.h"
 #include "fs/FileSystem.h"
+#include "threads/Threads.h"
 
 #include <immintrin.h>
 
@@ -50,13 +51,15 @@ namespace
 
 struct ProbeInfo
 {
-    ProbeInfo(const char *name, uint64_t time)
+    ProbeInfo(const char *name, uint64_t time, uint64_t thread_id)
         : name(name)
         , time(time)
+        , thread_id(thread_id)
     {}
 
     const char *name; // valid - enterFunction, nullptr - leaveFunction
     uint64_t time;
+    uint64_t thread_id;
 };
 
 
@@ -94,14 +97,16 @@ void Profiler::setMaxRecordedFrames(int frames)
 
 void Profiler::enterFunction(const char *name, uint64_t time)
 {
+    const uint64_t thread_id = Threads::getCurrentThreadId();
     std::scoped_lock lock(probes_mutex);
-    PROBES.emplace_back(name, time);
+    PROBES.emplace_back(name, time, thread_id);
 }
 
 void Profiler::leaveFunction(uint64_t time)
 {
+    const uint64_t thread_id = Threads::getCurrentThreadId();
     std::scoped_lock lock(probes_mutex);
-    PROBES.emplace_back(nullptr, time);
+    PROBES.emplace_back(nullptr, time, thread_id);
 }
 
 void Profiler::enterFunction(const char *name)
