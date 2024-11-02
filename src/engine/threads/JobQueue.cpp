@@ -152,7 +152,7 @@ int JobQueue::getNumThreads() const
 int JobQueue::getNumBusyThreads() const
 {
     int ret = 0;
-    for (const UPtr<WorkerThread> t : threads_)
+    for (const UPtr<WorkerThread> &t : threads_)
     {
         ret += t->getState() == WorkerThread::State::Busy;
     }
