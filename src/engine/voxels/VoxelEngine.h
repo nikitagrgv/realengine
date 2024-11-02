@@ -83,7 +83,7 @@ private:
 
     void queue_generate_chunk(UPtr<Chunk> chunk);
     void generate_chunk_threadsafe(Chunk &chunk) const;
-    void finish_generate_chunk(UPtr<Chunk> chunk);
+    void finish_generate_chunk(UPtr<Chunk> chunk, bool generated);
 
     static REALENGINE_INLINE glm::ivec3 pos_to_chunk_pos(const glm::vec3 &pos)
     {
@@ -153,6 +153,7 @@ private:
     std::vector<UPtr<Chunk>> chunks_to_generate_;
 
     std::vector<UPtr<Chunk>> generated_chunks_;
+    std::vector<UPtr<Chunk>> canceled_chunks_;
 
     // TODO# TEMP
     UPtr<ShaderSource> shader_source_;

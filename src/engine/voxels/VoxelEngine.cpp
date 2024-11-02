@@ -85,7 +85,25 @@ void VoxelEngine::update(const glm::vec3 &position)
         return max_radius > radius;
     };
 
+    const auto is_coords_outside_radius = [&](int x, int z, int radius) {
+        const int max_radius = std::max(std::abs(base_chunk_pos.z - z),
+            std::abs(base_chunk_pos.x - x));
+        return max_radius > radius;
+    };
+
     bool chunks_dirty = false;
+
+    {
+        ScopedProfiler p("Cancel chunks jobs");
+        for (EnqueuedChunk &c : enqueued_chunks_)
+        {
+            assert(c.cancel_token.isAlive());
+            if (is_coords_outside_radius(c.pos.x, c.pos.y, RADIUS_UNLOAD_WHOLE_CHUNK))
+            {
+                c.cancel_token.cancel();
+            }
+        }
+    }
 
     {
         ScopedProfiler p("Unload chunks");
@@ -162,6 +180,16 @@ void VoxelEngine::update(const glm::vec3 &position)
                 chunks_to_generate_.push_back(std::move(new_chunk));
             }
         }
+    }
+
+    {
+        ScopedProfiler p("Release canceled chunks");
+        for (UPtr<Chunk> &chunk : canceled_chunks_)
+        {
+            assert(chunk);
+            release_chunk(std::move(chunk));
+        }
+        canceled_chunks_.clear();
     }
 
     // TODO# move upper?
@@ -522,10 +550,21 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
             assert(chunk_);
         }
 
-        void execute() override { v_.generate_chunk_threadsafe(*chunk_); }
-        void finishMainThread() override { v_.finish_generate_chunk(std::move(chunk_)); }
+        void execute() override
+        {
+            if (!isCanceled())
+            {
+                v_.generate_chunk_threadsafe(*chunk_);
+                generated_ = true;
+            }
+        }
+        void finishMainThread() override
+        {
+            v_.finish_generate_chunk(std::move(chunk_), generated_);
+        }
 
     private:
+        bool generated_ = false;
         VoxelEngine &v_;
         UPtr<Chunk> chunk_;
     };
@@ -609,7 +648,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     });
 }
 
-void VoxelEngine::finish_generate_chunk(UPtr<Chunk> chunk)
+void VoxelEngine::finish_generate_chunk(UPtr<Chunk> chunk, bool generated)
 {
     const int x = chunk->position_.x;
     const int z = chunk->position_.z;
@@ -617,7 +656,14 @@ void VoxelEngine::finish_generate_chunk(UPtr<Chunk> chunk)
     glm::ivec2 pos{x, z};
     Alg::removeOneIf(enqueued_chunks_, [&](const EnqueuedChunk &c) { return c.pos == pos; });
     assert(!is_enqued_for_generation(x, z));
-    generated_chunks_.push_back(std::move(chunk));
+    if (generated)
+    {
+        generated_chunks_.push_back(std::move(chunk));
+    }
+    else
+    {
+        canceled_chunks_.push_back(std::move(chunk));
+    }
 }
 
 Chunk *VoxelEngine::get_chunk_at_pos(int x, int z) const
