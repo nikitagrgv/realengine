@@ -93,7 +93,8 @@ void JobQueue::addFinishedJob(UPtr<Job> job)
 
 UPtr<Job> JobQueue::takeJobWaiting(const WorkerThread &thread)
 {
-    UPtr<Job> job;
+    UPtr<Job> job = tryTakeJob();
+    if (!job)
     {
         std::unique_lock lock(jobs_mutex_);
         while (true)
