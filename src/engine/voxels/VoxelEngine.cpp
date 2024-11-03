@@ -659,7 +659,6 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     perlin.SetPersistence(0.52);
 
     noise::module::RidgedMulti ridget_multi;
-    ridget_multi.SetOctaveCount(6);
     ridget_multi.SetFrequency(0.002f);
 
     const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset());
