@@ -750,28 +750,44 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
     height_map_builder_.Build();
 
+    // Caves
+    noise::module::RidgedMulti cave_base;
+    cave_base.SetLacunarity(-19);
+    cave_base.SetFrequency(BASE_FREQ * 15);
+    cave_base.SetOctaveCount(6);
+
+    noise::module::Turbulence cave;
+    cave.SetSourceModule(0, cave_base);
+    cave.SetFrequency(BASE_FREQ * 12);
+    cave.SetPower(24);
+
     int block_index = -1;
+    chunk.need_rebuild_mesh_ = true;
     for (int y = 0; y < Chunk::CHUNK_HEIGHT; ++y)
     {
+        const double y_glob = (double)y;
         for (int z = 0; z < Chunk::CHUNK_WIDTH; ++z)
         {
+            const double z_glob = (double)z + chunk_pos.y;
             for (int x = 0; x < Chunk::CHUNK_WIDTH; ++x)
             {
+                const double x_glob = (double)x + chunk_pos.x;
                 ++block_index;
                 BlockInfo &block = chunk.blocks_[block_index];
                 const int height = (int)height_map_.GetValue(x, z);
                 const int diff = y - height;
 
-                // if (diff <= 0)
-                // {
-                //     glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
-                //     const auto noise = mapTo01(perlin.GetValue(norm_pos.x, norm_pos.y,
-                //     norm_pos.z)); if (noise > 0.8f)
-                //     {
-                //         block = BlockInfo(BasicBlocks::AIR);
-                //         return;
-                //     }
-                // }
+                if (diff <= 0)
+                {
+                    const double cave_value = cave.GetValue(x_glob, y_glob, z_glob);
+                    // if (cave_value < -0.6 && cave_value > -0.8)
+                    // if (cave_value > 0.1 && cave_value < 0.7)
+                    if (cave_value > -0.98)
+                    {
+                        block = BlockInfo(BasicBlocks::AIR);
+                        continue;
+                    }
+                }
 
                 if (diff > 0)
                 {
