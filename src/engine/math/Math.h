@@ -14,6 +14,26 @@
 namespace math
 {
 
+REALENGINE_INLINE bool isInsideRadius(int x, int y, int radius)
+{
+    return x * x + y * y <= radius * radius;
+}
+
+REALENGINE_INLINE bool isInsideRadius(int x, int y, int z, int radius)
+{
+    return x * x + y * y + z * z <= radius * radius;
+}
+
+REALENGINE_INLINE bool isOutsideRadius(int x, int y, int radius)
+{
+    return x * x + y * y > radius * radius;
+}
+
+REALENGINE_INLINE bool isOutsideRadius(int x, int y, int z, int radius)
+{
+    return x * x + y * y + z * z > radius * radius;
+}
+
 // maps -1..1 to 0..1
 REALENGINE_INLINE double mapTo01(double value)
 {

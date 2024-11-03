@@ -344,13 +344,12 @@ public:
                     {
                         for (int off_x = -EXPLOSION_SIZE; off_x <= EXPLOSION_SIZE; ++off_x)
                         {
-                            const glm::ivec3 pos = center_pos + glm::ivec3{off_x, off_y, off_z};
-                            const int distance = glm::abs(off_x) + glm::abs(off_y)
-                                + glm::abs(off_z);
-                            if (distance <= EXPLOSION_SIZE)
+                            if (math::isOutsideRadius(off_x, off_y, off_z, EXPLOSION_SIZE))
                             {
-                                eng.vox->setBlockAtPosition(pos, BlockInfo{0});
+                                continue;
                             }
+                            const glm::ivec3 pos = center_pos + glm::ivec3{off_x, off_y, off_z};
+                            eng.vox->setBlockAtPosition(pos, BlockInfo{0});
                         }
                     }
                 }
