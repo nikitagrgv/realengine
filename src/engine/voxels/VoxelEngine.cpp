@@ -654,6 +654,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     assert(perlin_);
     noise::module::Perlin &perlin = perlin_->perlin_;
+    perlin.SetOctaveCount(6);
 
     constexpr float FACTOR = 0.002f;
     const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset()) * FACTOR;
@@ -668,10 +669,10 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     height_map_builder_.Build();
 
     // TODO!# ADD FLATTNESS
-    constexpr int MIN = 10;
-    constexpr int MAX = Chunk::CHUNK_HEIGHT - 120;
-    constexpr int HEIGHT_DIFF = MAX - MIN;
-    static_assert(MIN < MAX);
+    constexpr int MIN = 40;
+    constexpr int HEIGHT_DIFF = 180;
+    constexpr int MAX = MIN + HEIGHT_DIFF;
+    static_assert(MIN < MAX && MAX < Chunk::CHUNK_HEIGHT);
 
     chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
         const float height_norm = math::mapTo01(height_map_.GetValue(x, z));
