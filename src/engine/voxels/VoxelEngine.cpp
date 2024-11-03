@@ -654,49 +654,33 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     assert(perlin_);
     noise::module::Perlin &perlin = perlin_->perlin_;
+
+    constexpr float FACTOR = 0.002f;
+    const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset()) * FACTOR;
+    const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset()) * FACTOR;
+
     perlin.SetFrequency(0.5);
     perlin.SetOctaveCount(8);
 
-    int height_map[Chunk::CHUNK_WIDTH][Chunk::CHUNK_WIDTH];
+    noise::utils::NoiseMap height_map_;
+    noise::utils::NoiseMapBuilderPlane height_map_builder_;
+    height_map_builder_.SetSourceModule(perlin_->perlin_);
+    height_map_builder_.SetDestNoiseMap(height_map_);
+    height_map_builder_.SetDestSize(16, 16);
+    height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
+    height_map_builder_.Build();
 
     // TODO!# ADD FLATTNESS
-
-    constexpr float FACTOR_GLOBAL = 0.000234f;
-
-    constexpr float FACTOR = 0.002f;
     constexpr int MIN = 10;
     constexpr int MAX = Chunk::CHUNK_HEIGHT - 120;
     constexpr int HEIGHT_DIFF = MAX - MIN;
     static_assert(MIN < MAX);
 
-    const int offset_x = chunk.getBlocksOffsetX();
-    const int offset_z = chunk.getBlocksOffsetZ();
-
-    for (int z = 0; z < Chunk::CHUNK_WIDTH; ++z)
-    {
-        for (int x = 0; x < Chunk::CHUNK_WIDTH; ++x)
-        {
-            constexpr float off_glob = 125512;
-
-            const float z_n_glob = (float)(z + offset_z + off_glob) * FACTOR_GLOBAL;
-            const float x_n_glob = (float)(x + offset_x + off_glob) * FACTOR_GLOBAL;
-            const float persistence = mapTo01(perlin.GetValue(z_n_glob, x_n_glob, 0));
-
-            const float z_n = (float)(z + offset_z) * FACTOR;
-            const float x_n = (float)(x + offset_x) * FACTOR;
-            const float height_norm = mapTo01(perlin.GetValue(z_n, x_n, 0));
-            const int height = (int)(height_norm * (float)HEIGHT_DIFF + (float)MIN);
-            height_map[z][x] = height;
-        }
-    }
-
-    glm::vec3 offset;
-    offset.x = offset_x;
-    offset.y = 0;
-    offset.z = offset_z;
     chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
-        const int cur_height = height_map[z][x];
-        const int diff = y - cur_height;
+        const float height_norm = math::mapTo01(height_map_.GetValue(x, z));
+        const int height = (int)(height_norm * (float)HEIGHT_DIFF + (float)MIN);
+
+        const int diff = y - height;
 
         // if (diff <= 0)
         // {

@@ -106,6 +106,19 @@ public:
     int getBlocksOffsetX() const { return position_.x * CHUNK_WIDTH; }
     int getBlocksOffsetZ() const { return position_.z * CHUNK_WIDTH; }
 
+    glm::ivec2 getBlocksOffset() const
+    {
+        return {position_.x * CHUNK_WIDTH, position_.z * CHUNK_WIDTH};
+    }
+
+    int getBlocksEndOffsetX() const { return (position_.x + 1) * CHUNK_WIDTH; }
+    int getBlocksEndOffsetZ() const { return (position_.z + 1) * CHUNK_WIDTH; }
+
+    glm::ivec2 getBlocksEndOffset() const
+    {
+        return {(position_.x + 1) * CHUNK_WIDTH, (position_.z + 1) * CHUNK_WIDTH};
+    }
+
 public:
     BlockInfo blocks_[NUM_BLOCKS];
     glm::ivec3 position_{0, 0, 0};
