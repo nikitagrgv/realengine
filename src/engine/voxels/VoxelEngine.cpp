@@ -168,6 +168,10 @@ void VoxelEngine::update(const glm::vec3 &position)
                      x_end = base_chunk_pos.x + RADIUS_SPAWN_CHUNK;
                  x <= x_end; ++x)
             {
+                if (is_outside_radius(x, z, RADIUS_SPAWN_CHUNK))
+                {
+                    continue;
+                }
                 // NOTE: chunk_index_by_pos_ has invalid values here! but we can use it in this case
                 if (has_chunk_at_pos(x, z))
                 {
