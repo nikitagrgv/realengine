@@ -27,12 +27,15 @@
 #include "utils/Algos.h"
 
 #include <noise/noise.h>
+#include <noise/noiseutils.h>
 
 #include <glm/ext/matrix_transform.hpp>
 
-struct VoxelEngine::Perlin : noise::module::Perlin
+struct VoxelEngine::Perlin
 {
     explicit Perlin() {}
+
+    noise::module::Perlin perlin_;
 };
 
 VoxelEngine::VoxelEngine() = default;
@@ -650,7 +653,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     SCOPED_PROFILER;
 
     assert(perlin_);
-    noise::module::Perlin &perlin = *perlin_;
+    noise::module::Perlin &perlin = perlin_->perlin_;
     perlin.SetFrequency(0.5);
     perlin.SetOctaveCount(8);
 

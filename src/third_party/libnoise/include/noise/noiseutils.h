@@ -29,8 +29,6 @@
 
 #include <noise/noise.h>
 
-using namespace noise;
-
 namespace noise
 {
 
@@ -1285,7 +1283,7 @@ namespace noise
         void WriteDestFile ();
 
       protected:
-    
+
         /// Calculates the width of one horizontal line in the file, in bytes.
         ///
         /// @param width The width of the noise map, in points.
