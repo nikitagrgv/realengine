@@ -80,7 +80,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 10;
 #endif
 
-    constexpr int MULTIPLIER = 32;
+    constexpr int MULTIPLIER = 16;
     constexpr int RADIUS_SPAWN_CHUNK = 2 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_MESH = 3 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 4 * MULTIPLIER;
@@ -680,6 +680,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     final.SetSourceModule(1, mountain);
     final.SetControlModule(type);
     final.SetBounds(0.2, 1000);
+    final.SetEdgeFalloff(0.1);
 
     const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset());
     const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());

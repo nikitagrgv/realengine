@@ -36,5 +36,7 @@ Window *SystemProxy::createWindow(int width, int height, const char *title)
         glad_loaded_ = true;
     }
 
+    // glEnable(GL_MULTISAMPLE);
+
     return window;
 }
