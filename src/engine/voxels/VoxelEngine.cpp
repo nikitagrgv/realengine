@@ -674,6 +674,8 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     constexpr int SNOW_OFFSET = MAX - 20;
     constexpr int SNOW_APLITUDE = 15;
 
+    constexpr int HEIGHT_DISPLACE_AMPLITUDE = 120;
+
     static_assert(MIN < MAX && MAX < Chunk::CHUNK_HEIGHT && SNOW_OFFSET < Chunk::CHUNK_HEIGHT);
 
     const glm::ivec2 chunk_pos_i = chunk.getBlocksOffset();
@@ -685,13 +687,13 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     base_snow.SetFrequency(BASE_FREQ * 3);
     base_snow.SetPersistence(0.7);
 
-    noise::module::MapToMinMax snow_final;
-    snow_final.SetSourceModule(0, base_snow);
-    snow_final.SetMinAndHeight(SNOW_OFFSET, SNOW_APLITUDE);
+    noise::module::MapToMinMax snow_final_blocks;
+    snow_final_blocks.SetSourceModule(0, base_snow);
+    snow_final_blocks.SetMinAndHeight(SNOW_OFFSET, SNOW_APLITUDE);
 
     noise::utils::NoiseMap snow_map_;
     noise::utils::NoiseMapBuilderPlane snow_map_builder_;
-    snow_map_builder_.SetSourceModule(snow_final);
+    snow_map_builder_.SetSourceModule(snow_final_blocks);
     snow_map_builder_.SetDestNoiseMap(snow_map_);
     snow_map_builder_.SetDestSize(16, 16);
     snow_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
@@ -713,7 +715,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     noise::module::ScaleBias flat;
     flat.SetSourceModule(0, base_flat);
     flat.SetScale(0.095);
-    flat.SetBias(-0.75);
+    flat.SetBias(-0.95);
 
     noise::module::Perlin type;
     type.SetFrequency(BASE_FREQ * 0.8);
@@ -731,18 +733,30 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     turbulence.SetFrequency(BASE_FREQ * 4);
     turbulence.SetPower(4);
 
-    noise::module::MapToMinMax height_final;
-    height_final.SetSourceModule(0, turbulence);
-    height_final.SetMinAndHeight(MIN, HEIGHT);
+    noise::module::MapToMinMax non_displacement_height_blocks;
+    non_displacement_height_blocks.SetSourceModule(0, turbulence);
+    non_displacement_height_blocks.SetMinAndHeight(MIN, HEIGHT);
+
+    noise::module::Perlin height_displace_perlin;
+    height_displace_perlin.SetFrequency(BASE_FREQ * 0.05);
+    height_displace_perlin.SetOctaveCount(5);
+    height_displace_perlin.SetPersistence(0.7);
+
+    noise::module::MapToMinMax height_displace_blocks;
+    height_displace_blocks.SetSourceModule(0, height_displace_perlin);
+    height_displace_blocks.SetMinAndHeight(0, HEIGHT_DISPLACE_AMPLITUDE);
+
+    noise::module::Add height_final_blocks;
+    height_final_blocks.SetSourceModule(0, non_displacement_height_blocks);
+    height_final_blocks.SetSourceModule(1, height_displace_blocks);
 
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
-    height_map_builder_.SetSourceModule(height_final);
+    height_map_builder_.SetSourceModule(height_final_blocks);
     height_map_builder_.SetDestNoiseMap(height_map_);
     height_map_builder_.SetDestSize(16, 16);
     height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
     height_map_builder_.Build();
-
 
     chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
         const int height = (int)height_map_.GetValue(x, z);
