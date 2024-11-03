@@ -385,7 +385,7 @@ private:
     {
         Threads::init();
 
-        Profiler::setMaxRecordedFrames(200);
+        Profiler::setMaxRecordedFrames(100);
         Profiler::init();
 
         Random::init();

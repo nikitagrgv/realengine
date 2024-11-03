@@ -14,6 +14,17 @@
 namespace math
 {
 
+// maps -1..1 to 0..1
+REALENGINE_INLINE double mapTo01(double value)
+{
+    return value * 0.5 + 0.5;
+}
+
+REALENGINE_INLINE float mapTo01(float value)
+{
+    return value * 0.5f + 0.5f;
+}
+
 REALENGINE_INLINE constexpr int floorToCell(int value, int cell_size)
 {
     int res = value / cell_size;

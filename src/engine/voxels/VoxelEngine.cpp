@@ -26,14 +26,13 @@
 #include "threads/Threads.h"
 #include "utils/Algos.h"
 
-#include <PerlinNoise.hpp>
+#include <noise/noise.h>
+
 #include <glm/ext/matrix_transform.hpp>
 
-struct VoxelEngine::Perlin : siv::PerlinNoise
+struct VoxelEngine::Perlin : noise::module::Perlin
 {
-    explicit Perlin(seed_type seed)
-        : siv::PerlinNoise(seed)
-    {}
+    explicit Perlin() {}
 };
 
 VoxelEngine::VoxelEngine() = default;
@@ -42,7 +41,7 @@ VoxelEngine::~VoxelEngine() = default;
 
 void VoxelEngine::init()
 {
-    perlin_ = makeU<Perlin>(seed_);
+    perlin_ = makeU<Perlin>();
 
     registry_ = makeU<BlocksRegistry>();
     register_blocks();
@@ -78,34 +77,34 @@ void VoxelEngine::update(const glm::vec3 &position)
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
         "Invalid radiuses");
 
-    const auto get_distance = [&](const Chunk &chunk) {
+    const auto get_distance2 = [&](const Chunk &chunk) {
         const glm::ivec3 pos = chunk.position_;
-        const int max_radius = std::max(std::abs(base_chunk_pos.z - pos.z),
-            std::abs(base_chunk_pos.x - pos.x));
-        return max_radius;
+        const int dz = base_chunk_pos.z - pos.z;
+        const int dx = base_chunk_pos.x - pos.x;
+        return dz * dz + dx * dx;
     };
 
     const auto is_outside_radius = [&](const Chunk &chunk, int radius) {
-        const glm::ivec3 pos = chunk.position_;
-        const int max_radius = std::max(std::abs(base_chunk_pos.z - pos.z),
-            std::abs(base_chunk_pos.x - pos.x));
-        return max_radius > radius;
+        return get_distance2(chunk) > radius * radius;
     };
 
     const auto is_coords_outside_radius = [&](int x, int z, int radius) {
-        const int max_radius = std::max(std::abs(base_chunk_pos.z - z),
-            std::abs(base_chunk_pos.x - x));
-        return max_radius > radius;
+        const int dz = base_chunk_pos.z - z;
+        const int dx = base_chunk_pos.x - x;
+        const int distance2 = dz * dz + dx * dx;
+        return distance2 > radius * radius;
     };
 
     bool chunks_dirty = false;
 
     {
         ScopedProfiler p("Cancel chunks jobs");
+        const bool chunk_changed = last_base_chunk_pos_ != base_chunk_pos;
         for (EnqueuedChunk &c : enqueued_chunks_)
         {
             assert(c.cancel_token.isAlive());
-            if (is_coords_outside_radius(c.pos.x, c.pos.y, RADIUS_UNLOAD_WHOLE_CHUNK))
+            if (chunk_changed
+                || is_coords_outside_radius(c.pos.x, c.pos.y, RADIUS_UNLOAD_WHOLE_CHUNK))
             {
                 c.cancel_token.cancel();
             }
@@ -234,7 +233,7 @@ void VoxelEngine::update(const glm::vec3 &position)
             ScopedProfiler p2("Sort by distance");
             std::sort(chunks_to_generate_.begin(), chunks_to_generate_.end(),
                 [&](const UPtr<Chunk> &lhs, const UPtr<Chunk> &rhs) {
-                    return get_distance(*lhs) < get_distance(*rhs);
+                    return get_distance2(*lhs) < get_distance2(*rhs);
                 });
         }
 
@@ -300,6 +299,8 @@ void VoxelEngine::update(const glm::vec3 &position)
         }
     }
 #endif
+
+    last_base_chunk_pos_ = base_chunk_pos;
 }
 
 void VoxelEngine::render(Camera *camera, GlobalLight *light)
@@ -361,7 +362,7 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
 void VoxelEngine::setSeed(unsigned int seed)
 {
     seed_ = seed;
-    perlin_ = makeU<Perlin>(seed_);
+    perlin_ = makeU<Perlin>();
 }
 
 int VoxelEngine::getNumRenderChunks() const
@@ -595,10 +596,12 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
 
 void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 {
+    using namespace math;
+
     SCOPED_PROFILER;
 
     assert(perlin_);
-    const siv::PerlinNoise &perlin = *perlin_;
+    const noise::module::Perlin &perlin = *perlin_;
 
     int height_map[Chunk::CHUNK_WIDTH][Chunk::CHUNK_WIDTH];
 
@@ -606,7 +609,6 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     constexpr float FACTOR_GLOBAL = 0.000234f;
 
-    constexpr float FACTOR_MINMAX = 0.000234f;
     constexpr float FACTOR = 0.002f;
     constexpr int MIN = 10;
     constexpr int MAX = Chunk::CHUNK_HEIGHT - 120;
@@ -624,11 +626,11 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
             const float z_n_glob = (float)(z + offset_z + off_glob) * FACTOR_GLOBAL;
             const float x_n_glob = (float)(x + offset_x + off_glob) * FACTOR_GLOBAL;
-            const float persistence = perlin.octave2D_01(z_n_glob, x_n_glob, 5, 0.99);
+            const float persistence = mapTo01(perlin.GetValue(z_n_glob, x_n_glob, 0));
 
             const float z_n = (float)(z + offset_z) * FACTOR;
             const float x_n = (float)(x + offset_x) * FACTOR;
-            const float height_norm = perlin.octave2D_01(z_n, x_n, 8, persistence);
+            const float height_norm = mapTo01(perlin.GetValue(z_n, x_n, 0));
             const int height = (int)(height_norm * (float)HEIGHT_DIFF + (float)MIN);
             height_map[z][x] = height;
         }
@@ -645,7 +647,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         if (diff <= 0)
         {
             glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
-            const auto noise = perlin.octave3D_01(norm_pos.x, norm_pos.y, norm_pos.z, 14);
+            const auto noise = perlin.GetValue(norm_pos.x, norm_pos.y, norm_pos.z);
             if (noise > 0.8f)
             {
                 block = BlockInfo(BasicBlocks::AIR);

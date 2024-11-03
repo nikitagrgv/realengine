@@ -34,8 +34,9 @@ target_include_directories(realengine PRIVATE third_party/stb)
 # OBJ LOADER
 target_include_directories(realengine PRIVATE third_party/obj_loader)
 
-# PerlinNoise
-target_include_directories(realengine PRIVATE third_party/perlin)
+# libnoise
+add_subdirectory(third_party/libnoise)
+target_link_libraries(realengine libnoise)
 
 set(REALENGINE_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../bin)
 set_target_properties(realengine

@@ -132,6 +132,8 @@ private:
     struct Perlin;
     UPtr<Perlin> perlin_;
 
+    glm::ivec3 last_base_chunk_pos_;
+
     std::vector<UPtr<ChunkMesh>> meshes_pool_;
     std::vector<UPtr<Chunk>> chunks_pool_;
 
