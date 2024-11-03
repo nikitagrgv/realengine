@@ -165,4 +165,15 @@ private:
 
     // TEMPORAY IN FUNCTION
     std::vector<Chunk *> chunks_for_regenerate_;
+
+    // TODO# SHIT?
+    struct OffsetsCache
+    {
+        const std::vector<glm::ivec2> &getOffsets(int radius);
+
+    private:
+        // now only for RADIUS_SPAWN_CHUNK now
+        std::vector<glm::ivec2> values;
+        int radius = -1;
+    } offsets_cache;
 };

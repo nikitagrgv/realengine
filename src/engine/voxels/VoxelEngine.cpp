@@ -70,6 +70,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
     constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 10;
+    constexpr int MAX_INIT_CHUNKS_PER_UPDATE = 100;
 
     constexpr int MULTIPLIER = 16;
     constexpr int RADIUS_SPAWN_CHUNK = 2 * MULTIPLIER;
@@ -162,36 +163,39 @@ void VoxelEngine::update(const glm::vec3 &position)
     {
         ScopedProfiler p("Init new chunks");
 
-        for (int z = base_chunk_pos.z - RADIUS_SPAWN_CHUNK,
-                 z_end = base_chunk_pos.z + RADIUS_SPAWN_CHUNK;
-             z <= z_end; ++z)
-        {
-            for (int x = base_chunk_pos.x - RADIUS_SPAWN_CHUNK,
-                     x_end = base_chunk_pos.x + RADIUS_SPAWN_CHUNK;
-                 x <= x_end; ++x)
-            {
-                if (is_outside_radius(x, z, RADIUS_SPAWN_CHUNK))
-                {
-                    continue;
-                }
-                // NOTE: chunk_index_by_pos_ has invalid values here! but we can use it in this case
-                if (has_chunk_at_pos(x, z))
-                {
-                    continue;
-                }
-                if (is_enqued_for_generation(x, z))
-                {
-                    continue;
-                }
-                // TODO# shitty
-                if (is_generated(x, z))
-                {
-                    continue;
-                }
+        int num_inited_chunks = 0;
 
-                UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
-                chunks_to_generate_.push_back(std::move(new_chunk));
+        const std::vector<glm::ivec2> offsets = offsets_cache.getOffsets(RADIUS_SPAWN_CHUNK);
+        for (const glm::ivec2 &offset : offsets)
+        {
+            const int x = base_chunk_pos.x + offset.x;
+            const int z = base_chunk_pos.z + offset.y;
+
+            assert(!is_outside_radius(x, z, RADIUS_SPAWN_CHUNK));
+
+            // NOTE: chunk_index_by_pos_ has invalid values here! but we can use it in this case
+            if (has_chunk_at_pos(x, z))
+            {
+                continue;
             }
+            if (is_enqued_for_generation(x, z))
+            {
+                continue;
+            }
+            // TODO# shitty
+            if (is_generated(x, z))
+            {
+                continue;
+            }
+
+            if (num_inited_chunks > MAX_INIT_CHUNKS_PER_UPDATE)
+            {
+                continue;
+            }
+
+            UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
+            chunks_to_generate_.push_back(std::move(new_chunk));
+            ++num_inited_chunks;
         }
     }
 
@@ -815,4 +819,30 @@ void VoxelEngine::refresh_chunk_index_by_pos()
         assert(chunk_index_by_pos_.find(pos) == chunk_index_by_pos_.end());
         chunk_index_by_pos_[pos] = i;
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const std::vector<glm::ivec2> &VoxelEngine::OffsetsCache::getOffsets(int radius)
+{
+    if (radius == this->radius && !values.empty())
+    {
+        return values;
+    }
+    values.clear();
+    const int radius2 = radius * radius;
+    for (int z = -radius, z_end = radius; z <= z_end; ++z)
+    {
+        for (int x = -radius, x_end = radius; x <= x_end; ++x)
+        {
+            if (x * x + z * z <= radius2)
+            {
+                values.emplace_back(x, z);
+            }
+        }
+    }
+    Alg::sort(values, [](glm::ivec2 lhs, glm::ivec2 rhs) {
+        return lhs.x * lhs.x + lhs.y * lhs.y < rhs.x * rhs.x + rhs.y * rhs.y;
+    });
+    return values;
 }
