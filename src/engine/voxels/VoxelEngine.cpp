@@ -660,8 +660,8 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     perlin.SetFrequency(FREQ);
     perlin.SetPersistence(0.52);
 
-    noise::module::RidgedMulti mointain;
-    mointain.SetFrequency(FREQ);
+    noise::module::RidgedMulti mountain;
+    mountain.SetFrequency(FREQ);
 
     noise::module::Billow base_flat;
     base_flat.SetFrequency(FREQ);
@@ -671,7 +671,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
-    height_map_builder_.SetSourceModule(mointain);
+    height_map_builder_.SetSourceModule(mountain);
     height_map_builder_.SetDestNoiseMap(height_map_);
     height_map_builder_.SetDestSize(16, 16);
     height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
