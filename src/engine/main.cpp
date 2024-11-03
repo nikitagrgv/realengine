@@ -536,6 +536,7 @@ private:
         glm::mat4 rot = glm::rotate(glm::mat4(1.0f), yaw_, glm::vec3(0.0f, 1.0f, 0.0f))
             * glm::rotate(glm::mat4(1.0f), pitch_, glm::vec3(1.0f, 0.0f, 0.0f));
         camera_pos_ += glm::vec3(rot * delta_pos);
+        camera_pos_.y = glm::clamp(camera_pos_.y, -100.0f, 1000.0f);
         camera_.setTransform(glm::translate(glm::mat4{1.0f}, camera_pos_) * rot);
     }
 

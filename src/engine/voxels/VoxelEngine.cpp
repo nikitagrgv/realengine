@@ -69,30 +69,32 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
-    constexpr int RADIUS_SPAWN_CHUNK = 6 * 2;
-    constexpr int RADIUS_UNLOAD_MESH = 12 * 2;
-    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 15 * 2;
+    constexpr int MULTIPLIER = 8;
+    constexpr int RADIUS_SPAWN_CHUNK = 2 * MULTIPLIER;
+    constexpr int RADIUS_UNLOAD_MESH = 3 * MULTIPLIER;
+    constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 4 * MULTIPLIER;
 
     static_assert(RADIUS_UNLOAD_WHOLE_CHUNK > RADIUS_UNLOAD_MESH
             && RADIUS_UNLOAD_MESH > RADIUS_SPAWN_CHUNK,
         "Invalid radiuses");
 
-    const auto get_distance2 = [&](const Chunk &chunk) {
-        const glm::ivec3 pos = chunk.position_;
-        const int dz = base_chunk_pos.z - pos.z;
-        const int dx = base_chunk_pos.x - pos.x;
+    const auto get_distance2 = [&](int x, int z) {
+        const int dz = base_chunk_pos.z - z;
+        const int dx = base_chunk_pos.x - x;
         return dz * dz + dx * dx;
     };
 
-    const auto is_outside_radius = [&](const Chunk &chunk, int radius) {
-        return get_distance2(chunk) > radius * radius;
+    const auto get_chunk_distance2 = [&](const Chunk &chunk) {
+        const glm::ivec3 pos = chunk.position_;
+        return get_distance2(pos.x, pos.z);
     };
 
-    const auto is_coords_outside_radius = [&](int x, int z, int radius) {
-        const int dz = base_chunk_pos.z - z;
-        const int dx = base_chunk_pos.x - x;
-        const int distance2 = dz * dz + dx * dx;
-        return distance2 > radius * radius;
+    const auto is_outside_radius = [&](int x, int z, int radius) {
+        return get_distance2(x, z) > radius * radius;
+    };
+
+    const auto is_chunk_outside_radius = [&](const Chunk &chunk, int radius) {
+        return get_chunk_distance2(chunk) > radius * radius;
     };
 
     bool chunks_dirty = false;
@@ -103,8 +105,7 @@ void VoxelEngine::update(const glm::vec3 &position)
         for (EnqueuedChunk &c : enqueued_chunks_)
         {
             assert(c.cancel_token.isAlive());
-            if (chunk_changed
-                || is_coords_outside_radius(c.pos.x, c.pos.y, RADIUS_UNLOAD_WHOLE_CHUNK))
+            if (chunk_changed || is_outside_radius(c.pos.x, c.pos.y, RADIUS_UNLOAD_WHOLE_CHUNK))
             {
                 c.cancel_token.cancel();
             }
@@ -120,7 +121,7 @@ void VoxelEngine::update(const glm::vec3 &position)
 
         for (UPtr<Chunk> &chunk : chunks_)
         {
-            const bool outside = is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
+            const bool outside = is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
             if (outside)
             {
                 const auto it = chunk_index_by_pos_.find(
@@ -149,7 +150,7 @@ void VoxelEngine::update(const glm::vec3 &position)
             {
                 continue;
             }
-            if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+            if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
             {
                 release_mesh(std::move(chunk->mesh_));
             }
@@ -207,7 +208,7 @@ void VoxelEngine::update(const glm::vec3 &position)
         {
             assert(chunk);
 
-            if (is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK))
+            if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK))
             {
                 release_chunk(std::move(chunk));
                 continue;
@@ -233,7 +234,7 @@ void VoxelEngine::update(const glm::vec3 &position)
             ScopedProfiler p2("Sort by distance");
             std::sort(chunks_to_generate_.begin(), chunks_to_generate_.end(),
                 [&](const UPtr<Chunk> &lhs, const UPtr<Chunk> &rhs) {
-                    return get_distance2(*lhs) < get_distance2(*rhs);
+                    return get_chunk_distance2(*lhs) < get_chunk_distance2(*rhs);
                 });
         }
 
@@ -262,7 +263,7 @@ void VoxelEngine::update(const glm::vec3 &position)
             }
 
             // TODO: remove this check
-            if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+            if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
             {
                 continue;
             }
@@ -601,7 +602,9 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     SCOPED_PROFILER;
 
     assert(perlin_);
-    const noise::module::Perlin &perlin = *perlin_;
+    noise::module::Perlin &perlin = *perlin_;
+    perlin.SetFrequency(0.5);
+    perlin.SetOctaveCount(8);
 
     int height_map[Chunk::CHUNK_WIDTH][Chunk::CHUNK_WIDTH];
 
@@ -644,16 +647,16 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         const int cur_height = height_map[z][x];
         const int diff = y - cur_height;
 
-        if (diff <= 0)
-        {
-            glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
-            const auto noise = perlin.GetValue(norm_pos.x, norm_pos.y, norm_pos.z);
-            if (noise > 0.8f)
-            {
-                block = BlockInfo(BasicBlocks::AIR);
-                return;
-            }
-        }
+        // if (diff <= 0)
+        // {
+        //     glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
+        //     const auto noise = mapTo01(perlin.GetValue(norm_pos.x, norm_pos.y, norm_pos.z));
+        //     if (noise > 0.8f)
+        //     {
+        //         block = BlockInfo(BasicBlocks::AIR);
+        //         return;
+        //     }
+        // }
 
         if (diff > 0)
         {
