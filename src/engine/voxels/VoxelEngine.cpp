@@ -717,7 +717,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     selector.SetSourceModule(0, flat);
     selector.SetSourceModule(1, mountain);
     selector.SetControlModule(type);
-    selector.SetBounds(0.2, 1000);
+    selector.SetBounds(0.4, 1000);
     selector.SetEdgeFalloff(0.1);
 
     noise::module::Turbulence turbulence;
@@ -750,46 +750,56 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
     height_map_builder_.Build();
 
-    chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
-        const int height = (int)height_map_.GetValue(x, z);
-        const int diff = y - height;
-
-        // if (diff <= 0)
-        // {
-        //     glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
-        //     const auto noise = mapTo01(perlin.GetValue(norm_pos.x, norm_pos.y, norm_pos.z));
-        //     if (noise > 0.8f)
-        //     {
-        //         block = BlockInfo(BasicBlocks::AIR);
-        //         return;
-        //     }
-        // }
-
-        if (diff > 0)
+    int block_index = -1;
+    for (int y = 0; y < Chunk::CHUNK_HEIGHT; ++y)
+    {
+        for (int z = 0; z < Chunk::CHUNK_WIDTH; ++z)
         {
-            block = BlockInfo(BasicBlocks::AIR);
+            for (int x = 0; x < Chunk::CHUNK_WIDTH; ++x)
+            {
+                ++block_index;
+                BlockInfo &block = chunk.blocks_[block_index];
+                const int height = (int)height_map_.GetValue(x, z);
+                const int diff = y - height;
+
+                // if (diff <= 0)
+                // {
+                //     glm::vec3 norm_pos = (offset + glm::vec3{x, y, z}) * 0.02f;
+                //     const auto noise = mapTo01(perlin.GetValue(norm_pos.x, norm_pos.y,
+                //     norm_pos.z)); if (noise > 0.8f)
+                //     {
+                //         block = BlockInfo(BasicBlocks::AIR);
+                //         return;
+                //     }
+                // }
+
+                if (diff > 0)
+                {
+                    block = BlockInfo(BasicBlocks::AIR);
+                }
+                else
+                {
+                    const int snow_pos = (int)snow_map_.GetValue(x, z);
+                    if (y > snow_pos)
+                    {
+                        block = BlockInfo(BasicBlocks::SNOW);
+                    }
+                    else if (diff == 0)
+                    {
+                        block = BlockInfo(BasicBlocks::GRASS);
+                    }
+                    else if (diff > -4)
+                    {
+                        block = BlockInfo(BasicBlocks::DIRT);
+                    }
+                    else
+                    {
+                        block = BlockInfo(BasicBlocks::STONE);
+                    }
+                }
+            }
         }
-        else
-        {
-            const int snow_pos = (int)snow_map_.GetValue(x, z);
-            if (y > snow_pos)
-            {
-                block = BlockInfo(BasicBlocks::SNOW);
-            }
-            else if (diff == 0)
-            {
-                block = BlockInfo(BasicBlocks::GRASS);
-            }
-            else if (diff > -4)
-            {
-                block = BlockInfo(BasicBlocks::DIRT);
-            }
-            else
-            {
-                block = BlockInfo(BasicBlocks::STONE);
-            }
-        }
-    });
+    }
 }
 
 void VoxelEngine::finish_generate_chunk(UPtr<Chunk> chunk, bool generated)
