@@ -708,11 +708,11 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     mountain.SetFrequency(BASE_FREQ);
 
     noise::module::Billow base_flat;
-    base_flat.SetFrequency(BASE_FREQ * 2.5);
+    base_flat.SetFrequency(BASE_FREQ * 2.2);
 
     noise::module::ScaleBias flat;
     flat.SetSourceModule(0, base_flat);
-    flat.SetScale(0.125);
+    flat.SetScale(0.095);
     flat.SetBias(-0.75);
 
     noise::module::Perlin type;
