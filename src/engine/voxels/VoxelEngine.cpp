@@ -675,12 +675,17 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     type.SetFrequency(BASE_FREQ * 0.8);
     type.SetPersistence(0.4);
 
-    noise::module::Select final;
-    final.SetSourceModule(0, flat);
-    final.SetSourceModule(1, mountain);
-    final.SetControlModule(type);
-    final.SetBounds(0.2, 1000);
-    final.SetEdgeFalloff(0.1);
+    noise::module::Select selector;
+    selector.SetSourceModule(0, flat);
+    selector.SetSourceModule(1, mountain);
+    selector.SetControlModule(type);
+    selector.SetBounds(0.2, 1000);
+    selector.SetEdgeFalloff(0.1);
+
+    noise::module::Turbulence final;
+    final.SetSourceModule(0, selector);
+    final.SetFrequency(BASE_FREQ * 4);
+    final.SetPower(4);
 
     const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset());
     const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());
