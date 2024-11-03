@@ -329,7 +329,7 @@ void VoxelEngine::update(const glm::vec3 &position)
 #ifndef NDEBUG
     for (const UPtr<Chunk> &chunk : chunks_)
     {
-        if (is_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK))
+        if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK))
         {
             assert(0);
         }
@@ -337,7 +337,7 @@ void VoxelEngine::update(const glm::vec3 &position)
         {
             continue;
         }
-        if (is_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+        if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
         {
             assert(0);
         }

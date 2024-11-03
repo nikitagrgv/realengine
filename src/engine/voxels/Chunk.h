@@ -112,7 +112,7 @@ public:
 
     // TODO: rename this class to ChunkData and move this fields to Chunk
     bool need_rebuild_mesh_{true};
-    bool need_rebuild_mesh_force_{true};
+    bool need_rebuild_mesh_force_{false};
     UPtr<ChunkMesh> mesh_; // could be null
 };
 
