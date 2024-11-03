@@ -33,13 +33,13 @@ public:
     REALENGINE_INLINE void visitRead(F &&func) const;
 
     template<typename F>
-    REALENGINE_INLINE void visitWrite(F &&func);
+    REALENGINE_INLINE void visitWrite(F &&func, bool force = false);
 
     template<typename F>
     REALENGINE_INLINE void visitReadGlobal(F &&func) const;
 
     template<typename F>
-    REALENGINE_INLINE void visitWriteGlobal(F &&func);
+    REALENGINE_INLINE void visitWriteGlobal(F &&func, bool force = false);
 
     static REALENGINE_INLINE bool isInsideChunk(int x, int y, int z)
     {
@@ -112,6 +112,7 @@ public:
 
     // TODO: rename this class to ChunkData and move this fields to Chunk
     bool need_rebuild_mesh_{true};
+    bool need_rebuild_mesh_force_{true};
     UPtr<ChunkMesh> mesh_; // could be null
 };
 
@@ -136,9 +137,16 @@ void Chunk::visitRead(F &&func) const
 }
 
 template<typename F>
-void Chunk::visitWrite(F &&func)
+void Chunk::visitWrite(F &&func, bool force)
 {
-    need_rebuild_mesh_ = true;
+    if (force)
+    {
+        need_rebuild_mesh_force_ = true;
+    }
+    else
+    {
+        need_rebuild_mesh_ = true;
+    }
     int block_index = -1;
     for (int y = 0; y < CHUNK_HEIGHT; ++y)
     {
@@ -177,9 +185,16 @@ void Chunk::visitReadGlobal(F &&func) const
 }
 
 template<typename F>
-void Chunk::visitWriteGlobal(F &&func)
+void Chunk::visitWriteGlobal(F &&func, bool force)
 {
-    need_rebuild_mesh_ = true;
+    if (force)
+    {
+        need_rebuild_mesh_force_ = true;
+    }
+    else
+    {
+        need_rebuild_mesh_ = true;
+    }
     int block_index = -1;
     const auto x_begin = position_.x * CHUNK_WIDTH;
     const auto x_end = x_begin + CHUNK_WIDTH;

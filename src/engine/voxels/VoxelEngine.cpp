@@ -275,7 +275,7 @@ void VoxelEngine::update(const glm::vec3 &position)
                 continue;
             }
 
-            if (!chunk->mesh_ || chunk->need_rebuild_mesh_)
+            if (!chunk->mesh_ || chunk->need_rebuild_mesh_ || chunk->need_rebuild_mesh_force_)
             {
                 chunks_for_regenerate_.push_back(chunk.get());
             }
@@ -294,9 +294,10 @@ void VoxelEngine::update(const glm::vec3 &position)
             int num_regenerated_meshes = 0;
             for (Chunk *chunk : chunks_for_regenerate_)
             {
-                if (num_regenerated_meshes >= MAX_REGENERATED_MESHES_PER_UPDATE)
+                if (!chunk->need_rebuild_mesh_force_
+                    && num_regenerated_meshes >= MAX_REGENERATED_MESHES_PER_UPDATE)
                 {
-                    break;
+                    continue;
                 }
 
                 if (!chunk->mesh_)
@@ -305,7 +306,7 @@ void VoxelEngine::update(const glm::vec3 &position)
                     chunk->need_rebuild_mesh_ = true;
                 }
 
-                if (chunk->need_rebuild_mesh_)
+                if (chunk->need_rebuild_mesh_ || chunk->need_rebuild_mesh_force_)
                 {
                     NeighbourChunks neighbours = get_neighbour_chunks_lazy(chunk);
                     assert(neighbours.hasAll());
@@ -313,6 +314,7 @@ void VoxelEngine::update(const glm::vec3 &position)
                     ChunkMeshGenerator generator;
                     generator.rebuildMesh(*chunk, *chunk->mesh_, neighbours);
                     chunk->need_rebuild_mesh_ = false;
+                    chunk->need_rebuild_mesh_force_ = false;
 
                     num_regenerated_meshes++;
                 }
@@ -456,14 +458,14 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
     }
 
     b = block;
-    chunk->need_rebuild_mesh_ = true;
+    chunk->need_rebuild_mesh_force_ = true;
 
     if (loc_pos.x == 0)
     {
         Chunk *c = get_chunk_at_pos(chunk_pos.x - 1, chunk_pos.z);
         if (c)
         {
-            c->need_rebuild_mesh_ = true;
+            c->need_rebuild_mesh_force_ = true;
         }
     }
     if (loc_pos.x == Chunk::CHUNK_WIDTH - 1)
@@ -471,7 +473,7 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
         Chunk *c = get_chunk_at_pos(chunk_pos.x + 1, chunk_pos.z);
         if (c)
         {
-            c->need_rebuild_mesh_ = true;
+            c->need_rebuild_mesh_force_ = true;
         }
     }
     if (loc_pos.z == 0)
@@ -479,7 +481,7 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
         Chunk *c = get_chunk_at_pos(chunk_pos.x, chunk_pos.z - 1);
         if (c)
         {
-            c->need_rebuild_mesh_ = true;
+            c->need_rebuild_mesh_force_ = true;
         }
     }
     if (loc_pos.z == Chunk::CHUNK_WIDTH - 1)
@@ -487,7 +489,7 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
         Chunk *c = get_chunk_at_pos(chunk_pos.x, chunk_pos.z + 1);
         if (c)
         {
-            c->need_rebuild_mesh_ = true;
+            c->need_rebuild_mesh_force_ = true;
         }
     }
 
