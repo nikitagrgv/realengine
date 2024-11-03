@@ -1,3 +1,5 @@
+add_subdirectory(noise)
+
 target_sources(realengine
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/BasicBlocks.cpp
@@ -12,7 +14,7 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMeshGenerator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMeshGenerator.h
-         ${CMAKE_CURRENT_SOURCE_DIR}/Common.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/Common.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.h
 )
