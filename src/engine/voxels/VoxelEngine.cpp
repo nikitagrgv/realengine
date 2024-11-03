@@ -80,7 +80,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 10;
 #endif
 
-    constexpr int MULTIPLIER = 16;
+    constexpr int MULTIPLIER = 32;
     constexpr int RADIUS_SPAWN_CHUNK = 2 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_MESH = 3 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 4 * MULTIPLIER;
@@ -652,26 +652,41 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     SCOPED_PROFILER;
 
-    constexpr float FREQ = 0.002f;
+    constexpr float BASE_FREQ = 0.002f;
 
     assert(perlin_);
     noise::module::Perlin &perlin = perlin_->perlin_;
     perlin.SetOctaveCount(6);
-    perlin.SetFrequency(FREQ);
+    perlin.SetFrequency(BASE_FREQ);
     perlin.SetPersistence(0.52);
 
     noise::module::RidgedMulti mountain;
-    mountain.SetFrequency(FREQ);
+    mountain.SetFrequency(BASE_FREQ);
 
     noise::module::Billow base_flat;
-    base_flat.SetFrequency(FREQ);
+    base_flat.SetFrequency(BASE_FREQ * 2.5);
+
+    noise::module::ScaleBias flat;
+    flat.SetSourceModule(0, base_flat);
+    flat.SetScale(0.125);
+    flat.SetBias(-0.75);
+
+    noise::module::Perlin type;
+    type.SetFrequency(BASE_FREQ * 0.8);
+    type.SetPersistence(0.4);
+
+    noise::module::Select final;
+    final.SetSourceModule(0, flat);
+    final.SetSourceModule(1, mountain);
+    final.SetControlModule(type);
+    final.SetBounds(0.2, 1000);
 
     const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset());
     const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());
 
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
-    height_map_builder_.SetSourceModule(mountain);
+    height_map_builder_.SetSourceModule(final);
     height_map_builder_.SetDestNoiseMap(height_map_);
     height_map_builder_.SetDestSize(16, 16);
     height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
