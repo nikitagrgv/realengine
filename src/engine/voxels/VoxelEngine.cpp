@@ -659,9 +659,6 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset()) * FACTOR;
     const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset()) * FACTOR;
 
-    perlin.SetFrequency(0.5);
-    perlin.SetOctaveCount(8);
-
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
     height_map_builder_.SetSourceModule(perlin_->perlin_);
