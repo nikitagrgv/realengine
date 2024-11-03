@@ -35,8 +35,6 @@
 struct VoxelEngine::Perlin
 {
     explicit Perlin() {}
-
-    noise::module::Perlin perlin_;
 };
 
 VoxelEngine::VoxelEngine() = default;
@@ -700,12 +698,6 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     snow_map_builder_.Build();
 
     // Height map
-    assert(perlin_);
-    noise::module::Perlin &perlin = perlin_->perlin_;
-    perlin.SetOctaveCount(6);
-    perlin.SetFrequency(BASE_FREQ);
-    perlin.SetPersistence(0.52);
-
     noise::module::RidgedMulti mountain;
     mountain.SetFrequency(BASE_FREQ);
 
