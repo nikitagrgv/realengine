@@ -655,10 +655,10 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     assert(perlin_);
     noise::module::Perlin &perlin = perlin_->perlin_;
     perlin.SetOctaveCount(6);
+    perlin.SetFrequency(0.002f);
 
-    constexpr float FACTOR = 0.002f;
-    const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset()) * FACTOR;
-    const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset()) * FACTOR;
+    const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset());
+    const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());
 
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
