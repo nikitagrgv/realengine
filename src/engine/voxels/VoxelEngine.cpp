@@ -560,6 +560,18 @@ void VoxelEngine::register_blocks()
         b.texture_index_pz = 3;
         b.texture_index_nz = 3;
     }
+    {
+        BlockDescription &b = reg.addBlock();
+        BasicBlocks::SNOW = b.id;
+        b.name = "Snow";
+        b.type = BlockType::SOLID;
+        b.texture_index_px = 4;
+        b.texture_index_nx = 4;
+        b.texture_index_py = 4;
+        b.texture_index_ny = 4;
+        b.texture_index_pz = 4;
+        b.texture_index_nz = 4;
+    }
 
     assert(BasicBlocks::AIR == 0);
 }
@@ -654,6 +666,27 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     constexpr float BASE_FREQ = 0.002f;
 
+    const glm::ivec2 chunk_pos_i = chunk.getBlocksOffset();
+    const glm::vec2 chunk_pos = glm::vec2(chunk_pos_i);
+    const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());
+
+    // Snow height map
+    noise::module::Billow base_snow;
+    base_snow.SetFrequency(BASE_FREQ * 3);
+    base_snow.SetPersistence(0.7);
+    noise::module::ScaleBias snow;
+    snow.SetSourceModule(0, base_snow);
+    snow.SetScale(15);
+
+    noise::utils::NoiseMap snow_map_;
+    noise::utils::NoiseMapBuilderPlane snow_map_builder_;
+    snow_map_builder_.SetSourceModule(snow);
+    snow_map_builder_.SetDestNoiseMap(snow_map_);
+    snow_map_builder_.SetDestSize(16, 16);
+    snow_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
+    snow_map_builder_.Build();
+
+    // Height map
     assert(perlin_);
     noise::module::Perlin &perlin = perlin_->perlin_;
     perlin.SetOctaveCount(6);
@@ -687,9 +720,6 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     final.SetFrequency(BASE_FREQ * 4);
     final.SetPower(4);
 
-    const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset());
-    const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());
-
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
     height_map_builder_.SetSourceModule(final);
@@ -702,7 +732,8 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     constexpr int MIN = 40;
     constexpr int HEIGHT_DIFF = 180;
     constexpr int MAX = MIN + HEIGHT_DIFF;
-    static_assert(MIN < MAX && MAX < Chunk::CHUNK_HEIGHT);
+    constexpr int SNOW_OFFSET = MAX - 20;
+    static_assert(MIN < MAX && MAX < Chunk::CHUNK_HEIGHT && SNOW_OFFSET < Chunk::CHUNK_HEIGHT);
 
     chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
         const float height_norm = math::mapTo01(height_map_.GetValue(x, z));
@@ -725,17 +756,25 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         {
             block = BlockInfo(BasicBlocks::AIR);
         }
-        else if (diff == 0)
-        {
-            block = BlockInfo(BasicBlocks::GRASS);
-        }
-        else if (diff > -4)
-        {
-            block = BlockInfo(BasicBlocks::DIRT);
-        }
         else
         {
-            block = BlockInfo(BasicBlocks::STONE);
+            const int snow_pos = (int)(SNOW_OFFSET + snow_map_.GetValue(x, z));
+            if (y > snow_pos)
+            {
+                block = BlockInfo(BasicBlocks::SNOW);
+            }
+            else if (diff == 0)
+            {
+                block = BlockInfo(BasicBlocks::GRASS);
+            }
+            else if (diff > -4)
+            {
+                block = BlockInfo(BasicBlocks::DIRT);
+            }
+            else
+            {
+                block = BlockInfo(BasicBlocks::STONE);
+            }
         }
     });
 }
