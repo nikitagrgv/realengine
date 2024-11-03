@@ -69,7 +69,9 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
-    constexpr int MULTIPLIER = 8;
+    constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 10;
+
+    constexpr int MULTIPLIER = 16;
     constexpr int RADIUS_SPAWN_CHUNK = 2 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_MESH = 3 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 4 * MULTIPLIER;
@@ -236,10 +238,9 @@ void VoxelEngine::update(const glm::vec3 &position)
 
         {
             ScopedProfiler p2("Sort by distance");
-            std::sort(chunks_to_generate_.begin(), chunks_to_generate_.end(),
-                [&](const UPtr<Chunk> &lhs, const UPtr<Chunk> &rhs) {
-                    return get_chunk_distance2(*lhs) < get_chunk_distance2(*rhs);
-                });
+            Alg::sort(chunks_to_generate_, [&](const UPtr<Chunk> &lhs, const UPtr<Chunk> &rhs) {
+                return get_chunk_distance2(*lhs) < get_chunk_distance2(*rhs);
+            });
         }
 
         for (UPtr<Chunk> &chunk : chunks_to_generate_)
@@ -251,6 +252,8 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     {
         ScopedProfiler p("Generate/unload meshes");
+
+        chunks_for_regenerate_.clear();
 
         // Generate/unload meshes for chunks according to neighbours chunks
         for (const UPtr<Chunk> &chunk : chunks_)
@@ -272,17 +275,47 @@ void VoxelEngine::update(const glm::vec3 &position)
                 continue;
             }
 
-            if (!chunk->mesh_)
+            if (!chunk->mesh_ || chunk->need_rebuild_mesh_)
             {
-                chunk->mesh_ = get_mesh_cached();
-                chunk->need_rebuild_mesh_ = true;
+                chunks_for_regenerate_.push_back(chunk.get());
             }
+        }
 
-            if (chunk->need_rebuild_mesh_)
+        {
+            ScopedProfiler p1("Sort by distance");
+            Alg::sort(chunks_for_regenerate_, [&](const Chunk *lhs, const Chunk *rhs) {
+                return get_chunk_distance2(*lhs) < get_chunk_distance2(*rhs);
+            });
+        }
+
+        {
+            ScopedProfiler p1("Generate meshes");
+
+            int num_regenerated_meshes = 0;
+            for (Chunk *chunk : chunks_for_regenerate_)
             {
-                ChunkMeshGenerator generator;
-                generator.rebuildMesh(*chunk, *chunk->mesh_, neighbours);
-                chunk->need_rebuild_mesh_ = false;
+                if (num_regenerated_meshes >= MAX_REGENERATED_MESHES_PER_UPDATE)
+                {
+                    break;
+                }
+
+                if (!chunk->mesh_)
+                {
+                    chunk->mesh_ = get_mesh_cached();
+                    chunk->need_rebuild_mesh_ = true;
+                }
+
+                if (chunk->need_rebuild_mesh_)
+                {
+                    NeighbourChunks neighbours = get_neighbour_chunks_lazy(chunk);
+                    assert(neighbours.hasAll());
+
+                    ChunkMeshGenerator generator;
+                    generator.rebuildMesh(*chunk, *chunk->mesh_, neighbours);
+                    chunk->need_rebuild_mesh_ = false;
+
+                    num_regenerated_meshes++;
+                }
             }
         }
     }

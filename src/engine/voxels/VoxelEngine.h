@@ -162,4 +162,7 @@ private:
     UPtr<Shader> shader_;
 
     UPtr<BlocksRegistry> registry_;
+
+    // TEMPORAY IN FUNCTION
+    std::vector<Chunk *> chunks_for_regenerate_;
 };

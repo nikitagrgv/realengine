@@ -6,6 +6,12 @@ namespace Alg
 {
 
 template<typename T, typename F>
+void sort(T &container, const F &f)
+{
+    std::sort(container.begin(), container.end(), f);
+}
+
+template<typename T, typename F>
 void removeIf(T &container, const F &f)
 {
     const auto end = container.end();

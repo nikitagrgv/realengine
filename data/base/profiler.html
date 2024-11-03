@@ -84,12 +84,10 @@
     const container = document.getElementById('diagramContainer');
 
     // Populate the container with time boxes
-    profilerData.forEach(task => {
+    profilerData.forEach((task, index) => {
         const timeBox = document.createElement('div');
         timeBox.className = 'time-box';
-        timeBox.dataset.duration = task.duration;
-        timeBox.dataset.start = task.start;
-        timeBox.dataset.depth = task.depth;
+        timeBox.dataset.index = `${index}`;
         timeBox.style.position = "absolute";
         timeBox.textContent = `${task.label} (${timeToString(task.duration)})`;
         container.appendChild(timeBox);
@@ -97,9 +95,11 @@
 
     const refresh = () => {
         document.querySelectorAll('.time-box').forEach(timeBox => {
-            const start = parseFloat(timeBox.dataset.start);
-            const duration = parseFloat(timeBox.dataset.duration);
-            const depth = parseFloat(timeBox.dataset.depth);
+            const index = parseInt(timeBox.dataset.index);
+            const task = profilerData[index];
+            const start = task.start;
+            const duration = task.duration;
+            const depth = task.depth;
             timeBox.style.top = `${offsetYPx + 45 * depth}px`;
             timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
             timeBox.style.width = `${duration * realPosToPixelPos}px`;
