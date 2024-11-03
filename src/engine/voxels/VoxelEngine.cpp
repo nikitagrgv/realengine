@@ -69,8 +69,13 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
 
-    constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 10;
+#ifndef NDEBUG
+    constexpr int MAX_INIT_CHUNKS_PER_UPDATE = 30;
+    constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 2;
+#else
     constexpr int MAX_INIT_CHUNKS_PER_UPDATE = 100;
+    constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 10;
+#endif
 
     constexpr int MULTIPLIER = 16;
     constexpr int RADIUS_SPAWN_CHUNK = 2 * MULTIPLIER;
