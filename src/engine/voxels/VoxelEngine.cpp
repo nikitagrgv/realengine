@@ -658,12 +658,16 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     perlin.SetFrequency(0.002f);
     perlin.SetPersistence(0.52);
 
+    noise::module::RidgedMulti ridget_multi;
+    ridget_multi.SetOctaveCount(6);
+    ridget_multi.SetFrequency(0.002f);
+
     const glm::vec2 chunk_pos = glm::vec2(chunk.getBlocksOffset());
     const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());
 
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
-    height_map_builder_.SetSourceModule(perlin_->perlin_);
+    height_map_builder_.SetSourceModule(ridget_multi);
     height_map_builder_.SetDestNoiseMap(height_map_);
     height_map_builder_.SetDestSize(16, 16);
     height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
