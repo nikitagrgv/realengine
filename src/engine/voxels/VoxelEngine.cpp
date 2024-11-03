@@ -19,6 +19,7 @@
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
 #include "math/Math.h"
+#include "noise/MapToMinMax.h"
 #include "profiler/ScopedProfiler.h"
 #include "profiler/ScopedTimer.h"
 #include "threads/Job.h"
@@ -666,6 +667,15 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     constexpr float BASE_FREQ = 0.002f;
 
+    constexpr int MIN = 40;
+    constexpr int HEIGHT = 180;
+    constexpr int MAX = MIN + HEIGHT;
+
+    constexpr int SNOW_OFFSET = MAX - 20;
+    constexpr int SNOW_APLITUDE = 15;
+
+    static_assert(MIN < MAX && MAX < Chunk::CHUNK_HEIGHT && SNOW_OFFSET < Chunk::CHUNK_HEIGHT);
+
     const glm::ivec2 chunk_pos_i = chunk.getBlocksOffset();
     const glm::vec2 chunk_pos = glm::vec2(chunk_pos_i);
     const glm::vec2 chunk_end = glm::vec2(chunk.getBlocksEndOffset());
@@ -674,13 +684,14 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     noise::module::Billow base_snow;
     base_snow.SetFrequency(BASE_FREQ * 3);
     base_snow.SetPersistence(0.7);
-    noise::module::ScaleBias snow;
-    snow.SetSourceModule(0, base_snow);
-    snow.SetScale(15);
+
+    noise::module::MapToMinMax snow_final;
+    snow_final.SetSourceModule(0, base_snow);
+    snow_final.SetMinAndHeight(SNOW_OFFSET, SNOW_APLITUDE);
 
     noise::utils::NoiseMap snow_map_;
     noise::utils::NoiseMapBuilderPlane snow_map_builder_;
-    snow_map_builder_.SetSourceModule(snow);
+    snow_map_builder_.SetSourceModule(snow_final);
     snow_map_builder_.SetDestNoiseMap(snow_map_);
     snow_map_builder_.SetDestSize(16, 16);
     snow_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
@@ -715,30 +726,26 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
     selector.SetBounds(0.2, 1000);
     selector.SetEdgeFalloff(0.1);
 
-    noise::module::Turbulence final;
-    final.SetSourceModule(0, selector);
-    final.SetFrequency(BASE_FREQ * 4);
-    final.SetPower(4);
+    noise::module::Turbulence turbulence;
+    turbulence.SetSourceModule(0, selector);
+    turbulence.SetFrequency(BASE_FREQ * 4);
+    turbulence.SetPower(4);
+
+    noise::module::MapToMinMax height_final;
+    height_final.SetSourceModule(0, turbulence);
+    height_final.SetMinAndHeight(MIN, HEIGHT);
 
     noise::utils::NoiseMap height_map_;
     noise::utils::NoiseMapBuilderPlane height_map_builder_;
-    height_map_builder_.SetSourceModule(final);
+    height_map_builder_.SetSourceModule(height_final);
     height_map_builder_.SetDestNoiseMap(height_map_);
     height_map_builder_.SetDestSize(16, 16);
     height_map_builder_.SetBounds(chunk_pos.x, chunk_end.x, chunk_pos.y, chunk_end.y);
     height_map_builder_.Build();
 
-    // TODO!# ADD FLATTNESS
-    constexpr int MIN = 40;
-    constexpr int HEIGHT_DIFF = 180;
-    constexpr int MAX = MIN + HEIGHT_DIFF;
-    constexpr int SNOW_OFFSET = MAX - 20;
-    static_assert(MIN < MAX && MAX < Chunk::CHUNK_HEIGHT && SNOW_OFFSET < Chunk::CHUNK_HEIGHT);
 
     chunk.visitWrite([&](int x, int y, int z, BlockInfo &block) {
-        const float height_norm = math::mapTo01(height_map_.GetValue(x, z));
-        const int height = (int)(height_norm * (float)HEIGHT_DIFF + (float)MIN);
-
+        const int height = (int)height_map_.GetValue(x, z);
         const int diff = y - height;
 
         // if (diff <= 0)
@@ -758,7 +765,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
         }
         else
         {
-            const int snow_pos = (int)(SNOW_OFFSET + snow_map_.GetValue(x, z));
+            const int snow_pos = (int)snow_map_.GetValue(x, z);
             if (y > snow_pos)
             {
                 block = BlockInfo(BasicBlocks::SNOW);
