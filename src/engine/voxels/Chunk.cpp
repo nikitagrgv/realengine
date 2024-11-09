@@ -6,10 +6,6 @@
 
 float Chunk::BOUND_SPHERE_RADIUS = std::sqrt((float)CHUNK_WIDTH2 * 2 + (float)CHUNK_HEIGHT2);
 
-Chunk::Chunk()
-    : Chunk(glm::ivec3{})
-{}
-
 Chunk::Chunk(glm::ivec3 position)
 {
     position_ = position;
@@ -29,6 +25,5 @@ void Chunk::clear()
 
 void Chunk::update_values()
 {
-    bound_sphere_.center_and_radius = glm::vec4(getGlobalCenterPositionFloat(),
-        BOUND_SPHERE_RADIUS);
+    bound_sphere_.center_and_radius = glm::vec4(getGlobalCenterPositionFloat(), BOUND_SPHERE_RADIUS);
 }

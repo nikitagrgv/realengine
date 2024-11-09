@@ -177,16 +177,6 @@ void VoxelEngine::update(const glm::vec3 &position)
 
         int num_inited_chunks = 0;
 
-        {
-            ScopedProfiler p4("Generated chunks cache");
-
-            generated_chunks_set_.clear();
-            for (const UPtr<Chunk> &c : generated_chunks_)
-            {
-                generated_chunks_set_.insert(c->getPositionXZ());
-            }
-        }
-
         const std::vector<glm::ivec2> offsets = offsets_cache.getOffsets(RADIUS_SPAWN_CHUNK);
         for (const glm::ivec2 &offset : offsets)
         {
@@ -196,24 +186,18 @@ void VoxelEngine::update(const glm::vec3 &position)
             assert(!is_outside_radius(x, z, RADIUS_SPAWN_CHUNK));
 
             // NOTE: chunk_index_by_pos_ has invalid values here! but we can use it in this case
+            if (has_chunk_at_pos(x, z))
             {
-                if (has_chunk_at_pos(x, z))
-                {
-                    continue;
-                }
+                continue;
             }
+            if (is_enqued_for_generation(x, z))
             {
-                if (is_enqued_for_generation(x, z))
-                {
-                    continue;
-                }
+                continue;
             }
             // TODO# shitty
+            if (is_generated(x, z))
             {
-                if (Alg::contains(generated_chunks_set_, glm::ivec2(x, z)))
-                {
-                    continue;
-                }
+                continue;
             }
 
             if (num_inited_chunks > MAX_INIT_CHUNKS_PER_UPDATE)
@@ -221,11 +205,10 @@ void VoxelEngine::update(const glm::vec3 &position)
                 continue;
             }
 
-            {
-                UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
-                chunks_to_generate_.push_back(std::move(new_chunk));
-                ++num_inited_chunks;
-            }
+            UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
+            chunks_to_generate_.dirty = true;
+            chunks_to_generate_.vector.push_back(std::move(new_chunk));
+            ++num_inited_chunks;
         }
     }
 
@@ -272,16 +255,18 @@ void VoxelEngine::update(const glm::vec3 &position)
 
         {
             ScopedProfiler p2("Sort by distance");
-            Alg::sort(chunks_to_generate_, [&](const UPtr<Chunk> &lhs, const UPtr<Chunk> &rhs) {
-                return get_chunk_distance2(*lhs) < get_chunk_distance2(*rhs);
-            });
+            Alg::sort(chunks_to_generate_.vector,
+                [&](const UPtr<Chunk> &lhs, const UPtr<Chunk> &rhs) {
+                    return get_chunk_distance2(*lhs) < get_chunk_distance2(*rhs);
+                });
         }
 
-        for (UPtr<Chunk> &chunk : chunks_to_generate_)
+        for (UPtr<Chunk> &chunk : chunks_to_generate_.vector)
         {
             queue_generate_chunk(std::move(chunk));
         }
-        chunks_to_generate_.clear();
+        chunks_to_generate_.dirty = true;
+        chunks_to_generate_.vector.clear();
     }
 
     {
@@ -866,6 +851,14 @@ bool VoxelEngine::is_enqued_for_generation(int x, int z) const
     return enqueued_chunks_.contains(glm::ivec2(x, z));
 }
 
+bool VoxelEngine::is_generated(int x, int z) const
+{
+    return Alg::anyOf(generated_chunks_, [&](const UPtr<Chunk> &c) {
+        const glm::ivec3 pos = c->getPosition();
+        return pos.x == x && pos.z == z;
+    });
+}
+
 bool VoxelEngine::has_all_neighbours(Chunk *chunk) const
 {
     assert(chunk);
@@ -956,6 +949,28 @@ void VoxelEngine::EnqueuedChunks::update_cache_if_needed() const
     {
         assert(!Alg::contains(set, c.pos));
         set.insert(c.pos);
+    }
+}
+
+bool VoxelEngine::ChunksToGenerate::contains(const glm::ivec2 &pos) const
+{
+    update_cache_if_needed();
+    return Alg::contains(set, pos);
+}
+
+void VoxelEngine::ChunksToGenerate::update_cache_if_needed() const
+{
+    if (!dirty)
+    {
+        return;
+    }
+    dirty = false;
+
+    set.clear();
+    for (const UPtr<Chunk> &c : vector)
+    {
+        assert(!Alg::contains(set, c.pos));
+        set.insert(c->getPositionXZ());
     }
 }
 

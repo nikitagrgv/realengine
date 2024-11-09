@@ -108,6 +108,7 @@ private:
     }
 
     bool is_enqued_for_generation(int x, int z) const;
+    bool is_generated(int x, int z) const;
 
     bool has_all_neighbours(Chunk *chunk) const;
     NeighbourChunks get_neighbour_chunks(Chunk *chunk) const;
@@ -153,7 +154,19 @@ private:
     };
     EnqueuedChunks enqueued_chunks_;
 
-    std::vector<UPtr<Chunk>> chunks_to_generate_;
+    struct ChunksToGenerate
+    {
+    public:
+        bool contains(const glm::ivec2 &pos) const;
+        std::vector<UPtr<Chunk>> vector;
+        mutable bool dirty{true};
+
+    private:
+        void update_cache_if_needed() const;
+
+    private:
+        mutable std::unordered_set<glm::ivec2> set;
+    } chunks_to_generate_;
 
     std::vector<UPtr<Chunk>> generated_chunks_;
     std::vector<UPtr<Chunk>> canceled_chunks_;
@@ -167,9 +180,6 @@ private:
     // TEMPORAY IN FUNCTION
     std::vector<Chunk *> chunks_for_regenerate_;
     std::vector<Chunk *> chunks_for_render_;
-
-    // TEMPORAY IN FUNCTION
-    std::unordered_set<glm::ivec2> generated_chunks_set_;
 
     // TODO# SHIT?
     struct OffsetsCache
