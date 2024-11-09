@@ -100,7 +100,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     };
 
     const auto get_chunk_distance2 = [&](const Chunk &chunk) {
-        const glm::ivec3 pos = chunk.position_;
+        const glm::ivec3 pos = chunk.getPosition();
         return get_distance2(pos.x, pos.z);
     };
 
@@ -139,8 +139,8 @@ void VoxelEngine::update(const glm::vec3 &position)
             const bool outside = is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK);
             if (outside)
             {
-                const auto it = chunk_index_by_pos_.find(
-                    glm::ivec2(chunk->position_.x, chunk->position_.z));
+                const glm::ivec2 pos = chunk->getPositionXZ();
+                const auto it = chunk_index_by_pos_.find(pos);
                 assert(it != chunk_index_by_pos_.end());
                 chunk_index_by_pos_.erase(it);
                 release_chunk(std::move(chunk));
@@ -402,10 +402,7 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
 
         chunk->mesh_->bind();
 
-        glm::vec3 glob_position{0.0f};
-        glob_position.x = chunk->position_.x * Chunk::CHUNK_WIDTH;
-        glob_position.y = 0.0f;
-        glob_position.z = chunk->position_.z * Chunk::CHUNK_WIDTH;
+        const glm::vec3 glob_position = chunk->getGlobalPositionFloat();
 
         auto value = camera->getViewProj() * glm::translate(glm::mat4{1.0f}, glob_position);
         shader_->setUniformMat4(model_view_proj_loc, value);
@@ -609,7 +606,7 @@ UPtr<Chunk> VoxelEngine::get_chunk_cached(const glm::ivec3 &pos)
     chunks_pool_.pop_back();
     assert(chunk);
     chunk->clear();
-    chunk->position_ = pos;
+    chunk->setPosition(pos);
     return chunk;
 }
 
@@ -653,12 +650,11 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
         UPtr<Chunk> chunk_;
     };
 
-    const int x = chunk->position_.x;
-    const int z = chunk->position_.z;
+    const glm::ivec3 pos = chunk->getPosition();
 
     assert(!is_enqued_for_generation(x, z));
     UPtr<Job> job = makeU<Job>(std::move(chunk), *this);
-    enqueued_chunks_.emplace_back(x, z, job->getCancelToken());
+    enqueued_chunks_.emplace_back(pos.x, pos.z, job->getCancelToken());
     eng.queue->enqueueJob(std::move(job));
 }
 
@@ -825,8 +821,9 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
 void VoxelEngine::finish_generate_chunk(UPtr<Chunk> chunk, bool generated)
 {
-    const int x = chunk->position_.x;
-    const int z = chunk->position_.z;
+    const auto chunk_pos = chunk->getPosition();
+    const int x = chunk_pos.x;
+    const int z = chunk_pos.z;
     assert(is_enqued_for_generation(x, z));
     glm::ivec2 pos{x, z};
     Alg::removeOneIf(enqueued_chunks_, [&](const EnqueuedChunk &c) { return c.pos == pos; });
@@ -858,7 +855,7 @@ Chunk *VoxelEngine::get_chunk_at_pos(int x, int z) const
 bool VoxelEngine::has_all_neighbours(Chunk *chunk) const
 {
     assert(chunk);
-    const glm::ivec3 pos = chunk->position_;
+    const glm::ivec3 pos = chunk->getPosition();
     const int x = pos.x;
     const int z = pos.z;
     return has_chunk_at_pos(x + 1, z) && has_chunk_at_pos(x - 1, z) && has_chunk_at_pos(x, z + 1)
@@ -868,7 +865,7 @@ bool VoxelEngine::has_all_neighbours(Chunk *chunk) const
 NeighbourChunks VoxelEngine::get_neighbour_chunks(Chunk *chunk) const
 {
     assert(chunk);
-    const glm::ivec3 pos = chunk->position_;
+    const glm::ivec3 pos = chunk->getPosition();
     const int x = pos.x;
     const int z = pos.z;
 
@@ -884,7 +881,7 @@ NeighbourChunks VoxelEngine::get_neighbour_chunks(Chunk *chunk) const
 NeighbourChunks VoxelEngine::get_neighbour_chunks_lazy(Chunk *chunk) const
 {
     assert(chunk);
-    const glm::ivec3 pos = chunk->position_;
+    const glm::ivec3 pos = chunk->getPosition();
     const int x = pos.x;
     const int z = pos.z;
 
@@ -918,7 +915,7 @@ void VoxelEngine::refresh_chunk_index_by_pos()
     for (int i = 0, count = chunks_.size(); i < count; ++i)
     {
         const UPtr<Chunk> &c = chunks_[i];
-        const glm::ivec2 pos = glm::ivec2{c->position_.x, c->position_.z};
+        const glm::ivec2 pos = c->getPositionXZ();
         assert(chunk_index_by_pos_.find(pos) == chunk_index_by_pos_.end());
         chunk_index_by_pos_[pos] = i;
     }

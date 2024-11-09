@@ -1,6 +1,6 @@
 #include "IntersectionMath.h"
 
-#include "Bounds.h"
+#include "BoundBox.h"
 #include "Math.h"
 
 void math::getDirectionTriangleIntersection(const glm::vec3 &origin, const glm::vec3 &direction,

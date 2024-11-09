@@ -117,8 +117,10 @@ private:
 
     REALENGINE_INLINE bool is_generated(int x, int z) const
     {
-        return Alg::anyOf(generated_chunks_,
-            [&](const UPtr<Chunk> &c) { return c->position_.x == x && c->position_.z == z; });
+        return Alg::anyOf(generated_chunks_, [&](const UPtr<Chunk> &c) {
+            const glm::ivec3 pos = c->getPosition();
+            return pos.x == x && pos.z == z;
+        });
     }
 
     bool has_all_neighbours(Chunk *chunk) const;

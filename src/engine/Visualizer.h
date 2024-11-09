@@ -4,7 +4,7 @@
 #include "ShaderSource.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
-#include "math/Bounds.h"
+#include "math/BoundBox.h"
 
 #include "glm/fwd.hpp"
 #include "glm/vec3.hpp"

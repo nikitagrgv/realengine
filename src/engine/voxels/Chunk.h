@@ -3,6 +3,7 @@
 #include "Base.h"
 #include "BlockInfo.h"
 #include "VertexBufferObject.h"
+#include "math/BoundSphere.h"
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
@@ -19,7 +20,15 @@ public:
     static constexpr int CHUNK_HEIGHT = 400;
 
     static constexpr int CHUNK_WIDTH2 = CHUNK_WIDTH * CHUNK_WIDTH;
+    static constexpr int CHUNK_HEIGHT2 = CHUNK_HEIGHT * CHUNK_HEIGHT;
+
+    static constexpr int CHUNK_HALF_WIDTH = CHUNK_WIDTH / 2;
+    static constexpr int CHUNK_HALF_HEIGHT = CHUNK_HEIGHT / 2;
+
     static constexpr int NUM_BLOCKS = CHUNK_WIDTH2 * CHUNK_HEIGHT;
+
+    // TODO: constexpr!
+    static float BOUND_SPHERE_RADIUS;
 
 public:
     explicit Chunk(glm::ivec3 position);
@@ -119,14 +128,67 @@ public:
         return {(position_.x + 1) * CHUNK_WIDTH, (position_.z + 1) * CHUNK_WIDTH};
     }
 
+    const glm::ivec3 &getPosition() const { return position_; }
+    void setPosition(const glm::ivec3 pos)
+    {
+        position_ = pos;
+        update_values();
+    }
+
+    glm::ivec2 getPositionXZ() const { return glm::ivec2(position_.x, position_.z); }
+
+    glm::vec3 getGlobalPositionFloat() const
+    {
+        glm::vec3 pos;
+        pos.x = (float)position_.x * CHUNK_WIDTH;
+        pos.y = 0.0f;
+        pos.z = (float)position_.z * CHUNK_WIDTH;
+        return pos;
+    }
+
+    glm::ivec3 getGlobalPositionInt() const
+    {
+        glm::ivec3 pos;
+        pos.x = position_.x * CHUNK_WIDTH;
+        pos.y = 0;
+        pos.z = position_.z * CHUNK_WIDTH;
+        return pos;
+    }
+
+    glm::vec3 getGlobalCenterPositionFloat() const
+    {
+        glm::vec3 pos;
+        pos.x = (float)position_.x * CHUNK_WIDTH + CHUNK_HALF_WIDTH;
+        pos.y = (float)CHUNK_HALF_HEIGHT;
+        pos.z = (float)position_.z * CHUNK_WIDTH + CHUNK_HALF_WIDTH;
+        return pos;
+    }
+
+    glm::ivec3 getGlobalCenterPositionInt() const
+    {
+        glm::ivec3 pos;
+        pos.x = position_.x * CHUNK_WIDTH + CHUNK_HALF_WIDTH;
+        pos.y = CHUNK_HALF_HEIGHT;
+        pos.z = position_.z * CHUNK_WIDTH + CHUNK_HALF_WIDTH;
+        return pos;
+    }
+
+    const math::BoundSphere &getBoundSphere() const { return bound_sphere_; }
+
+private:
+    void update_values();
+
 public:
     BlockInfo blocks_[NUM_BLOCKS];
-    glm::ivec3 position_{0, 0, 0};
 
     // TODO: rename this class to ChunkData and move this fields to Chunk
     bool need_rebuild_mesh_{true};
     bool need_rebuild_mesh_force_{false};
     UPtr<ChunkMesh> mesh_; // could be null
+
+private:
+    glm::ivec3 position_{0, 0, 0};
+    math::BoundSphere bound_sphere_;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

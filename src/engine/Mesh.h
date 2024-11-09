@@ -3,7 +3,7 @@
 #include "IndexBufferObject.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
-#include "math/Bounds.h"
+#include "math/BoundBox.h"
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
