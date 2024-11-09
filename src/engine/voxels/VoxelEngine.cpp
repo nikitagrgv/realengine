@@ -752,14 +752,24 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     // Caves
     noise::module::RidgedMulti cave_base;
-    cave_base.SetLacunarity(-19);
-    cave_base.SetFrequency(BASE_FREQ * 15);
+    cave_base.SetLacunarity(-12);
+    cave_base.SetFrequency(BASE_FREQ * 4);
     cave_base.SetOctaveCount(6);
 
+    noise::module::Turbulence cave0;
+    cave0.SetSourceModule(0, cave_base);
+    cave0.SetFrequency(BASE_FREQ * 7);
+    cave0.SetPower(200);
+
+    noise::module::ScalePoint cave1;
+    cave1.SetSourceModule(0, cave0);
+    cave1.SetScale(0.3);
+
     noise::module::Turbulence cave;
-    cave.SetSourceModule(0, cave_base);
-    cave.SetFrequency(BASE_FREQ * 12);
-    cave.SetPower(24);
+    cave.SetSourceModule(0, cave1);
+    cave.SetFrequency(BASE_FREQ * 5);
+    cave.SetPower(50);
+
 
     int block_index = -1;
     chunk.need_rebuild_mesh_ = true;
@@ -782,7 +792,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
                     const double cave_value = cave.GetValue(x_glob, y_glob, z_glob);
                     // if (cave_value < -0.6 && cave_value > -0.8)
                     // if (cave_value > 0.1 && cave_value < 0.7)
-                    if (cave_value > -0.98)
+                    if (cave_value < -0.95)
                     {
                         block = BlockInfo(BasicBlocks::AIR);
                         continue;
