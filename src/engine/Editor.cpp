@@ -851,7 +851,7 @@ void Editor::render_info()
         ImGui::Text("Rendered Indices: %llu", eng.stat.getNumRenderedIndicesTotal());
         ImGui::Text("Compiled Shaders: %llu", eng.stat.getNumCompiledShadersTotal());
         ImGui::SeparatorText("Voxel Engine");
-        ImGui::Text("Render chunks: %d", eng.vox->getNumRenderChunks());
+        ImGui::Text("Render chunks: %d", eng.vox->getNumRenderedChunks());
         ImGui::Text("Render vertices: %llu", eng.vox->getNumRenderVertices());
         ImGui::SeparatorText("Threads");
         ImGui::Text("Queued jobs: %d", eng.queue->getNumJobs());

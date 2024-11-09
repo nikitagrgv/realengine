@@ -363,6 +363,9 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
 {
     SCOPED_PROFILER;
 
+    num_renderd_chunks_ = 0;
+    num_renderd_vertices_ = 0;
+
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
@@ -395,22 +398,23 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
     chunks_for_render_.clear();
     for (const UPtr<Chunk> &chunk : chunks_)
     {
+        if (!chunk->mesh_)
+        {
+            continue;
+        }
         const math::BoundSphere &bound_sphere = chunk->getBoundSphere();
         const bool inside = bound_sphere.isInsideFrustum(camera->getFrustumPlanes());
-        if (inside)
+        if (!inside)
         {
-            chunks_for_render_.push_back(chunk.get());
+            continue;
         }
+        chunks_for_render_.push_back(chunk.get());
     }
 
     // TODO# culling, sort by distance (nearest first)
     for (const Chunk *chunk : chunks_for_render_)
     {
-        if (!chunk->mesh_)
-        {
-            continue;
-        }
-
+        assert(chunk.mesh_);
         chunk->mesh_->bind();
 
         const glm::vec3 glob_position = chunk->getGlobalPositionFloat();
@@ -419,7 +423,12 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
         shader_->setUniformMat4(model_view_proj_loc, value);
 
         GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->mesh_->getNumVertices()));
-        eng.stat.addRenderedIndices(chunk->mesh_->getNumVertices());
+
+        const uint64_t num_vertices = chunk->mesh_->getNumVertices();
+        eng.stat.addRenderedIndices(num_vertices);
+
+        ++num_renderd_chunks_;
+        num_renderd_vertices_ += num_vertices;
     }
 }
 
@@ -429,30 +438,14 @@ void VoxelEngine::setSeed(unsigned int seed)
     perlin_ = makeU<Perlin>();
 }
 
-int VoxelEngine::getNumRenderChunks() const
+int VoxelEngine::getNumRenderedChunks() const
 {
-    int ret = 0;
-    for (const UPtr<Chunk> &chunk : chunks_)
-    {
-        if (chunk->mesh_)
-        {
-            ++ret;
-        }
-    }
-    return ret;
+    return num_renderd_chunks_;
 }
 
 uint64_t VoxelEngine::getNumRenderVertices() const
 {
-    uint64_t ret = 0;
-    for (const UPtr<Chunk> &chunk : chunks_)
-    {
-        if (chunk->mesh_)
-        {
-            ret += chunk->mesh_->getNumVertices();
-        }
-    }
-    return ret;
+    return num_renderd_vertices_;
 }
 
 bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block)
