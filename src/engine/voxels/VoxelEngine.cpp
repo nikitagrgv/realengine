@@ -392,8 +392,19 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
     registry_->getAtlas()->bind(atlas_index);
     shader_->setUniformInt(atlas_loc, atlas_index);
 
-    // TODO# culling, sort by distance (nearest first)
+    chunks_for_render_.clear();
     for (const UPtr<Chunk> &chunk : chunks_)
+    {
+        const math::BoundSphere &bound_sphere = chunk->getBoundSphere();
+        const bool inside = bound_sphere.isInsideFrustum(camera->getFrustumPlanes());
+        if (inside)
+        {
+            chunks_for_render_.push_back(chunk.get());
+        }
+    }
+
+    // TODO# culling, sort by distance (nearest first)
+    for (const Chunk *chunk : chunks_for_render_)
     {
         if (!chunk->mesh_)
         {

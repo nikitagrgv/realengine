@@ -167,6 +167,7 @@ private:
 
     // TEMPORAY IN FUNCTION
     std::vector<Chunk *> chunks_for_regenerate_;
+    std::vector<Chunk *> chunks_for_render_;
 
     // TODO# SHIT?
     struct OffsetsCache
