@@ -11,6 +11,9 @@ struct Statistics
 
         num_rendered_indices_in_frame_ = 0;
         num_compiled_shaders_in_frame_ = 0;
+
+        vox.num_rendered_chunks_in_frame = 0;
+        vox.num_rendered_vertices_in_frame = 0;
     }
 
     void addRenderedIndices(uint64_t count) { num_rendered_indices_in_frame_ += count; }
@@ -24,6 +27,18 @@ struct Statistics
     uint64_t getNumRenderedIndicesTotal() const { return num_rendered_indices_total_; }
     uint64_t getNumCompiledShadersTotal() const { return num_compiled_shaders_total_; }
 
+    ///////////////////////////////////////////
+    // Voxel
+    void addRenderedChunks(uint64_t count) { vox.num_rendered_chunks_in_frame += count; }
+    void addRenderedChunksVertices(uint64_t count) { vox.num_rendered_vertices_in_frame += count; }
+
+    // Frame
+    uint64_t getNumRenderedChunksInFrame() const { return vox.num_rendered_chunks_in_frame; }
+    uint64_t getNumRenderChunksVerticesInFrame() const
+    {
+        return vox.num_rendered_vertices_in_frame;
+    }
+
 private:
     // Frame
     uint64_t num_rendered_indices_in_frame_{0};
@@ -32,4 +47,12 @@ private:
     // Total
     uint64_t num_rendered_indices_total_{0};
     uint64_t num_compiled_shaders_total_{0};
+
+    // Voxel
+    struct
+    {
+        // Frame
+        uint64_t num_rendered_chunks_in_frame{0};
+        uint64_t num_rendered_vertices_in_frame{0};
+    } vox;
 };

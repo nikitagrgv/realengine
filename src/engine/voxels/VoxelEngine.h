@@ -43,9 +43,6 @@ public:
     unsigned int getSeed() const { return seed_; }
     void setSeed(unsigned int seed);
 
-    int getNumRenderedChunks() const;
-    uint64_t getNumRenderVertices() const;
-
     static REALENGINE_INLINE glm::ivec3 toBlockPosition(const glm::vec3 &position)
     {
         // dont care about y < 0 flooring. but consider case eg -0.1 mustn't be rounded to 0
@@ -179,7 +176,4 @@ private:
         std::vector<glm::ivec2> values;
         int radius = -1;
     } offsets_cache;
-
-    int num_renderd_chunks_{0};
-    uint64_t num_renderd_vertices_{0};
 };

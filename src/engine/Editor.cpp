@@ -15,7 +15,7 @@
 #include "math/Math.h"
 #include "threads/JobQueue.h"
 #include "time/Time.h"
-#include "voxels/VoxelEngine.h"
+#include "utils/Algos.h"
 
 #include "glm/gtc/type_ptr.hpp"
 #include <fstream>
@@ -851,8 +851,8 @@ void Editor::render_info()
         ImGui::Text("Rendered Indices: %llu", eng.stat.getNumRenderedIndicesTotal());
         ImGui::Text("Compiled Shaders: %llu", eng.stat.getNumCompiledShadersTotal());
         ImGui::SeparatorText("Voxel Engine");
-        ImGui::Text("Render chunks: %d", eng.vox->getNumRenderedChunks());
-        ImGui::Text("Render vertices: %llu", eng.vox->getNumRenderVertices());
+        ImGui::Text("Render chunks: %llu", eng.stat.getNumRenderedChunksInFrame());
+        ImGui::Text("Render vertices: %llu", eng.stat.getNumRenderChunksVerticesInFrame());
         ImGui::SeparatorText("Threads");
         ImGui::Text("Queued jobs: %d", eng.queue->getNumJobs());
         ImGui::Text("Threads busy/all: %d/%d", eng.queue->getNumBusyThreads(),

@@ -363,9 +363,6 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
 {
     SCOPED_PROFILER;
 
-    num_renderd_chunks_ = 0;
-    num_renderd_vertices_ = 0;
-
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
@@ -426,9 +423,8 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
 
         const uint64_t num_vertices = chunk->mesh_->getNumVertices();
         eng.stat.addRenderedIndices(num_vertices);
-
-        ++num_renderd_chunks_;
-        num_renderd_vertices_ += num_vertices;
+        eng.stat.addRenderedChunks(1);
+        eng.stat.addRenderedChunksVertices(num_vertices);
     }
 }
 
@@ -436,16 +432,6 @@ void VoxelEngine::setSeed(unsigned int seed)
 {
     seed_ = seed;
     perlin_ = makeU<Perlin>();
-}
-
-int VoxelEngine::getNumRenderedChunks() const
-{
-    return num_renderd_chunks_;
-}
-
-uint64_t VoxelEngine::getNumRenderVertices() const
-{
-    return num_renderd_vertices_;
 }
 
 bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block)
