@@ -31,6 +31,7 @@ public:
     static float BOUND_SPHERE_RADIUS;
 
 public:
+    explicit Chunk();
     explicit Chunk(glm::ivec3 position);
     ~Chunk();
 
