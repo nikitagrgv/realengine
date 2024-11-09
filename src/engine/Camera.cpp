@@ -4,8 +4,15 @@
 #include "glm/trigonometric.hpp"
 
 Camera::Camera()
-    : proj_(glm::perspective(glm::radians(45.0f), 1.0f, 0.1f, 100.0f))
-{}
+{
+    setPerspective(45.0f, 1.0f, 0.1f, 100.0f);
+}
+
+Camera::Camera(const glm::mat4 &proj)
+    : proj_(proj)
+{
+    update_cached();
+}
 
 void Camera::setPerspective(float fov_deg, float aspect, float z_near, float z_far)
 {
@@ -31,4 +38,15 @@ void Camera::update_cached()
 {
     viewproj_ = proj_ * view_;
     iviewproj_ = glm::inverse(viewproj_);
+
+    // clang-format off
+    // https://stackoverflow.com/a/34960913/19031745
+    // TODO: shitty?
+    for (int i = 4; i--; ) { planes_.left[i]   = viewproj_[i][3] + viewproj_[i][0]; }
+    for (int i = 4; i--; ) { planes_.right[i]  = viewproj_[i][3] - viewproj_[i][0]; }
+    for (int i = 4; i--; ) { planes_.bottom[i] = viewproj_[i][3] + viewproj_[i][1]; }
+    for (int i = 4; i--; ) { planes_.top[i]    = viewproj_[i][3] - viewproj_[i][1]; }
+    for (int i = 4; i--; ) { planes_.near[i]   = viewproj_[i][3] + viewproj_[i][2]; }
+    for (int i = 4; i--; ) { planes_.far[i]    = viewproj_[i][3] - viewproj_[i][2]; }
+    // clang-format on
 }

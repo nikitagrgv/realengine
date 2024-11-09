@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Ray.h"
+#include "math/FrustumPlanes.h"
 
 #include "glm/mat4x4.hpp"
 
@@ -16,11 +17,7 @@ public:
         update_cached();
     }
 
-    explicit Camera(const glm::mat4 &proj)
-        : proj_(proj)
-    {
-        update_cached();
-    }
+    explicit Camera(const glm::mat4 &proj);
 
     glm::mat4 getMVP(const glm::mat4 &model) const { return viewproj_ * model; }
 
@@ -55,6 +52,8 @@ public:
 
     Ray getNearFarRay(glm::vec2 normalized_screen_pos) const;
 
+    const FrustumPlanes &getFrustumPlanes() const { return planes_; }
+
 private:
     void update_cached();
 
@@ -64,4 +63,5 @@ private:
     glm::mat4 proj_{1.0f};
     glm::mat4 viewproj_{1.0f};
     glm::mat4 iviewproj_{1.0f};
+    FrustumPlanes planes_{};
 };
