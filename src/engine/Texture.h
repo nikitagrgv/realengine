@@ -46,36 +46,32 @@ public:
 
     REMOVE_COPY_MOVE_CLASS(Texture);
 
+    struct LoadParams
+    {
+        Format target_format = Format::RGBA;
+        Wrap wrap = Wrap::Repeat;
+        Filter min_filter = Filter::Linear;
+        Filter mag_filter = Filter::Linear;
+        int max_mipmap_level = 1000;
+    };
+
     Texture();
-    explicit Texture(const Image &image, Format target_format = Format::RGBA,
-        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
-        Filter mag_filter = Filter::Linear);
-    explicit Texture(const char *filename, Format target_format = Format::RGBA,
-        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
-        Filter mag_filter = Filter::Linear);
-    Texture(void *data, int width, int height, Format src_format,
-        Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
-        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
+    explicit Texture(const Image &image, const LoadParams &params = {});
+    explicit Texture(const char *filename, FlipMode flip_mode = FlipMode::FlipY,
+        const LoadParams &params = {});
+    Texture(void *data, int width, int height, Format src_format, const LoadParams &params = {});
     ~Texture();
 
-    void load(const char *filename, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
-        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear,
-        FlipMode flip_mode = FlipMode::FlipY);
-    void load(const Image &image, Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
-        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
-    void load(void *data, int width, int height, Format src_format,
-        Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
-        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
+    void load(const char *filename, FlipMode flip_mode = FlipMode::FlipY,
+        const LoadParams &params = {});
+    void load(const Image &image, const LoadParams &params = {});
+    void load(void *data, int width, int height, Format src_format, const LoadParams &params = {});
 
-    void loadCubemap(const char **filenames, Format target_format = Format::RGBA,
-        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
-        Filter mag_filter = Filter::Linear, FlipMode flip_mode = FlipMode::FlipY);
-    void loadCubemap(const Image *images, Format target_format = Format::RGBA,
-        Wrap wrap = Wrap::Repeat, Filter min_filter = Filter::Linear,
-        Filter mag_filter = Filter::Linear);
+    void loadCubemap(const char **filenames, FlipMode flip_mode = FlipMode::FlipY,
+        const LoadParams &params = {});
+    void loadCubemap(const Image *images, const LoadParams &params = {});
     void loadCubemap(void **datas, const int *widths, const int *heights, const Format *src_formats,
-        Format target_format = Format::RGBA, Wrap wrap = Wrap::Repeat,
-        Filter min_filter = Filter::Linear, Filter mag_filter = Filter::Linear);
+        const LoadParams &params = {});
 
     bool isLoaded() const { return id_ != 0; }
 

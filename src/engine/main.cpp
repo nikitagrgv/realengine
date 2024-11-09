@@ -78,8 +78,12 @@ public:
             "skybox/front.jpg",  //
             "skybox/back.jpg"    //
         };
-        cubemap_texture->loadCubemap(filenames, Texture::Format::RGB, Texture::Wrap::ClampToEdge,
-            Texture::Filter::Linear, Texture::Filter::Linear, Texture::FlipMode::DontFlip);
+        Texture::LoadParams params;
+        params.target_format = Texture::Format::RGB;
+        params.wrap = Texture::Wrap::ClampToEdge;
+        params.min_filter = Texture::Filter::Linear;
+        params.mag_filter = Texture::Filter::Linear;
+        cubemap_texture->loadCubemap(filenames, Texture::FlipMode::DontFlip, params);
 
         eng.renderer->setSkyboxTexture(cubemap_texture);
 

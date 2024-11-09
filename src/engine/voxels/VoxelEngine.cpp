@@ -50,8 +50,13 @@ void VoxelEngine::init()
 
     Texture *atlas = eng.texture_manager->create("atlas");
     // TODO# generate mip maps! but custom
-    atlas->load("vox/atlas.png", Texture::Format::RGBA, Texture::Wrap::ClampToEdge,
-        Texture::Filter::Nearest, Texture::Filter::Nearest, Texture::FlipMode::FlipY);
+    Texture::LoadParams params;
+    params.target_format = Texture::Format::RGBA;
+    params.wrap = Texture::Wrap::ClampToEdge;
+    params.min_filter = Texture::Filter::NearestMipmapNearest;
+    params.mag_filter = Texture::Filter::Nearest;
+    params.max_mipmap_level = 4;
+    atlas->load("vox/atlas.png", Texture::FlipMode::FlipY, params);
 
     registry_->setAtlas(atlas, glm::ivec2(16, 16));
     registry_->flush();
@@ -752,24 +757,14 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
 
     // Caves
     noise::module::RidgedMulti cave_base;
-    cave_base.SetLacunarity(-12);
+    cave_base.SetLacunarity(0.5);
     cave_base.SetFrequency(BASE_FREQ * 4);
-    cave_base.SetOctaveCount(6);
-
-    noise::module::Turbulence cave0;
-    cave0.SetSourceModule(0, cave_base);
-    cave0.SetFrequency(BASE_FREQ * 7);
-    cave0.SetPower(200);
-
-    noise::module::ScalePoint cave1;
-    cave1.SetSourceModule(0, cave0);
-    cave1.SetScale(0.3);
+    cave_base.SetOctaveCount(4);
 
     noise::module::Turbulence cave;
-    cave.SetSourceModule(0, cave1);
-    cave.SetFrequency(BASE_FREQ * 5);
-    cave.SetPower(50);
-
+    cave.SetSourceModule(0, cave_base);
+    cave.SetFrequency(BASE_FREQ * 3);
+    cave.SetPower(20);
 
     int block_index = -1;
     chunk.need_rebuild_mesh_ = true;
@@ -792,7 +787,7 @@ void VoxelEngine::generate_chunk_threadsafe(Chunk &chunk) const
                     const double cave_value = cave.GetValue(x_glob, y_glob, z_glob);
                     // if (cave_value < -0.6 && cave_value > -0.8)
                     // if (cave_value > 0.1 && cave_value < 0.7)
-                    if (cave_value < -0.95)
+                    if (cave_value > 20)
                     {
                         block = BlockInfo(BasicBlocks::AIR);
                         continue;

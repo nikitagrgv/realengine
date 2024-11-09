@@ -69,22 +69,19 @@ Image::FlipMode texture_flip_mode_to_image_flip_mode(Texture::FlipMode mode)
 
 Texture::Texture() = default;
 
-Texture::Texture(const Image &image, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter)
+Texture::Texture(const Image &image, const LoadParams &params)
 {
-    load(image, target_format, wrap, min_filter, mag_filter);
+    load(image, params);
 }
 
-Texture::Texture(const char *filename, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter)
+Texture::Texture(const char *filename, FlipMode flip_mode, const LoadParams &params)
 {
-    load(filename, target_format, wrap, min_filter, mag_filter);
+    load(filename, flip_mode, params);
 }
 
-Texture::Texture(void *data, int width, int height, Format src_format, Format target_format,
-    Wrap wrap, Filter min_filter, Filter mag_filter)
+Texture::Texture(void *data, int width, int height, Format src_format, const LoadParams &params)
 {
-    load(data, width, height, src_format, target_format, wrap, min_filter, mag_filter);
+    load(data, width, height, src_format, params);
 }
 
 Texture::~Texture()
@@ -92,8 +89,7 @@ Texture::~Texture()
     clear();
 }
 
-void Texture::load(const char *filename, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter, FlipMode flip_mode)
+void Texture::load(const char *filename, FlipMode flip_mode, const LoadParams &params)
 {
     clear();
     Image image(filename, texture_flip_mode_to_image_flip_mode(flip_mode));
@@ -102,11 +98,10 @@ void Texture::load(const char *filename, Format target_format, Wrap wrap, Filter
         std::cout << "Failed to load image" << std::endl;
         return;
     }
-    load(image, target_format, wrap, min_filter, mag_filter);
+    load(image, params);
 }
 
-void Texture::load(const Image &image, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter)
+void Texture::load(const Image &image, const LoadParams &params)
 {
     clear();
     if (!image.isLoaded())
@@ -119,11 +114,10 @@ void Texture::load(const Image &image, Format target_format, Wrap wrap, Filter m
     const int height = image.getHeight();
     void *data = image.getData();
     const Format src_format = image_format_to_texture_format(image.getFormat());
-    load(data, width, height, src_format, target_format, wrap, min_filter, mag_filter);
+    load(data, width, height, src_format, params);
 }
 
-void Texture::load(void *data, int width, int height, Format src_format, Format target_format,
-    Wrap wrap, Filter min_filter, Filter mag_filter)
+void Texture::load(void *data, int width, int height, Format src_format, const LoadParams &params)
 {
     clear();
 
@@ -137,25 +131,25 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
     }
 
     int gl_dst_format = 0;
-    if (!format_to_gl_format(target_format, gl_dst_format))
+    if (!format_to_gl_format(params.target_format, gl_dst_format))
     {
         std::cout << "Invalid format" << std::endl;
     }
 
     int gl_wrap = 0;
-    if (!wrap_to_gl_wrap(wrap, gl_wrap))
+    if (!wrap_to_gl_wrap(params.wrap, gl_wrap))
     {
         std::cout << "Invalid wrap" << std::endl;
     }
 
     int gl_min_filter = 0;
-    if (!filter_to_gl_filter(min_filter, gl_min_filter))
+    if (!filter_to_gl_filter(params.min_filter, gl_min_filter))
     {
         std::cout << "Invalid min filter" << std::endl;
     }
 
     int gl_mag_filter = 0;
-    if (!filter_to_gl_filter(mag_filter, gl_mag_filter))
+    if (!filter_to_gl_filter(params.mag_filter, gl_mag_filter))
     {
         std::cout << "Invalid mag filter" << std::endl;
     }
@@ -176,6 +170,7 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
     if (is_mipmap_type(gl_min_filter) || is_mipmap_type(gl_mag_filter))
     {
         GL_CHECKED(glGenerateMipmap(GL_TEXTURE_2D));
+        GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, params.max_mipmap_level));
     }
     GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, gl_wrap));
     GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, gl_wrap));
@@ -184,8 +179,7 @@ void Texture::load(void *data, int width, int height, Format src_format, Format 
     type_ = Type::Texture2D;
 }
 
-void Texture::loadCubemap(const char **filenames, Format target_format, Wrap wrap,
-    Filter min_filter, Filter mag_filter, FlipMode flip_mode)
+void Texture::loadCubemap(const char **filenames, FlipMode flip_mode, const LoadParams &params)
 {
     clear();
     Image images[6];
@@ -199,11 +193,10 @@ void Texture::loadCubemap(const char **filenames, Format target_format, Wrap wra
             return;
         }
     }
-    loadCubemap(images, target_format, wrap, min_filter, mag_filter);
+    loadCubemap(images, params);
 }
 
-void Texture::loadCubemap(const Image *images, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter)
+void Texture::loadCubemap(const Image *images, const LoadParams &params)
 {
     clear();
     for (int i = 0; i < 6; ++i)
@@ -227,12 +220,11 @@ void Texture::loadCubemap(const Image *images, Format target_format, Wrap wrap, 
         datas[i] = image.getData();
         src_formats[i] = image_format_to_texture_format(image.getFormat());
     }
-    loadCubemap(datas, widths, heights, src_formats, target_format, wrap, min_filter, mag_filter);
+    loadCubemap(datas, widths, heights, src_formats, params);
 }
 
 void Texture::loadCubemap(void **datas, const int *widths, const int *heights,
-    const Format *src_formats, Format target_format, Wrap wrap, Filter min_filter,
-    Filter mag_filter)
+    const Format *src_formats, const LoadParams &params)
 {
     clear();
 
@@ -241,25 +233,25 @@ void Texture::loadCubemap(void **datas, const int *widths, const int *heights,
     height_ = heights[0];
 
     int gl_dst_format = 0;
-    if (!format_to_gl_format(target_format, gl_dst_format))
+    if (!format_to_gl_format(params.target_format, gl_dst_format))
     {
         std::cout << "Invalid format" << std::endl;
     }
 
     int gl_wrap = 0;
-    if (!wrap_to_gl_wrap(wrap, gl_wrap))
+    if (!wrap_to_gl_wrap(params.wrap, gl_wrap))
     {
         std::cout << "Invalid wrap" << std::endl;
     }
 
     int gl_min_filter = 0;
-    if (!filter_to_gl_filter(min_filter, gl_min_filter))
+    if (!filter_to_gl_filter(params.min_filter, gl_min_filter))
     {
         std::cout << "Invalid min filter" << std::endl;
     }
 
     int gl_mag_filter = 0;
-    if (!filter_to_gl_filter(mag_filter, gl_mag_filter))
+    if (!filter_to_gl_filter(params.mag_filter, gl_mag_filter))
     {
         std::cout << "Invalid mag filter" << std::endl;
     }
@@ -287,6 +279,7 @@ void Texture::loadCubemap(void **datas, const int *widths, const int *heights,
         || gl_mag_filter == GL_LINEAR_MIPMAP_LINEAR || gl_mag_filter == GL_LINEAR_MIPMAP_NEAREST)
     {
         GL_CHECKED(glGenerateMipmap(GL_TEXTURE_CUBE_MAP));
+        GL_CHECKED(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, params.max_mipmap_level));
     }
     GL_CHECKED(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, gl_wrap));
     GL_CHECKED(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, gl_wrap));

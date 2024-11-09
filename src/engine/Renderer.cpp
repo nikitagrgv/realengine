@@ -387,8 +387,12 @@ void Renderer::init_text()
     TextRenderer &tr = text_renderer_;
 
     tr.font_ = eng.texture_manager->create("default_font");
-    tr.font_->load("base/default_font_20x32.png", Texture::Format::RGBA, Texture::Wrap::ClampToEdge,
-        Texture::Filter::Nearest, Texture::Filter::Nearest, Texture::FlipMode::DontFlip);
+    Texture::LoadParams params;
+    params.target_format = Texture::Format::RGBA;
+    params.wrap = Texture::Wrap::ClampToEdge;
+    params.min_filter = Texture::Filter::Nearest;
+    params.mag_filter = Texture::Filter::Nearest;
+    tr.font_->load("base/default_font_20x32.png", Texture::FlipMode::DontFlip, params);
 
     tr.vao_ = makeU<VertexArrayObject>();
     tr.vbo_ = makeU<VertexBufferObject<TextRenderer::Vertex>>();
