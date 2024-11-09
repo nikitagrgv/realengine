@@ -13,6 +13,7 @@
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 
 struct ChunkMesh;
@@ -106,19 +107,8 @@ private:
         return it != chunk_index_by_pos_.end();
     }
 
-    REALENGINE_INLINE bool is_enqued_for_generation(int x, int z) const
-    {
-        const glm::ivec2 pos = glm::ivec2{x, z};
-        return Alg::anyOf(enqueued_chunks_, [&](const EnqueuedChunk &c) { return c.pos == pos; });
-    }
-
-    REALENGINE_INLINE bool is_generated(int x, int z) const
-    {
-        return Alg::anyOf(generated_chunks_, [&](const UPtr<Chunk> &c) {
-            const glm::ivec3 pos = c->getPosition();
-            return pos.x == x && pos.z == z;
-        });
-    }
+    bool is_enqued_for_generation(int x, int z) const;
+    bool is_generated(int x, int z) const;
 
     bool has_all_neighbours(Chunk *chunk) const;
     NeighbourChunks get_neighbour_chunks(Chunk *chunk) const;
@@ -149,9 +139,34 @@ private:
         tbb::CancelToken cancel_token;
     };
 
-    std::vector<EnqueuedChunk> enqueued_chunks_;
+    struct EnqueuedChunks
+    {
+    public:
+        bool contains(const glm::ivec2 &pos) const;
+        std::vector<EnqueuedChunk> vector;
+        mutable bool dirty{true};
 
-    std::vector<UPtr<Chunk>> chunks_to_generate_;
+    private:
+        void update_cache_if_needed() const;
+
+    private:
+        mutable std::unordered_set<glm::ivec2> set;
+    };
+    EnqueuedChunks enqueued_chunks_;
+
+    struct ChunksToGenerate
+    {
+    public:
+        bool contains(const glm::ivec2 &pos) const;
+        std::vector<UPtr<Chunk>> vector;
+        mutable bool dirty{true};
+
+    private:
+        void update_cache_if_needed() const;
+
+    private:
+        mutable std::unordered_set<glm::ivec2> set;
+    } chunks_to_generate_;
 
     std::vector<UPtr<Chunk>> generated_chunks_;
     std::vector<UPtr<Chunk>> canceled_chunks_;
