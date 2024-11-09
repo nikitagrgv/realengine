@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include "math/Math.h"
+
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/trigonometric.hpp"
 
@@ -49,4 +51,17 @@ void Camera::update_cached()
     for (int i = 4; i--; ) { planes_.near[i]   = viewproj_[i][3] + viewproj_[i][2]; }
     for (int i = 4; i--; ) { planes_.far[i]    = viewproj_[i][3] - viewproj_[i][2]; }
     // clang-format on
+
+    for (glm::vec4 &p : planes_.planes)
+    {
+        const float length = glm::length(glm::vec3(p));
+        p /= length;
+    }
+
+#ifndef NDEBUG
+    for (auto p : planes_.planes)
+    {
+        assert(math::isNormalized(glm::vec3(p)));
+    }
+#endif
 }
