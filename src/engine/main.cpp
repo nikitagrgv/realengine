@@ -242,14 +242,16 @@ public:
         light.diffuse_power = 1.0f;
         light.specular_power = 1.0f;
 
+        const glm::vec4 init_light_pos = glm::vec4(2.0f, 8.0f, 3.0f, 1.0f);
+        float angle = -0.6f;
+
         eng.gui->getSignalOnRender().connect(ctx, [&] {
             ImGui::Begin("Parameters");
-            ImGui::SliderFloat("Time multiplier", &anim_time_multiplier, 0.0f, 10.0f);
-            ImGui::ColorEdit3("Light color", glm::value_ptr(light.color),
-                ImGuiColorEditFlags_Float);
-            ImGui::SliderFloat("Ambient power", &light.ambient_power, 0.0f, 1.0f);
-            ImGui::SliderFloat("Diffuse power", &light.diffuse_power, 0.0f, 1.0f);
-            ImGui::SliderFloat("Specular power", &light.specular_power, 0.0f, 1.0f);
+            float angle_deg = glm::degrees(angle);
+            if (ImGui::SliderFloat("Time", &angle_deg, 0.0f, 360.0f));
+            {
+                angle = glm::radians(angle_deg);
+            }
             ImGui::End();
 
             ImGui::ShowDemoWindow(nullptr);
@@ -261,9 +263,6 @@ public:
             glm::vec4 color;
         };
         std::vector<RayColor> rays;
-
-        const glm::vec4 init_light_pos = glm::vec4(2.0f, 8.0f, 3.0f, 1.0f);
-        float angle = -0.6f;
 
         eng.vox->setSeed(123132);
 
@@ -283,7 +282,7 @@ public:
                 eng.shader_manager->refreshAll();
             }
 
-            angle += eng.time->getDelta() * 0.01s;
+            angle += eng.time->getDelta() * 0.01;
             if (angle > glm::two_pi<float>())
             {
                 angle -= glm::two_pi<float>();
