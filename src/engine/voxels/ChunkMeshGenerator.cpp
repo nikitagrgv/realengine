@@ -110,6 +110,7 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
         ScopedProfiler p("flush vbo");
         mesh.flush();
     }
+    mesh.deallocate();
 }
 
 void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,

@@ -419,9 +419,9 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
         auto value = camera->getViewProj() * glm::translate(glm::mat4{1.0f}, glob_position);
         shader_->setUniformMat4(model_view_proj_loc, value);
 
-        GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->mesh_->getNumVertices()));
+        GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->mesh_->getNumGpuVertices()));
 
-        const uint64_t num_vertices = chunk->mesh_->getNumVertices();
+        const uint64_t num_vertices = chunk->mesh_->getNumGpuVertices();
         eng.stat.addRenderedIndices(num_vertices);
         eng.stat.addRenderedChunks(1);
         eng.stat.addRenderedChunksVertices(num_vertices);

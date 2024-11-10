@@ -26,9 +26,14 @@ void Mesh::addVertices(int num_vertices)
     vbo_.addVertices(num_vertices);
 }
 
-int Mesh::getNumVertices() const
+int Mesh::getNumCpuVertices() const
 {
-    return vbo_.getNumVertices();
+    return vbo_.getNumCpuVertices();
+}
+
+int Mesh::getNumGpuVertices() const
+{
+    return vbo_.getNumGpuVertices();
 }
 
 int Mesh::addIndex(unsigned int v1)

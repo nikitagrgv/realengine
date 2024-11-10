@@ -120,7 +120,7 @@ void Visualizer::addNormals(const Mesh *mesh, const glm::mat4 &transform)
     const auto to_local = [&](const glm::vec3 &v) {
         return transform * glm::vec4(v, 1);
     };
-    for (int i = 0; i < mesh->getNumVertices(); i++)
+    for (int i = 0; i < mesh->getNumCpuVertices(); i++)
     {
         const auto pos = mesh->getVertexPos(i);
         const auto norm = mesh->getVertexNormal(i);
@@ -139,12 +139,12 @@ void Visualizer::render(const glm::mat4 &viewproj)
     GL_CHECKED(glEnable(GL_DEPTH_TEST));
     lines_vao_.bind();
     lines_vbo_.flush(true);
-    GL_CHECKED(glDrawArrays(GL_LINES, 0, lines_vbo_.getNumVertices()));
+    GL_CHECKED(glDrawArrays(GL_LINES, 0, lines_vbo_.getNumGpuVertices()));
     lines_vbo_.clear();
 
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
     nodepth_lines_vao_.bind();
     nodepth_lines_vbo_.flush(true);
-    GL_CHECKED(glDrawArrays(GL_LINES, 0, nodepth_lines_vbo_.getNumVertices()));
+    GL_CHECKED(glDrawArrays(GL_LINES, 0, nodepth_lines_vbo_.getNumGpuVertices()));
     nodepth_lines_vbo_.clear();
 }

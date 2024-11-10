@@ -149,8 +149,8 @@ void Renderer::renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size)
     sr.vao_->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
-    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, sr.vbo_->getNumVertices()));
-    eng.stat.addRenderedIndices(sr.vbo_->getNumVertices());
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, sr.vbo_->getNumGpuVertices()));
+    eng.stat.addRenderedIndices(sr.vbo_->getNumGpuVertices());
 }
 
 void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_size,
@@ -247,7 +247,7 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
         ++p;
     }
 
-    if (vbo.getNumVertices() == 0)
+    if (vbo.getNumCpuVertices() == 0)
     {
         return;
     }
@@ -262,8 +262,8 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
     tr.vao_->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
-    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, tr.vbo_->getNumVertices()));
-    eng.stat.addRenderedIndices(tr.vbo_->getNumVertices());
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, tr.vbo_->getNumGpuVertices()));
+    eng.stat.addRenderedIndices(tr.vbo_->getNumGpuVertices());
 }
 
 void Renderer::init_environment()
@@ -485,6 +485,6 @@ void Renderer::render_environment(Camera *camera)
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
     GL_CHECKED(glDepthMask(GL_FALSE));
-    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, env_.vbo_->getNumVertices()));
-    eng.stat.addRenderedIndices(env_.vbo_->getNumVertices());
+    GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, env_.vbo_->getNumGpuVertices()));
+    eng.stat.addRenderedIndices(env_.vbo_->getNumGpuVertices());
 }

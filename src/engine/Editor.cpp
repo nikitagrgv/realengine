@@ -793,7 +793,7 @@ void Editor::render_meshes()
 
             ImGui::Text("Vertices:");
             ImGui::SameLine();
-            ImGui::Text("%d", mesh->getNumVertices());
+            ImGui::Text("%d", mesh->getNumGpuVertices());
 
             ImGui::Text("Indices:");
             ImGui::SameLine();

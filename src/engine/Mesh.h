@@ -47,7 +47,8 @@ public:
     glm::vec2 getVertexUV(int index) const { return vbo_.getVertex(index).uv; }
     void setVertexUV(int index, const glm::vec2 &uv) { vbo_.getVertex(index).uv = uv; }
 
-    int getNumVertices() const;
+    int getNumCpuVertices() const;
+    int getNumGpuVertices() const;
 
     // Indices
     int addIndex(unsigned int v1);

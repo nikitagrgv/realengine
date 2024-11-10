@@ -46,7 +46,8 @@ public:
     V &getVertex(int index) { return vertices_[index]; }
     void setVertex(const V &v, int index) { vertices_[index] = v; }
 
-    int getNumVertices() const { return vertices_.size(); }
+    int getNumCpuVertices() const { return vertices_.size(); }
+    int getNumGpuVertices() const { return num_gpu_vertices; }
 
     void addRaw(const void *data, int size_bytes)
     {
@@ -60,6 +61,12 @@ public:
     }
 
     void clear() { vertices_.clear(); }
+
+    void deallocate()
+    {
+        vertices_.clear();
+        vertices_.shrink_to_fit();
+    }
 
     void bind() const
     {
@@ -80,6 +87,7 @@ public:
         }
         bindBuffer(vbo_);
         setBufferData(vertices_.size() * VERTEX_SIZE, vertices_.data(), dynamic);
+        num_gpu_vertices = vertices_.size();
     }
 
 private:
@@ -87,4 +95,5 @@ private:
 
     std::vector<V> vertices_;
     unsigned int vbo_{};
+    int num_gpu_vertices{};
 };
