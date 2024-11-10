@@ -37,11 +37,13 @@ public:
 private:
     std::vector<EventPtr> event_queue_;
 
-    std::vector<bool> cur_pressed_keys_;
-    std::vector<bool> old_pressed_keys_;
+    std::vector<bool> keys_state_;
+    std::vector<bool> pressed_keys_;
+    std::vector<bool> released_keys_;
 
-    std::vector<bool> cur_pressed_buttons_;
-    std::vector<bool> old_pressed_buttons_;
+    std::vector<bool> buttons_state_;
+    std::vector<bool> pressed_buttons_;
+    std::vector<bool> released_buttons_;
 
     glm::vec2 mouse_pos_{};
     glm::vec2 mouse_delta_{};

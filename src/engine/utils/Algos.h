@@ -5,6 +5,12 @@
 namespace Alg
 {
 
+template<typename T, typename V>
+void fill(T &container, const V &value)
+{
+    std::fill(container.begin(), container.end(), value);
+}
+
 template<typename T, typename F>
 void sort(T &container, const F &f)
 {

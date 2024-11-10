@@ -8,38 +8,39 @@
 #include "Window.h"
 #include "events/InputEvents.h"
 #include "profiler/ScopedProfiler.h"
+#include "utils/Algos.h"
 
 #include <cassert>
 #include <iostream>
 
 bool Input::isKeyDown(Key key) const
 {
-    return cur_pressed_keys_[(int)key];
+    return keys_state_[(int)key];
 }
 
 bool Input::isKeyPressed(Key key) const
 {
-    return cur_pressed_keys_[(int)key] && !old_pressed_keys_[(int)key];
+    return pressed_keys_[(int)key];
 }
 
 bool Input::isKeyReleased(Key key) const
 {
-    return !cur_pressed_keys_[(int)key] && old_pressed_keys_[(int)key];
+    return released_keys_[(int)key];
 }
 
 bool Input::isButtonDown(Button button) const
 {
-    return cur_pressed_buttons_[(int)button];
+    return buttons_state_[(int)button];
 }
 
 bool Input::isButtonPressed(Button button) const
 {
-    return cur_pressed_buttons_[(int)button] && !old_pressed_buttons_[(int)button];
+    return pressed_buttons_[(int)button];
 }
 
 bool Input::isButtonReleased(Button button) const
 {
-    return !cur_pressed_buttons_[(int)button] && old_pressed_buttons_[(int)button];
+    return released_buttons_[(int)button];
 }
 
 glm::vec2 Input::getMousePos() const
@@ -74,11 +75,13 @@ bool Input::isMouseGrabbed() const
 
 Input::Input()
 {
-    cur_pressed_keys_ = std::vector<bool>((int)Key::KEY_SIZE, false);
-    old_pressed_keys_ = std::vector<bool>((int)Key::KEY_SIZE, false);
+    keys_state_ = std::vector<bool>((int)Key::KEY_SIZE, false);
+    pressed_keys_ = std::vector<bool>((int)Key::KEY_SIZE, false);
+    released_keys_ = std::vector<bool>((int)Key::KEY_SIZE, false);
 
-    cur_pressed_buttons_ = std::vector<bool>((int)Button::BUTTON_SIZE, false);
-    old_pressed_buttons_ = std::vector<bool>((int)Button::BUTTON_SIZE, false);
+    buttons_state_ = std::vector<bool>((int)Button::BUTTON_SIZE, false);
+    pressed_buttons_ = std::vector<bool>((int)Button::BUTTON_SIZE, false);
+    released_buttons_ = std::vector<bool>((int)Button::BUTTON_SIZE, false);
 }
 
 Input::~Input() {}
@@ -94,8 +97,10 @@ void Input::update()
     vertical_wheel_ = 0;
     horizontal_wheel_ = 0;
 
-    old_pressed_keys_ = cur_pressed_keys_;
-    old_pressed_buttons_ = cur_pressed_buttons_;
+    Alg::fill(pressed_keys_, false);
+    Alg::fill(released_keys_, false);
+    Alg::fill(pressed_buttons_, false);
+    Alg::fill(released_buttons_, false);
 
     // TODO: buffered events
     for (const EventPtr &event : event_queue_)
@@ -105,25 +110,29 @@ void Input::update()
         case EventType::KeyPressEvent:
         {
             auto *e = static_event_cast<KeyPressEvent>(event.get());
-            cur_pressed_keys_[(int)e->key_] = true;
+            keys_state_[(int)e->key_] = true;
+            pressed_keys_[(int)e->key_] = true;
             break;
         }
         case EventType::KeyReleaseEvent:
         {
             auto *e = static_event_cast<KeyReleaseEvent>(event.get());
-            cur_pressed_keys_[(int)e->key_] = false;
+            keys_state_[(int)e->key_] = false;
+            released_keys_[(int)e->key_] = true;
             break;
         }
         case EventType::ButtonPressEvent:
         {
             auto *e = static_event_cast<ButtonPressEvent>(event.get());
-            cur_pressed_buttons_[(int)e->button_] = true;
+            buttons_state_[(int)e->button_] = true;
+            pressed_buttons_[(int)e->button_] = true;
             break;
         }
         case EventType::ButtonReleaseEvent:
         {
             auto *e = static_event_cast<ButtonReleaseEvent>(event.get());
-            cur_pressed_buttons_[(int)e->button_] = false;
+            buttons_state_[(int)e->button_] = false;
+            released_buttons_[(int)e->button_] = true;
             break;
         }
         case EventType::MouseWheelEvent:
