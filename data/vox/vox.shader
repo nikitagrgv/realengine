@@ -37,7 +37,7 @@ void main()
 
     vec4 albedo_color = texture(atlas, ioUV);
 
-    vec4 ambient = vec4(albedo_color.xyz * 0.1, albedo_color.w);
+    vec4 ambient = vec4(albedo_color.xyz * 0.3, albedo_color.w);
 
     vec3 dir_to_light = -uLight.dir;
     float diff = max(dot(norm, dir_to_light), 0.0);
