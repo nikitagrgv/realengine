@@ -13,6 +13,11 @@ REALENGINE_INLINE BlockInfo getBlock(int x, int y, int z, const Chunk &chunk,
 {
     // TODO: branchless
 
+    if (y < 0 || y >= Chunk::CHUNK_HEIGHT)
+    {
+        return BlockInfo(0);
+    }
+
     if (x < 0)
     {
         if (z < 0)

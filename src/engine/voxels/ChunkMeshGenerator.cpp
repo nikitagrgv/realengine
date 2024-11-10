@@ -9,6 +9,13 @@
 #include "VoxelsUtils.h"
 #include "profiler/ScopedProfiler.h"
 
+bool is_air(int x, int y, int z, const Descriptions3x3 &descs)
+{
+    const BlockDescription *desc = descs.getBlockAtOffset(x, y, z);
+    // TODO# check transparent
+    return desc->type == BlockType::AIR;
+}
+
 void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     const ExtendedNeighbourChunks &neighbours)
 {
@@ -19,22 +26,6 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     mesh.clear();
 
     BlocksRegistry *registry = eng.vox->getRegistry();
-
-    const auto is_air = [&](int x, int y, int z) {
-        if (y < 0)
-        {
-            return false;
-        }
-        if (y >= Chunk::CHUNK_HEIGHT)
-        {
-            return true;
-        }
-
-        const BlockInfo block = utils::getBlock(x, y, z, chunk, neighbours);
-
-        // TODO# check transparent
-        return block.id == 0;
-    };
 
     int block_index = -1;
     for (int y = 0; y < Chunk::CHUNK_HEIGHT; ++y)
@@ -54,32 +45,44 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
                 const glm::vec3 min = glm::vec3{x, y, z};
                 const glm::vec3 max = min + glm::vec3(1, 1, 1);
 
-                const BlockDescription &desc = registry->getBlock(block.id);
-                assert(desc.cached.valid);
+                Descriptions3x3 descs;
+                for (int dy = -1; dy <= 1; ++dy)
+                {
+                    for (int dz = -1; dz <= 1; ++dz)
+                    {
+                        for (int dx = -1; dx <= 1; ++dx)
+                        {
+                            const BlockInfo b = utils::getBlock(x + dx, y + dy, z + dz, chunk,
+                                neighbours);
+                            const BlockDescription &d = registry->getBlock(b.id);
+                            descs.setBlockAtOffset(dx, dy, dz, &d);
+                        }
+                    }
+                }
 
-                if (is_air(x + 1, y, z))
+                if (is_air(1, 0, 0, descs))
                 {
-                    gen_face_px(min, max, desc, mesh);
+                    gen_face_px(min, max, descs, mesh);
                 }
-                if (is_air(x - 1, y, z))
+                if (is_air(-1, 0, 0, descs))
                 {
-                    gen_face_nx(min, max, desc, mesh);
+                    gen_face_nx(min, max, descs, mesh);
                 }
-                if (is_air(x, y + 1, z))
+                if (is_air(0, 1, 0, descs))
                 {
-                    gen_face_py(min, max, desc, mesh);
+                    gen_face_py(min, max, descs, mesh);
                 }
-                if (is_air(x, y - 1, z))
+                if (is_air(0, -1, 0, descs))
                 {
-                    gen_face_ny(min, max, desc, mesh);
+                    gen_face_ny(min, max, descs, mesh);
                 }
-                if (is_air(x, y, z + 1))
+                if (is_air(0, 0, 1, descs))
                 {
-                    gen_face_pz(min, max, desc, mesh);
+                    gen_face_pz(min, max, descs, mesh);
                 }
-                if (is_air(x, y, z - 1))
+                if (is_air(0, 0, -1, descs))
                 {
-                    gen_face_nz(min, max, desc, mesh);
+                    gen_face_nz(min, max, descs, mesh);
                 }
             }
         }
@@ -93,9 +96,9 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
 }
 
 void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
-    const BlockDescription &desc, ChunkMesh &mesh)
+    const Descriptions3x3 &descs, ChunkMesh &mesh)
 {
-    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_py;
+    const BlockDescription::TexCoords &coords = descs.getCenter()->cached.texture_coord_py;
 
     ChunkMesh::Vertex vs[6];
 
@@ -135,9 +138,9 @@ void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
 }
 
 void ChunkMeshGenerator::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
-    const BlockDescription &desc, ChunkMesh &mesh)
+    const Descriptions3x3 &descs, ChunkMesh &mesh)
 {
-    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_ny;
+    const BlockDescription::TexCoords &coords = descs.getCenter()->cached.texture_coord_ny;
     ChunkMesh::Vertex vs[6];
 
     // tr 1
@@ -176,9 +179,9 @@ void ChunkMeshGenerator::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
 }
 
 void ChunkMeshGenerator::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max,
-    const BlockDescription &desc, ChunkMesh &mesh)
+    const Descriptions3x3 &descs, ChunkMesh &mesh)
 {
-    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_pz;
+    const BlockDescription::TexCoords &coords = descs.getCenter()->cached.texture_coord_pz;
     ChunkMesh::Vertex vs[6];
 
     // tr 1
@@ -217,9 +220,9 @@ void ChunkMeshGenerator::gen_face_pz(const glm::vec3 &min, const glm::vec3 &max,
 }
 
 void ChunkMeshGenerator::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max,
-    const BlockDescription &desc, ChunkMesh &mesh)
+    const Descriptions3x3 &descs, ChunkMesh &mesh)
 {
-    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_nz;
+    const BlockDescription::TexCoords &coords = descs.getCenter()->cached.texture_coord_nz;
     ChunkMesh::Vertex vs[6];
 
     // tr 1
@@ -258,9 +261,9 @@ void ChunkMeshGenerator::gen_face_nz(const glm::vec3 &min, const glm::vec3 &max,
 }
 
 void ChunkMeshGenerator::gen_face_px(const glm::vec3 &min, const glm::vec3 &max,
-    const BlockDescription &desc, ChunkMesh &mesh)
+    const Descriptions3x3 &descs, ChunkMesh &mesh)
 {
-    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_px;
+    const BlockDescription::TexCoords &coords = descs.getCenter()->cached.texture_coord_px;
     ChunkMesh::Vertex vs[6];
 
     // tr 1
@@ -299,9 +302,9 @@ void ChunkMeshGenerator::gen_face_px(const glm::vec3 &min, const glm::vec3 &max,
 }
 
 void ChunkMeshGenerator::gen_face_nx(const glm::vec3 &min, const glm::vec3 &max,
-    const BlockDescription &desc, ChunkMesh &mesh)
+    const Descriptions3x3 &descs, ChunkMesh &mesh)
 {
-    const BlockDescription::TexCoords &coords = desc.cached.texture_coord_nx;
+    const BlockDescription::TexCoords &coords = descs.getCenter()->cached.texture_coord_nx;
     ChunkMesh::Vertex vs[6];
 
     // tr 1
