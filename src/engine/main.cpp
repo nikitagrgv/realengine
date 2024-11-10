@@ -262,9 +262,8 @@ public:
         };
         std::vector<RayColor> rays;
 
-        GlobalLight global_light;
-        global_light.dir = glm::normalize(glm::vec3(-1, -4, -4));
-        eng.renderer->setGlobalLight(global_light);
+        const glm::vec4 init_light_pos = glm::vec4(1.0f, 4.0f, 3.0f, 1.0f);
+        float angle = 0.0f;
 
         eng.vox->setSeed(123132);
 
@@ -283,6 +282,22 @@ public:
             {
                 eng.shader_manager->refreshAll();
             }
+
+            angle += eng.time->getDelta() * 0.3;
+            if (angle > glm::two_pi<float>())
+            {
+                angle -= glm::two_pi<float>();
+            }
+
+            const glm::vec3 light_pos = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 0, 1))
+                * init_light_pos;
+            GlobalLight global_light;
+            global_light.dir = glm::normalize(-light_pos);
+            eng.renderer->setGlobalLight(global_light);
+
+            math::BoundBox bb;
+            bb.setCenterAndSize(camera_pos_ + light_pos, {0.1f, 0.1f, 0.1f});
+            eng.visualizer->addBoundBox(bb, glm::vec4(1, 1, 1, 1), false);
 
             const auto add_axis = [](const glm::vec3 &axis) {
                 eng.visualizer->addLine(glm::vec3{0, 0, 0}, axis * 15.0f, glm::vec4{axis, 1.0f});

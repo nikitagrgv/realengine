@@ -20,6 +20,13 @@ public:
     const glm::vec3 &getMin() const { return min; }
     const glm::vec3 &getMax() const { return max; }
 
+    void setCenterAndSize(const glm::vec3 &center, const glm::vec3 &size)
+    {
+        const glm::vec3 half_size = size * 0.5f;
+        min = center - half_size;
+        max = center + half_size;
+    }
+
     glm::vec3 getCenter() const { return (min + max) * 0.5f; }
     glm::vec3 getSize() const { return max - min; }
     glm::vec3 getHalfSize() const
