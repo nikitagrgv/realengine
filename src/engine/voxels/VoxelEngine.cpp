@@ -269,31 +269,35 @@ void VoxelEngine::update(const glm::vec3 &position)
 
         chunks_for_regenerate_.clear();
 
-        // Generate/unload meshes for chunks according to neighbours chunks
-        for (const UPtr<Chunk> &chunk : chunks_)
         {
-            ExtendedNeighbourChunks neighbours;
-            bool has_all = false;
-            get_neighbour_chunks_lazy(chunk.get(), neighbours, has_all);
+            ScopedProfiler p1("add to chunks_for_regenerate_ and release");
 
-            if (!has_all)
+            // Generate/unload meshes for chunks according to neighbours chunks
+            for (const UPtr<Chunk> &chunk : chunks_)
             {
-                if (chunk->mesh_)
+                ExtendedNeighbourChunks neighbours;
+                bool has_all = false;
+                get_neighbour_chunks_lazy(chunk.get(), neighbours, has_all);
+
+                if (!has_all)
                 {
-                    release_mesh(std::move(chunk->mesh_));
+                    if (chunk->mesh_)
+                    {
+                        release_mesh(std::move(chunk->mesh_));
+                    }
+                    continue;
                 }
-                continue;
-            }
 
-            // TODO: remove this check
-            if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
-            {
-                continue;
-            }
+                // TODO: remove this check
+                if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+                {
+                    continue;
+                }
 
-            if (!chunk->mesh_ || chunk->need_rebuild_mesh_ || chunk->need_rebuild_mesh_force_)
-            {
-                chunks_for_regenerate_.push_back(chunk.get());
+                if (!chunk->mesh_ || chunk->need_rebuild_mesh_ || chunk->need_rebuild_mesh_force_)
+                {
+                    chunks_for_regenerate_.push_back(chunk.get());
+                }
             }
         }
 
