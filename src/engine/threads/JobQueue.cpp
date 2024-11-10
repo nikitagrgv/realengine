@@ -4,6 +4,7 @@
 #include "Threads.h"
 #include "WorkerThread.h"
 #include "profiler/ScopedProfiler.h"
+#include "utils/Algos.h"
 
 #include <iostream>
 #include <thread>
@@ -34,11 +35,35 @@ void JobQueue::runWorkers()
 
 void JobQueue::stopWorkers()
 {
-    for (const UPtr<WorkerThread> &thread : threads_)
+    for (const UPtr<WorkerThread> &worker_thread : threads_)
     {
-        thread->exit();
+        worker_thread->exit();
     }
     jobs_cv_.notify_all();
+
+    int wait_ms = 500;
+    while (wait_ms > 0)
+    {
+        constexpr int sleep_ms = 2;
+        const bool all_finished = Alg::allOf(threads_,
+            [](const UPtr<WorkerThread> &worker_thread) { return worker_thread->isFinished(); });
+        if (all_finished)
+        {
+            break;
+        }
+        Threads::sleepMs(sleep_ms);
+        wait_ms -= sleep_ms;
+    }
+
+    for (const UPtr<WorkerThread> &worker_thread : threads_)
+    {
+        if (!worker_thread->isFinished())
+        {
+            worker_thread->kill();
+            std::cout << "JobQueue: thread " << worker_thread->getId() << " killed" << std::endl;
+        }
+    }
+
     threads_.clear();
 
     std::queue<UPtr<Job>> taken_jobs;

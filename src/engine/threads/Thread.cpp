@@ -8,7 +8,7 @@ namespace
 DWORD WINAPI run_thread(LPVOID param)
 {
     auto thread = static_cast<Thread *>(param);
-    thread->execute();
+    thread->run();
     return 0;
 }
 
@@ -49,7 +49,30 @@ void Thread::exit()
     exit_.store(true);
 }
 
+void Thread::kill()
+{
+    TerminateThread(handle_, 0);
+    finished_.store(true);
+}
+
 bool Thread::needExit() const
 {
     return exit_.load();
+}
+
+void Thread::run()
+{
+    finished_.store(false);
+    execute();
+    finished_.store(true);
+}
+
+bool Thread::isFinished() const
+{
+    return finished_.load();
+}
+
+uint64_t Thread::getId() const
+{
+    return id_;
 }
