@@ -94,15 +94,28 @@
     });
 
     const refresh = () => {
+        const right = container.getBoundingClientRect().width;
+
         document.querySelectorAll('.time-box').forEach(timeBox => {
             const index = parseInt(timeBox.dataset.index);
             const task = profilerData[index];
             const start = task.start;
             const duration = task.duration;
             const depth = task.depth;
-            timeBox.style.top = `${offsetYPx + 45 * depth}px`;
-            timeBox.style.left = `${offsetPx + start * realPosToPixelPos}px`;
-            timeBox.style.width = `${duration * realPosToPixelPos}px`;
+
+            const top_px = offsetYPx + 45 * depth;
+            const left_px = offsetPx + start * realPosToPixelPos;
+            const width_px = duration * realPosToPixelPos
+
+            if (left_px + width_px + 2 < 0 || left_px - 2 > right || width_px < 1) {
+                timeBox.style.display = 'none';
+                return;
+            }
+
+            timeBox.style.display = 'block';
+            timeBox.style.top = `${top_px}px`;
+            timeBox.style.left = `${left_px}px`;
+            timeBox.style.width = `${width_px}px`;
         });
     };
 
