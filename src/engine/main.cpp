@@ -262,8 +262,8 @@ public:
         };
         std::vector<RayColor> rays;
 
-        const glm::vec4 init_light_pos = glm::vec4(1.0f, 4.0f, 3.0f, 1.0f);
-        float angle = 0.0f;
+        const glm::vec4 init_light_pos = glm::vec4(2.0f, 8.0f, 3.0f, 1.0f);
+        float angle = -0.6f;
 
         eng.vox->setSeed(123132);
 
@@ -283,7 +283,7 @@ public:
                 eng.shader_manager->refreshAll();
             }
 
-            angle += eng.time->getDelta() * 0.3;
+            angle += eng.time->getDelta() * 0.1;
             if (angle > glm::two_pi<float>())
             {
                 angle -= glm::two_pi<float>();
