@@ -3,7 +3,7 @@
 #include <glm/vec3.hpp>
 
 
-struct NeighbourChunks;
+struct ExtendedNeighbourChunks;
 struct Chunk;
 struct ChunkMesh;
 struct BlockDescription;
@@ -11,7 +11,8 @@ struct BlockDescription;
 class ChunkMeshGenerator
 {
 public:
-    void rebuildMesh(const Chunk &chunk, ChunkMesh &mesh, const NeighbourChunks &neighbours);
+    void rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
+        const ExtendedNeighbourChunks &neighbours);
 
 private:
     static void gen_face_py(const glm::vec3 &min, const glm::vec3 &max,

@@ -10,7 +10,7 @@
 #include "profiler/ScopedProfiler.h"
 
 void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
-    const NeighbourChunks &neighbours)
+    const ExtendedNeighbourChunks &neighbours)
 {
     assert(chunk.need_rebuild_mesh_);
 

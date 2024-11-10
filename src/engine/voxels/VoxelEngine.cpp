@@ -236,8 +236,6 @@ void VoxelEngine::update(const glm::vec3 &position)
                 continue;
             }
 
-            assert(Alg::noneOf(chunks_,
-                [&](const UPtr<Chunk> &c) { return c->position_ == chunk->position_; }));
             chunks_.push_back(std::move(chunk));
             chunks_dirty = true;
         }
@@ -274,9 +272,11 @@ void VoxelEngine::update(const glm::vec3 &position)
         // Generate/unload meshes for chunks according to neighbours chunks
         for (const UPtr<Chunk> &chunk : chunks_)
         {
-            NeighbourChunks neighbours = get_neighbour_chunks_lazy(chunk.get());
+            ExtendedNeighbourChunks neighbours;
+            bool has_all = false;
+            get_neighbour_chunks_lazy(chunk.get(), neighbours, has_all);
 
-            if (!neighbours.hasAll())
+            if (!has_all)
             {
                 if (chunk->mesh_)
                 {
@@ -324,8 +324,10 @@ void VoxelEngine::update(const glm::vec3 &position)
 
                 if (chunk->need_rebuild_mesh_ || chunk->need_rebuild_mesh_force_)
                 {
-                    NeighbourChunks neighbours = get_neighbour_chunks_lazy(chunk);
-                    assert(neighbours.hasAll());
+                    ExtendedNeighbourChunks neighbours;
+                    bool has_all = false;
+                    get_neighbour_chunks_lazy(chunk, neighbours, has_all);
+                    assert(has_all);
 
                     ChunkMeshGenerator generator;
                     generator.rebuildMesh(*chunk, *chunk->mesh_, neighbours);
@@ -411,7 +413,7 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
     // TODO# culling, sort by distance (nearest first)
     for (const Chunk *chunk : chunks_for_render_)
     {
-        assert(chunk.mesh_);
+        assert(chunk->mesh_);
         chunk->mesh_->bind();
 
         const glm::vec3 glob_position = chunk->getGlobalPositionFloat();
@@ -642,7 +644,7 @@ void VoxelEngine::queue_generate_chunk(UPtr<Chunk> chunk)
 
     const glm::ivec3 pos = chunk->getPosition();
 
-    assert(!is_enqued_for_generation(x, z));
+    assert(!is_enqued_for_generation(pos.x, pos.z));
     UPtr<Job> job = makeU<Job>(std::move(chunk), *this);
     enqueued_chunks_.emplace_back(pos.x, pos.z, job->getCancelToken());
     eng.queue->enqueueJob(std::move(job));
@@ -838,7 +840,7 @@ Chunk *VoxelEngine::get_chunk_at_pos(int x, int z) const
     }
     const int index = it->second;
     Chunk *chunk = chunks_[index].get();
-    assert(chunk->position_.x == x && chunk->position_.z == z);
+    assert(chunk->getPosition().x == x && chunk->getPosition().z == z);
     return chunk;
 }
 
@@ -852,48 +854,36 @@ bool VoxelEngine::has_all_neighbours(Chunk *chunk) const
         && has_chunk_at_pos(x, z - 1);
 }
 
-NeighbourChunks VoxelEngine::get_neighbour_chunks(Chunk *chunk) const
+void VoxelEngine::get_neighbour_chunks_lazy(const Chunk *chunk, ExtendedNeighbourChunks &chunks,
+    bool &has_all) const
 {
     assert(chunk);
+
+    has_all = false;
+
     const glm::ivec3 pos = chunk->getPosition();
     const int x = pos.x;
     const int z = pos.z;
 
-    NeighbourChunks chunks;
-    chunks.px = get_chunk_at_pos(x + 1, z);
-    chunks.nx = get_chunk_at_pos(x - 1, z);
-    chunks.pz = get_chunk_at_pos(x, z + 1);
-    chunks.nz = get_chunk_at_pos(x, z - 1);
-
-    return chunks;
-}
-
-NeighbourChunks VoxelEngine::get_neighbour_chunks_lazy(Chunk *chunk) const
-{
-    assert(chunk);
-    const glm::ivec3 pos = chunk->getPosition();
-    const int x = pos.x;
-    const int z = pos.z;
-
-    NeighbourChunks chunks;
-    chunks.px = get_chunk_at_pos(x + 1, z);
-    if (!chunks.px)
-    {
-        return chunks;
+#define GET_CHUNK(FIELD, x, z)                                                                     \
+    chunks.FIELD = get_chunk_at_pos((x), (z));                                                     \
+    if (!chunks.FIELD)                                                                             \
+    {                                                                                              \
+        return;                                                                                    \
     }
-    chunks.nx = get_chunk_at_pos(x - 1, z);
-    if (!chunks.nx)
-    {
-        return chunks;
-    }
-    chunks.pz = get_chunk_at_pos(x, z + 1);
-    if (!chunks.pz)
-    {
-        return chunks;
-    }
-    chunks.nz = get_chunk_at_pos(x, z - 1);
 
-    return chunks;
+    GET_CHUNK(px, x + 1, z);
+    GET_CHUNK(nx, x - 1, z);
+    GET_CHUNK(pz, x, z + 1);
+    GET_CHUNK(nz, x, z - 1);
+    GET_CHUNK(px_pz, x + 1, z + 1);
+    GET_CHUNK(px_nz, x + 1, z - 1);
+    GET_CHUNK(nx_pz, x - 1, z + 1);
+    GET_CHUNK(nx_nz, x - 1, z - 1);
+
+    has_all = true;
+
+#undef GET_CHUNK
 }
 
 void VoxelEngine::refresh_chunk_index_by_pos()

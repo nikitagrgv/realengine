@@ -121,8 +121,8 @@ private:
     }
 
     bool has_all_neighbours(Chunk *chunk) const;
-    NeighbourChunks get_neighbour_chunks(Chunk *chunk) const;
-    NeighbourChunks get_neighbour_chunks_lazy(Chunk *chunk) const;
+    void get_neighbour_chunks_lazy(const Chunk *chunk, ExtendedNeighbourChunks &chunks,
+        bool &has_all) const;
 
     void refresh_chunk_index_by_pos();
 
