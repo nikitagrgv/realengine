@@ -5,7 +5,7 @@
 namespace tbb
 {
 
-class WorkerThread : public Thread
+class WorkerThread final : public Thread
 {
 public:
     enum class State
