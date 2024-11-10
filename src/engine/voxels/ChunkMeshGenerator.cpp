@@ -16,6 +16,19 @@ bool is_air(int x, int y, int z, const Descriptions3x3 &descs)
     return desc->type == BlockType::AIR;
 }
 
+bool is_solid(int x, int y, int z, const Descriptions3x3 &descs)
+{
+    const BlockDescription *desc = descs.getBlockAtOffset(x, y, z);
+    // TODO# check transparent
+    return desc->type != BlockType::AIR;
+}
+
+bool is_solid(glm::ivec3 pos, const Descriptions3x3 &descs)
+{
+    return is_solid(pos.x, pos.y, pos.z, descs);
+}
+
+
 void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     const ExtendedNeighbourChunks &neighbours)
 {
@@ -95,6 +108,13 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     mesh.deallocate();
 }
 
+constexpr float FAR0 = 1.0f;
+constexpr float FAR1 = 0.5f;
+constexpr float FAR2 = 0.3f;
+constexpr float FAR3 = 0.2f;
+constexpr float TOTAL = FAR0 * 3 + FAR1 * 2 + FAR2 * 2 + FAR3;
+constexpr float TOTAL_INV = 1.0f / TOTAL;
+
 void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
     const Descriptions3x3 &descs, ChunkMesh &mesh)
 {
@@ -102,35 +122,48 @@ void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
 
     ChunkMesh::Vertex vs[6];
 
+    constexpr glm::ivec3 ioffset{0, 1, 0};
+    constexpr glm::vec3 offset{ioffset};
+
     // tr 1
     vs[0].pos = glm::vec3{min.x, max.y, min.z};
-    vs[0].norm = glm::vec3{0, 1, 0};
+    vs[0].norm = offset;
     vs[0].uv = coords.top_left;
-    vs[0].ao = 1.0f;
+    // clang-format off
+    vs[0].ao = 1.0f
+        - (
+            (float)is_solid(-1, 1, -1, descs) * FAR0 +
+            (float)is_solid(-1, 1, +0, descs) * FAR0 +
+            (float)is_solid(+0, 1, -1, descs) * FAR0 +
+            (float)is_solid(+1, 1, -1, descs) * FAR1 +
+            (float)is_solid(-1, 1, +1, descs) * FAR1 +
+            (float)is_solid(+1, 1, +0, descs) * FAR2 +
+            (float)is_solid(+0, 1, +1, descs) * FAR2 +
+            (float)is_solid(+1, 1, +1, descs) * FAR3
+            )
+            * TOTAL_INV;
+    // clang-format on
 
     vs[1].pos = glm::vec3{min.x, max.y, max.z};
-    vs[1].norm = glm::vec3{0, 1, 0};
+    vs[1].norm = offset;
     vs[1].uv = coords.bottom_left;
     vs[1].ao = 1.0f;
 
     vs[2].pos = glm::vec3{max.x, max.y, max.z};
-    vs[2].norm = glm::vec3{0, 1, 0};
+    vs[2].norm = offset;
     vs[2].uv = coords.bottom_right;
     vs[2].ao = 1.0f;
 
     // tr 2
-    vs[3].pos = glm::vec3{min.x, max.y, min.z};
-    vs[3].norm = glm::vec3{0, 1, 0};
-    vs[3].uv = coords.top_left;
-    vs[3].ao = 1.0f;
+    vs[3] = vs[0];
 
     vs[4].pos = glm::vec3{max.x, max.y, max.z};
-    vs[4].norm = glm::vec3{0, 1, 0};
+    vs[4].norm = offset;
     vs[4].uv = coords.bottom_right;
     vs[4].ao = 1.0f;
 
     vs[5].pos = glm::vec3{max.x, max.y, min.z};
-    vs[5].norm = glm::vec3{0, 1, 0};
+    vs[5].norm = offset;
     vs[5].uv = coords.top_right;
     vs[5].ao = 1.0f;
 
