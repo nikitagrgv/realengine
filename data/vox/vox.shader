@@ -2,12 +2,14 @@
 #inout vec3 ioFragPos;
 #inout vec3 ioNormal;
 #inout vec2 ioUV;
+#inout float ioAo;
 
 /////////////////////////////////////////////////////////////////////////////////
 #vertex
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aUV;
+layout (location = 3) in float aAo;
 
 uniform mat4 uModelViewProj;
 
@@ -18,6 +20,7 @@ void main()
     ioFragPos = aPos;
     ioNormal = aNormal;
     ioUV = aUV;
+    ioAo = aAo;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +44,6 @@ void main()
 
     vec3 dir_to_light = -uLight.dir;
     float diff = max(dot(norm, dir_to_light), 0.0);
-    vec4 diffuse = 0.7 * diff * albedo_color;
+    vec4 diffuse = 0.7 * diff * albedo_color * ioAo;
     FragColor = ambient + diffuse;
 }

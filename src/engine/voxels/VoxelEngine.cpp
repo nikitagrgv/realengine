@@ -84,7 +84,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     constexpr int MAX_REGENERATED_MESHES_PER_UPDATE = 10;
 #endif
 
-    constexpr int MULTIPLIER = 32;
+    constexpr int MULTIPLIER = 20;
     constexpr int RADIUS_SPAWN_CHUNK = 2 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_MESH = 3 * MULTIPLIER;
     constexpr int RADIUS_UNLOAD_WHOLE_CHUNK = 4 * MULTIPLIER;

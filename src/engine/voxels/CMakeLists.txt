@@ -17,4 +17,6 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/Common.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/VoxelsUtils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/VoxelsUtils.h
 )

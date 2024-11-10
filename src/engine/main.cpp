@@ -263,7 +263,7 @@ public:
         std::vector<RayColor> rays;
 
         GlobalLight global_light;
-        global_light.dir = glm::normalize(glm::vec3(-1, -1, -2));
+        global_light.dir = glm::normalize(glm::vec3(-1, -4, -4));
         eng.renderer->setGlobalLight(global_light);
 
         eng.vox->setSeed(123132);
