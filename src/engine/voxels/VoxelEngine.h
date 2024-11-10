@@ -131,7 +131,7 @@ private:
     struct Perlin;
     UPtr<Perlin> perlin_;
 
-    glm::ivec3 last_base_chunk_pos_;
+    glm::ivec3 last_base_chunk_pos_{123,525,124}; // )
 
     std::vector<UPtr<ChunkMesh>> meshes_pool_;
     std::vector<UPtr<Chunk>> chunks_pool_;
@@ -165,6 +165,8 @@ private:
     // TEMPORAY IN FUNCTION
     std::vector<Chunk *> chunks_for_regenerate_;
     std::vector<Chunk *> chunks_for_render_;
+
+    int old_num_inited_chunks_{0};
 
     // TODO# SHIT?
     struct OffsetsCache

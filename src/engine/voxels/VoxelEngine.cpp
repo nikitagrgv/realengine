@@ -75,6 +75,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     SCOPED_PROFILER;
 
     const glm::ivec3 base_chunk_pos = pos_to_chunk_pos(position);
+    const bool chunk_pos_changed = last_base_chunk_pos_ != base_chunk_pos;
 
 #ifndef NDEBUG
     constexpr int MAX_INIT_CHUNKS_PER_UPDATE = 30;
@@ -116,11 +117,10 @@ void VoxelEngine::update(const glm::vec3 &position)
 
     {
         ScopedProfiler p("Cancel chunks jobs");
-        const bool chunk_changed = last_base_chunk_pos_ != base_chunk_pos;
         for (EnqueuedChunk &c : enqueued_chunks_)
         {
             assert(c.cancel_token.isAlive());
-            if (chunk_changed || is_outside_radius(c.pos.x, c.pos.y, RADIUS_UNLOAD_WHOLE_CHUNK))
+            if (chunk_pos_changed || is_outside_radius(c.pos.x, c.pos.y, RADIUS_UNLOAD_WHOLE_CHUNK))
             {
                 c.cancel_token.cancel();
             }
@@ -175,39 +175,43 @@ void VoxelEngine::update(const glm::vec3 &position)
     {
         ScopedProfiler p("Init new chunks");
 
-        int num_inited_chunks = 0;
-
-        const std::vector<glm::ivec2> offsets = offsets_cache.getOffsets(RADIUS_SPAWN_CHUNK);
-        for (const glm::ivec2 &offset : offsets)
+        if (chunk_pos_changed || old_num_inited_chunks_ != 0)
         {
-            const int x = base_chunk_pos.x + offset.x;
-            const int z = base_chunk_pos.z + offset.y;
+            int num_inited_chunks = 0;
 
-            assert(!is_outside_radius(x, z, RADIUS_SPAWN_CHUNK));
+            const std::vector<glm::ivec2> offsets = offsets_cache.getOffsets(RADIUS_SPAWN_CHUNK);
+            for (const glm::ivec2 &offset : offsets)
+            {
+                const int x = base_chunk_pos.x + offset.x;
+                const int z = base_chunk_pos.z + offset.y;
 
-            // NOTE: chunk_index_by_pos_ has invalid values here! but we can use it in this case
-            if (has_chunk_at_pos(x, z))
-            {
-                continue;
-            }
-            if (is_enqued_for_generation(x, z))
-            {
-                continue;
-            }
-            // TODO# shitty
-            if (is_generated(x, z))
-            {
-                continue;
-            }
+                assert(!is_outside_radius(x, z, RADIUS_SPAWN_CHUNK));
 
-            if (num_inited_chunks > MAX_INIT_CHUNKS_PER_UPDATE)
-            {
-                continue;
-            }
+                // NOTE: chunk_index_by_pos_ has invalid values here! but we can use it in this case
+                if (has_chunk_at_pos(x, z))
+                {
+                    continue;
+                }
+                if (is_enqued_for_generation(x, z))
+                {
+                    continue;
+                }
+                // TODO# shitty
+                if (is_generated(x, z))
+                {
+                    continue;
+                }
 
-            UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
-            chunks_to_generate_.push_back(std::move(new_chunk));
-            ++num_inited_chunks;
+                if (num_inited_chunks > MAX_INIT_CHUNKS_PER_UPDATE)
+                {
+                    continue;
+                }
+
+                UPtr<Chunk> new_chunk = get_chunk_cached(glm::ivec3{x, 0, z});
+                chunks_to_generate_.push_back(std::move(new_chunk));
+                ++num_inited_chunks;
+            }
+            old_num_inited_chunks_ = num_inited_chunks;
         }
     }
 
