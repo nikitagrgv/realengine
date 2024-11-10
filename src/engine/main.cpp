@@ -283,7 +283,7 @@ public:
                 eng.shader_manager->refreshAll();
             }
 
-            angle += eng.time->getDelta() * 0.1;
+            angle += eng.time->getDelta() * 0.01s;
             if (angle > glm::two_pi<float>())
             {
                 angle -= glm::two_pi<float>();
