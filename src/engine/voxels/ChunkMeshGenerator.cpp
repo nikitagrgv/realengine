@@ -128,61 +128,37 @@ void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
     // glm::ivec3 off0_2{off0.x, off0.y, 0};
     //
 
+    glm::vec3 minmax[2] = {min, max};
+    const auto get_min_max = [&](int off) {
+        // off = -1 or 1
+        return minmax[(off + 1) / 2];
+    };
+
+    const auto gen_vertex = [&](int off_x, int off_y, int off_z, glm::vec2 uv) {
+        ChunkMesh::Vertex v;
+        v.pos = glm::vec3{get_min_max(off_x).x, get_min_max(off_y).y, get_min_max(off_z).z};
+        v.norm = offset;
+        v.uv = uv;
+        // clang-format off
+        v.ao = 1.0f
+            - (
+                (float)is_solid(off_x, off_y, off_z, descs) * FAR0 +
+                (float)is_solid(off_x, off_y, 0, descs) * FAR0 +
+                (float)is_solid(0, off_y, off_z, descs) * FAR0
+                )
+                * TOTAL_INV;
+        // clang-format on
+        return v;
+    };
+
     // tr 1
-    vs[0].pos = glm::vec3{min.x, max.y, min.z};
-    vs[0].norm = offset;
-    vs[0].uv = coords.top_left;
-    // clang-format off
-    vs[0].ao = 1.0f
-        - (
-            (float)is_solid(-1, 1, -1, descs) * FAR0 +
-            (float)is_solid(-1, 1, +0, descs) * FAR0 +
-            (float)is_solid(+0, 1, -1, descs) * FAR0
-            )
-            * TOTAL_INV;
-    // clang-format on
-
-    vs[1].pos = glm::vec3{min.x, max.y, max.z};
-    vs[1].norm = offset;
-    vs[1].uv = coords.bottom_left;
-    // clang-format off
-    vs[1].ao = 1.0f
-        - (
-            (float)is_solid(-1, 1, +1, descs) * FAR0 +
-            (float)is_solid(-1, 1, +0, descs) * FAR0 +
-            (float)is_solid(+0, 1, +1, descs) * FAR0
-            )
-            * TOTAL_INV;
-    // clang-format on
-
-    vs[2].pos = glm::vec3{max.x, max.y, max.z};
-    vs[2].norm = offset;
-    vs[2].uv = coords.bottom_right;
-    // clang-format off
-    vs[2].ao = 1.0f
-        - (
-            (float)is_solid(+1, 1, +1, descs) * FAR0 +
-            (float)is_solid(+1, 1, +0, descs) * FAR0 +
-            (float)is_solid(+0, 1, +1, descs) * FAR0
-            )
-            * TOTAL_INV;
-    // clang-format on
-
+    vs[0] = gen_vertex(-1, 1, -1, coords.top_left);
+    vs[1] = gen_vertex(-1, 1, +1, coords.bottom_left);
+    vs[2] = gen_vertex(+1, 1, +1, coords.bottom_right);
     // tr 2
     vs[3] = vs[0];
-
     vs[4] = vs[2];
-
-    vs[5].pos = glm::vec3{max.x, max.y, min.z};
-    vs[5].norm = offset;
-    vs[5].uv = coords.top_right;
-    vs[5].ao = 1.0f
-        - (
-            (float)is_solid(+1, 1, -1, descs) * FAR0 +
-            (float)is_solid(+1, 1, +0, descs) * FAR0 +
-            (float)is_solid(+0, 1, -1, descs) * FAR0
-            )
-            * TOTAL_INV;
+    vs[5] = gen_vertex(+1, 1, -1, coords.top_right);
 
     mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
 }
