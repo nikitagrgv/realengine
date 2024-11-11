@@ -122,12 +122,6 @@ void ChunkMeshGenerator::gen_face_py(const glm::vec3 &min, const glm::vec3 &max,
     constexpr glm::ivec3 ioffset{0, 1, 0};
     constexpr glm::vec3 offset{ioffset};
 
-    // glm::ivec3 off0{-1, 0, -1};
-    // glm::ivec3 off0_0{off0.x, off0.y, off0.z};
-    // glm::ivec3 off0_1{0, off0.y, off0.z};
-    // glm::ivec3 off0_2{off0.x, off0.y, 0};
-    //
-
     const glm::vec3 minmax[2] = {min, max};
     const auto get_min_max = [&](int off) {
         // off = -1 or 1
