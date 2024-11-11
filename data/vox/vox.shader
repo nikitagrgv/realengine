@@ -49,7 +49,7 @@ void main()
 #ifdef USE_AO
     float ao = mix(0.3, 1.0, ioAo);
 #else
-    float ao = 1.0;
+    float ao = 1 - ioAo * 0.000001; // Don't optimize this out
 #endif
 
     FragColor = (ambient + diffuse) * vec4(ao, ao, ao, 1);
