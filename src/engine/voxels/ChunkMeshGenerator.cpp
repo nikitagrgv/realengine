@@ -163,30 +163,39 @@ void ChunkMeshGenerator::gen_face_ny(const glm::vec3 &min, const glm::vec3 &max,
     const BlockDescription::TexCoords &coords = descs.getCenter()->cached.texture_coord_ny;
     ChunkMesh::Vertex vs[6];
 
+    constexpr glm::ivec3 ioffset{0, -1, 0};
+    constexpr glm::vec3 offset{ioffset};
+
+    const glm::vec3 minmax[2] = {min, max};
+    const auto get_min_max = [&](int off) {
+        // off = -1 or 1
+        return minmax[(off + 1) / 2];
+    };
+
+    const auto gen_vertex = [&](int off_x, int off_y, int off_z, glm::vec2 uv) {
+        ChunkMesh::Vertex v;
+        v.pos = glm::vec3{get_min_max(off_x).x, get_min_max(off_y).y, get_min_max(off_z).z};
+        v.norm = offset;
+        v.uv = uv;
+        // clang-format off
+        v.ao = 1.0f
+            - (
+                (float)is_solid(off_x, off_y, off_z, descs) * FAR0 +
+                (float)is_solid(off_x, off_y, 0, descs) * FAR0 +
+                (float)is_solid(0, off_y, off_z, descs) * FAR0
+                )
+                * TOTAL_INV;
+        // clang-format on
+        return v;
+    };
+
     // tr 1
-    vs[0].pos = glm::vec3{min.x, min.y, min.z};
-    vs[0].norm = glm::vec3{0, -1, 0};
-    vs[0].uv = coords.top_right;
-    vs[0].ao = 1.0f;
-
-    vs[1].pos = glm::vec3{max.x, min.y, max.z};
-    vs[1].norm = glm::vec3{0, -1, 0};
-    vs[1].uv = coords.bottom_left;
-    vs[1].ao = 1.0f;
-
-    vs[2].pos = glm::vec3{min.x, min.y, max.z};
-    vs[2].norm = glm::vec3{0, -1, 0};
-    vs[2].uv = coords.bottom_right;
-    vs[2].ao = 1.0f;
-
+    vs[0] = gen_vertex(-1, -1, -1, coords.top_right);
+    vs[1] = gen_vertex(+1, -1, +1, coords.bottom_left);
+    vs[2] = gen_vertex(-1, -1, +1, coords.bottom_right);
     // tr 2
     vs[3] = vs[0];
-
-    vs[4].pos = glm::vec3{max.x, min.y, min.z};
-    vs[4].norm = glm::vec3{0, -1, 0};
-    vs[4].uv = coords.top_left;
-    vs[4].ao = 1.0f;
-
+    vs[4] = gen_vertex(+1, -1, -1, coords.top_left);
     vs[5] = vs[1];
 
     mesh.addRaw(vs, sizeof(ChunkMesh::Vertex) * 6);
