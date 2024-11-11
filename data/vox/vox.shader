@@ -44,6 +44,8 @@ void main()
 
     vec3 dir_to_light = -uLight.dir;
     float diff = float(dir_to_light.y > 0) * sqrt(abs(dir_to_light.y)) * max(dot(norm, dir_to_light), 0.0);
-    vec4 diffuse = 0.7 * diff * albedo_color * ioAo;
-    FragColor = ambient + diffuse;
+    vec4 diffuse = 0.7 * diff * albedo_color;
+
+    float ao = mix(0.3, 1.0, ioAo);
+    FragColor = (ambient + diffuse) * vec4(ao, ao, ao, 1);
 }
