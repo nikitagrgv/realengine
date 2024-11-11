@@ -41,6 +41,30 @@ VoxelEngine::VoxelEngine() = default;
 
 VoxelEngine::~VoxelEngine() = default;
 
+void VoxelEngine::setAmbientOcclusionEnabled(bool enabled)
+{
+    if (enabled == isAmbientOcclusionEnabled())
+    {
+        return;
+    }
+
+    if (enabled)
+    {
+        shader_->setDefines({"USE_AO"});
+    }
+    else
+    {
+        shader_->setDefines({});
+    }
+
+    shader_->recompile();
+}
+
+bool VoxelEngine::isAmbientOcclusionEnabled() const
+{
+    return !shader_->getDefines().empty();
+}
+
 void VoxelEngine::init()
 {
     perlin_ = makeU<Perlin>();
@@ -67,6 +91,7 @@ void VoxelEngine::init()
 
     shader_ = makeU<Shader>();
     shader_->setSource(shader_source_.get());
+    setAmbientOcclusionEnabled(true);
     shader_->recompile();
 }
 

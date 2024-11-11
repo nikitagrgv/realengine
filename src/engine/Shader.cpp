@@ -177,6 +177,11 @@ void Shader::setDefines(std::vector<std::string> defines)
     dirty_ = true;
 }
 
+const std::vector<std::string> &Shader::getDefines() const
+{
+    return defines_;
+}
+
 void Shader::recompile()
 {
     clearProgram();

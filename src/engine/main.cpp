@@ -248,12 +248,16 @@ public:
         eng.gui->getSignalOnRender().connect(ctx, [&] {
             ImGui::Begin("Parameters");
             float angle_deg = glm::degrees(angle);
-            if (ImGui::SliderFloat("Time", &angle_deg, 0.0f, 360.0f));
+            if (ImGui::SliderFloat("Time", &angle_deg, 0.0f, 360.0f))
             {
                 angle = glm::radians(angle_deg);
             }
+            bool use_ao = eng.vox->isAmbientOcclusionEnabled();
+            if (ImGui::Checkbox("Voxel Engine Ambient Occlusion", &use_ao))
+            {
+                eng.vox->setAmbientOcclusionEnabled(use_ao);
+            }
             ImGui::End();
-
             ImGui::ShowDemoWindow(nullptr);
         });
 

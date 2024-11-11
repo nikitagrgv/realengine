@@ -33,6 +33,9 @@ public:
     VoxelEngine();
     ~VoxelEngine();
 
+    void setAmbientOcclusionEnabled(bool enabled);
+    bool isAmbientOcclusionEnabled() const;
+
     void init();
 
     void update(const glm::vec3 &position);

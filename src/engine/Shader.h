@@ -39,6 +39,7 @@ public:
     void setUniformInt(const char *name, int value);
 
     void setDefines(std::vector<std::string> defines);
+    const std::vector<std::string> &getDefines() const;
 
     void recompile();
 
