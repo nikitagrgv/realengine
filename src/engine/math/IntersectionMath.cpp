@@ -3,6 +3,30 @@
 #include "BoundBox.h"
 #include "Math.h"
 
+void math::getDirectionPlaneIntersectionUnsafe(const glm::vec3 &origin, const glm::vec3 &dir_n,
+    const glm::vec4 &plane, SimpleIntersection &out_intersection)
+{
+    const glm::vec3 plane_n(plane);
+    const float denom = glm::dot(plane_n, dir_n);
+
+    if (glm::abs(denom) < 1e-6f)
+    {
+        out_intersection.clear();
+        return;
+    }
+
+    float t = -(glm::dot(plane_n, origin) + plane.w) / denom;
+
+    // Check if the intersection is behind the ray's origin
+    if (t < 0.0f)
+    {
+        out_intersection.clear();
+        return;
+    }
+
+    out_intersection.set(t, origin + dir_n * t);
+}
+
 void math::getDirectionTriangleIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
     const glm::vec3 &p0, const glm::vec3 &p1, const glm::vec3 &p2,
     SimpleIntersection &out_intersection)

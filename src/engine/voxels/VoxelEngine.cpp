@@ -18,6 +18,7 @@
 #include "ShaderSource.h"
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
+#include "math/IntersectionMath.h"
 #include "math/Math.h"
 #include "noise/MapToMinMax.h"
 #include "profiler/ScopedProfiler.h"
@@ -563,26 +564,126 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
 {
     SCOPED_PROFILER;
 
-    const glm::vec3 n_dir = glm::normalize(dir);
+    const glm::vec3 dir_n = glm::normalize(dir);
 
-    glm::ivec3 cur_pos = toBlockPosition(position);
-    for (int i = 0; i < 100000; ++i)
+    BlockInfo block;
+    bool valid = false;
+
+    const glm::ivec3 pos = toBlockPosition(position);
+
+    int x = pos.x;
+    int y = pos.y;
+    int z = pos.z;
+
+    const int step_x = dir_n.x >= 0 ? 1 : -1;
+    const int step_y = dir_n.y >= 0 ? 1 : -1;
+    const int step_z = dir_n.z >= 0 ? 1 : -1;
+
+    constexpr float dx = 1.0f; // size of voxel
+    constexpr float dy = 1.0f;
+    constexpr float dz = 1.0f;
+
+    float t_max_x;
+    float t_max_y;
+    float t_max_z;
+
+    if (dir_n.x >= 0)
     {
-        BlockInfo block;
-        bool valid = getBlockAtPosition(cur_pos, block);
-        if (!valid)
-        {
-            return {};
-        }
-        if (block.id != 0)
-        {
-            Chunk *chunk = getChunkAtPosition(cur_pos);
-            return IntersectionResult(chunk, block, chunk->getBlockLocalPosition(cur_pos), cur_pos);
-        }
-        cur_pos.y -= 1;
+        constexpr glm::vec3 plane_n{1, 0, 0};
+        const float plane_d = (float)pos.x + 1;
+        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_x);
+    }
+    else
+    {
+        constexpr glm::vec3 plane_n{-1, 0, 0};
+        const float plane_d = (float)pos.x;
+        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_x);
     }
 
+    if (dir_n.y >= 0)
+    {
+        constexpr glm::vec3 plane_n{0, 1, 0};
+        const float plane_d = (float)pos.y + 1;
+        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_y);
+    }
+    else
+    {
+        constexpr glm::vec3 plane_n{0, -1, 0};
+        const float plane_d = (float)pos.y;
+        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_y);
+    }
+
+    if (dir_n.z >= 0)
+    {
+        constexpr glm::vec3 plane_n{0, 0, 1};
+        const float plane_d = (float)pos.z + 1;
+        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_z);
+    }
+    else
+    {
+        constexpr glm::vec3 plane_n{0, 0, -1};
+        const float plane_d = (float)pos.z;
+        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_z);
+    }
+
+    do
+    {
+        if (t_max_x < t_max_y)
+        {
+            if (t_max_x < t_max_z)
+            {
+                x = x + step_x;
+                t_max_x = t_max_x + dx;
+                if (t_max_x > max_distance)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                z = z + step_z;
+                t_max_z = t_max_z + dz;
+                if (t_max_z > max_distance)
+                {
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (t_max_y < t_max_z)
+            {
+                y = y + step_y;
+                t_max_y = t_max_y + dy;
+                if (t_max_y > max_distance)
+                {
+                    break;
+                }
+            }
+            else
+            {
+                z = z + step_z;
+                t_max_z = t_max_z + dz;
+                if (t_max_z > max_distance)
+                {
+                    break;
+                }
+            }
+        }
+
+        // TODO! chunks
+        valid = getBlockAtPosition(glm::ivec3(x, y, z), block);
+    }
+    while (valid && block.id == 0);
+
     IntersectionResult result;
+    if (valid)
+    {
+        result.block = block;
+        result.glob_pos = glm::ivec3(x, y, z);
+        result.chunk = getChunkAtPosition(result.glob_pos);
+        result.loc_pos = result.chunk->getBlockLocalPosition(result.glob_pos);
+    }
     return result;
 }
 
