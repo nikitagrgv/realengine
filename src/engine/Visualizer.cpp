@@ -3,6 +3,7 @@
 // clang-format off
 #include "Mesh.h"
 #include "profiler/ScopedProfiler.h"
+#include "utils/Algos.h"
 
 
 #include <NodeMesh.h>
@@ -47,16 +48,23 @@ Visualizer::Visualizer()
 }
 
 void Visualizer::addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color,
-    bool depth_test)
+    bool depth_test, float time)
 {
-    auto &vbo = depth_test ? lines_vbo_ : nodepth_lines_vbo_;
+    if (time == 0.0f)
+    {
+        auto &vbo = depth_test ? lines_vbo_ : nodepth_lines_vbo_;
 
-    LinePoint p;
-    p.color = color;
-    p.pos = s0;
-    vbo.addVertex(p);
-    p.pos = s1;
-    vbo.addVertex(p);
+        LinePoint p;
+        p.color = color;
+        p.pos = s0;
+        vbo.addVertex(p);
+        p.pos = s1;
+        vbo.addVertex(p);
+    }
+    else
+    {
+        queued_lines_.emplace_back(s0, s1, color, depth_test, time);
+    }
 }
 
 void Visualizer::addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color0,
@@ -127,6 +135,20 @@ void Visualizer::addNormals(const Mesh *mesh, const glm::mat4 &transform)
         addLine(to_local(pos), to_local(pos + norm), {0.0f, 0.0f, 0.0f, 0.0f},
             {1.0f, 0.0f, 0.0f, 0.2f});
     }
+}
+
+void Visualizer::update(float dt)
+{
+    // TODO# shitty
+    for (QueuedLine &l : queued_lines_)
+    {
+        if (l.time > 0.0f)
+        {
+            addLine(l.s0, l.s1, l.color, l.depth_test);
+        }
+        l.time -= dt;
+    }
+    Alg::removeIf(queued_lines_, [](const QueuedLine &l) { return l.time <= 0.0f; });
 }
 
 void Visualizer::render(const glm::mat4 &viewproj)

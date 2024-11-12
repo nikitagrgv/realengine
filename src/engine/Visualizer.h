@@ -21,7 +21,7 @@ public:
     Visualizer();
 
     void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color,
-        bool depth_test = true);
+        bool depth_test = true, float time = 0.0f);
     void addLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color0,
         const glm::vec4 &color1, bool depth_test = true);
 
@@ -30,6 +30,7 @@ public:
     void addNormals(NodeMesh *node);
     void addNormals(const Mesh *mesh, const glm::mat4 &transform);
 
+    void update(float dt);
     void render(const glm::mat4 &viewproj);
 
 private:
@@ -45,4 +46,24 @@ private:
 
     VertexBufferObject<LinePoint> nodepth_lines_vbo_;
     VertexArrayObject nodepth_lines_vao_;
+
+    // TODO# shitty
+    struct QueuedLine
+    {
+        QueuedLine() = default;
+        QueuedLine(const glm::vec3 &s0, const glm::vec3 &s1, const glm::vec4 &color,
+            bool depth_test, float time)
+            : s0(s0)
+            , s1(s1)
+            , color(color)
+            , depth_test(depth_test)
+            , time(time)
+        {}
+        glm::vec3 s0{};
+        glm::vec3 s1{};
+        glm::vec4 color{};
+        bool depth_test{};
+        float time{};
+    };
+    std::vector<QueuedLine> queued_lines_;
 };

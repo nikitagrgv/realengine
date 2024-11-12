@@ -262,13 +262,6 @@ public:
             ImGui::ShowDemoWindow(nullptr);
         });
 
-        struct RayColor
-        {
-            Ray ray;
-            glm::vec4 color;
-        };
-        std::vector<RayColor> rays;
-
         eng.vox->setSeed(123132);
 
         while (!exit_)
@@ -341,22 +334,17 @@ public:
                 Ray ray = camera_.getNearFarRay(eng.window->getNormalizedCursorPos());
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
 
-                rays.push_back(RayColor{
-                    {camera_.getPosition(), ray.begin + dir_n * 10.0f},
-                    glm::vec4{1, 1, 1, 1}
-                });
+                const float distance = 100.0f;
+
+                eng.visualizer->addLine(camera_.getPosition(), ray.begin + dir_n * distance,
+                    glm::vec4{1, 1, 1, 1}, true, 4.0f);
 
                 const VoxelEngine::IntersectionResult result
-                    = eng.vox->getIntersection(camera_.getPosition(), dir_n, 1000);
+                    = eng.vox->getIntersection(camera_.getPosition(), dir_n, distance);
                 if (result.isValid())
                 {
                     eng.vox->setBlockAtPosition(result.glob_pos, BlockInfo(0));
                 }
-            }
-
-            for (const auto &r : rays)
-            {
-                eng.visualizer->addLine(r.ray.begin, r.ray.end, r.color);
             }
 
             if (eng.input->isKeyDown(Key::KEY_G))
@@ -396,6 +384,7 @@ public:
             eng.renderer->clearBuffers();
 
             eng.renderer->renderWorld(&camera_, &light);
+            eng.visualizer->update(eng.time->getDelta());
             eng.visualizer->render(camera_.getViewProj());
             eng.gui->render();
             eng.window->swap();
