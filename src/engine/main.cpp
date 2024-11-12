@@ -39,6 +39,7 @@
 #include "threads/Thread.h"
 #include "threads/Threads.h"
 #include "time/Time.h"
+#include "voxels/BasicBlocks.h"
 #include "voxels/Chunk.h"
 #include "voxels/VoxelEngine.h"
 
@@ -337,15 +338,18 @@ public:
             {
                 Ray ray = camera_.getNearFarRay(eng.window->getNormalizedCursorPos());
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
-                SimpleNodeIntersection intersection;
-                eng.world->getDirectionIntersection(ray.begin, dir_n, intersection);
-                edg.editor_->setSelectedNode(intersection.getNode());
 
-                // TODO# FIX INTERSECTION!!!!!!!
-                // rays.push_back(RayColor{{ray.begin, ray.begin + dir_n *
-                // intersection.getDistance()}, glm::vec4{1,1,1,1}});
-                // rays.push_back(RayColor{{ray.begin, intersection.getPoint()},
-                // glm::vec4{1,0,0,1}});
+                rays.push_back(RayColor{
+                    {camera_.getPosition(), ray.begin + dir_n * 10.0f},
+                    glm::vec4{1, 1, 1, 1}
+                });
+
+                const VoxelEngine::IntersectionResult result
+                    = eng.vox->getIntersection(camera_.getPosition(), dir_n, 1000);
+                if (result.isValid())
+                {
+                    eng.vox->setBlockAtPosition(result.glob_pos, BlockInfo(0));
+                }
             }
 
             for (const auto &r : rays)

@@ -469,6 +469,30 @@ void VoxelEngine::setSeed(unsigned int seed)
     perlin_ = makeU<Perlin>();
 }
 
+bool VoxelEngine::getBlockAtPosition(const glm::ivec3 &position, BlockInfo &out_block) const
+{
+    const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
+
+    Chunk *chunk = get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
+
+    if (!chunk)
+    {
+        return false;
+    }
+
+    const glm::ivec3 loc_pos = chunk->getBlockLocalPosition(position);
+    assert(loc_pos.x >= 0 && loc_pos.x < Chunk::CHUNK_WIDTH);
+    assert(loc_pos.z >= 0 && loc_pos.z < Chunk::CHUNK_WIDTH);
+
+    if (loc_pos.y < 0 || loc_pos.y >= Chunk::CHUNK_HEIGHT)
+    {
+        return false;
+    }
+
+    out_block = chunk->getBlock(loc_pos.x, loc_pos.y, loc_pos.z);
+    return true;
+}
+
 bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block)
 {
     const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
@@ -532,6 +556,32 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
     }
 
     return true;
+}
+
+VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &position,
+    const glm::vec3 &dir, float max_distance) const
+{
+    const glm::vec3 n_dir = glm::normalize(dir);
+
+    glm::ivec3 cur_pos = toBlockPosition(position);
+    for (int i = 0; i < 100000; ++i)
+    {
+        BlockInfo block;
+        bool valid = getBlockAtPosition(cur_pos, block);
+        if (!valid)
+        {
+            return {};
+        }
+        if (block.id != 0)
+        {
+            Chunk *chunk = getChunkAtPosition(cur_pos);
+            return IntersectionResult(chunk, block, chunk->getBlockLocalPosition(cur_pos), cur_pos);
+        }
+        cur_pos.y -= 1;
+    }
+
+    IntersectionResult result;
+    return result;
 }
 
 void VoxelEngine::register_blocks()

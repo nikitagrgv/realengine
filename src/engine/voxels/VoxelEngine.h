@@ -52,17 +52,25 @@ public:
         return {(int)std::floor(position.x), int(position.y + 1) - 1, (int)std::floor(position.z)};
     }
 
-    Chunk *getChunkAtPosition(const glm::ivec3 &position)
+    Chunk *getChunkAtPosition(const glm::ivec3 &position) const
     {
         const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
         return get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
     }
 
-    REALENGINE_INLINE Chunk *getChunkAtPosition(const glm::vec3 &position)
+    REALENGINE_INLINE Chunk *getChunkAtPosition(const glm::vec3 &position) const
     {
         const glm::ivec3 chunk_pos = pos_to_chunk_pos(position);
         return get_chunk_at_pos(chunk_pos.x, chunk_pos.z);
     }
+
+    REALENGINE_INLINE bool getBlockAtPosition(const glm::vec3 &position, BlockInfo &out_block) const
+    {
+        const glm::ivec3 block_pos = toBlockPosition(position);
+        return getBlockAtPosition(block_pos, out_block);
+    }
+
+    bool getBlockAtPosition(const glm::ivec3 &position, BlockInfo &out_block) const;
 
     REALENGINE_INLINE bool setBlockAtPosition(const glm::vec3 &position, BlockInfo block)
     {
@@ -71,6 +79,25 @@ public:
     }
 
     bool setBlockAtPosition(const glm::ivec3 &position, BlockInfo block);
+
+    struct IntersectionResult
+    {
+        IntersectionResult() = default;
+        IntersectionResult(Chunk *chunk, const BlockInfo &block, const glm::ivec3 &loc_pos,
+            const glm::ivec3 &glob_pos)
+            : chunk(chunk)
+            , block(block)
+            , loc_pos(loc_pos)
+            , glob_pos(glob_pos)
+        {}
+        bool isValid() const { return chunk; }
+        Chunk *chunk{};
+        BlockInfo block{};
+        glm::ivec3 loc_pos{};
+        glm::ivec3 glob_pos{};
+    };
+    IntersectionResult getIntersection(const glm::vec3 &position, const glm::vec3 &dir,
+        float max_distance) const;
 
 private:
     void register_blocks();
@@ -134,7 +161,7 @@ private:
     struct Perlin;
     UPtr<Perlin> perlin_;
 
-    glm::ivec3 last_base_chunk_pos_{123,525,124}; // )
+    glm::ivec3 last_base_chunk_pos_{123, 525, 124}; // )
 
     std::vector<UPtr<ChunkMesh>> meshes_pool_;
     std::vector<UPtr<Chunk>> chunks_pool_;

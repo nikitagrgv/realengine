@@ -139,6 +139,7 @@ void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &d
     intersection = ni.toSimpleIntersection();
 }
 
+// TODO# FIX INTERSECTION!!!!!!!
 void World::getDirectionIntersection(const glm::vec3 &origin, const glm::vec3 &direction,
     SimpleNodeIntersection &intersection) const
 {
