@@ -627,9 +627,9 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
         math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_z);
     }
 
-    eng.visualizer->addLine(position, position + glm::vec3{0.002,0.002,0.002} + dir_n * t_max_x, glm::vec4{1, 0, 0, 0.7}, true, 95);
-    eng.visualizer->addLine(position, position + glm::vec3{0.003,0.002,0.002} + dir_n * t_max_y, glm::vec4{0, 1, 0, 0.7}, true, 95);
-    eng.visualizer->addLine(position, position + glm::vec3{0.004,0.002,0.002} + dir_n * t_max_z, glm::vec4{0, 0, 1, 0.7}, true, 95);
+    eng.visualizer->addLine(position, position + glm::vec3{0.002,0.002,0.002} + glm::vec3{1, 0, 0} * dir_n.x * t_max_x, glm::vec4{1, 0, 0, 0.7}, true, 95);
+    eng.visualizer->addLine(position, position + glm::vec3{0.003,0.002,0.002} + glm::vec3{0, 1, 0} * dir_n.y * t_max_y, glm::vec4{0, 1, 0, 0.7}, true, 95);
+    eng.visualizer->addLine(position, position + glm::vec3{0.004,0.002,0.002} + glm::vec3{0, 0, 1} * dir_n.z * t_max_z, glm::vec4{0, 0, 1, 0.7}, true, 95);
 
     do
     {
@@ -675,7 +675,9 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
                 }
             }
         }
-
+        eng.visualizer->addLine(position, position + glm::vec3{0.002,0.002,0.002} + glm::vec3{1, 0, 0} * dir_n.x * t_max_x, glm::vec4{1, 0, 0, 0.7}, true, 95);
+        eng.visualizer->addLine(position, position + glm::vec3{0.003,0.002,0.002} + glm::vec3{0, 1, 0} * dir_n.y * t_max_y, glm::vec4{0, 1, 0, 0.7}, true, 95);
+        eng.visualizer->addLine(position, position + glm::vec3{0.004,0.002,0.002} + glm::vec3{0, 0, 1} * dir_n.z * t_max_z, glm::vec4{0, 0, 1, 0.7}, true, 95);
         // TODO! chunks
         valid = getBlockAtPosition(glm::ivec3(x, y, z), block);
     }
