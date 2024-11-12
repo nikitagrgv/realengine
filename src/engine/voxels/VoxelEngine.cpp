@@ -561,6 +561,8 @@ bool VoxelEngine::setBlockAtPosition(const glm::ivec3 &position, BlockInfo block
 VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &position,
     const glm::vec3 &dir, float max_distance) const
 {
+    SCOPED_PROFILER;
+
     const glm::vec3 n_dir = glm::normalize(dir);
 
     glm::ivec3 cur_pos = toBlockPosition(position);

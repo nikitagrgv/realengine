@@ -32,7 +32,7 @@ bool is_solid(glm::ivec3 pos, const Descriptions3x3 &descs)
 void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     const ExtendedNeighbourChunks &neighbours)
 {
-    assert(chunk.need_rebuild_mesh_);
+    assert(chunk.need_rebuild_mesh_ || chunk.need_rebuild_mesh_force_);
 
     SCOPED_PROFILER;
 

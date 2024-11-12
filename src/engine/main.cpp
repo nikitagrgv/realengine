@@ -334,7 +334,9 @@ public:
             light_cube_material->setParameterVec3("uColor", light.color);
 
             const bool on_window = eng.gui->isWantCaptureMouse();
-            if (!on_window && eng.input->isButtonPressed(Button::BUTTON_LEFT))
+            const bool left_button_pressed = eng.input->isButtonPressed(Button::BUTTON_LEFT);
+            const bool g_down = eng.input->isKeyDown(Key::KEY_G);
+            if (!on_window && (left_button_pressed || g_down))
             {
                 Ray ray = camera_.getNearFarRay(eng.window->getNormalizedCursorPos());
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
