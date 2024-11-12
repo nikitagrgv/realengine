@@ -18,6 +18,7 @@
 #include "ShaderSource.h"
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
+#include "Visualizer.h"
 #include "math/IntersectionMath.h"
 #include "math/Math.h"
 #include "noise/MapToMinMax.h"
@@ -625,6 +626,10 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
         const float plane_d = (float)pos.z;
         math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_z);
     }
+
+    eng.visualizer->addLine(position, position + glm::vec3{0.002,0.002,0.002} + dir_n * t_max_x, glm::vec4{1, 0, 0, 0.7}, true, 95);
+    eng.visualizer->addLine(position, position + glm::vec3{0.003,0.002,0.002} + dir_n * t_max_y, glm::vec4{0, 1, 0, 0.7}, true, 95);
+    eng.visualizer->addLine(position, position + glm::vec3{0.004,0.002,0.002} + dir_n * t_max_z, glm::vec4{0, 0, 1, 0.7}, true, 95);
 
     do
     {
