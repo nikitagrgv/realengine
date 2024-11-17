@@ -11,19 +11,20 @@ namespace math
 REALENGINE_INLINE bool getDirectionPlaneIntersectionDistance(const glm::vec3 &origin,
     const glm::vec3 &dir_n, const glm::vec3 &plane_n, float plane_d, float &distance)
 {
-    const float denom = glm::dot(plane_n, dir_n);
-    if (glm::abs(denom) < 1e-9f)
-    {
-        distance = 1e9f;
-        return false;
-    }
-    const float t = -(glm::dot(plane_n, origin) + plane_d) / denom;
-    distance = t;
-    if (t < 0.0f)
-    {
-        return false;
-    }
-    return true;
+    return false;
+    // const float denom = glm::dot(plane_n, dir_n);
+    // if (glm::abs(denom) < 1e-9f)
+    // {
+    //     distance = 1e9f;
+    //     return true;
+    // }
+    // const float t = -(glm::dot(plane_n, origin) + plane_d) / denom;
+    // distance = t;
+    // if (t < 0.0f)
+    // {
+    //     return false;
+    // }
+    // return true;
 }
 
 // Direction must be normalized

@@ -588,48 +588,60 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
     float t_max_y;
     float t_max_z;
 
-    if (dir_n.x >= 0)
+    constexpr float EPS = 1e-9;
+    constexpr float INF = 1e+9;
+
     {
-        constexpr glm::vec3 plane_n{1, 0, 0};
-        const float plane_d = (float)pos.x + 1;
-        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_x);
-    }
-    else
-    {
-        constexpr glm::vec3 plane_n{-1, 0, 0};
-        const float plane_d = (float)pos.x;
-        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_x);
+        const float dir_x = dir_n.x;
+        if (glm::abs(dir_x) < EPS)
+        {
+            t_max_x = INF;
+        }
+        else
+        {
+            const float plane_pos = float(pos.x + int(dir_x > 0));
+            const float distance = plane_pos - position.x;
+            t_max_x = distance / dir_x;
+        }
     }
 
-    if (dir_n.y >= 0)
     {
-        constexpr glm::vec3 plane_n{0, 1, 0};
-        const float plane_d = (float)pos.y + 1;
-        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_y);
-    }
-    else
-    {
-        constexpr glm::vec3 plane_n{0, -1, 0};
-        const float plane_d = (float)pos.y;
-        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_y);
-    }
-
-    if (dir_n.z >= 0)
-    {
-        constexpr glm::vec3 plane_n{0, 0, 1};
-        const float plane_d = (float)pos.z + 1;
-        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_z);
-    }
-    else
-    {
-        constexpr glm::vec3 plane_n{0, 0, -1};
-        const float plane_d = (float)pos.z;
-        math::getDirectionPlaneIntersectionDistance(position, dir_n, plane_n, plane_d, t_max_z);
+        const float dir_y = dir_n.y;
+        if (glm::abs(dir_y) < EPS)
+        {
+            t_max_y = INF;
+        }
+        else
+        {
+            const float plane_pos = float(pos.y + int(dir_y > 0));
+            const float distance = plane_pos - position.y;
+            t_max_y = distance / dir_y;
+        }
     }
 
-    eng.visualizer->addLine(position, position + glm::vec3{0.002,0.002,0.002} + glm::vec3{1, 0, 0} * dir_n.x * t_max_x, glm::vec4{1, 0, 0, 0.7}, true, 95);
-    eng.visualizer->addLine(position, position + glm::vec3{0.003,0.002,0.002} + glm::vec3{0, 1, 0} * dir_n.y * t_max_y, glm::vec4{0, 1, 0, 0.7}, true, 95);
-    eng.visualizer->addLine(position, position + glm::vec3{0.004,0.002,0.002} + glm::vec3{0, 0, 1} * dir_n.z * t_max_z, glm::vec4{0, 0, 1, 0.7}, true, 95);
+    {
+        const float dir_z = dir_n.z;
+        if (glm::abs(dir_z) < EPS)
+        {
+            t_max_z = INF;
+        }
+        else
+        {
+            const float plane_pos = float(pos.z + int(dir_z > 0));
+            const float distance = plane_pos - position.z;
+            t_max_z = distance / dir_z;
+        }
+    }
+
+    eng.visualizer->addLine(position,
+        position + glm::vec3{0.002, 0.002, 0.002} + glm::vec3{1, 0, 0} * dir_n.x * t_max_x,
+        glm::vec4{1, 0, 0, 0.7}, true, 95);
+    eng.visualizer->addLine(position,
+        position + glm::vec3{0.003, 0.002, 0.002} + glm::vec3{0, 1, 0} * dir_n.y * t_max_y,
+        glm::vec4{0, 1, 0, 0.7}, true, 95);
+    eng.visualizer->addLine(position,
+        position + glm::vec3{0.004, 0.002, 0.002} + glm::vec3{0, 0, 1} * dir_n.z * t_max_z,
+        glm::vec4{0, 0, 1, 0.7}, true, 95);
 
     do
     {
@@ -675,9 +687,6 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
                 }
             }
         }
-        eng.visualizer->addLine(position, position + glm::vec3{0.002,0.002,0.002} + glm::vec3{1, 0, 0} * dir_n.x * t_max_x, glm::vec4{1, 0, 0, 0.7}, true, 95);
-        eng.visualizer->addLine(position, position + glm::vec3{0.003,0.002,0.002} + glm::vec3{0, 1, 0} * dir_n.y * t_max_y, glm::vec4{0, 1, 0, 0.7}, true, 95);
-        eng.visualizer->addLine(position, position + glm::vec3{0.004,0.002,0.002} + glm::vec3{0, 0, 1} * dir_n.z * t_max_z, glm::vec4{0, 0, 1, 0.7}, true, 95);
         // TODO! chunks
         valid = getBlockAtPosition(glm::ivec3(x, y, z), block);
     }
