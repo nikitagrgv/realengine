@@ -580,10 +580,6 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
     const int step_y = dir_n.y >= 0 ? 1 : -1;
     const int step_z = dir_n.z >= 0 ? 1 : -1;
 
-    constexpr float dx = 1.0f; // size of voxel
-    constexpr float dy = 1.0f;
-    constexpr float dz = 1.0f;
-
     float t_max_x;
     float t_max_y;
     float t_max_z;
@@ -642,6 +638,10 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
     eng.visualizer->addLine(position,
         position + glm::vec3{0.004, 0.002, 0.002} + glm::vec3{0, 0, 1} * dir_n.z * t_max_z,
         glm::vec4{0, 0, 1, 0.7}, true, 95);
+
+    const float dx = t_max_x;
+    const float dy = t_max_y;
+    const float dz = t_max_z;
 
     do
     {
