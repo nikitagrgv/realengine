@@ -335,11 +335,7 @@ public:
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
                 dir_n = glm::normalize(dir_n);
 
-                const float distance = 100.0f;
-
-                eng.visualizer->addLine(camera_.getPosition(), ray.begin + dir_n * distance,
-                    glm::vec4{1, 1, 1, 1}, true, 4.0f);
-
+                const float distance = 1000.0f;
                 const VoxelEngine::IntersectionResult result
                     = eng.vox->getIntersection(camera_.getPosition(), dir_n, distance);
                 if (result.isValid())
