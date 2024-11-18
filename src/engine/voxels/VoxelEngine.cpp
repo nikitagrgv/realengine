@@ -567,9 +567,6 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
 
     const glm::vec3 dir_n = glm::normalize(dir);
 
-    BlockInfo block;
-    bool valid = false;
-
     const glm::ivec3 pos = toBlockPosition(position);
 
     int x = pos.x;
@@ -633,7 +630,10 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
     const float dy = std::abs(1.0f / dir_n.y);
     const float dz = std::abs(1.0f / dir_n.z);
 
-    do
+    BlockInfo block;
+    bool valid = getBlockAtPosition(glm::ivec3(x, y, z), block);
+
+    while (valid && block.id == 0)
     {
         if (t_max_x < t_max_y)
         {
@@ -680,7 +680,6 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
         // TODO! chunks
         valid = getBlockAtPosition(glm::ivec3(x, y, z), block);
     }
-    while (valid && block.id == 0);
 
     IntersectionResult result;
     if (valid)
