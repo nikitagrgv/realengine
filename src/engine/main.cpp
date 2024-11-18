@@ -333,7 +333,6 @@ public:
             {
                 Ray ray = camera_.getNearFarRay(eng.window->getNormalizedCursorPos());
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
-                dir_n.y = 0;
                 dir_n = glm::normalize(dir_n);
 
                 const float distance = 100.0f;
