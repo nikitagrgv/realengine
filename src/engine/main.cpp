@@ -264,6 +264,27 @@ public:
 
         eng.vox->setSeed(123132);
 
+
+        const auto explode = [](const glm::ivec3 center_pos) {
+            constexpr int EXPLOSION_SIZE = 30;
+            for (int off_y = -EXPLOSION_SIZE; off_y <= EXPLOSION_SIZE; ++off_y)
+            {
+                for (int off_z = -EXPLOSION_SIZE; off_z <= EXPLOSION_SIZE; ++off_z)
+                {
+                    for (int off_x = -EXPLOSION_SIZE; off_x <= EXPLOSION_SIZE; ++off_x)
+                    {
+                        if (math::isOutsideRadius(off_x, off_y, off_z, EXPLOSION_SIZE))
+                        {
+                            continue;
+                        }
+                        const glm::ivec3 pos = center_pos + glm::ivec3{off_x, off_y, off_z};
+                        eng.vox->setBlockAtPosition(pos, BlockInfo{0});
+                    }
+                }
+            }
+        };
+
+
         while (!exit_)
         {
             Profiler::beginFrame();
@@ -335,7 +356,7 @@ public:
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
                 dir_n = glm::normalize(dir_n);
 
-                const float distance = 1000.0f;
+                const float distance = 100000.0f;
                 const VoxelEngine::IntersectionResult result
                     = eng.vox->getIntersection(camera_.getPosition(), dir_n, distance);
                 if (result.isValid())
@@ -347,25 +368,8 @@ public:
             if (eng.input->isKeyDown(Key::KEY_G))
             {
                 ScopedProfiler p("Explosion");
-
                 const glm::ivec3 center_pos = VoxelEngine::toBlockPosition(camera_.getPosition());
-
-                constexpr int EXPLOSION_SIZE = 30;
-                for (int off_y = -EXPLOSION_SIZE; off_y <= EXPLOSION_SIZE; ++off_y)
-                {
-                    for (int off_z = -EXPLOSION_SIZE; off_z <= EXPLOSION_SIZE; ++off_z)
-                    {
-                        for (int off_x = -EXPLOSION_SIZE; off_x <= EXPLOSION_SIZE; ++off_x)
-                        {
-                            if (math::isOutsideRadius(off_x, off_y, off_z, EXPLOSION_SIZE))
-                            {
-                                continue;
-                            }
-                            const glm::ivec3 pos = center_pos + glm::ivec3{off_x, off_y, off_z};
-                            eng.vox->setBlockAtPosition(pos, BlockInfo{0});
-                        }
-                    }
-                }
+                explode(center_pos);
             }
 
             ///////////////////////////////////////////////////////////
