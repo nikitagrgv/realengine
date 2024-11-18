@@ -633,6 +633,7 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
     BlockInfo block;
     bool valid = getBlockAtPosition(glm::ivec3(x, y, z), block);
 
+    float distance = 0.0f;
     while (valid && block.id == 0)
     {
         if (t_max_x < t_max_y)
@@ -641,6 +642,7 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
             {
                 x = x + step_x;
                 t_max_x = t_max_x + dx;
+                distance = t_max_x;
                 if (t_max_x > max_distance)
                 {
                     break;
@@ -650,6 +652,7 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
             {
                 z = z + step_z;
                 t_max_z = t_max_z + dz;
+                distance = t_max_z;
                 if (t_max_z > max_distance)
                 {
                     break;
@@ -662,6 +665,7 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
             {
                 y = y + step_y;
                 t_max_y = t_max_y + dy;
+                distance = t_max_y;
                 if (t_max_y > max_distance)
                 {
                     break;
@@ -671,6 +675,7 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
             {
                 z = z + step_z;
                 t_max_z = t_max_z + dz;
+                distance = t_max_z;
                 if (t_max_z > max_distance)
                 {
                     break;
@@ -688,8 +693,139 @@ VoxelEngine::IntersectionResult VoxelEngine::getIntersection(const glm::vec3 &po
         result.glob_pos = glm::ivec3(x, y, z);
         result.chunk = getChunkAtPosition(result.glob_pos);
         result.loc_pos = result.chunk->getBlockLocalPosition(result.glob_pos);
+        result.distance = distance;
     }
     return result;
+}
+
+void VoxelEngine::visitIntersection(const glm::vec3 &position, const glm::vec3 &dir,
+    const VisitIntersectionCallback &callback) const
+{
+    SCOPED_PROFILER;
+
+    const glm::vec3 dir_n = glm::normalize(dir);
+
+    const glm::ivec3 pos = toBlockPosition(position);
+
+    int x = pos.x;
+    int y = pos.y;
+    int z = pos.z;
+
+    const int step_x = dir_n.x >= 0 ? 1 : -1;
+    const int step_y = dir_n.y >= 0 ? 1 : -1;
+    const int step_z = dir_n.z >= 0 ? 1 : -1;
+
+    float t_max_x;
+    float t_max_y;
+    float t_max_z;
+
+    constexpr float EPS = 1e-9;
+    constexpr float INF = 1e+9;
+
+    {
+        const float dir_x = dir_n.x;
+        if (glm::abs(dir_x) < EPS)
+        {
+            t_max_x = INF;
+        }
+        else
+        {
+            const float plane_pos = float(pos.x + int(dir_x > 0));
+            const float distance = plane_pos - position.x;
+            t_max_x = distance / dir_x;
+        }
+    }
+
+    {
+        const float dir_y = dir_n.y;
+        if (glm::abs(dir_y) < EPS)
+        {
+            t_max_y = INF;
+        }
+        else
+        {
+            const float plane_pos = float(pos.y + int(dir_y > 0));
+            const float distance = plane_pos - position.y;
+            t_max_y = distance / dir_y;
+        }
+    }
+
+    {
+        const float dir_z = dir_n.z;
+        if (glm::abs(dir_z) < EPS)
+        {
+            t_max_z = INF;
+        }
+        else
+        {
+            const float plane_pos = float(pos.z + int(dir_z > 0));
+            const float distance = plane_pos - position.z;
+            t_max_z = distance / dir_z;
+        }
+    }
+
+    const float dx = std::abs(1.0f / dir_n.x);
+    const float dy = std::abs(1.0f / dir_n.y);
+    const float dz = std::abs(1.0f / dir_n.z);
+
+    float distance = 0.0f;
+
+    bool cont = true;
+
+    IntersectionResult result;
+    bool valid = getBlockAtPosition(glm::ivec3(x, y, z), result.block);
+    if (valid)
+    {
+        result.glob_pos = glm::ivec3(x, y, z);
+        result.chunk = getChunkAtPosition(result.glob_pos);
+        result.loc_pos = result.chunk->getBlockLocalPosition(result.glob_pos);
+        result.distance = distance;
+        callback(result, cont);
+    }
+
+    while (cont && valid)
+    {
+        if (t_max_x < t_max_y)
+        {
+            if (t_max_x < t_max_z)
+            {
+                x = x + step_x;
+                t_max_x = t_max_x + dx;
+                distance = t_max_x;
+            }
+            else
+            {
+                z = z + step_z;
+                t_max_z = t_max_z + dz;
+                distance = t_max_z;
+            }
+        }
+        else
+        {
+            if (t_max_y < t_max_z)
+            {
+                y = y + step_y;
+                t_max_y = t_max_y + dy;
+                distance = t_max_y;
+            }
+            else
+            {
+                z = z + step_z;
+                t_max_z = t_max_z + dz;
+                distance = t_max_z;
+            }
+        }
+        // TODO! chunks
+        valid = getBlockAtPosition(glm::ivec3(x, y, z), result.block);
+        if (valid)
+        {
+            result.glob_pos = glm::ivec3(x, y, z);
+            result.chunk = getChunkAtPosition(result.glob_pos);
+            result.loc_pos = result.chunk->getBlockLocalPosition(result.glob_pos);
+            result.distance = distance;
+            callback(result, cont);
+        }
+    }
 }
 
 void VoxelEngine::register_blocks()

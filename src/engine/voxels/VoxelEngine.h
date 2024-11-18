@@ -6,6 +6,7 @@
 #include "Common.h"
 #include "VertexBufferObject.h"
 #include "math/Math.h"
+#include "signals/Signals.h"
 #include "threads/Job.h"
 #include "utils/Algos.h"
 #include "utils/Hashers.h"
@@ -91,13 +92,21 @@ public:
             , glob_pos(glob_pos)
         {}
         bool isValid() const { return chunk; }
+
         Chunk *chunk{};
         BlockInfo block{};
         glm::ivec3 loc_pos{};
         glm::ivec3 glob_pos{};
+        float distance{};
     };
+
     IntersectionResult getIntersection(const glm::vec3 &position, const glm::vec3 &dir,
         float max_distance) const;
+
+    // bool &continue
+    using VisitIntersectionCallback = Callback<const IntersectionResult &, bool &>;
+    void visitIntersection(const glm::vec3 &position, const glm::vec3 &dir,
+        const VisitIntersectionCallback &callback) const;
 
 private:
     void register_blocks();

@@ -66,9 +66,9 @@ public:
         return *this;
     }
 
-    void operator()(Args... args) { call(args...); }
+    void operator()(Args... args) const { call(args...); }
 
-    void call(Args... args)
+    void call(Args... args) const
     {
         assert(isValid());
         f_->operator()(args...);
@@ -84,7 +84,7 @@ protected:
     {
     public:
         virtual ~Base() = default;
-        virtual void operator()(Args... args) = 0;
+        virtual void operator()(Args... args) const = 0;
 
         virtual std::unique_ptr<Base> clone() = 0;
     };
@@ -98,7 +98,7 @@ protected:
             assert(func);
         }
 
-        void operator()(Args... args) override { (*func_)(args...); }
+        void operator()(Args... args) const override { (*func_)(args...); }
 
         std::unique_ptr<Base> clone() override { return std::make_unique<FunctionBased>(func_); }
 
@@ -118,7 +118,7 @@ protected:
             assert(func);
         }
 
-        void operator()(Args... args) override { (obj_->*func_)(args...); }
+        void operator()(Args... args) const override { (obj_->*func_)(args...); }
 
         std::unique_ptr<Base> clone() override
         {
@@ -142,7 +142,7 @@ protected:
             assert(func);
         }
 
-        void operator()(Args... args) override { (obj_->*func_)(args...); }
+        void operator()(Args... args) const override { (obj_->*func_)(args...); }
 
         std::unique_ptr<Base> clone() override
         {
@@ -162,7 +162,7 @@ protected:
             : functor_(std::move(functor))
         {}
 
-        void operator()(Args... args) override { functor_(args...); }
+        void operator()(Args... args) const override { functor_(args...); }
 
         std::unique_ptr<Base> clone() override { return std::make_unique<FunctorBased>(functor_); }
 
@@ -196,9 +196,9 @@ class Signal : public ISignal
 public:
     ~Signal() override;
 
-    void operator()(Args... args) { call(args...); }
+    void operator()(Args... args) const { call(args...); }
 
-    void call(Args... args)
+    void call(Args... args) const
     {
         for (auto &it : context_to_callbacks_)
         {
