@@ -246,6 +246,9 @@ public:
         const glm::vec4 init_light_pos = glm::vec4(2.0f, 8.0f, 3.0f, 1.0f);
         float angle = -0.6f;
 
+        int erase_radius_intersection = 1;
+        int erase_radius_self = 30;
+
         eng.gui->getSignalOnRender().connect(ctx, [&] {
             ImGui::Begin("Parameters");
             float angle_deg = glm::degrees(angle);
@@ -258,22 +261,24 @@ public:
             {
                 eng.vox->setAmbientOcclusionEnabled(use_ao);
             }
+
+            ImGui::DragInt("Erase radius intersection", &erase_radius_intersection, 1, 1, 60);
+            ImGui::DragInt("Erase radius", &erase_radius_self, 1, 1, 60);
+
             ImGui::End();
             ImGui::ShowDemoWindow(nullptr);
         });
 
         eng.vox->setSeed(123132);
 
-
-        const auto explode = [](const glm::ivec3 center_pos) {
-            constexpr int EXPLOSION_SIZE = 30;
-            for (int off_y = -EXPLOSION_SIZE; off_y <= EXPLOSION_SIZE; ++off_y)
+        const auto explode = [](const glm::ivec3 center_pos, int size) {
+            for (int off_y = -size; off_y <= size; ++off_y)
             {
-                for (int off_z = -EXPLOSION_SIZE; off_z <= EXPLOSION_SIZE; ++off_z)
+                for (int off_z = -size; off_z <= size; ++off_z)
                 {
-                    for (int off_x = -EXPLOSION_SIZE; off_x <= EXPLOSION_SIZE; ++off_x)
+                    for (int off_x = -size; off_x <= size; ++off_x)
                     {
-                        if (math::isOutsideRadius(off_x, off_y, off_z, EXPLOSION_SIZE))
+                        if (math::isOutsideRadius(off_x, off_y, off_z, size))
                         {
                             continue;
                         }
@@ -361,7 +366,7 @@ public:
                     = eng.vox->getIntersection(camera_.getPosition(), dir_n, distance);
                 if (result.isValid())
                 {
-                    eng.vox->setBlockAtPosition(result.glob_pos, BlockInfo(0));
+                    explode(result.glob_pos, erase_radius_intersection);
                 }
             }
 
@@ -369,7 +374,7 @@ public:
             {
                 ScopedProfiler p("Explosion");
                 const glm::ivec3 center_pos = VoxelEngine::toBlockPosition(camera_.getPosition());
-                explode(center_pos);
+                explode(center_pos, erase_radius_self);
             }
 
             ///////////////////////////////////////////////////////////
