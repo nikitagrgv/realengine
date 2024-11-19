@@ -14,6 +14,8 @@ target_sources(realengine
         ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMesh.h
         ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMeshGenerator.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ChunkMeshGenerator.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChunksMap.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/ChunksMap.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Common.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VoxelEngine.h
