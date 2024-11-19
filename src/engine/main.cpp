@@ -246,7 +246,7 @@ public:
         const glm::vec4 init_light_pos = glm::vec4(2.0f, 8.0f, 3.0f, 1.0f);
         float angle = -0.6f;
 
-        int erase_radius_intersection = 1;
+        int erase_radius_intersection = 0;
         int erase_radius_self = 30;
 
         eng.gui->getSignalOnRender().connect(ctx, [&] {
@@ -262,8 +262,8 @@ public:
                 eng.vox->setAmbientOcclusionEnabled(use_ao);
             }
 
-            ImGui::DragInt("Erase radius intersection", &erase_radius_intersection, 1, 1, 60);
-            ImGui::DragInt("Erase radius", &erase_radius_self, 1, 1, 60);
+            ImGui::DragInt("Erase radius intersection", &erase_radius_intersection, 0, 1, 60);
+            ImGui::DragInt("Erase radius", &erase_radius_self, 0, 1, 60);
 
             ImGui::End();
             ImGui::ShowDemoWindow(nullptr);
@@ -361,13 +361,23 @@ public:
                 glm::vec3 dir_n = glm::normalize(ray.end - ray.begin);
                 dir_n = glm::normalize(dir_n);
 
-                const float distance = 100000.0f;
-                const VoxelEngine::IntersectionResult result
-                    = eng.vox->getIntersection(camera_.getPosition(), dir_n, distance);
-                if (result.isValid())
-                {
-                    explode(result.glob_pos, erase_radius_intersection);
-                }
+                constexpr float distance = 100000.0f;
+                eng.vox->visitIntersection(camera_.getPosition(), dir_n,
+                    [&](const VoxelEngine::IntersectionResult &r, bool &cont) {
+                        if (r.distance > distance)
+                        {
+                            cont = false;
+                        }
+                        ScopedProfiler p("EXPLODE!");
+                        explode(r.glob_pos, erase_radius_intersection);
+                    });
+                // const VoxelEngine::IntersectionResult result
+                // = eng.vox->getIntersection(camera_.getPosition(), dir_n, distance);
+
+                // if (result.isValid())
+                // {
+                //     explode(result.glob_pos, erase_radius_intersection);
+                // }
             }
 
             if (eng.input->isKeyDown(Key::KEY_G))
