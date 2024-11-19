@@ -109,10 +109,19 @@ void ChunksMap::setCenter(glm::ivec2 center)
     {
         return;
     }
+
+    assert(check_sizes());
+
+    assert(check_buf_empty());
+    std::swap(chunks_, chunks_old_);
+
+
+
+    todo
+
+
+
     center_chunk_pos_ = center;
-
-
-
 
 
 
