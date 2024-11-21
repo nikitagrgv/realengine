@@ -368,7 +368,7 @@ public:
                         {
                             cont = false;
                         }
-                        ScopedProfiler p("EXPLODE!");
+                        SCOPED_PROFILER("EXPLODE!");
                         explode(r.glob_pos, erase_radius_intersection);
                     });
                 // const VoxelEngine::IntersectionResult result
@@ -382,7 +382,7 @@ public:
 
             if (eng.input->isKeyDown(Key::KEY_G))
             {
-                ScopedProfiler p("Explosion");
+                SCOPED_PROFILER("Explosion");
                 const glm::ivec3 center_pos = VoxelEngine::toBlockPosition(camera_.getPosition());
                 explode(center_pos, erase_radius_self);
             }

@@ -116,13 +116,13 @@ bool Window::isMouseGrabbed() const
 
 void Window::bind()
 {
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
     glfwMakeContextCurrent(window_);
 }
 
 void Window::swap()
 {
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
     glfwSwapBuffers(window_);
 }
 

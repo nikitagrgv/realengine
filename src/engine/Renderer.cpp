@@ -54,7 +54,7 @@ void Renderer::clearBuffers()
 
 void Renderer::renderWorld(Camera *camera, Light *light)
 {
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
 
     assert(camera);
 
@@ -469,7 +469,7 @@ void Renderer::use_material(Material *material)
 
 void Renderer::render_environment(Camera *camera)
 {
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
 
     Shader *shader = env_.material_->getShader();
     if (shader->isDirty())

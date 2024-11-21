@@ -16,25 +16,31 @@ REALENGINE_INLINE int arr_length_from_radius(int radius)
     return width * width;
 }
 
-REALENGINE_INLINE int get_index(int radius, glm::ivec2 pos)
+REALENGINE_INLINE bool is_valid_pos(int radius, glm::ivec2 loc_pos)
 {
-    assert(std::abs(pos.x) <= radius && std::abs(pos.y) <= radius);
-    return (pos.x + radius) + (pos.y + radius) * radius;
+    return loc_pos.x >= -radius && loc_pos.x <= radius && loc_pos.y >= -radius
+        && loc_pos.y <= radius;
+}
+
+REALENGINE_INLINE int get_index(int radius, glm::ivec2 loc_pos)
+{
+    assert(is_valid_pos(radius, loc_pos));
+    return (loc_pos.x + radius) + (loc_pos.y + radius) * (radius * 2 + 1);
 }
 
 REALENGINE_INLINE UPtr<Chunk> &get_chunk_by_loc_pos(std::vector<UPtr<Chunk>> &chunks, int radius,
-    glm::ivec2 pos)
+    glm::ivec2 loc_pos)
 {
     assert(chunks.size() == arr_length_from_radius(radius));
-    const int index = get_index(radius, pos);
+    const int index = get_index(radius, loc_pos);
     return chunks[index];
 }
 
 REALENGINE_INLINE const UPtr<Chunk> &get_chunk_by_loc_pos(const std::vector<UPtr<Chunk>> &chunks,
-    int radius, glm::ivec2 pos)
+    int radius, glm::ivec2 loc_pos)
 {
     assert(chunks.size() == arr_length_from_radius(radius));
-    const int index = get_index(radius, pos);
+    const int index = get_index(radius, loc_pos);
     return chunks[index];
 }
 
@@ -93,9 +99,12 @@ void ChunksMap::setRadius(int radius)
             assert(!old);
         }
     }
-    assert(check_buf_empty());
 
     radius_ = radius;
+    chunks_old_.resize(new_len);
+
+    assert(check_buf_empty());
+    assert(check_sizes());
 }
 
 int ChunksMap::getRadius() const
@@ -161,9 +170,48 @@ glm::vec2 ChunksMap::getCenter() const
     return center_chunk_pos_;
 }
 
+bool ChunksMap::isValidPos(glm::ivec2 pos) const
+{
+    const glm::ivec2 loc_pos = pos - center_chunk_pos_;
+    return is_valid_pos(radius_, loc_pos);
+}
+
+Chunk *ChunksMap::getChunkUnsafe(glm::ivec2 pos) const
+{
+    const glm::ivec2 loc_pos = pos - center_chunk_pos_;
+    const UPtr<Chunk> &c = get_chunk_by_loc_pos(chunks_, radius_, loc_pos);
+    return c.get();
+}
+
+bool ChunksMap::hasChunkUnsafe(glm::ivec2 pos) const
+{
+    return getChunkUnsafe(pos) != nullptr;
+}
+
+void ChunksMap::setChunkUnsafe(glm::ivec2 pos, UPtr<Chunk> chunk)
+{
+    assert(!hasChunkUnsafe(pos));
+    const glm::ivec2 loc_pos = pos - center_chunk_pos_;
+    UPtr<Chunk> &c = get_chunk_by_loc_pos(chunks_, radius_, loc_pos);
+
+    chunk->setPosition(glm::ivec3{pos.x, 0, pos.y});
+    c = std::move(chunk);
+}
+
+UPtr<Chunk> ChunksMap::takeChunkUnsafe(glm::ivec2 pos)
+{
+    const glm::ivec2 loc_pos = pos - center_chunk_pos_;
+    UPtr<Chunk> &c = get_chunk_by_loc_pos(chunks_, radius_, loc_pos);
+    return std::move(c);
+}
+
 Chunk *ChunksMap::getChunk(glm::ivec2 pos) const
 {
     const glm::ivec2 loc_pos = pos - center_chunk_pos_;
+    if (!is_valid_pos(radius_, loc_pos))
+    {
+        return nullptr;
+    }
     const UPtr<Chunk> &c = get_chunk_by_loc_pos(chunks_, radius_, loc_pos);
     return c.get();
 }
@@ -173,19 +221,13 @@ bool ChunksMap::hasChunk(glm::ivec2 pos) const
     return getChunk(pos) != nullptr;
 }
 
-void ChunksMap::setChunk(glm::ivec2 pos, UPtr<Chunk> chunk)
-{
-    assert(!hasChunk(pos));
-    const glm::ivec2 loc_pos = pos - center_chunk_pos_;
-    UPtr<Chunk> &c = get_chunk_by_loc_pos(chunks_, radius_, loc_pos);
-
-    chunk->setPosition(glm::ivec3{pos.x, 0, pos.y});
-    c = std::move(chunk);
-}
-
 UPtr<Chunk> ChunksMap::takeChunk(glm::ivec2 pos)
 {
     const glm::ivec2 loc_pos = pos - center_chunk_pos_;
+    if (!is_valid_pos(radius_, loc_pos))
+    {
+        return nullptr;
+    }
     UPtr<Chunk> &c = get_chunk_by_loc_pos(chunks_, radius_, loc_pos);
     return std::move(c);
 }

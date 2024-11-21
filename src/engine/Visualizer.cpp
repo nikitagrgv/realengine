@@ -153,7 +153,7 @@ void Visualizer::update(float dt)
 
 void Visualizer::render(const glm::mat4 &viewproj)
 {
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
 
     shader.bind();
     shader.setUniformMat4("uViewProj", viewproj);

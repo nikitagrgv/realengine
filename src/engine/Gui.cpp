@@ -25,7 +25,7 @@ Gui::Gui()
 
 void Gui::render()
 {
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();

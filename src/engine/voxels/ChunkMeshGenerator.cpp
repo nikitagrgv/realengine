@@ -34,7 +34,7 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
 {
     assert(chunk.need_rebuild_mesh_ || chunk.need_rebuild_mesh_force_);
 
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
 
     mesh.clear();
 
@@ -102,7 +102,7 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
     }
 
     {
-        ScopedProfiler p("flush vbo");
+        SCOPED_PROFILER("flush vbo");
         mesh.flush();
     }
     mesh.deallocate();

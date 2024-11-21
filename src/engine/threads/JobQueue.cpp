@@ -85,7 +85,7 @@ void JobQueue::finishJobsMainThread()
 {
     assert(Threads::isMainThread());
 
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
 
     std::queue<UPtr<Job>> taken_jobs;
     {

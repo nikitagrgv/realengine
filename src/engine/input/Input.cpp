@@ -88,7 +88,7 @@ Input::~Input() {}
 
 void Input::update()
 {
-    SCOPED_PROFILER;
+    SCOPED_FUNC_PROFILER;
 
     const glm::vec2 new_pos = eng.window->getCursorPos();
     mouse_delta_ = new_pos - mouse_pos_;

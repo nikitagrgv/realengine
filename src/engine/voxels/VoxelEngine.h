@@ -3,6 +3,7 @@
 #include "Base.h"
 #include "BlockInfo.h"
 #include "Chunk.h"
+#include "ChunksMap.h"
 #include "Common.h"
 #include "VertexBufferObject.h"
 #include "math/Math.h"
@@ -13,7 +14,6 @@
 
 #include "glm/vec2.hpp"
 #include "glm/vec3.hpp"
-#include <unordered_map>
 #include <utility>
 
 struct ChunkMesh;
@@ -121,6 +121,8 @@ private:
     void generate_chunk_threadsafe(Chunk &chunk) const;
     void finish_generate_chunk(UPtr<Chunk> chunk, bool generated);
 
+    void on_chunk_unloaded_from_map(UPtr<Chunk> chunk);
+
     static REALENGINE_INLINE glm::ivec3 pos_to_chunk_pos(const glm::vec3 &pos)
     {
         const auto x = math::floorToCell(std::floor(pos.x), Chunk::CHUNK_WIDTH);
@@ -140,9 +142,7 @@ private:
     Chunk *get_chunk_at_pos(int x, int z) const;
     REALENGINE_INLINE bool has_chunk_at_pos(int x, int z) const
     {
-        const glm::ivec2 pos = glm::ivec2{x, z};
-        const auto it = chunk_index_by_pos_.find(pos);
-        return it != chunk_index_by_pos_.end();
+        return chunks_map_.hasChunk({x, z});
     }
 
     REALENGINE_INLINE bool is_enqued_for_generation(int x, int z) const
@@ -163,20 +163,19 @@ private:
     void get_neighbour_chunks_lazy(const Chunk *chunk, ExtendedNeighbourChunks &chunks,
         bool &has_all) const;
 
-    void refresh_chunk_index_by_pos();
-
 private:
+    bool first_update_{true};
+
     unsigned int seed_{0};
     struct Perlin;
     UPtr<Perlin> perlin_;
 
-    glm::ivec3 last_base_chunk_pos_{123, 525, 124}; // )
+    glm::ivec3 last_base_chunk_pos_{};
 
     std::vector<UPtr<ChunkMesh>> meshes_pool_;
     std::vector<UPtr<Chunk>> chunks_pool_;
 
-    std::vector<UPtr<Chunk>> chunks_;
-    std::unordered_map<glm::ivec2, int> chunk_index_by_pos_;
+    ChunksMap chunks_map_;
 
     struct EnqueuedChunk
     {

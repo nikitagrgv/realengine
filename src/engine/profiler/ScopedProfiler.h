@@ -31,4 +31,10 @@ public:
     static void dumpHTML(const char *path);
 };
 
-#define SCOPED_PROFILER ScopedProfiler REALENGINE_CONCATENATE(_profiler_, __LINE__)(__FUNCTION__)
+#ifdef REALENGINE_ENABLE_PROFILER
+    #define SCOPED_FUNC_PROFILER ScopedProfiler REALENGINE_CONCATENATE(_profiler_, __LINE__)(__FUNCTION__)
+    #define SCOPED_PROFILER(name) ScopedProfiler REALENGINE_CONCATENATE(_profiler_, __LINE__)(name)
+#else
+    #define SCOPED_FUNC_PROFILER
+    #define SCOPED_PROFILER(name)
+#endif
