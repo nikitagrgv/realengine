@@ -3,9 +3,19 @@ project(realengine)
 
 set(CMAKE_CXX_STANDARD 17)
 
+option(ENABLE_PROFILER "Enable profiler" ON)
+
 add_executable(realengine)
 
 target_include_directories(realengine PRIVATE engine)
+
+set(ENGINE_DEFINES "")
+
+if (ENABLE_PROFILER)
+    list(APPEND ENGINE_DEFINES "REALENGINE_ENABLE_PROFILER")
+endif()
+
+target_compile_definitions(realengine PRIVATE ${ENGINE_DEFINES})
 
 add_subdirectory(engine)
 
