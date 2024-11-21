@@ -115,16 +115,45 @@ void ChunksMap::setCenter(glm::ivec2 center)
     assert(check_buf_empty());
     std::swap(chunks_, chunks_old_);
 
+    const glm::ivec2 delta = center - center_chunk_pos_;
 
+    const glm::ivec2 radius_vec{radius_, radius_};
 
-    todo
+    glm::ivec2 old_top_right_in_new_coords = radius_vec - delta;
+    glm::ivec2 old_bottom_left_in_new_coords = -radius_vec - delta;
 
+    if (old_top_right_in_new_coords.x >= -radius_ && old_top_right_in_new_coords.y >= -radius_
+        && old_bottom_left_in_new_coords.x <= radius_ && old_bottom_left_in_new_coords.y <= radius_)
+    {
+        old_top_right_in_new_coords = glm::min(old_top_right_in_new_coords, radius_vec);
+        old_bottom_left_in_new_coords = glm::max(old_bottom_left_in_new_coords, -radius_vec);
 
+        for (int loc_y = old_bottom_left_in_new_coords.y; loc_y <= old_top_right_in_new_coords.y;
+             ++loc_y)
+        {
+            for (int loc_x = old_bottom_left_in_new_coords.x;
+                 loc_x <= old_top_right_in_new_coords.x; ++loc_x)
+            {
+                const glm::ivec2 pos{loc_x, loc_y};
+                UPtr<Chunk> &old = get_chunk_by_loc_pos(chunks_old_, radius_, pos + delta);
+                UPtr<Chunk> &neww = get_chunk_by_loc_pos(chunks_, radius_, pos);
+                neww = std::move(old);
+            }
+        }
+    }
+
+    for (UPtr<Chunk> &old : chunks_old_)
+    {
+        if (old && unload_callback_)
+        {
+            unload_callback_(std::move(old));
+        }
+        assert(!old);
+    }
+
+    assert(check_buf_empty());
 
     center_chunk_pos_ = center;
-
-
-
 }
 
 glm::vec2 ChunksMap::getCenter() const
