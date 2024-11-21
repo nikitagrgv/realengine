@@ -1185,14 +1185,16 @@ void VoxelEngine::get_neighbour_chunks_lazy(const Chunk *chunk, ExtendedNeighbou
         return;                                                                                    \
     }
 
-    GET_CHUNK(px, x + 1, z);
-    GET_CHUNK(nx, x - 1, z);
-    GET_CHUNK(pz, x, z + 1);
-    GET_CHUNK(nz, x, z - 1);
-    GET_CHUNK(px_pz, x + 1, z + 1);
-    GET_CHUNK(px_nz, x + 1, z - 1);
-    GET_CHUNK(nx_pz, x - 1, z + 1);
     GET_CHUNK(nx_nz, x - 1, z - 1);
+    GET_CHUNK(nz, x, z - 1);
+    GET_CHUNK(px_nz, x + 1, z - 1);
+
+    GET_CHUNK(nx, x - 1, z);
+    GET_CHUNK(px, x + 1, z);
+
+    GET_CHUNK(nx_pz, x - 1, z + 1);
+    GET_CHUNK(pz, x, z + 1);
+    GET_CHUNK(px_pz, x + 1, z + 1);
 
     has_all = true;
 
