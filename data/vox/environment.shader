@@ -53,6 +53,25 @@ float fbm(vec2 p) {
     return f / 0.9375;
 }
 
+mat4 rotationMatrix(vec3 axis, float angle) {
+    axis = normalize(axis);
+    float s = sin(angle);
+    float c = cos(angle);
+    float oc = 1.0 - c;
+
+    return mat4(
+    oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+    oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+    oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+    0.0,                                0.0,                                0.0,                                1.0
+    );
+}
+
+vec3 rotateVector(vec3 v, vec3 axis, float angle) {
+    mat4 m = rotationMatrix(axis, angle);
+    return (m * vec4(v, 1.0)).xyz;
+}
+
 vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     vec3 col;
     vec3 sky_base_col;
@@ -82,22 +101,24 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
         // Sky with haze
         col = sky_base_col * (1.0 - 0.8 * dir.y) * 0.9;
 
+        vec3 rdir = rotateVector(dir, light_pos, 3.1415926/4 + uTime * 0.003);
+
         // Sun
         {
             const float M = 17;
             const float P = 100;
-            float vx = clamp(1 - pow((abs(light_pos.x - dir.x)) * M, P), 0, 1);
-            float vy = clamp(1 - pow((abs(light_pos.y - dir.y)) * M, P), 0, 1);
-            float vz = clamp(1 - pow((abs(light_pos.z - dir.z)) * M, P), 0, 1);
+            float vx = clamp(1 - pow((abs(light_pos.x - rdir.x)) * M, P), 0, 1);
+            float vy = clamp(1 - pow((abs(light_pos.y - rdir.y)) * M, P), 0, 1);
+            float vz = clamp(1 - pow((abs(light_pos.z - rdir.z)) * M, P), 0, 1);
             float sundot = clamp(vx*vy*vz, 0.0, 1.0);
             col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 1.0);
         }
         {
             const float M = 12;
             const float P = 3;
-            float vx = clamp(1 - pow((abs(light_pos.x - dir.x)) * M, P), 0, 1);
-            float vy = clamp(1 - pow((abs(light_pos.y - dir.y)) * M, P), 0, 1);
-            float vz = clamp(1 - pow((abs(light_pos.z - dir.z)) * M, P), 0, 1);
+            float vx = clamp(1 - pow((abs(light_pos.x - rdir.x)) * M, P), 0, 1);
+            float vy = clamp(1 - pow((abs(light_pos.y - rdir.y)) * M, P), 0, 1);
+            float vz = clamp(1 - pow((abs(light_pos.z - rdir.z)) * M, P), 0, 1);
             float sundot = clamp(vx*vy*vz, 0.0, 1.0);
             col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 1.0);
         }
