@@ -422,39 +422,63 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
     registry_->getAtlas()->bind(atlas_index);
     shader_->setUniformInt(atlas_loc, atlas_index);
 
-    chunks_for_render_.clear();
-    for (const UPtr<Chunk> &chunk : chunks_map_.getChunks())
     {
-        if (!chunk || !chunk->mesh_)
+        SCOPED_PROFILER("Culling");
+        chunks_for_render_.clear();
+        for (const UPtr<Chunk> &chunk : chunks_map_.getChunks())
         {
-            continue;
+            if (!chunk || !chunk->mesh_)
+            {
+                continue;
+            }
+            const math::BoundSphere &bound_sphere = chunk->getBoundSphere();
+            const bool inside = bound_sphere.isInsideFrustum(camera->getFrustumPlanes());
+            if (!inside)
+            {
+                continue;
+            }
+            chunks_for_render_.push_back(chunk.get());
         }
-        const math::BoundSphere &bound_sphere = chunk->getBoundSphere();
-        const bool inside = bound_sphere.isInsideFrustum(camera->getFrustumPlanes());
-        if (!inside)
-        {
-            continue;
-        }
-        chunks_for_render_.push_back(chunk.get());
     }
 
-    // TODO# culling, sort by distance (nearest first)
-    for (const Chunk *chunk : chunks_for_render_)
     {
-        assert(chunk->mesh_);
-        chunk->mesh_->bind();
+        // TODO# dupblicated
+        const auto get_distance2 = [&](int x, int z) {
+            const int dz = last_base_chunk_pos_.z - z;
+            const int dx = last_base_chunk_pos_.x - x;
+            return dz * dz + dx * dx;
+        };
 
-        const glm::vec3 glob_position = chunk->getGlobalPositionFloat();
+        const auto get_chunk_distance2 = [&](const Chunk &chunk) {
+            const glm::ivec3 pos = chunk.getPosition();
+            return get_distance2(pos.x, pos.z);
+        };
 
-        auto value = camera->getViewProj() * glm::translate(glm::mat4{1.0f}, glob_position);
-        shader_->setUniformMat4(model_view_proj_loc, value);
+        SCOPED_PROFILER("Sort by distance");
+        Alg::sort(chunks_for_render_, [&](Chunk *lhs, Chunk *rhs) {
+            return get_chunk_distance2(*lhs) < get_chunk_distance2(*rhs);
+        });
+    }
 
-        GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->mesh_->getNumGpuVertices()));
+    {
+        SCOPED_PROFILER("Rendering");
+        for (const Chunk *chunk : chunks_for_render_)
+        {
+            assert(chunk->mesh_);
+            chunk->mesh_->bind();
 
-        const uint64_t num_vertices = chunk->mesh_->getNumGpuVertices();
-        eng.stat.addRenderedIndices(num_vertices);
-        eng.stat.addRenderedChunks(1);
-        eng.stat.addRenderedChunksVertices(num_vertices);
+            const glm::vec3 glob_position = chunk->getGlobalPositionFloat();
+
+            auto value = camera->getViewProj() * glm::translate(glm::mat4{1.0f}, glob_position);
+            shader_->setUniformMat4(model_view_proj_loc, value);
+
+            GL_CHECKED(glDrawArrays(GL_TRIANGLES, 0, chunk->mesh_->getNumGpuVertices()));
+
+            const uint64_t num_vertices = chunk->mesh_->getNumGpuVertices();
+            eng.stat.addRenderedIndices(num_vertices);
+            eng.stat.addRenderedChunks(1);
+            eng.stat.addRenderedChunksVertices(num_vertices);
+        }
     }
 }
 
