@@ -55,7 +55,7 @@ float fbm(vec2 p) {
 
 vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     vec3 col;
-    vec3 sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5), pow(1.0 - max(abs(light_pos.y), 0.0), 8));
+    vec3 sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5), pow(1.0 - max(abs(light_pos.y), 0.0), 3.5));
     float bright_multiplier = 1.0;
 
     const float darker_pos = 0.0;
