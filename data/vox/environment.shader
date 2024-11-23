@@ -27,6 +27,7 @@ uniform GlobalLight uSunLight;
 uniform GlobalLight uMoonLight;
 
 uniform vec3 uCameraPos;
+uniform float uTime;
 
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
@@ -67,8 +68,9 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
         col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 64.0);
 
         // Clouds
+        vec2 displace = vec2(0.5, 0.2) * uTime * 500.0;
         col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 *
-        smoothstep(0.5, 0.8, fbm((pos.xz + dir.xz * (250000.0 - pos.y) / dir.y) * 0.000008)));
+        smoothstep(0.5, 0.8, fbm((pos.xz + displace + dir.xz * (250000.0 - pos.y) / dir.y) * 0.000008)));
     }
 
     // Horizon/atmospheric perspective

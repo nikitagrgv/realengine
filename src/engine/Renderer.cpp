@@ -19,6 +19,7 @@
 #include "Window.h"
 #include "World.h"
 #include "profiler/ScopedProfiler.h"
+#include "time/Time.h"
 #include "voxels/VoxelEngine.h"
 
 #include <NodeMesh.h>
@@ -502,6 +503,8 @@ void Renderer::render_environment(Camera *camera)
     shader->setUniformVec3("uSunLight.color", sun_light_.color);
 
     shader->setUniformVec3("uCameraPos", camera->getPosition());
+
+    shader->setUniformFloat("uTime", eng.time->getTime());
 
     env_.vao_->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
