@@ -53,11 +53,8 @@ float fbm(vec2 p) {
 
 vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     vec3 col;
-
-    if (dir.y < 0.0) {
-
-
-    } else {
+    if (dir.y >= 0.0)
+    {
         // Sky with haze
         col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * dir.y) * 0.9;
 
