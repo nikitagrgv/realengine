@@ -82,7 +82,7 @@ void main()
     vec3 cameraOrigin = vec3(-iTime, sin(iTime) + 2.1, 0.0);
 
     vec3 ro = cameraOrigin;
-    vec3 rd = normalize(vec3(fragCoord.xy - iResolution.xy / 2.0, iResolution.y * 0.5 / -tan(verticalFieldOfView * 0.5)));
+    vec3 rd = dir;
 
     vec3 light = normalize(vec3(0.2, 0.2, -0.8));
 
