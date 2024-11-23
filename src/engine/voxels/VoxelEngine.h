@@ -42,6 +42,7 @@ public:
     void init();
 
     void update(const glm::vec3 &position);
+    void prerender(Camera *camera, GlobalLight *sun_light);
     void render(Camera *camera, GlobalLight *sun_light);
 
     BlocksRegistry *getRegistry() const { return registry_.get(); }

@@ -33,6 +33,8 @@ struct GlobalLight {
 };
 uniform GlobalLight uSunLight;
 
+uniform vec3 uAmbientColor;
+
 uniform sampler2D atlas;
 
 void main()
@@ -41,7 +43,7 @@ void main()
 
     vec4 albedo_color = texture(atlas, ioUV);
 
-    vec4 ambient = vec4(albedo_color.xyz * 0.1, albedo_color.w);
+    vec4 ambient = vec4(albedo_color.xyz * uAmbientColor, albedo_color.w);
 
     vec3 dir_to_light = -uSunLight.dir;
     float diff = float(dir_to_light.y > 0) * sqrt(abs(dir_to_light.y)) * max(dot(norm, dir_to_light), 0.0);

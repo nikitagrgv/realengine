@@ -398,7 +398,7 @@ public:
             eng.queue->finishJobsMainThread();
 
             eng.renderer->clearBuffers();
-
+            eng.renderer->prerender(&camera_, &light);
             eng.renderer->renderWorld(&camera_, &light);
             eng.visualizer->update(eng.time->getDelta());
             eng.visualizer->render(camera_.getViewProj());

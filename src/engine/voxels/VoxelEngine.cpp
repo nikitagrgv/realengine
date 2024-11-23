@@ -399,6 +399,14 @@ void VoxelEngine::update(const glm::vec3 &position)
     last_base_chunk_pos_ = base_chunk_pos;
 }
 
+void VoxelEngine::prerender(Camera *camera, GlobalLight *sun_light)
+{
+    assert(!shader_->isDirty());
+    shader_->bind();
+    // TODO# COLOR!
+    shader_->setUniformVec3("uAmbientColor", glm::vec3{0.1, 0.1, 0.1});
+}
+
 void VoxelEngine::render(Camera *camera, GlobalLight *sun_light)
 {
     SCOPED_FUNC_PROFILER;

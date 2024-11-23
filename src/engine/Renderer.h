@@ -24,6 +24,7 @@ public:
     void init();
 
     void clearBuffers();
+    void prerender(Camera *camera, Light *light);
     void renderWorld(Camera *camera, Light *light);
 
     void renderTexture2D(Texture *texture, glm::vec2 pos, glm::vec2 size);

@@ -53,6 +53,11 @@ void Renderer::clearBuffers()
     GL_CHECKED(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 }
 
+void Renderer::prerender(Camera *camera, Light *light)
+{
+    eng.vox->prerender(camera, &sun_light_);
+}
+
 void Renderer::renderWorld(Camera *camera, Light *light)
 {
     SCOPED_FUNC_PROFILER;
