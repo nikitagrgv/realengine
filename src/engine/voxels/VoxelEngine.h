@@ -199,7 +199,7 @@ private:
     std::vector<UPtr<Chunk>> canceled_chunks_;
 
     // TODO# TEMP
-    UPtr<ShaderSource> shader_source_;
+    ShaderSource *shader_source_{};
     UPtr<Shader> shader_;
 
     UPtr<BlocksRegistry> registry_;
@@ -223,7 +223,7 @@ private:
 
     struct
     {
-        UPtr<ShaderSource> shader_source_;
+        ShaderSource *shader_source_{};
         Material *material{};
     } env_;
 };

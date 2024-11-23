@@ -23,9 +23,10 @@ struct GlobalLight {
     vec3 color;
     vec3 dir;
 };
-
 uniform GlobalLight uSunLight;
 uniform GlobalLight uMoonLight;
+
+uniform vec3 uCameraPos;
 
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
@@ -37,12 +38,12 @@ float noise(vec2 x) {
     float c = hash(i + vec2(0.0, 1.0));
     float d = hash(i + vec2(1.0, 1.0));
 
-    vec2 u = f * f * (3.0 - 2.0 * f);
+    vec2 u = f * (3.0 - 2.0 * f);
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
 float fbm(vec2 p) {
-    const mat2 m2 = mat2(0.8, -0.6, 0.6, 0.8);
+    const mat2 m2 = mat2(4.8, -5.6, 5.6, 4.8);
 
     float f = 0.5000 * noise(p); p = m2 * p * 2.02;
     f += 0.2500 * noise(p); p = m2 * p * 2.03;
@@ -79,7 +80,7 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
 void main()
 {
     vec3 light_pos = normalize(-uSunLight.dir);
-    vec3 pos = vec3(1, 1, 1);
+    vec3 pos = uCameraPos;
     vec3 dir = normalize(ioTexCoords);
     vec3 col = render(light_pos, pos, dir);
 

@@ -501,6 +501,8 @@ void Renderer::render_environment(Camera *camera)
     shader->setUniformVec3("uSunLight.dir", sun_light_.dir);
     shader->setUniformVec3("uSunLight.color", sun_light_.color);
 
+    shader->setUniformVec3("uCameraPos", camera->getPosition());
+
     env_.vao_->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));

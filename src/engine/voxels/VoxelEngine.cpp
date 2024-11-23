@@ -16,6 +16,7 @@
 #include "GlobalLight.h"
 #include "MaterialManager.h"
 #include "Shader.h"
+#include "ShaderManager.h"
 #include "ShaderSource.h"
 #include "TextureManager.h"
 #include "VertexArrayObject.h"
@@ -117,20 +118,20 @@ void VoxelEngine::init()
     registry_->flush();
 
     // shader
-    shader_source_ = makeU<ShaderSource>();
+    shader_source_ = eng.shader_manager->create("vox shader");
     shader_source_->setFile("vox/vox.shader");
 
     shader_ = makeU<Shader>();
-    shader_->setSource(shader_source_.get());
+    shader_->setSource(shader_source_);
     setAmbientOcclusionEnabled(true);
     shader_->recompile();
 
     // environment
-    env_.shader_source_ = makeU<ShaderSource>();
+    env_.shader_source_ = eng.shader_manager->create("vox environment");
     env_.shader_source_->setFile("vox/environment.shader");
 
     env_.material = eng.material_manager->create("vox environment");
-    env_.material->setShaderSource(env_.shader_source_.get());
+    env_.material->setShaderSource(env_.shader_source_);
     env_.material->setTwoSided(true);
 }
 
