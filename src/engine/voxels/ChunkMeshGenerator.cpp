@@ -85,7 +85,7 @@ void ChunkMeshGenerator::rebuildMesh(const Chunk &chunk, ChunkMesh &mesh,
                 {
                     gen_face_py(min, max, descs, mesh);
                 }
-                if (is_air(0, -1, 0, descs))
+                if (y != 0 && is_air(0, -1, 0, descs)) // don't spam -y faces for 0 blocks
                 {
                     gen_face_ny(min, max, descs, mesh);
                 }
