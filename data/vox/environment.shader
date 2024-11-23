@@ -60,10 +60,10 @@ mat4 rotationMatrix(vec3 axis, float angle) {
     float oc = 1.0 - c;
 
     return mat4(
-    oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-    oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-    oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-    0.0,                                0.0,                                0.0,                                1.0
+    oc * axis.x * axis.x + c, oc * axis.x * axis.y - axis.z * s, oc * axis.z * axis.x + axis.y * s, 0.0,
+    oc * axis.x * axis.y + axis.z * s, oc * axis.y * axis.y + c, oc * axis.y * axis.z - axis.x * s, 0.0,
+    oc * axis.z * axis.x - axis.y * s, oc * axis.y * axis.z + axis.x * s, oc * axis.z * axis.z + c, 0.0,
+    0.0, 0.0, 0.0, 1.0
     );
 }
 
@@ -130,7 +130,7 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
         vec2 displace = vec2(0.5, 0.2) * uTime * 500.0;
         vec2 clouds_pos = pos.xz + displace;
         col = mix(col, vec3(1.0, 0.95, 1.0) * bright_multiplier, 0.5 * smoothstep(0.5, 0.8, fbm((clouds_pos + dir.xz * (50000.0 - pos.y) / dir.y) * 0.000008)));
-        col = mix(col, vec3(1.0, 0.95, 1.0) * bright_multiplier, 0.5 * smoothstep(0.5, 0.8, fbm((clouds_pos + dir.xz * (250000.0 - pos.y) / dir.y) * 0.000008)));
+        col = mix(col, vec3(1.0, 0.95, 1.0) * bright_multiplier, 0.5 * smoothstep(0.5, 0.8, fbm((clouds_pos + vec2(100000, 10000) + dir.xz * (250000.0 - pos.y) / dir.y) * 0.000008)));
     }
 
     // Horizon/atmospheric perspective
