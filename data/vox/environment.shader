@@ -72,6 +72,24 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
         col = sky_base_col * (1.0 - 0.8 * dir.y) * 0.9;
 
         // Sun
+        {
+            const float M = 17;
+            const float P = 100;
+            float vx = clamp(1 - pow((abs(light_pos.x - dir.x)) * M, P), 0, 1);
+            float vy = clamp(1 - pow((abs(light_pos.y - dir.y)) * M, P), 0, 1);
+            float vz = clamp(1 - pow((abs(light_pos.z - dir.z)) * M, P), 0, 1);
+            float sundot = clamp(vx*vy*vz, 0.0, 1.0);
+            col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 1.0);
+        }
+        {
+            const float M = 12;
+            const float P = 3;
+            float vx = clamp(1 - pow((abs(light_pos.x - dir.x)) * M, P), 0, 1);
+            float vy = clamp(1 - pow((abs(light_pos.y - dir.y)) * M, P), 0, 1);
+            float vz = clamp(1 - pow((abs(light_pos.z - dir.z)) * M, P), 0, 1);
+            float sundot = clamp(vx*vy*vz, 0.0, 1.0);
+            col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 1.0);
+        }
         float sundot = clamp(dot(dir, light_pos), 0.0, 1.0);
         col += 0.25 * vec3(1.0, 0.7, 0.4) * pow(sundot, 8.0);
         col += 0.75 * vec3(1.0, 0.8, 0.5) * pow(sundot, 64.0);
