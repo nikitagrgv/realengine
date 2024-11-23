@@ -31,6 +31,9 @@ public:
     void setMouseGrabbed(bool grab);
     bool isMouseGrabbed() const;
 
+    void setVsync(bool enabled);
+    bool getVsync() const;
+
     void bind();
     void swap();
 
@@ -59,6 +62,8 @@ private:
 
     Signal<int, int> signal_resized_;
     Signal<> signal_close_requested_;
+
+    bool vsync_{true};
 
     static Window *INSTANCE;
 };

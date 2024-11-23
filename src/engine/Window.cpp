@@ -34,6 +34,8 @@ Window::Window(int width, int height, const char *title)
     }
     bind();
 
+    glfwSwapInterval(vsync_ ? 1 : 0);
+
     glfwSetFramebufferSizeCallback(window_, &Window::framebuffer_size_callback);
     glfwSetKeyCallback(window_, key_callback);
     glfwSetMouseButtonCallback(window_, button_callback);
@@ -112,6 +114,21 @@ bool Window::isMouseGrabbed() const
 {
     const int mode = glfwGetInputMode(window_, GLFW_CURSOR);
     return mode == GLFW_CURSOR_DISABLED;
+}
+
+void Window::setVsync(bool enabled)
+{
+    if (enabled == vsync_)
+    {
+        return;
+    }
+    vsync_ = enabled;
+    glfwSwapInterval(vsync_ ? 1 : 0);
+}
+
+bool Window::getVsync() const
+{
+    return vsync_;
 }
 
 void Window::bind()

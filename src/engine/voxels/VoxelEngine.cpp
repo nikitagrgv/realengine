@@ -173,16 +173,19 @@ void VoxelEngine::update(const glm::vec3 &position)
     {
         SCOPED_PROFILER("Unload meshes");
 
-        // Unload meshes outside radius
-        for (const UPtr<Chunk> &chunk : chunks_map_.getChunks())
+        if (chunk_pos_changed)
         {
-            if (!chunk || !chunk->mesh_)
+            // Unload meshes outside radius
+            for (const UPtr<Chunk> &chunk : chunks_map_.getChunks())
             {
-                continue;
-            }
-            if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
-            {
-                release_mesh(std::move(chunk->mesh_));
+                if (!chunk || !chunk->mesh_)
+                {
+                    continue;
+                }
+                if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_MESH))
+                {
+                    release_mesh(std::move(chunk->mesh_));
+                }
             }
         }
     }

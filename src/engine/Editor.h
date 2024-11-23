@@ -56,6 +56,7 @@ private:
 
     void render_world();
     void render_materials();
+    void render_settings();
     void render_textures();
     void render_shaders();
     void render_meshes();
@@ -107,6 +108,9 @@ private:
     double fps_{0.0f};
     float last_update_fps_time_{0.0f};
     bool info_window_{true};
+
+    // Settings
+    bool settings_window_{true};
 
     struct Mat4WidgetData
     {

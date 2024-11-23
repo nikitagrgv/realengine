@@ -7,6 +7,7 @@
 #include "MeshManager.h"
 #include "NodeMesh.h"
 #include "Renderer.h"
+#include "Window.h"
 #include "ShaderManager.h"
 #include "TextureManager.h"
 #include "Visualizer.h"
@@ -100,6 +101,7 @@ void Editor::load_configs()
     read(materials_window_);
     read(meshes_window_);
     read(info_window_);
+    read(settings_window_);
 }
 
 void Editor::save_configs()
@@ -117,6 +119,7 @@ void Editor::save_configs()
     write(materials_window_);
     write(meshes_window_);
     write(info_window_);
+    write(settings_window_);
 
     file.flush();
     file.close();
@@ -158,6 +161,7 @@ void Editor::render()
     }
     render_world();
     render_materials();
+    render_settings();
     render_textures();
     render_shaders();
     render_meshes();
@@ -179,14 +183,16 @@ void Editor::render_main()
     ImGui::SameLine(OFFSET);
     ImGui::Checkbox("Info", &info_window_);
 
+    ImGui::Checkbox("Settings", &settings_window_);
+    ImGui::SameLine(OFFSET);
     ImGui::Checkbox("Materials", &materials_window_);
-    ImGui::SameLine(OFFSET);
+
     ImGui::Checkbox("Shader Sources", &shaders_window_);
-
-    ImGui::Checkbox("Textures", &texture_window_);
     ImGui::SameLine(OFFSET);
-    ImGui::Checkbox("Meshes", &meshes_window_);
+    ImGui::Checkbox("Textures", &texture_window_);
 
+    ImGui::Checkbox("Meshes", &meshes_window_);
+    ImGui::SameLine(OFFSET);
     ImGui::Checkbox("World", &nodes_window_);
 
     ImGui::End();
@@ -612,6 +618,32 @@ void Editor::render_materials()
         }
         ImGui::EndChild();
         ImGui::EndGroup();
+    }
+
+    ImGui::End();
+}
+
+void Editor::render_settings()
+{
+    if (!settings_window_)
+    {
+        return;
+    }
+
+    // TODO#
+    ImGui::SetNextWindowPos(ImVec2(0, 130), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(376, 546), ImGuiCond_FirstUseEver);
+
+    if (!ImGui::Begin("Settings", &settings_window_))
+    {
+        ImGui::End();
+        return;
+    }
+
+    bool vsync_enabled = eng.window->getVsync();
+    if (ImGui::Checkbox("Vsync", &vsync_enabled))
+    {
+        eng.window->setVsync(vsync_enabled);
     }
 
     ImGui::End();
