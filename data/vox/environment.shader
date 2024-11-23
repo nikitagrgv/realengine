@@ -19,6 +19,14 @@ void main()
 #fragment
 out vec4 FragColor;
 
+struct GlobalLight {
+    vec3 color;
+    vec3 dir;
+};
+
+uniform GlobalLight uSunLight;
+uniform GlobalLight uMoonLight;
+
 float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
 float noise(vec2 x) {
@@ -84,7 +92,7 @@ void main()
     vec3 ro = cameraOrigin;
     vec3 rd = dir;
 
-    vec3 light = normalize(vec3(0.2, 0.2, -0.8));
+    vec3 light = normalize(-uSunLight.dir);
 
     vec3 col = render(light, ro, rd, iResolution.y);
 

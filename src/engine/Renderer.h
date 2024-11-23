@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GlobalLight.h"
+#include "Light.h"
 #include "ShaderSource.h"
 #include "VertexArrayObject.h"
 #include "VertexBufferObject.h"
@@ -42,8 +43,8 @@ public:
     Texture *getSkyboxTexture() const { return env_.skybox_; }
     void setSkyboxTexture(Texture *skybox) { env_.skybox_ = skybox; }
 
-    GlobalLight getGlobalLight() const { return global_light_; }
-    void setGlobalLight(GlobalLight global_light) { global_light_ = global_light; }
+    GlobalLight getSunLight() const { return sun_light_; }
+    void setSunLight(GlobalLight light) { sun_light_ = light; }
 
     void setEnvironmentMaterial(Material *material);
     Material *getEnvironmentMaterial() const;
@@ -120,5 +121,5 @@ private:
         Texture *normal_default_{};
     } base_;
 
-    GlobalLight global_light_{};
+    GlobalLight sun_light_{};
 };

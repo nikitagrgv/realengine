@@ -27,10 +27,11 @@ void main()
 #fragment
 out vec4 FragColor;
 
-struct Light {
+struct GlobalLight {
+    vec3 color;
     vec3 dir;
 };
-uniform Light uLight;
+uniform GlobalLight uSunLight;
 
 uniform sampler2D atlas;
 
@@ -42,7 +43,7 @@ void main()
 
     vec4 ambient = vec4(albedo_color.xyz * 0.3, albedo_color.w);
 
-    vec3 dir_to_light = -uLight.dir;
+    vec3 dir_to_light = -uSunLight.dir;
     float diff = float(dir_to_light.y > 0) * sqrt(abs(dir_to_light.y)) * max(dot(norm, dir_to_light), 0.0);
     vec4 diffuse = 0.7 * diff * albedo_color;
 

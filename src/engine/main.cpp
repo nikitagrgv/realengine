@@ -315,9 +315,9 @@ public:
 
             const glm::vec3 light_pos = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 0, 1))
                 * init_light_pos;
-            GlobalLight global_light;
-            global_light.dir = glm::normalize(-light_pos);
-            eng.renderer->setGlobalLight(global_light);
+            GlobalLight sun_light;
+            sun_light.dir = glm::normalize(-light_pos);
+            eng.renderer->setSunLight(sun_light);
 
             math::BoundBox bb;
             bb.setCenterAndSize(camera_pos_ + light_pos, {0.1f, 0.1f, 0.1f});

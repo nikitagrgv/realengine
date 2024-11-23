@@ -398,7 +398,7 @@ void VoxelEngine::update(const glm::vec3 &position)
     last_base_chunk_pos_ = base_chunk_pos;
 }
 
-void VoxelEngine::render(Camera *camera, GlobalLight *light)
+void VoxelEngine::render(Camera *camera, GlobalLight *sun_light)
 {
     SCOPED_FUNC_PROFILER;
 
@@ -417,8 +417,8 @@ void VoxelEngine::render(Camera *camera, GlobalLight *light)
 
     // TODO# CACHE
     assert(math::isNormalized(light->dir));
-    assert(shader_->getUniformLocation("uLight.dir") != -1);
-    shader_->setUniformVec3("uLight.dir", light->dir);
+    assert(shader_->getUniformLocation("uSunLight.dir") != -1);
+    shader_->setUniformVec3("uSunLight.dir", sun_light->dir);
 
     // TODO# CACHE
     const int model_view_proj_loc = shader_->getUniformLocation("uModelViewProj");

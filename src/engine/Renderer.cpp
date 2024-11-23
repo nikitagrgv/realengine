@@ -63,7 +63,7 @@ void Renderer::renderWorld(Camera *camera, Light *light)
 
     render_environment(camera);
 
-    eng.vox->render(camera, &global_light_);
+    eng.vox->render(camera, &sun_light_);
 
     GL_CHECKED(glEnable(GL_BLEND));
     GL_CHECKED(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -492,10 +492,15 @@ void Renderer::render_environment(Camera *camera)
         shader->recompile();
     }
     shader->bind();
+
     glm::mat4 viewproj = camera->getView();
     viewproj[3] = glm::vec4{0, 0, 0, 1};
     viewproj = camera->getProj() * viewproj;
     shader->setUniformMat4("uViewProj", viewproj);
+
+    shader->setUniformVec3("uSunLight.dir", sun_light_.dir);
+    shader->setUniformVec3("uSunLight.color", sun_light_.color);
+
     env_.vao_->bind();
     GL_CHECKED(glDisable(GL_CULL_FACE));
     GL_CHECKED(glDisable(GL_DEPTH_TEST));
