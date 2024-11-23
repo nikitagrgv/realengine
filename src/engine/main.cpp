@@ -486,12 +486,12 @@ private:
 
     void process_input()
     {
-        if (eng.input->isKeyDown(Key::KEY_ESCAPE))
+        if (eng.input->isKeyPressed(Key::KEY_ESCAPE))
         {
             exit_ = true;
         }
 
-        if (eng.input->isKeyDown(Key::KEY_F5))
+        if (eng.input->isKeyPressed(Key::KEY_F5))
         {
             eng.shader_manager->refreshAll();
             edg.editor_->addPopup("Shaders recompiled");
