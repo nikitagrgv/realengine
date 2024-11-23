@@ -69,45 +69,27 @@ vec3 render(in vec3 light, in vec3 ro, in vec3 rd, in float resolution) {
     return col;
 }
 
-vec2 iMouse = vec2(0, 0);
 float iTime = 0.0;
 vec2 iResolution = vec2(1, 1);
 
 void main()
 {
     vec3 dir = normalize(ioTexCoords);
-    vec2 fragCoord = dir.xy / 2 + vec2(0.5,0.5);
+    vec2 fragCoord = dir.xy / 2 + vec2(0.5, 0.5);
 
     const float verticalFieldOfView = 50.0 * 3.1415927 / 180.0;
 
     vec3 cameraOrigin = vec3(-iTime, sin(iTime) + 2.1, 0.0);
-    float yaw = 2.0 * iMouse.x/iResolution.x;
-    float pitch = -2.0 * (iMouse.y / iResolution.y - 0.5);
-
-    if (iMouse.x == 0.0) {
-        // Shadertoy starting position
-        yaw = 1.0; pitch = 0.0;
-    }
 
     vec3 ro = cameraOrigin;
     vec3 rd = normalize(vec3(fragCoord.xy - iResolution.xy / 2.0, iResolution.y * 0.5 / -tan(verticalFieldOfView * 0.5)));
 
-    mat3 yawMatrix = mat3(cos(yaw), 0.0, -sin(yaw),
-    0.0, 1.0, 0.0,
-    sin(yaw), 0.0, cos(yaw));
-
-    mat3 pitchMatrix = mat3(1.0, 0.0, 0.0,
-    0.0, cos(pitch), sin(pitch),
-    0.0, -sin(pitch), cos(pitch));
-
-    rd = yawMatrix * pitchMatrix * rd;
-
-    vec3 light = normalize(vec3(-0.8, 0.3, -0.3));
+    vec3 light = normalize(vec3(0.2, 0.2, -0.8));
 
     vec3 col = render(light, ro, rd, iResolution.y);
 
     // Gamma encode
-    col = pow(col, vec3(0.4545));
+    col = pow(col, vec3(1.1));
 
     FragColor = vec4(col, 1.0);
 }
