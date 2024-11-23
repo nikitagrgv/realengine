@@ -53,10 +53,12 @@ float fbm(vec2 p) {
 
 vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     vec3 col;
+    vec3 sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5), pow(1.0 - max(abs(light_pos.y), 0.0), 0.4));
     if (dir.y >= 0.0)
     {
+
         // Sky with haze
-        col = vec3(0.3, 0.55, 0.8) * (1.0 - 0.8 * dir.y) * 0.9;
+        col = sky_base_col * (1.0 - 0.8 * dir.y) * 0.9;
 
         // Sun
         float sundot = clamp(dot(dir, light_pos), 0.0, 1.0);
@@ -69,7 +71,7 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     }
 
     // Horizon/atmospheric perspective
-    col = mix(col, vec3(0.7, 0.75, 0.8), pow(1.0 - max(abs(dir.y), 0.0), 8.0));
+    col = mix(col, sky_base_col, pow(1.0 - max(abs(dir.y), 0.0), 8.0));
 
     return col;
 }
