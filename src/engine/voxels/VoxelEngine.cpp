@@ -381,7 +381,8 @@ void VoxelEngine::update(const glm::vec3 &position)
         {
             continue;
         }
-        if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK))
+        assert(chunks_map_.getChunk(chunk->getPositionXZ()) == chunk.get());
+        if (is_chunk_outside_radius(*chunk, RADIUS_UNLOAD_WHOLE_CHUNK + 1))
         {
             assert(0);
         }
@@ -425,7 +426,7 @@ void VoxelEngine::render(Camera *camera, GlobalLight *sun_light)
     shader_->bind();
 
     // TODO# CACHE
-    assert(math::isNormalized(light->dir));
+    assert(math::isNormalized(sun_light->dir));
     assert(shader_->getUniformLocation("uSunLight.dir") != -1);
     shader_->setUniformVec3("uSunLight.dir", sun_light->dir);
 
