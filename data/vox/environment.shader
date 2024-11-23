@@ -55,10 +55,16 @@ float fbm(vec2 p) {
 
 vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     vec3 col;
-    vec3 sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5), pow(1.0 - max(abs(light_pos.y), 0.0), 0.4));
+    vec3 sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5), pow(1.0 - max(abs(light_pos.y), 0.0), 8));
+    float bright_multiplier = 1.0;
+    if (light_pos.y < 0.0)
+    {
+        bright_multiplier = 1 + light_pos.y;
+    }
+
+    sky_base_col *= bright_multiplier;
     if (dir.y >= 0.0)
     {
-
         // Sky with haze
         col = sky_base_col * (1.0 - 0.8 * dir.y) * 0.9;
 
@@ -70,8 +76,8 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
         // Clouds
         vec2 displace = vec2(0.5, 0.2) * uTime * 500.0;
         vec2 clouds_pos = pos.xz + displace;
-        col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 0.8, fbm((clouds_pos + dir.xz * (50000.0 - pos.y) / dir.y) * 0.000008)));
-        col = mix(col, vec3(1.0, 0.95, 1.0), 0.5 * smoothstep(0.5, 0.8, fbm((clouds_pos + dir.xz * (250000.0 - pos.y) / dir.y) * 0.000008)));
+        col = mix(col, vec3(1.0, 0.95, 1.0) * bright_multiplier, 0.5 * smoothstep(0.5, 0.8, fbm((clouds_pos + dir.xz * (50000.0 - pos.y) / dir.y) * 0.000008)));
+        col = mix(col, vec3(1.0, 0.95, 1.0) * bright_multiplier, 0.5 * smoothstep(0.5, 0.8, fbm((clouds_pos + dir.xz * (250000.0 - pos.y) / dir.y) * 0.000008)));
     }
 
     // Horizon/atmospheric perspective
