@@ -306,11 +306,6 @@ public:
 
             process_input();
 
-            if (eng.input->isKeyDown(Key::KEY_F5))
-            {
-                eng.shader_manager->refreshAll();
-            }
-
             sun_angle += eng.time->getDelta() * 0.01;
             if (sun_angle > glm::two_pi<float>())
             {
@@ -494,6 +489,12 @@ private:
         if (eng.input->isKeyDown(Key::KEY_ESCAPE))
         {
             exit_ = true;
+        }
+
+        if (eng.input->isKeyDown(Key::KEY_F5))
+        {
+            eng.shader_manager->refreshAll();
+            edg.editor_->addPopup("Shaders recompiled");
         }
 
         if (eng.input->isKeyPressed(Key::KEY_F11))
