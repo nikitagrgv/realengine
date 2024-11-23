@@ -64,14 +64,14 @@ struct ProbeInfo
 };
 
 
-enum class DumpType
+enum DumpType
 {
-    None,
-    SVG,
-    HTML,
+    DUMP_TYPE_NONE = 0,
+    DUMP_TYPE_SVG = 1 << 0,
+    DUMP_TYPE_HTML = 1 << 1,
 };
 
-DumpType REQUESTED_DUMP{DumpType::HTML};
+int REQUESTED_DUMP{DUMP_TYPE_NONE};
 std::string DUMP_PATH{};
 
 uint64_t PERF_FREQ{};
@@ -129,15 +129,15 @@ void Profiler::endFrame()
 {
     leaveFunction(get_perf_counter());
 
-    if (REQUESTED_DUMP == DumpType::SVG)
+    if (REQUESTED_DUMP & DUMP_TYPE_SVG)
     {
         dump_svg();
-        REQUESTED_DUMP = DumpType::None;
+        REQUESTED_DUMP = REQUESTED_DUMP & (~DUMP_TYPE_SVG);
     }
-    else if (REQUESTED_DUMP == DumpType::HTML)
+    else if (REQUESTED_DUMP == DUMP_TYPE_HTML)
     {
         dump_html();
-        REQUESTED_DUMP = DumpType::None;
+        REQUESTED_DUMP = REQUESTED_DUMP & (~DUMP_TYPE_HTML);
     }
 
     std::scoped_lock lock(probes_mutex); // TODO! SHIT
@@ -164,13 +164,13 @@ void Profiler::endFrame()
 void Profiler::dumpSVG(const char *path)
 {
     DUMP_PATH = path;
-    REQUESTED_DUMP = DumpType::SVG;
+    REQUESTED_DUMP = REQUESTED_DUMP | DUMP_TYPE_SVG;
 }
 
 void Profiler::dumpHTML(const char *path)
 {
     DUMP_PATH = path;
-    REQUESTED_DUMP = DumpType::HTML;
+    REQUESTED_DUMP = REQUESTED_DUMP | DUMP_TYPE_HTML ;
 }
 
 namespace
