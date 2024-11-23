@@ -244,17 +244,21 @@ public:
         light.specular_power = 1.0f;
 
         const glm::vec4 init_light_pos = glm::vec4(2.0f, 8.0f, 3.0f, 1.0f);
-        float angle = -0.6f;
+        float sun_angle = -0.6f;
 
         int erase_radius_intersection = 0;
         int erase_radius_self = 30;
 
         eng.gui->getSignalOnRender().connect(ctx, [&] {
             ImGui::Begin("Parameters");
-            float angle_deg = glm::degrees(angle);
+            float angle_deg = glm::degrees(sun_angle) + 180.0f;
+            if (angle_deg >= 360.0f)
+            {
+                angle_deg -= 360.0f;
+            }
             if (ImGui::SliderFloat("Time", &angle_deg, 0.0f, 360.0f))
             {
-                angle = glm::radians(angle_deg);
+                sun_angle = glm::radians(angle_deg - 180);
             }
             bool use_ao = eng.vox->isAmbientOcclusionEnabled();
             if (ImGui::Checkbox("Voxel Engine Ambient Occlusion", &use_ao))
@@ -307,13 +311,13 @@ public:
                 eng.shader_manager->refreshAll();
             }
 
-            angle += eng.time->getDelta() * 0.01;
-            if (angle > glm::two_pi<float>())
+            sun_angle += eng.time->getDelta() * 0.01;
+            if (sun_angle > glm::two_pi<float>())
             {
-                angle -= glm::two_pi<float>();
+                sun_angle -= glm::two_pi<float>();
             }
 
-            const glm::vec3 light_pos = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 0, 1))
+            const glm::vec3 light_pos = glm::rotate(glm::mat4(1.0f), sun_angle, glm::vec3(0, 0, 1))
                 * init_light_pos;
             GlobalLight sun_light;
             sun_light.dir = glm::normalize(-light_pos);
