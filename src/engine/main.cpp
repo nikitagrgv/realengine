@@ -289,6 +289,7 @@ public:
             }
         };
 
+        eng.renderer->setEnvironmentMaterial(eng.vox->getEnvironmentMaterial());
 
         while (!exit_)
         {

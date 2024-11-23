@@ -16,6 +16,8 @@
 #include "glm/vec3.hpp"
 #include <utility>
 
+
+class Material;
 struct ChunkMesh;
 struct GlobalLight;
 struct NeighbourChunks;
@@ -46,6 +48,8 @@ public:
 
     unsigned int getSeed() const { return seed_; }
     void setSeed(unsigned int seed);
+
+    Material *getEnvironmentMaterial();
 
     static REALENGINE_INLINE glm::ivec3 toBlockPosition(const glm::vec3 &position)
     {
@@ -216,4 +220,10 @@ private:
         std::vector<glm::ivec2> values;
         int radius = -1;
     } offsets_cache;
+
+    struct
+    {
+        UPtr<ShaderSource> shader_source_;
+        Material *material{};
+    } env_;
 };

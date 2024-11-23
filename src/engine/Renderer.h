@@ -45,6 +45,9 @@ public:
     GlobalLight getGlobalLight() const { return global_light_; }
     void setGlobalLight(GlobalLight global_light) { global_light_ = global_light; }
 
+    void setEnvironmentMaterial(Material *material);
+    Material *getEnvironmentMaterial() const;
+
 private:
     void init_environment();
     void init_sprite();

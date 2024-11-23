@@ -266,6 +266,16 @@ void Renderer::renderText2D(const char *text, glm::vec2 pos, glm::vec2 viewport_
     eng.stat.addRenderedIndices(tr.vbo_->getNumGpuVertices());
 }
 
+void Renderer::setEnvironmentMaterial(Material *material)
+{
+    env_.material_ = material;
+}
+
+Material *Renderer::getEnvironmentMaterial() const
+{
+    return env_.material_;
+}
+
 void Renderer::init_environment()
 {
     env_.shader_source_ = makeU<ShaderSource>();
@@ -470,6 +480,11 @@ void Renderer::use_material(Material *material)
 void Renderer::render_environment(Camera *camera)
 {
     SCOPED_FUNC_PROFILER;
+
+    if (!env_.material_)
+    {
+        return;
+    }
 
     Shader *shader = env_.material_->getShader();
     if (shader->isDirty())

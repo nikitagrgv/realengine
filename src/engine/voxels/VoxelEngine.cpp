@@ -14,6 +14,7 @@
 #include "Common.h"
 #include "EngineGlobals.h"
 #include "GlobalLight.h"
+#include "MaterialManager.h"
 #include "Shader.h"
 #include "ShaderSource.h"
 #include "TextureManager.h"
@@ -123,6 +124,14 @@ void VoxelEngine::init()
     shader_->setSource(shader_source_.get());
     setAmbientOcclusionEnabled(true);
     shader_->recompile();
+
+    // environment
+    env_.shader_source_ = makeU<ShaderSource>();
+    env_.shader_source_->setFile("vox/environment.shader");
+
+    env_.material = eng.material_manager->create("vox environment");
+    env_.material->setShaderSource(env_.shader_source_.get());
+    env_.material->setTwoSided(true);
 }
 
 void VoxelEngine::update(const glm::vec3 &position)
@@ -486,6 +495,11 @@ void VoxelEngine::setSeed(unsigned int seed)
 {
     seed_ = seed;
     perlin_ = makeU<Perlin>();
+}
+
+Material *VoxelEngine::getEnvironmentMaterial()
+{
+    return env_.material;
 }
 
 bool VoxelEngine::getBlockAtPosition(const glm::ivec3 &position, BlockInfo &out_block) const
