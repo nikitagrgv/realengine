@@ -58,8 +58,8 @@ vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     vec3 sky_base_col;
     if (light_pos.y >= 0)
     {
-        sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 3.5));
-        sky_base_col += mix(vec3(0, 0, 0), vec3(0.4, 0.0, 0.1) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 12));
+        sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 2));
+        sky_base_col += mix(vec3(0, 0, 0), vec3(0.4, 0.0, 0.1) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 3));
     }
     else
     {
