@@ -55,16 +55,26 @@ float fbm(vec2 p) {
 
 vec3 render(vec3 light_pos, vec3 pos, vec3 dir) {
     vec3 col;
-    vec3 sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 3.5));
-    sky_base_col += mix(vec3(0, 0, 0), vec3(0.4, 0.0, 0.1) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 12));
+    vec3 sky_base_col;
+    if (light_pos.y >= 0)
+    {
+        sky_base_col = mix(vec3(0.3, 0.55, 0.8), vec3(1.0, 0.8, 0.5) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 3.5));
+        sky_base_col += mix(vec3(0, 0, 0), vec3(0.4, 0.0, 0.1) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0),  ));
+    }
+    else
+    {
+        sky_base_col = mix(vec3(0.3, 0.55, 0.8) * 0.1, vec3(1.0, 0.8, 0.5) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 15));
+        sky_base_col += mix(vec3(0, 0, 0), vec3(0.4, 0.0, 0.1) * 0.5, pow(1.0 - max(abs(light_pos.y), 0.0), 24));
+    }
+
     float bright_multiplier = 1.0;
 
-//    const float darker_pos = 0.0;
-//    if (light_pos.y < darker_pos)
-//    {
-//        float v = (light_pos.y - darker_pos) / (1 + darker_pos);
-//        bright_multiplier = pow(1 + v, 8);
-//    }
+    const float darker_pos = 0.0;
+    if (light_pos.y < darker_pos)
+    {
+        float v = (light_pos.y - darker_pos) / (1 + darker_pos);
+        bright_multiplier = clamp(pow(1 + v, 8), 0.2, 1.0);
+    }
 
     sky_base_col *= bright_multiplier;
     if (dir.y >= 0.0)
